@@ -1,5 +1,8 @@
 package model;
 
+import java.util.List;
+import java.util.Random;
+
 public class Voter {
     private Party currentPreference;
     private double opinionStrength;
@@ -33,5 +36,32 @@ public class Voter {
 
     public void setSusceptibilityToInfluence(double susceptibilityToInfluence) {
         this.susceptibilityToInfluence = susceptibilityToInfluence;
+    }
+
+    public void updatePreference(List<Party> allParties) {
+        Random random = new Random();
+
+        if (random.nextDouble() < this.susceptibilityToInfluence) {
+            Party mostInfluentialParty = findMostInfluentialParty(allParties);
+
+            if (mostInfluentialParty != null) {
+                this.currentPreference = mostInfluentialParty;
+            }
+        }
+    }
+
+    private Party findMostInfluentialParty(List<Party> allParties) {
+        Party mostInfluential = null;
+        double highestInfluenceScore = -1;
+        Random random = new Random();
+
+        for (Party party : allParties) {
+            double influenceScore = party.getCampaignBudget() * random.nextDouble();
+            if (influenceScore > highestInfluenceScore) {
+                highestInfluenceScore = influenceScore;
+                mostInfluential = party;
+            }
+        }
+        return mostInfluential;
     }
 }

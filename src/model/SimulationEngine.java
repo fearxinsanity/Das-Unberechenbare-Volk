@@ -30,10 +30,10 @@ public class SimulationEngine {
 
         for(int step = 0; step < numberOfSteps; step++) {
             for (Voter voter : voters) {
-                if (random.nextDouble() < 0.05) { // 5% chance to reconsider preference
-                    Party newPreference = parties.get(random.nextInt(parties.size()));
-                    voter.setCurrentPreference(newPreference);
+                voter.updatePreference(parties);
                 }
+            for (Party party : parties) {
+                party.setSupporter(0);
             }
 
             for(Voter voter : voters) {
