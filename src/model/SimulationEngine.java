@@ -8,15 +8,26 @@ public class SimulationEngine {
     private List<Party> parties;
     private List<Voter> voters;
 
-    public SimulationEngine(int numberOfVoters, int numberOfParties) {
+    public SimulationEngine(int numberOfVoters, int numberOfParties, double totalCampaignBudget) {
         this.parties = new ArrayList<>(numberOfParties);
         this.voters = new ArrayList<>(numberOfVoters);
 
+        Random rand = new Random();
+        double remainingBudget = totalCampaignBudget;
+        double totalRandomWeight = 0;
+        List<Double> randomWeight = new ArrayList<>();
+
         for (int i = 0; i < numberOfParties; i++) {
-            parties.add(new Party("Party " + (i + 1), "Ideology " + (i + 1), 100000.0, 0));
+            double weight = rand.nextDouble();
+            randomWeight.add(weight);
+            totalRandomWeight += weight;
         }
 
-        Random rand = new Random();
+        for (int i = 0; i < numberOfParties; i++) {
+            double budget = (randomWeight.get(i) / totalRandomWeight) * totalCampaignBudget;
+            parties.add(new Party("Party " + (i + 1), "Ideology " + (i + 1), budget, 0));
+        }
+
         for (int i = 0; i < numberOfVoters; i++) {
             Party initialPreference = parties.get(rand.nextInt(parties.size()));
             double opinionStrength = rand.nextDouble();
