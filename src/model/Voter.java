@@ -41,27 +41,35 @@ public class Voter {
     public void updatePreference(List<Party> allParties) {
         Random random = new Random();
 
-        if (random.nextDouble() < this.susceptibilityToInfluence) {
-            Party mostInfluentialParty = findMostInfluentialParty(allParties);
+        double reconsiderationChance = 1.0 - this.opinionStrength;
+        if (random.nextDouble() < reconsiderationChance) {
+            Party potentialNewPreference = findPotentialNewPreference(allParties);
 
-            if (mostInfluentialParty != null) {
-                this.currentPreference = mostInfluentialParty;
+            if (potentialNewPreference != null && isMoreInfluential(potentialNewPreference, this.currentPreference)) {
+                this.currentPreference = potentialNewPreference;
+                this.opinionStrength = this.opinionStrength * 0.9;
             }
         }
     }
 
-    private Party findMostInfluentialParty(List<Party> allParties) {
-        Party mostInfluential = null;
-        double highestInfluenceScore = -1;
-        Random random = new Random();
+    private Party findPotentialNewPreference(List<Party> allParties) {
+        double totalBudget = allParties.stream().mapToDouble(Party::getCampaignBudget).sum();
+        double randomValue = new Random().nextDouble() * totalBudget;
 
         for (Party party : allParties) {
-            double influenceScore = party.getCampaignBudget() * random.nextDouble();
-            if (influenceScore > highestInfluenceScore) {
-                highestInfluenceScore = influenceScore;
-                mostInfluential = party;
+            randomValue -= party.getCampaignBudget();
+            if (randomValue <= 0) {
+                return party;
             }
         }
-        return mostInfluential;
+        return null;
+    }
+
+    private boolean isMoreInfluential(Party potentialNewParty, Party currentParty) {
+        Random random = new Random();
+        double currentInfluence = currentParty.getCampaignBudget() * random.nextDouble();
+        double potentialInfluence = potentialNewParty.getCampaignBudget() * random.nextDouble();
+
+        return potentialInfluence > currentInfluence * (1.0 - this.susceptibilityToInfluence);
     }
 }

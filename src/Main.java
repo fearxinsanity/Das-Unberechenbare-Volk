@@ -8,7 +8,7 @@ public class Main {
         int numberOfVoters = 10000;
         int numberOfSteps = 50;
 
-        SimulationEngine engine = new SimulationEngine(numberOfParties, numberOfVoters);
+        SimulationEngine engine = new SimulationEngine(numberOfVoters, numberOfParties);
 
         System.out.println("Starting the election simulation...");
         engine.runSimulation(numberOfSteps);
