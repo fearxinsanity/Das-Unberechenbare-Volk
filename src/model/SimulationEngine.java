@@ -18,14 +18,30 @@ public class SimulationEngine {
 
         Random rand = new Random();
         for (int i = 0; i < numberOfVoters; i++) {
-            Party initialPreference = parties.get(rand.nextInt(numberOfParties));
+            Party initialPreference = parties.get(rand.nextInt(parties.size()));
             double opinionStrength = rand.nextDouble();
             double susceptibilityToInfluence = rand.nextDouble();
             voters.add(new Voter(initialPreference, opinionStrength, susceptibilityToInfluence));
         }
     }
 
-    public void runSimulation() {
+    public void runSimulation(int numberOfSteps) {
+        Random random = new Random();
 
+        for(int step = 0; step < numberOfSteps; step++) {
+            for (Voter voter : voters) {
+                if (random.nextDouble() < 0.05) { // 5% chance to reconsider preference
+                    Party newPreference = parties.get(random.nextInt(parties.size()));
+                    voter.setCurrentPreference(newPreference);
+                }
+            }
+
+            for(Voter voter : voters) {
+                voter.getCurrentPreference().setSupporter(voter.getCurrentPreference().getSupporter() + 1);
+            }
+        }
+    }
+    public List<Party> getParties() {
+        return parties;
     }
 }

@@ -44,4 +44,9 @@ public class Party {
     public void setSupporter(int supporter) {
         this.supporter = supporter;
     }
+
+    @Override
+    public String toString() {
+        return partyName + ": " + supporter + " supporters";
+    }
 }
