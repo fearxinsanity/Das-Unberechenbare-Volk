@@ -49,7 +49,7 @@ Das Projekt basiert auf einer Model-View-Controller (MVC)-Architektur.
 
 - **Controller**: Verbindet die View und das Model. Er verarbeitet die Benutzereingaben aus dem JavaFX-Frontend und kommuniziert mit der Java-Simulations-Engine, um die Simulationsdaten zu erhalten und das Frontend zu aktualisieren.
 
-Eine detaillierte Beschreibung der Architektur, des Datenflusses und der Kernkomponenten finden Sie in unserem [ARCHITECTURE.md](https://github.com/fearxinsanity/Das-Unberechenbare-Volk/blob/main/ARCHITECTURE.md) Dokument
+Eine detaillierte Beschreibung der Architektur, des Datenflusses und der Kernkomponenten finden Sie in unserem [ARCHITECTURE.md](https://github.com/fearxinsanity/Das-Unberechenbare-Volk/blob/main/Documentation/ARCHITECTURE.md) Dokument
 
 ## Zeitplan
 Der Zeitplan ist ambitioniert, aber realistisch, um die definierten Kernfunktionen umzusetzen.
