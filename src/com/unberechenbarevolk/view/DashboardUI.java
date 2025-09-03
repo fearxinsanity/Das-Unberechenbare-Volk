@@ -15,7 +15,11 @@ public class DashboardUI extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("Dashboard.fxml"));
+        java.net.URL fxmlResource = getClass().getResource("Dashboard.fxml");
+        if (fxmlResource == null) {
+            throw new IOException("FXML resource 'Dashboard.fxml' not found. Please check the resource path.");
+        }
+        FXMLLoader loader = new FXMLLoader(fxmlResource);
         Parent root = loader.load();
 
         primaryStage.setTitle("Das unberechenbare Volk");
