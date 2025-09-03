@@ -4,22 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1a6ee855-f78c-40fb-8820-35f090b3ec2a" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Das-Unberechenbare-Volk.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/unberechenbarevolk/Main.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/unberechenbarevolk/controller/SimulationController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/unberechenbarevolk/model/Voter.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/unberechenbarevolk/view/Dashboard.fxml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/com/unberechenbarevolk/view/DashboardUI.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/module-info.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Das Unberechenbare Volk.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+    <list default="true" id="1a6ee855-f78c-40fb-8820-35f090b3ec2a" name="Changes" comment="Initialize JavaFX project structure with main application files and configuration">
+      <change beforePath="$PROJECT_DIR$/src/com/unberechenbarevolk/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/unberechenbarevolk/Main.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -59,6 +45,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Application.DashboardUI.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
@@ -97,11 +84,32 @@
       <option name="presentableId" value="Default" />
       <updated>1756924882322</updated>
       <workItem from="1756924883863" duration="40000" />
-      <workItem from="1756924937227" duration="361000" />
+      <workItem from="1756924937227" duration="564000" />
     </task>
+    <task id="LOCAL-00001" summary="Initialize JavaFX project structure with main application files and configuration">
+      <option name="closed" value="true" />
+      <created>1756925358601</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1756925358601</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Initialize JavaFX project structure with main application files and configuration">
+      <option name="closed" value="true" />
+      <created>1756925366695</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1756925366695</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Initialize JavaFX project structure with main application files and configuration" />
+    <option name="LAST_COMMIT_MESSAGE" value="Initialize JavaFX project structure with main application files and configuration" />
   </component>
 </project>
