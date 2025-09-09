@@ -38,14 +38,19 @@ Das GUI-Konzept orientiert sich an den Prinzipien des **ISO 9241-110 Standards**
 
 Die Simulationsgeschwindigkeit ist in drei Stufen wählbar, was die Echtzeit-Visualisierung der Ergebnisse ermöglicht.
 
-## 6. Qualitätssicherung und Testplanung
-Die Qualitätssicherung umfasst die Überprüfung der funktionalen und nichtfunktionalen Anforderungen.
+## 6. Qualitätssicherung (QA)
 
-**Funktionalität**: Es werden Tests durchgeführt, um die korrekte Verarbeitung der Eingabeparameter und die Genauigkeit der Verteilungsfunktionen zu gewährleisten.
+Die Qualitätssicherung stellt die Stabilität, Performance und Datenintegrität der Anwendung sicher. Der Testplan ist darauf ausgelegt, die Simulation mit **bis zu 2.000.000 Wählern** unter voller Last zu überprüfen.
 
-**Performance**: Die Anwendung muss stabil mit bis zu 1.000.000 - 2.000.000 Wählern laufen. Performance-Tests stellen sicher, dass die Benutzeroberfläche auch unter Last reaktionsfähig bleibt.
+Die folgenden Maßnahmen sind wesentliche Bestandteile der Qualitätssicherung:
 
-**Dokumentation**: Die Testprotokolle werden als Anhang der Projektdokumentation beigefügt.
+**Belastungstests**: Gezielte Stresstests werden durchgeführt, um die Reaktionsfähigkeit und den Ressourcenverbrauch (CPU, RAM) unter maximaler Wähleranzahl zu messen.
+
+**Performance-Optimierung**: Es wird sichergestellt, dass die Implementierung der ``SimulationEngine`` und der Datenstrukturen (``Voter``, ``Party``) äußerst effizient ist, um den Speicherverbrauch pro Objekt zu minimieren und eine reibungslose Leistung zu gewährleisten.
+
+**Erweiterte Validierung der Zufallsverteilungen**: Die Korrektheit der drei Zufallsverteilungen (Normal-, Gleich-, Exponentialverteilung) wird statistisch überprüft, um sicherzustellen, dass die Simulation ein realistisches und unberechenbares Verhalten aufweist.
+
+**Stabilität der Benutzeroberfläche**: Die Kommunikation zwischen ``Controller`` und ``View`` wird optimiert, um Ruckler oder Verzögerungen bei der Echtzeit-Aktualisierung der dynamischen Diagramme und des Ereignis-Feeds zu verhindern.
 
 ## 7. Dokumentation
 Die Projektdokumentation wird nach IHK-Standard erstellt und hat einen Mindestumfang von 6 Seiten ohne Anhang. Sie wird alle Phasen des gewählten Vorgehensmodells abbilden und die Auswahl der Technologien und des Designs detailliert begründen. Ein separates, digitales Benutzerhandbuch wird ebenfalls bereitgestellt.
