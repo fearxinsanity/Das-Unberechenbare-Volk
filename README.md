@@ -43,7 +43,7 @@ Die Qualitätssicherung umfasst die Überprüfung der funktionalen und nichtfunk
 
 **Funktionalität**: Es werden Tests durchgeführt, um die korrekte Verarbeitung der Eingabeparameter und die Genauigkeit der Verteilungsfunktionen zu gewährleisten.
 
-**Performance**: Die Anwendung muss stabil mit bis zu 100.000 Wählern laufen. Performance-Tests stellen sicher, dass die Benutzeroberfläche auch unter Last reaktionsfähig bleibt.
+**Performance**: Die Anwendung muss stabil mit bis zu 1.000.000 - 2.000.000 Wählern laufen. Performance-Tests stellen sicher, dass die Benutzeroberfläche auch unter Last reaktionsfähig bleibt.
 
 **Dokumentation**: Die Testprotokolle werden als Anhang der Projektdokumentation beigefügt.
 
