@@ -1,4 +1,4 @@
- <span style="color:red"> **Status: In Bearbeitung** </span>
+**Status: In Bearbeitung**
 
 ## 📝 Dokumentation
 - Ausformulierung der Abschnitte Einleitung und Anforderungen an die Anwendung in der Projektdokumentation.
