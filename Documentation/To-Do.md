@@ -17,7 +17,7 @@
 
 - Entwurf der Algorithmen für die SimulationEngine und die Simulationsschleife.
 
-##✅ Qualitätssicherung
+## ✅ Qualitätssicherung
 - Erstellung eines detaillierten Testplans für die Belastungstests, inklusive der zu messenden Metriken.
 
 - Identifizierung und Dokumentation von potenziellen Edge-Cases und Fehlerzuständen.
