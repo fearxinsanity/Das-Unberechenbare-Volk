@@ -18,6 +18,8 @@ Das gesamte System basiert auf einer klaren Model-View-Controller (MVC)-Architek
 
 Als Technologie-Stack kommt **Java SE** zum Einsatz. Die Abhängigkeiten für JavaFX werden über **Maven** verwaltet. Das Projekt ist für die Ausführung mit **JDK 21** konfiguriert.
 
+[Architektur Dokumentation](https://github.com/fearxinsanity/Das-Unberechenbare-Volk/blob/main/Documentation/ARCHITECTURE.md)
+
 ## 4. Simulation und Zufallselemente
 Die Simulation ist zeitabhängig und läuft in diskreten Zeitschritten ab. Sie muss die Generierung von mindestens drei Zufallswerten mit verschiedenen Verteilungsformen (Normal-, Gleich-, Exponentialverteilung) implementieren.
 
