@@ -5,7 +5,7 @@ Dieses Dokument beschreibt die Konzeption und den technischen Entwurf des Projek
 Kernziele sind die Darstellung der Interaktionen zwischen Wählern, Parteien und äußeren Einflüssen sowie die Bereitstellung einer intuitiven Benutzeroberfläche im Stil von Strategiespielen.
 
 ## 2. Vorgehensmodell und Zeitplan
-Aufgrund des festen Abgabetermins am 06.02.2025 wird ein lineares Wasserfall-Modell für die Projektdurchführung gewählt. Dieses Modell ermöglicht eine strukturierte, phasenbasierte Entwicklung, die eine genaue Dokumentation jeder Phase gewährleistet. Der Zeitplan ist in diskrete Phasen unterteilt, die sich auf die Implementierung, das Testen und die Dokumentation erstrecken.
+Aufgrund des festen Abgabetermins am 06.02.2026 wird ein lineares Wasserfall-Modell für die Projektdurchführung gewählt. Dieses Modell ermöglicht eine strukturierte, phasenbasierte Entwicklung, die eine genaue Dokumentation jeder Phase gewährleistet. Der Zeitplan ist in diskrete Phasen unterteilt, die sich auf die Implementierung, das Testen und die Dokumentation erstrecken.
 
 ## 3. Systemarchitektur und Technologie-Stack
 Das gesamte System basiert auf einer klaren Model-View-Controller (MVC)-Architektur. Diese Struktur trennt die Anwendungslogik von der Benutzeroberfläche und erhöht so die Wartbarkeit und Skalierbarkeit des Systems.
