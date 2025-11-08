@@ -16,7 +16,7 @@ Das gesamte System basiert auf einer klaren Model-View-Controller (MVC)-Architek
 
 **Controller**: Die Klasse ``SimulationController`` dient als Vermittler, verarbeitet Nutzereingaben aus der View und aktualisiert das Model und die View.
 
-Als Technologie-Stack kommt **Java SE** zum Einsatz. Die Abhängigkeiten für JavaFX werden über **Maven** verwaltet. Das Projekt ist für die Ausführung mit **JDK 21** konfiguriert.
+Als Technologie-Stack kommt **Java SE** zum Einsatz. Die Abhängigkeiten für JavaFX werden über **Maven** verwaltet. Das Projekt ist für die Ausführung mit **JDK 25** konfiguriert.
 
 [Architektur Dokumentation](https://github.com/fearxinsanity/Das-Unberechenbare-Volk/blob/main/Documentation/ARCHITECTURE.md)
 
