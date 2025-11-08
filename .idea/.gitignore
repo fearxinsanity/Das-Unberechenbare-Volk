@@ -1,0 +1,38 @@
+# === Java & Maven ===
+
+# Maven build output directory
+/target/
+
+# Java compiled class files
+*.class
+
+# Java package files
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Log files
+*.log
+
+# Java virtual machine crash logs
+hs_err_pid*
+replay_pid*
+
+# === IntelliJ IDEA ===
+
+# IDE project metadata
+.idea/
+
+# IntelliJ module files
+*.iml
+
+# === Operating System Files ===
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
