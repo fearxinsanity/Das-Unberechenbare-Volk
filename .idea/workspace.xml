@@ -4,10 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="workspace.xml changed">
+    <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="Implement EXE creation with Maven">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,7 +63,7 @@
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "implementing-creation-of-EXE",
+    "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "D:/Programme/GitHub/Das-Unberechenbare-Volk",
@@ -167,7 +165,7 @@
       <updated>1762607926395</updated>
       <workItem from="1762607927701" duration="1665000" />
       <workItem from="1762610152768" duration="95000" />
-      <workItem from="1762624203521" duration="4274000" />
+      <workItem from="1762624203521" duration="4672000" />
     </task>
     <task id="LOCAL-00001" summary="workspace.xml changed">
       <option name="closed" value="true" />
@@ -177,7 +175,15 @@
       <option name="project" value="LOCAL" />
       <updated>1762610208266</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Implement EXE creation with Maven">
+      <option name="closed" value="true" />
+      <created>1762628650449</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1762628650449</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -185,6 +191,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="workspace.xml changed" />
-    <option name="LAST_COMMIT_MESSAGE" value="workspace.xml changed" />
+    <MESSAGE value="Implement EXE creation with Maven" />
+    <option name="LAST_COMMIT_MESSAGE" value="Implement EXE creation with Maven" />
   </component>
 </project>
