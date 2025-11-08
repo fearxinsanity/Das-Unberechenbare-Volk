@@ -4,7 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="Update comments in pom.xml and workspace.xml for clarity" />
+    <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="Refactor package structure and update main class reference in pom.xml">
+      <change afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/engine/SimulationEngine.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/engine/SimulationParameters.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/entities/Party.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/entities/Voter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -44,6 +50,9 @@
   &quot;associatedIndex&quot;: 0
 }</component>
   <component name="ProjectId" id="35CJ4DKXHtIHjKmEXuAyfJNLhMP" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -61,7 +70,7 @@
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "implementing-model",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "D:/Programme/GitHub/Das-Unberechenbare-Volk",
@@ -163,7 +172,7 @@
       <updated>1762607926395</updated>
       <workItem from="1762607927701" duration="1665000" />
       <workItem from="1762610152768" duration="95000" />
-      <workItem from="1762624203521" duration="5515000" />
+      <workItem from="1762624203521" duration="8244000" />
     </task>
     <task id="LOCAL-00001" summary="workspace.xml changed">
       <option name="closed" value="true" />
@@ -197,7 +206,15 @@
       <option name="project" value="LOCAL" />
       <updated>1762629065431</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Refactor package structure and update main class reference in pom.xml">
+      <option name="closed" value="true" />
+      <created>1762630010857</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1762630010857</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -208,6 +225,7 @@
     <MESSAGE value="Implement EXE creation with Maven" />
     <MESSAGE value="Update workspace.xml to reflect EXE creation implementation" />
     <MESSAGE value="Update comments in pom.xml and workspace.xml for clarity" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update comments in pom.xml and workspace.xml for clarity" />
+    <MESSAGE value="Refactor package structure and update main class reference in pom.xml" />
+    <option name="LAST_COMMIT_MESSAGE" value="Refactor package structure and update main class reference in pom.xml" />
   </component>
 </project>
