@@ -44,7 +44,7 @@
                 </configuration>
             </plugin>
 
-            <!-- JavaFX Maven Plugin für normale Ausführung -->
+            <!-- JavaFX Maven Plugin for normal execution -->
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
@@ -57,12 +57,11 @@
     </build>
 
     <profiles>
-        <!-- Profil für portable EXE mit jpackage -->
+        <!-- Profil for portable EXE with jpackage -->
         <profile>
             <id>portable</id>
             <build>
                 <plugins>
-                    <!-- Zuerst: Dependencies in lib-Ordner kopieren -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-dependency-plugin</artifactId>
@@ -81,7 +80,6 @@
                         </executions>
                     </plugin>
 
-                    <!-- JAR Plugin: Manifest mit Classpath -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-jar-plugin</artifactId>
