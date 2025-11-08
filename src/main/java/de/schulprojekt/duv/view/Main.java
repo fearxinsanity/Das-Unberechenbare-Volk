@@ -1,4 +1,4 @@
-package de.schulprojekt.duv.gui;
+package de.schulprojekt.duv.view;
 
 import javafx.application.Application;
 import javafx.scene.Scene;

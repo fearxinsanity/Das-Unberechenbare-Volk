@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="Update workspace.xml to reflect EXE creation implementation">
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-    </list>
+    <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="Update comments in pom.xml and workspace.xml for clarity" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -165,7 +163,7 @@
       <updated>1762607926395</updated>
       <workItem from="1762607927701" duration="1665000" />
       <workItem from="1762610152768" duration="95000" />
-      <workItem from="1762624203521" duration="4819000" />
+      <workItem from="1762624203521" duration="5515000" />
     </task>
     <task id="LOCAL-00001" summary="workspace.xml changed">
       <option name="closed" value="true" />
@@ -191,7 +189,15 @@
       <option name="project" value="LOCAL" />
       <updated>1762628916118</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Update comments in pom.xml and workspace.xml for clarity">
+      <option name="closed" value="true" />
+      <created>1762629065431</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1762629065431</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -201,6 +207,7 @@
     <MESSAGE value="workspace.xml changed" />
     <MESSAGE value="Implement EXE creation with Maven" />
     <MESSAGE value="Update workspace.xml to reflect EXE creation implementation" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update workspace.xml to reflect EXE creation implementation" />
+    <MESSAGE value="Update comments in pom.xml and workspace.xml for clarity" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update comments in pom.xml and workspace.xml for clarity" />
   </component>
 </project>

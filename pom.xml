@@ -15,7 +15,7 @@
         <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <javafx.version>25</javafx.version>
-        <main.class>de.schulprojekt.duv.gui.Main</main.class>
+        <main.class>de.schulprojekt.duv.view.Main</main.class>
         <app.version>1.0.0</app.version>
     </properties>
 
