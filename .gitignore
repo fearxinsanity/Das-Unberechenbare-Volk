@@ -1,14 +1,26 @@
-# === Java & Maven ===
+# === Maven ===
 
-# Maven build output directory
-/target/
+# Build output
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
 
-# Java compiled class files
+# === Java ===
+
+# Compiled files
 *.class
 
-# Java package files
+# Package files
 *.jar
 *.war
+*.nar
 *.ear
 *.zip
 *.tar.gz
@@ -17,22 +29,97 @@
 # Log files
 *.log
 
-# Java virtual machine crash logs
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# JVM crash logs
 hs_err_pid*
 replay_pid*
 
 # === IntelliJ IDEA ===
 
-# IDE project metadata
 .idea/
-
-# IntelliJ module files
 *.iml
+*.iws
+*.ipr
+out/
 
-# === Operating System Files ===
+# IntelliJ IDEA specific
+.idea/workspace.xml
+# .idea/tasks.xml
+# .idea/dictionaries
+# .idea/vcs.xml
+# .idea/jsLibraryMappings.xml
+
+# === Eclipse ===
+
+.classpath
+.project
+.settings/
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.loadpath
+.recommenders
+.externalToolBuilders/
+.apt_generated/
+.factorypath
+
+# === Operating System ===
 
 # macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
 
 # Windows
 Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# === Environment & Secrets ===
+
+.env
+.env.local
+.env.*.local
+*.env
+secrets.properties
+application-local.properties
+application-dev.properties
+
+# === Misc ===
+
+# Backup files
+*.orig
+*.rej
+
+# Temporary files
+*.tmp
+*.temp
