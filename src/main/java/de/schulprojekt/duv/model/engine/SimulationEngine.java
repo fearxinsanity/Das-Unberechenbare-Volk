@@ -161,8 +161,6 @@ public class SimulationEngine {
      * @return The calculated "wait time" for the next event.
      */
     private double getExponentialDistributed(double lambda) {
-        // Implemented via the inversion method.
-        // We add Double.MIN_VALUE to prevent log(0).
         double u = randomGenerator.nextDouble() + Double.MIN_VALUE;
         return -Math.log(u) / lambda;
     }

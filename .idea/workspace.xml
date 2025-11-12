@@ -4,12 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="Refactor package structure and update main class reference in pom.xml">
-      <change afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/engine/SimulationEngine.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/engine/SimulationParameters.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/entities/Party.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/entities/Voter.java" afterDir="false" />
+    <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="Add Party, Voter, SimulationEngine, and SimulationParameters classes for election simulation">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/engine/SimulationEngine.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/engine/SimulationEngine.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -57,35 +54,35 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "Application.Main.executor": "Run",
-    "Maven.Build EXE.executor": "Run",
-    "Maven.Das-Unberechenbare-Volk [install].executor": "Run",
-    "Maven.Das-Unberechenbare-Volk [package].executor": "Run",
-    "Maven.Package & Install.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "implementing-model",
-    "ignore.virus.scanning.warn.message": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/Programme/GitHub/Das-Unberechenbare-Volk",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Project",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "preferences.intentionPowerPack",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;Application.Main.executor&quot;: &quot;Run&quot;,
+    &quot;Maven.Build EXE.executor&quot;: &quot;Run&quot;,
+    &quot;Maven.Das-Unberechenbare-Volk [install].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.Das-Unberechenbare-Volk [package].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.Package &amp; Install.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;implementing-model&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/Programme/GitHub/Das-Unberechenbare-Volk&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.intentionPowerPack&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected="Maven.Build EXE">
     <configuration name="Build EXE" type="MavenRunConfiguration" factoryName="Maven">
       <MavenSettings>
@@ -172,7 +169,8 @@
       <updated>1762607926395</updated>
       <workItem from="1762607927701" duration="1665000" />
       <workItem from="1762610152768" duration="95000" />
-      <workItem from="1762624203521" duration="8244000" />
+      <workItem from="1762624203521" duration="8285000" />
+      <workItem from="1762969109491" duration="323000" />
     </task>
     <task id="LOCAL-00001" summary="workspace.xml changed">
       <option name="closed" value="true" />
@@ -214,7 +212,15 @@
       <option name="project" value="LOCAL" />
       <updated>1762630010857</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Add Party, Voter, SimulationEngine, and SimulationParameters classes for election simulation">
+      <option name="closed" value="true" />
+      <created>1762632509751</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1762632509751</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -226,6 +232,7 @@
     <MESSAGE value="Update workspace.xml to reflect EXE creation implementation" />
     <MESSAGE value="Update comments in pom.xml and workspace.xml for clarity" />
     <MESSAGE value="Refactor package structure and update main class reference in pom.xml" />
-    <option name="LAST_COMMIT_MESSAGE" value="Refactor package structure and update main class reference in pom.xml" />
+    <MESSAGE value="Add Party, Voter, SimulationEngine, and SimulationParameters classes for election simulation" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add Party, Voter, SimulationEngine, and SimulationParameters classes for election simulation" />
   </component>
 </project>
