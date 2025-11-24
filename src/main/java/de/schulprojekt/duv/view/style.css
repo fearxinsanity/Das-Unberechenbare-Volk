@@ -1,0 +1,168 @@
+/* --- Root Colors and Fonts --- */
+.root {
+    /* Main Colors from HTML */
+    -fx-base-color: #0a0a0a; /* Dark background */
+    -fx-primary-gold: #c9a227;
+    -fx-primary-red: #d32f2f;
+    -fx-secondary-gray: #3a3a3a;
+    -fx-text-color: #e8e8e8;
+    -fx-text-color-muted: #b8b8b8;
+
+    /* Backgrounds */
+    -fx-background-color: -fx-base-color;
+    -fx-panel-background: linear-gradient(from 0% 0% to 0% 100%, #1a1a1a 0%, #0d0d0d 100%);
+
+    /* Font */
+    -fx-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    -fx-font-size: 14px;
+}
+
+.root-pane {
+    -fx-background-color: -fx-base-color;
+    -fx-padding: 10px;
+}
+
+/* --- Header --- */
+.header-pane {
+    -fx-background-color: -fx-panel-background;
+    -fx-border-color: -fx-primary-gold;
+    -fx-border-width: 2px;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-padding: 0 30px;
+    -fx-effect: dropshadow(gaussian, rgba(201, 162, 39, 0.3), 20, 0, 0, 0);
+}
+
+.header-title {
+    -fx-font-size: 26px;
+    -fx-text-fill: -fx-primary-gold;
+    -fx-font-weight: 700;
+    -fx-effect: dropshadow(gaussian, rgba(201, 162, 39, 0.5), 10, 0, 0, 0);
+}
+
+/* --- Panel Base Styles --- */
+.parameters-panel,
+.visualization-panel,
+.events-panel,
+.main-visualization,
+.diagram-container {
+    -fx-background-color: -fx-panel-background;
+    -fx-border-color: -fx-secondary-gray;
+    -fx-border-width: 2px;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-padding: 24px;
+}
+
+.panel-title {
+    -fx-font-size: 16px;
+    -fx-text-fill: -fx-primary-gold;
+    -fx-font-weight: 700;
+    -fx-border-color: -fx-primary-gold;
+    -fx-border-width: 0 0 2px 0;
+    -fx-padding: 0 0 10px 0;
+    -fx-effect: dropshadow(gaussian, rgba(201, 162, 39, 0.4), 8, 0, 0, 0);
+}
+
+.parameter-group {
+    -fx-background-color: rgba(0, 0, 0, 0.4);
+    -fx-border-color: #2a2a2a;
+    -fx-border-radius: 4px;
+    -fx-padding: 16px;
+}
+.parameter-group:hover {
+    -fx-border-color: -fx-primary-gold;
+}
+
+.parameter-label {
+    -fx-text-fill: -fx-text-color-muted;
+    -fx-font-weight: 600;
+    -fx-font-size: 12px;
+}
+
+.parameter-value {
+    -fx-text-fill: -fx-primary-gold;
+    -fx-font-weight: 700;
+}
+
+.input-field {
+    -fx-background-color: #0a0a0a;
+    -fx-border-color: #2a2a2a;
+    -fx-border-width: 2px;
+    -fx-border-radius: 4px;
+    -fx-text-fill: -fx-text-color;
+    -fx-font-weight: 600;
+}
+.input-field:focused {
+    -fx-border-color: -fx-primary-gold;
+    -fx-effect: dropshadow(gaussian, rgba(201, 162, 39, 0.3), 8, 0, 0, 0);
+}
+
+/* --- Buttons (from .btn) --- */
+.btn {
+    -fx-background-color: -fx-panel-background;
+    -fx-border-width: 2px;
+    -fx-border-radius: 4px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+}
+.btn-primary {
+    -fx-border-color: -fx-primary-gold;
+    -fx-text-fill: -fx-primary-gold;
+}
+.btn-primary:hover {
+    -fx-background-color: -fx-primary-gold;
+    -fx-text-fill: -fx-base-color;
+}
+.btn-secondary {
+    -fx-border-color: -fx-primary-red;
+    -fx-text-fill: #d32f2f;
+}
+.btn-secondary:hover {
+    -fx-background-color: #c62828;
+    -fx-text-fill: white;
+}
+.btn-tertiary {
+    -fx-border-color: #444444;
+    -fx-text-fill: #888888;
+}
+
+/* --- Stats --- */
+.stat-card {
+    -fx-background-color: #000000;
+    -fx-border-color: #2a2a2a;
+    -fx-border-width: 2px;
+    -fx-border-radius: 4px;
+    -fx-padding: 14px;
+    -fx-alignment: center;
+}
+.stat-card:hover {
+    -fx-border-color: -fx-primary-gold;
+}
+.stat-value {
+    -fx-font-size: 28px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -fx-primary-gold;
+}
+.stat-label {
+    -fx-font-size: 10px;
+    -fx-text-fill: #888888;
+    -fx-text-transform: uppercase;
+}
+
+/* --- Animation Pane --- */
+.opinion-landscape {
+    -fx-background-color: #000000;
+    -fx-border-color: #2a2a2a;
+    -fx-border-width: 2px;
+}
+
+/* --- Event Feed --- */
+.event-feed-list {
+    -fx-background-color: #000000;
+    -fx-border-color: #2a2a2a;
+}
+.event-feed-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: -fx-text-color-muted;
+}

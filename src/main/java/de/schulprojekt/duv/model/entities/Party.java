@@ -6,11 +6,11 @@ public class Party {
     private double campaignBudget;
     private long supporterCount;
 
-    public Party(String name, double corePosition, double campaignBudget, long supporterCount) {
+    public Party(String name, double corePosition, double initialBudget) {
         this.name = name;
         this.corePosition = corePosition;
-        this.campaignBudget = campaignBudget;
-        this.supporterCount = supporterCount;
+        this.campaignBudget = initialBudget;
+        this.supporterCount = 0;
     }
 
     public String getName() {

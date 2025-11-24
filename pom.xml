@@ -15,6 +15,7 @@
         <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <javafx.version>25</javafx.version>
+
         <main.class>de.schulprojekt.duv.view.Main</main.class>
         <app.version>1.0.0</app.version>
     </properties>
@@ -34,7 +35,6 @@
 
     <build>
         <plugins>
-            <!-- Maven Compiler Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -44,7 +44,6 @@
                 </configuration>
             </plugin>
 
-            <!-- JavaFX Maven Plugin for normal execution -->
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
@@ -57,7 +56,6 @@
     </build>
 
     <profiles>
-        <!-- Profil for portable EXE with jpackage -->
         <profile>
             <id>portable</id>
             <build>
@@ -95,7 +93,6 @@
                         </configuration>
                     </plugin>
 
-                    <!-- jpackage -->
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
@@ -109,6 +106,7 @@
                                 </goals>
                                 <configuration>
                                     <executable>jpackage</executable>
+
                                     <commandlineArgs>
                                         --type app-image
                                         --name "Das-Unberechenbare-Volk"
@@ -116,10 +114,13 @@
                                         --app-version ${app.version}
                                         --input ${project.build.directory}
                                         --main-jar ${project.build.finalName}.jar
-                                        --runtime-image ${java.home}
-                                        --java-options "--module-path ${project.build.directory}/libs"
-                                        --java-options "--add-modules javafx.controls,javafx.fxml"
+
+                                        --module-path ${project.build.directory}/libs
+
+                                        --add-modules javafx.controls,javafx.fxml
+
                                         --dest ${project.build.directory}/app
+
                                     </commandlineArgs>
                                 </configuration>
                             </execution>
