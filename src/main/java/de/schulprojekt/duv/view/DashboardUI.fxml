@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="de.schulprojekt.duv.view.DashboardController"
+            prefHeight="900.0" prefWidth="1600.0" styleClass="root-pane">
+
+</BorderPane>

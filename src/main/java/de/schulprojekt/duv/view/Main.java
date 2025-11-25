@@ -1,26 +1,27 @@
 package de.schulprojekt.duv.view;
 
 import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import java.io.IOException;
 
+/**
+ * The main entry point for the JavaFX application.
+ * It loads the main FXML layout and initializes the primary stage.
+ */
 public class Main extends Application {
 
     @Override
-    public void start(Stage primaryStage) {
-        Label label = new Label("Das unberechenbare volk - Simulation (Smoke Test)");
-        StackPane root = new StackPane(label);
+    public void start(Stage primaryStage) throws IOException {
 
-        Scene scene = new Scene(root, 640, 480);
-
-        primaryStage.setTitle("Wahl-Simulator");
-        primaryStage.setScene(scene);
-        primaryStage.show();
     }
 
-     static void main(String[] args) {
+    /**
+     * The main method is ignored in correctly deployed JavaFX applications.
+     * main() serves only as fallback in case the application is launched
+     * @param args the command line arguments
+     */
+    static void main(String[] args) {
         launch(args);
     }
+
 }
