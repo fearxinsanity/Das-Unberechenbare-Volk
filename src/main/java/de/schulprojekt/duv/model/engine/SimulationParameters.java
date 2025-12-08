@@ -9,8 +9,9 @@ public class SimulationParameters {
     private double initialLoyaltyMean;
     private int simulationTicksPerSecond;
     private double uniformRandomRange;
+    private int numberOfParties;
 
-    public SimulationParameters(int totalVoterCount, double globalMediaInfluence, double baseMobilityRate, double scandalChance, double initialLoyaltyMean, int simulationTicksPerSecond, double uniformRandomRange) {
+    public SimulationParameters(int totalVoterCount, double globalMediaInfluence, double baseMobilityRate, double scandalChance, double initialLoyaltyMean, int simulationTicksPerSecond, double uniformRandomRange, int numberOfParties) {
         this.totalVoterCount = totalVoterCount;
         this.globalMediaInfluence = globalMediaInfluence;
         this.baseMobilityRate = baseMobilityRate;
@@ -74,5 +75,13 @@ public class SimulationParameters {
 
     public void setUniformRandomRange(double uniformRandomRange) {
         this.uniformRandomRange = uniformRandomRange;
+    }
+
+    public int getNumberOfParties() {
+        return numberOfParties;
+    }
+
+    public void setNumberOfParties(int numberOfParties) {
+        this.numberOfParties = numberOfParties;
     }
 }

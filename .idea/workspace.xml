@@ -4,9 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="Added parameters to SimulationParameters.java">
+    <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="Filled SimulationParameters.java with parameters, getter and setter">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/engine/SimulationEngine.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/engine/SimulationEngine.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/engine/SimulationParameters.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/engine/SimulationParameters.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/engine/VoterTransition.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/engine/VoterTransition.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -172,7 +174,7 @@
       <workItem from="1762624203521" duration="8285000" />
       <workItem from="1762969109491" duration="323000" />
       <workItem from="1764102316398" duration="387000" />
-      <workItem from="1765191638381" duration="1988000" />
+      <workItem from="1765191638381" duration="7164000" />
     </task>
     <task id="LOCAL-00001" summary="workspace.xml changed">
       <option name="closed" value="true" />
@@ -238,7 +240,15 @@
       <option name="project" value="LOCAL" />
       <updated>1765192482389</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Filled SimulationParameters.java with parameters, getter and setter">
+      <option name="closed" value="true" />
+      <created>1765193992176</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1765193992176</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -253,6 +263,7 @@
     <MESSAGE value="Add Party, Voter, SimulationEngine, and SimulationParameters classes for election simulation" />
     <MESSAGE value="Removed everything and fresh start" />
     <MESSAGE value="Added parameters to SimulationParameters.java" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added parameters to SimulationParameters.java" />
+    <MESSAGE value="Filled SimulationParameters.java with parameters, getter and setter" />
+    <option name="LAST_COMMIT_MESSAGE" value="Filled SimulationParameters.java with parameters, getter and setter" />
   </component>
 </project>
