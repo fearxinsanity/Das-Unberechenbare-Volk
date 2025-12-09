@@ -67,18 +67,27 @@ public class SimulationEngine {
     }
 
     public void initializeSimulation(){
-        for(int i=0; i<parameters.getNumberOfParties(); i++){
+        int partyCount = parameters.getNumberOfParties();
+        if (partyCount == 0) {
+            return;
+        }
+        for(int i=0; i < partyCount; i++){
             String name = "Partei " + (char)('A' + i);
-            double position = 100.0 / (parameters.getNumberOfParties() + 1) * (i + 1);
+            double position;
+            if (partyCount <= 1) {
+                position = 50.0; // Setzt die Position auf die Mitte (50.0)
+            } else {
+                position = 100.0 / (partyCount - 1) * i;
+            }
             //TODO: Color & Budget initializing
             String color = "5E2028";
             double budget = 500000.0;
+
             Party party = new Party(name, color, position, budget, 0);
             this.partyList.add(party);
         }
 
         int totalVoters = parameters.getTotalVoterCount();
-        int partyCount = this.partyList.size();
         Random generalRandom = new Random();
 
         for (int i = 0; i < totalVoters; i++) {

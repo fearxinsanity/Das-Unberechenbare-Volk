@@ -4,11 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="Filled SimulationParameters.java with parameters, getter and setter">
+    <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="Removed everything and fresh start">
+      <change afterPath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/view/DashboardUI.fxml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/controller/SimulationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/controller/SimulationController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/engine/SimulationEngine.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/engine/SimulationEngine.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/engine/SimulationParameters.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/engine/SimulationParameters.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/engine/VoterTransition.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/engine/VoterTransition.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/DashboardController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/DashboardController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/DashboardUI.fxml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/Main.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -36,12 +39,12 @@
     &quot;assignee&quot;: &quot;fearxinsanity&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/fearxinsanity/Das-Unberechenbare-Volk.git&quot;,
-    &quot;accountId&quot;: &quot;79da5971-a308-459c-94f0-745ff2f8a3a8&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/fearxinsanity/Das-Unberechenbare-Volk.git",
+    "accountId": "2d75938f-e493-4339-80bc-9c22b9222a5b"
   }
-}</component>
+}]]></component>
   <component name="MavenImportPreferences">
     <option name="explicitlyEnabledProfiles" value="portable" />
   </component>
@@ -61,15 +64,18 @@
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "Application.Main.executor": "Run",
     "Maven.Build EXE.executor": "Run",
+    "Maven.DUV - run.executor": "Run",
     "Maven.Das-Unberechenbare-Volk [install].executor": "Run",
+    "Maven.Das-Unberechenbare-Volk [org.openjfx:javafx-maven-plugin:0.0.8:run].executor": "Run",
     "Maven.Das-Unberechenbare-Volk [package].executor": "Run",
     "Maven.Package & Install.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "implement-simulation-model",
+    "git-widget-placeholder": "integrate-controller-view",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "D:/Programme/GitHub/Das-Unberechenbare-Volk",
@@ -85,6 +91,11 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\HoffmannNico\IdeaProjects\Das-Unberechenbare-Volk\src\main\resources\de\schulprojekt\duv\view" />
+    </key>
+  </component>
   <component name="RunManager" selected="Maven.Build EXE">
     <configuration name="Build EXE" type="MavenRunConfiguration" factoryName="Maven">
       <MavenSettings>
@@ -98,7 +109,7 @@
             </option>
             <option name="goals">
               <list>
-                <option value="package" />
+                <option value="clean" />
                 <option value="install" />
               </list>
             </option>
@@ -157,8 +168,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.28238.7" />
-        <option value="bundled-js-predefined-d6986cc7102b-a71380e98a7c-JavaScript-IU-252.28238.7" />
+        <option value="bundled-jdk-30f59d01ecdd-cffe25b9f5b3-intellij.indexing.shared.core-IU-253.28294.334" />
+        <option value="bundled-js-predefined-d6986cc7102b-c7e53b3be11b-JavaScript-IU-253.28294.334" />
       </set>
     </attachedChunks>
   </component>
@@ -174,7 +185,7 @@
       <workItem from="1762624203521" duration="8285000" />
       <workItem from="1762969109491" duration="323000" />
       <workItem from="1764102316398" duration="387000" />
-      <workItem from="1765191638381" duration="7164000" />
+      <workItem from="1765276752864" duration="5368000" />
     </task>
     <task id="LOCAL-00001" summary="workspace.xml changed">
       <option name="closed" value="true" />
@@ -232,23 +243,7 @@
       <option name="project" value="LOCAL" />
       <updated>1764102613065</updated>
     </task>
-    <task id="LOCAL-00008" summary="Added parameters to SimulationParameters.java">
-      <option name="closed" value="true" />
-      <created>1765192482389</created>
-      <option name="number" value="00008" />
-      <option name="presentableId" value="LOCAL-00008" />
-      <option name="project" value="LOCAL" />
-      <updated>1765192482389</updated>
-    </task>
-    <task id="LOCAL-00009" summary="Filled SimulationParameters.java with parameters, getter and setter">
-      <option name="closed" value="true" />
-      <created>1765193992176</created>
-      <option name="number" value="00009" />
-      <option name="presentableId" value="LOCAL-00009" />
-      <option name="project" value="LOCAL" />
-      <updated>1765193992176</updated>
-    </task>
-    <option name="localTasksCounter" value="10" />
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -262,8 +257,6 @@
     <MESSAGE value="Refactor package structure and update main class reference in pom.xml" />
     <MESSAGE value="Add Party, Voter, SimulationEngine, and SimulationParameters classes for election simulation" />
     <MESSAGE value="Removed everything and fresh start" />
-    <MESSAGE value="Added parameters to SimulationParameters.java" />
-    <MESSAGE value="Filled SimulationParameters.java with parameters, getter and setter" />
-    <option name="LAST_COMMIT_MESSAGE" value="Filled SimulationParameters.java with parameters, getter and setter" />
+    <option name="LAST_COMMIT_MESSAGE" value="Removed everything and fresh start" />
   </component>
 </project>
