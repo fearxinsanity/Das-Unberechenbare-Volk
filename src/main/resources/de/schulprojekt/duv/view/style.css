@@ -1,0 +1,56 @@
+/* Allgemeine Einstellungen für das Dark Theme */
+
+/* Hintergrund des Hauptfensters (BorderPane) */
+.root-pane {
+    -fx-background-color: #ffffff; /* Sehr dunkel */
+}
+
+/* Hintergrund der Seitenleisten (VBox links und rechts) */
+.vbox {
+    -fx-background-color: #2A2A2A; /* Etwas heller als der Hauptbildschirm */
+    -fx-border-color: #333333;
+    -fx-border-width: 0 1 0 0;
+}
+
+/* Allgemeine Textfarbe für Labels */
+.label {
+    -fx-text-fill: white;
+}
+
+/* Hervorhebung für Titel/Akzente (Konfiguration, Aktuelle Unterstützerzahlen) */
+.label.title {
+    -fx-text-fill: #C9A227; /* Gold/Accent Farbe */
+}
+
+/* Buttons (Allgemeiner Stil) */
+.button {
+    -fx-background-color: #383838;
+    -fx-text-fill: white;
+    -fx-border-color: #555555;
+    -fx-border-radius: 3;
+    -fx-background-radius: 3;
+    -fx-padding: 5 10 5 10;
+}
+
+/* Zustand: Deaktiviert */
+.button:disabled {
+    -fx-background-color: #202020;
+    -fx-text-fill: #666666;
+    -fx-border-color: #444444;
+}
+
+
+/* Textfelder (Wähleranzahl) */
+.text-field {
+    -fx-background-color: #333333;
+    -fx-text-fill: white;
+    -fx-control-inner-background: #333333;
+}
+
+/* Pie Chart: Legenden und Text */
+.chart-legend {
+    -fx-background-color: transparent;
+}
+.chart-pie-label {
+    -fx-fill: white;
+}

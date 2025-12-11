@@ -27,9 +27,9 @@
 
             <Label fx:id="timeStepLabel" text="Status: Initialisiert" style="-fx-text-fill: white;"/>
 
-            <Button text="▶ Starten" onAction="#handleStartSimulation"/>
-            <Button text="⏸ Pausieren" onAction="#handlePauseSimulation"/>
-            <Button text="↻ Zurücksetzen" onAction="#handleResetSimulation"/>
+            <Button fx:id="startButton" text="▶ Starten" onAction="#handleStartSimulation"/>
+            <Button fx:id="pauseButton" text="⏸ Pausieren" onAction="#handlePauseSimulation" disable="true"/>
+            <Button fx:id="resetButton" text="↻ Zurücksetzen" onAction="#handleResetSimulation" disable="true"/>
         </HBox>
     </top>
 
@@ -90,7 +90,7 @@
             <PieChart fx:id="partyDistributionChart" legendVisible="true"/>
 
             <Label text="Ereignis-Feed" style="-fx-font-size: 16px; -fx-text-fill: #C9A227;"/>
-            <Pane prefHeight="200" style="-fx-background-color: #1A1A1A;"/>
+            <Pane fx:id="eventFeedPane" prefHeight="200" style="-fx-background-color: #1A1A1A;"/>
         </VBox>
     </right>
 </BorderPane>

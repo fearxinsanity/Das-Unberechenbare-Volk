@@ -2,9 +2,13 @@ package de.schulprojekt.duv.controller;
 
 import de.schulprojekt.duv.model.engine.SimulationEngine;
 import de.schulprojekt.duv.model.engine.SimulationParameters;
+import de.schulprojekt.duv.model.entities.Party;
+import de.schulprojekt.duv.model.entities.Voter;
 import de.schulprojekt.duv.view.DashboardController;
 import javafx.animation.AnimationTimer;
 import javafx.animation.Animation;
+
+import java.util.List;
 
 public class SimulationController {
 
@@ -82,17 +86,26 @@ public class SimulationController {
 
     public void updateAllParameters(SimulationParameters newParams) {
         boolean wasRunning = this.isRunning;
+        SimulationParameters currentParams = engine.getParameters();
+
+        boolean needsReset =
+                newParams.getTotalVoterCount() != currentParams.getTotalVoterCount() ||
+                        newParams.getNumberOfParties() != currentParams.getNumberOfParties();
 
         engine.updateParameters(newParams);
 
-        if (newParams.getSimulationTicksPerSecond() != engine.getParameters().getSimulationTicksPerSecond()) {
+        if (newParams.getSimulationTicksPerSecond() != currentParams.getSimulationTicksPerSecond()) {
             initializeTimer(newParams);
         }
 
         if (wasRunning) {
             simulationTimer.start();
         }
-        engine.resetState();
+
+        if (needsReset) {
+            engine.resetState();
+        }
+
         updateView();
     }
 
@@ -118,5 +131,17 @@ public class SimulationController {
         if (wasRunning) {
             simulationTimer.start();
         }
+    }
+
+    public List<Voter> getVoters() {
+        return engine.getVoters();
+    }
+
+    public List<Party> getParties() {
+        return engine.getParties();
+    }
+
+    public boolean isRunning() {
+        return this.isRunning;
     }
 }

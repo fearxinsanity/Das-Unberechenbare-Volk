@@ -12,14 +12,9 @@ import org.apache.commons.math3.distribution.UniformRealDistribution;
 import de.schulprojekt.duv.model.entities.Voter;
 import de.schulprojekt.duv.model.entities.Party;
 
-/**
- * The central class of the Model (MVC). It controls the main simulation loop,
- * manages the state of all entities, and contains all business logic,
- * completely decoupled from the GUI.
- */
 public class SimulationEngine {
 
-    //--- Distributions ---
+    // --- Distributions ---
     private NormalDistribution normalDistribution;
     private UniformRealDistribution uniformRealDistribution;
     private ExponentialDistribution exponentialDistribution;
@@ -31,29 +26,30 @@ public class SimulationEngine {
     //--- Saved parameters locally ---
     private SimulationParameters parameters;
 
+    // --- CONSTRUCTOR ---
     public SimulationEngine(SimulationParameters params) {
 
         this.parameters = params;
         this.voterList = new ArrayList<>();
         this.partyList = new ArrayList<>();
 
-        //Normal distribution for Voter loyalty
+        // Initialisiere Verteilungen basierend auf Startparametern
         this.normalDistribution = new NormalDistribution(
                 params.getInitialLoyaltyMean(),
-                10.0 //Standard deviation for dispersion
+                10.0
         );
 
-        //Uniform distribution for media effectivity
         this.uniformRealDistribution = new UniformRealDistribution(
                 0.0,
                 params.getUniformRandomRange()
         );
 
         this.exponentialDistribution = new ExponentialDistribution(
-                params.getScandalChance() / 100.0 //Scandal chance percentage
+                params.getScandalChance() / 100.0
         );
     }
 
+    // --- DISTRIBUTION GENERATORS ---
     public double generateLoyaltyValue(){
         return normalDistribution.sample();
     }
@@ -66,27 +62,36 @@ public class SimulationEngine {
         return exponentialDistribution.sample();
     }
 
+    // --- INITIALIZATION / RESET ---
     public void initializeSimulation(){
         int partyCount = parameters.getNumberOfParties();
         if (partyCount == 0) {
             return;
         }
+
+        // Feste, kontrastreiche Farben für die Visualisierung (Checklistenpunkt 1)
+        String[] partyColors = {"007bff", "dc3545", "ffc107", "28a745", "6f42c1", "20c997", "fd7e14", "6c757d"};
+
+        // 1. Parteien erstellen
         for(int i=0; i < partyCount; i++){
             String name = "Partei " + (char)('A' + i);
             double position;
+
+            // Setzt die Position gleichmäßig auf der politischen Skala (0 bis 100)
             if (partyCount <= 1) {
-                position = 50.0; // Setzt die Position auf die Mitte (50.0)
+                position = 50.0;
             } else {
                 position = 100.0 / (partyCount - 1) * i;
             }
-            //TODO: Color & Budget initializing
-            String color = "5E2028";
+
+            String color = partyColors[i % partyColors.length];
             double budget = 500000.0;
 
             Party party = new Party(name, color, position, budget, 0);
             this.partyList.add(party);
         }
 
+        // 2. Wähler erstellen
         int totalVoters = parameters.getTotalVoterCount();
         Random generalRandom = new Random();
 
@@ -103,26 +108,33 @@ public class SimulationEngine {
         }
     }
 
-    // --- Getter for Controller (Encapsulation) ---
-    public List<Voter> getVoters() {
-        return Collections.unmodifiableList(this.voterList);
+    public void resetState() {
+        this.voterList.clear();
+        this.partyList.clear();
+
+        initializeSimulation();
     }
 
-    public List<Party> getParties() {
-        return Collections.unmodifiableList(this.partyList);
+    // --- UPDATE PARAMETERS ---
+    public void updateParameters(SimulationParameters newParams) {
+        this.parameters = newParams;
+
+        // Re-initialisiere Verteilungen basierend auf den neuen Parametern
+        this.normalDistribution = new NormalDistribution(
+                newParams.getInitialLoyaltyMean(),
+                10.0
+        );
+        this.uniformRealDistribution = new UniformRealDistribution(
+                0.0,
+                newParams.getUniformRandomRange()
+        );
+        this.exponentialDistribution = new ExponentialDistribution(
+                newParams.getScandalChance() / 100.0
+        );
     }
 
-    public SimulationParameters getParameters() {
-        return parameters;
-    }
+    // --- MAIN SIMULATION STEP LOGIC ---
 
-    /**
-     * Calculates an attractiveness score for a target party for a given voter.
-     * @param voter The voter currently considering a switch.
-     * @param party The target party.
-     * @param campaignEffectiveness The uniform random value for budget effectiveness.
-     * @return A double score, where a higher score means higher attractiveness.
-     */
     private double getPartyTargetScore(Voter voter, Party party, double campaignEffectiveness) {
         double distance = Math.abs(voter.getPoliticalPosition() - party.getPoliticalPosition());
         double baseScore = 1.0 / (distance + 1.0);
@@ -130,29 +142,25 @@ public class SimulationEngine {
         return baseScore + (campaignInfluence * voter.getMediaInfluenceability());
     }
 
-    // --- Main Simulation Step ---
-
     /**
-     * Executes one discrete time step of the simulation.
-     * It iterates through all voters and calculates potential party changes
-     * and random events. Uses Normal, Uniform, and Exponential Distributions.
-     * @return A list of all VoterTransition DTOs for the View's animation update.
+     * Führt einen diskreten Zeitschritt der Simulation aus.
      */
     public List<VoterTransition> runSimulationStep() {
         List<VoterTransition> transitions = new ArrayList<>();
+        Random random = new Random();
 
-        boolean scandalOccurred = (uniformRealDistribution.sample() * 100.0 < parameters.getScandalChance());
+        boolean scandalOccurred = (random.nextDouble() * 100.0 < parameters.getScandalChance());
         Party affectedParty = null;
 
         if (scandalOccurred) {
-            int partyIndex = new Random().nextInt(partyList.size());
+            int partyIndex = random.nextInt(partyList.size());
             affectedParty = partyList.get(partyIndex);
         }
 
         for (Voter voter : voterList) {
             double chanceToConsiderSwitch = parameters.getBaseMobilityRate() * voter.getMediaInfluenceability();
 
-            if (new Random().nextDouble() < chanceToConsiderSwitch) {
+            if (random.nextDouble() < chanceToConsiderSwitch) {
                 Party currentParty = voter.getCurrentParty();
                 Party bestTargetParty = currentParty;
                 double highestScore = -1.0;
@@ -177,30 +185,19 @@ public class SimulationEngine {
                 }
             }
         }
-
         return transitions;
     }
 
-    public void resetState() {
-        this.voterList.clear();
-        this.partyList.clear();
-
-        initializeSimulation();
+    // --- GETTERS (Für Controller-Zugriff) ---
+    public List<Voter> getVoters() {
+        return Collections.unmodifiableList(this.voterList);
     }
 
-    public void updateParameters(SimulationParameters newParams) {
-        this.parameters = newParams;
-        this.normalDistribution = new NormalDistribution(
-                newParams.getInitialLoyaltyMean(),
-                10.0
-        );
-        this.uniformRealDistribution = new UniformRealDistribution(
-                0.0,
-                newParams.getUniformRandomRange()
-        );
-        this.exponentialDistribution = new ExponentialDistribution(
-                newParams.getScandalChance() / 100.0
-        );
+    public List<Party> getParties() {
+        return Collections.unmodifiableList(this.partyList);
     }
 
+    public SimulationParameters getParameters() {
+        return parameters;
+    }
 }
