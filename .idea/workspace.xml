@@ -20,7 +20,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="main" />
+        <entry key="$PROJECT_DIR$" value="implement-simulation-model" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -240,6 +240,10 @@
     <MESSAGE value="Refactor package structure and update main class reference in pom.xml" />
     <MESSAGE value="Add Party, Voter, SimulationEngine, and SimulationParameters classes for election simulation" />
     <MESSAGE value="Removed everything and fresh start" />
-    <option name="LAST_COMMIT_MESSAGE" value="Removed everything and fresh start" />
+    <MESSAGE value="Added parameters to SimulationParameters.java" />
+    <MESSAGE value="Filled SimulationParameters.java with parameters, getter and setter" />
+    <MESSAGE value="Added simulation reset method" />
+    <MESSAGE value="Added parameter logic with view implementation" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added parameter logic with view implementation" />
   </component>
 </project>
