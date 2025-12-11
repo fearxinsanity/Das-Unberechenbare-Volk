@@ -8,28 +8,24 @@ import javafx.fxml.FXML;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
-import javafx.scene.control.TextField;
+import javafx.scene.control.TextField; // NEU: Import für TextField
 import javafx.scene.layout.Pane;
-
 import java.util.List;
 
-/**
- * FXML Controller for the DashboardUI.
- * This class adheres to the MVC pattern by acting as a "dumb" View.
- * It holds references to all FXML UI components and provides public methods
- * for the SimulationController to update them.
- * It contains NO simulation logic.
- */
 public class DashboardController {
 
     private SimulationController simulationController;
+    private static final int VOTER_STEP = 100000;
 
-    // --- VISUALISIERUNG ELEMENTE ---
+    // --- VISUALIZING ELEMENTS ---
     @FXML private PieChart partyDistributionChart;
+    @FXML private Label timeStepLabel;
     @FXML private Pane animationPane;
 
-    // --- NEU: EINGABE ELEMENTE ---
+    // --- INPUT ELEMENTS ---
     @FXML private TextField voterCountField;
+
+    // Slider
     @FXML private Slider partyCountSlider;
     @FXML private Slider mediaInfluenceSlider;
     @FXML private Slider mobilityRateSlider;
@@ -38,118 +34,50 @@ public class DashboardController {
     @FXML private Slider randomRangeSlider;
 
 
-    /**
-     * Sets the SimulationController reference. This is called by the Main class
-     * immediately after the FXML is loaded to connect View and Controller.
-     * @param controller The main application controller.
-     */
     public void setSimulationController(SimulationController controller) {
         this.simulationController = controller;
     }
 
-    private static final int VOTER_STEP = 100000;
-
     @FXML
     public void initialize() {
-        // Hier werden später die Startwerte der UI-Elemente gesetzt oder Events initialisiert.
     }
+
+    // --- PARAMETER COLLECTION ---
 
     public SimulationParameters collectCurrentParameters() {
         SimulationParameters currentParams = simulationController.getCurrentParameters();
-        int totalVoters = 0;
+        int totalVoters = currentParams.getTotalVoterCount();
         try {
             totalVoters = Integer.parseInt(voterCountField.getText());
             if (totalVoters < 0) totalVoters = 0;
         } catch (NumberFormatException e) {
-            totalVoters = currentParams.getTotalVoterCount();
             System.err.println("Ungültige Wähleranzahl im Textfeld. Verwende alten Wert: " + totalVoters);
         }
+
         return new SimulationParameters(
-                totalVoters,
-                mediaInfluenceSlider.getValue(),
-                currentParams.getBaseMobilityRate(),
-                currentParams.getScandalChance(),
-                currentParams.getInitialLoyaltyMean(),
-                currentParams.getSimulationTicksPerSecond(),
-                currentParams.getUniformRandomRange(),
-                currentParams.getNumberOfParties()
+                totalVoters,                                    // 1. totalVoterCount
+                mediaInfluenceSlider.getValue(),                // 2. globalMediaInfluence
+                mobilityRateSlider.getValue(),                  // 3. baseMobilityRate
+                scandalChanceSlider.getValue(),                 // 4. scandalChance
+                loyaltyMeanSlider.getValue(),                   // 5. initialLoyaltyMean
+                currentParams.getSimulationTicksPerSecond(),    // 6. simulationTicksPerSecond (vom Model, gesetzt durch Buttons)
+                randomRangeSlider.getValue(),                   // 7. uniformRandomRange
+                (int) partyCountSlider.getValue()               // 8. numberOfParties
         );
     }
 
-    // --- EVENT HANDLER (View -> Controller) ---
-
-    @FXML
-    public void handleStartSimulation() {
-        if (simulationController != null) {
-            simulationController.startSimulation();
-            // TODO: UI-Anpassungen hier (z.B. Start-Button deaktivieren, Pause-Button aktivieren)
-        }
-    }
-
-    @FXML
-    public void handlePauseSimulation() {
-        if (simulationController != null) {
-            simulationController.pauseSimulation();
-            // TODO: UI-Anpassungen hier
-        }
-    }
-
-    @FXML
-    public void handleResetSimulation() {
-        if (simulationController != null) {
-            simulationController.resetSimulation();
-            // TODO: UI-Status (z.B. Buttons deaktivieren/aktivieren)
-        }
-    }
-
-    @FXML
-    public void handleParameterChange() {
-        if (simulationController != null) {
-            SimulationParameters newParams = collectCurrentParameters();
-
-            // Wenn sich die TicksPerSecond NICHT ändert, rufen wir die Update-Methode auf
-            // (Die Update-Logik im Controller handhabt das Setzen und den nötigen Reset)
-            simulationController.updateAllParameters(newParams);
-        }
-    }
-
-    @FXML
-    public void handleSpeed1x() {
-        if (simulationController != null) {
-            simulationController.updateSimulationSpeed(1);
-            // TODO: UI-Status: Den 1X Button visuell markieren (z.B. per CSS-Klasse)
-        }
-    }
-
-    @FXML
-    public void handleSpeed2x() {
-        if (simulationController != null) {
-            simulationController.updateSimulationSpeed(2);
-            // TODO: UI-Status: Den 2X Button visuell markieren
-        }
-    }
-
-    @FXML
-    public void handleSpeed4x() {
-        if (simulationController != null) {
-            simulationController.updateSimulationSpeed(4);
-            // TODO: UI-Status: Den 4X Button visuell markieren
-        }
-    }
+    // --- EVENT HANDLER (Voter count Increment/Decrement) ---
 
     private void updateVoterCountField(int step) {
         if (voterCountField != null) {
             try {
                 int currentCount = Integer.parseInt(voterCountField.getText());
                 int newCount = currentCount + step;
-                if (newCount < 0) newCount = 0; // Negative Wähleranzahl verhindern
+                if (newCount < 0) newCount = 0;
 
                 voterCountField.setText(String.valueOf(newCount));
-
-                // Parameter-Update sofort nach Button-Klick auslösen
                 handleParameterChange();
             } catch (NumberFormatException e) {
-                // Bei ungültiger Eingabe im Feld nichts tun oder Fehlermeldung anzeigen
                 System.err.println("Ungültige Wähleranzahl im Textfeld.");
             }
         }
@@ -165,14 +93,62 @@ public class DashboardController {
         updateVoterCountField(-VOTER_STEP);
     }
 
+    // --- EVENT HANDLER (simulation control) ---
+
+    @FXML
+    public void handleStartSimulation() {
+        if (simulationController != null) {
+            simulationController.startSimulation();
+        }
+    }
+
+    @FXML
+    public void handlePauseSimulation() {
+        if (simulationController != null) {
+            simulationController.pauseSimulation();
+        }
+    }
+
+    @FXML
+    public void handleResetSimulation() {
+        if (simulationController != null) {
+            simulationController.resetSimulation();
+        }
+    }
+
+    @FXML
+    public void handleParameterChange() {
+        if (simulationController != null) {
+            SimulationParameters newParams = collectCurrentParameters();
+            simulationController.updateAllParameters(newParams);
+        }
+    }
+
+    // --- EVENT HANDLER (simulation time) ---
+
+    @FXML
+    public void handleSpeed1x() {
+        if (simulationController != null) {
+            simulationController.updateSimulationSpeed(1);
+        }
+    }
+
+    @FXML
+    public void handleSpeed2x() {
+        if (simulationController != null) {
+            simulationController.updateSimulationSpeed(2);
+        }
+    }
+
+    @FXML
+    public void handleSpeed4x() {
+        if (simulationController != null) {
+            simulationController.updateSimulationSpeed(4);
+        }
+    }
+
     // --- DATA DISPLAY (Controller -> View) ---
 
-    /**
-     * Called by the SimulationController every tick to update the entire UI.
-     * This method is the final step of the MVC data flow (View-Aktualisierung).
-     * @param parties The list of current Party states.
-     * @param voters The list of all Voter states (used for animation).
-     */
     public void updateDashboard(List<Party> parties, List<Voter> voters) {
 
         if (partyDistributionChart != null) {
@@ -181,24 +157,14 @@ public class DashboardController {
             for (Party party : parties) {
                 PieChart.Data slice = new PieChart.Data(party.getName(), party.getCurrentSupporterCount());
                 partyDistributionChart.getData().add(slice);
-
-                // optional: Setze die Farbe (muss im CSS oder per FX-Code erfolgen)
-                // slice.getNode().setStyle("-fx-pie-color: " + party.getColorCode());
             }
         }
 
-        // --- 2. Aktualisierung der Animation / Scatter Plot ---
         if (animationPane != null) {
             for (Voter voter : voters) {
-                double politicalPosition = voter.getPoliticalPosition(); // 0.0 bis 100.0
-                String color = voter.getCurrentParty().getColorCode(); // Hex-Code
-
-                // HIER müsste die Logik zum Verschieben/Neufärben des Circle-Knotens des Wählers stehen.
+                double politicalPosition = voter.getPoliticalPosition();
+                String color = voter.getCurrentParty().getColorCode();
             }
-            // Wir müssen hier die Knoten der Animation aktualisieren, aber das ist erst nach FXML-Implementierung möglich.
         }
-
-        // --- 3. Status-Updates ---
-        // timeStepLabel.setText("Zeit: " + System.currentTimeMillis());
     }
 }

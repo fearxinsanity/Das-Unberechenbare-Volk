@@ -5,13 +5,13 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.Region?>
 
-<?import javafx.scene.control.TextField?>
 <BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="de.schulprojekt.duv.view.DashboardController"
             prefHeight="750.0" prefWidth="1200.0" styleClass="root-pane">
@@ -63,13 +63,14 @@
             <Slider fx:id="randomRangeSlider" min="0.1" max="5.0" value="1.0" onMouseReleased="#handleParameterChange"/>
 
             <Label text="Simulations-Geschw." style="-fx-text-fill: white;"/>
-            <HBox spacing="5" alignment="CENTER">
-                <Button text="1X" onAction="#handleSpeed1x" fx:id="speed1xButton"/>
-                <Button text="2X" onAction="#handleSpeed2x" fx:id="speed2xButton"/>
-                <Button text="4X" onAction="#handleSpeed4x" fx:id="speed4xButton"/>
+            <HBox spacing="5" alignment="CENTER_LEFT">
+                <Button text="1X" onAction="#handleSpeed1x"/>
+                <Button text="2X" onAction="#handleSpeed2x"/>
+                <Button text="4X" onAction="#handleSpeed4x"/>
             </HBox>
 
-            <Button text="Parameter Übernehmen" onAction="#handleParameterChange"/>
+            <Region VBox.vgrow="ALWAYS"/>
+            <Button text="Parameter Übernehmen (Fallback)" onAction="#handleParameterChange"/>
 
         </VBox>
     </left>
