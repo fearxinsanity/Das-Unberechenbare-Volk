@@ -20,16 +20,16 @@ import de.schulprojekt.duv.model.entities.Party;
 public class SimulationEngine {
 
     //--- Distributions ---
-    private final NormalDistribution normalDistribution;
-    private final UniformRealDistribution uniformRealDistribution;
-    private final ExponentialDistribution exponentialDistribution;
+    private NormalDistribution normalDistribution;
+    private UniformRealDistribution uniformRealDistribution;
+    private ExponentialDistribution exponentialDistribution;
 
     //--- Lists ---
     private final List<Voter> voterList;
     private final List<Party> partyList;
 
     //--- Saved parameters locally ---
-    private final SimulationParameters parameters;
+    private SimulationParameters parameters;
 
     public SimulationEngine(SimulationParameters params) {
 
@@ -112,7 +112,9 @@ public class SimulationEngine {
         return Collections.unmodifiableList(this.partyList);
     }
 
-    // --- Helper Method for Simulation Logic (Needed for runSimulationStep) ---
+    public SimulationParameters getParameters() {
+        return parameters;
+    }
 
     /**
      * Calculates an attractiveness score for a target party for a given voter.
@@ -178,10 +180,27 @@ public class SimulationEngine {
 
         return transitions;
     }
+
     public void resetState() {
         this.voterList.clear();
         this.partyList.clear();
 
         initializeSimulation();
     }
+
+    public void updateParameters(SimulationParameters newParams) {
+        this.parameters = newParams;
+        this.normalDistribution = new NormalDistribution(
+                newParams.getInitialLoyaltyMean(),
+                10.0
+        );
+        this.uniformRealDistribution = new UniformRealDistribution(
+                0.0,
+                newParams.getUniformRandomRange()
+        );
+        this.exponentialDistribution = new ExponentialDistribution(
+                newParams.getScandalChance() / 100.0
+        );
+    }
+
 }

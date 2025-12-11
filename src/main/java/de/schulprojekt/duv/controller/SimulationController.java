@@ -4,33 +4,46 @@ import de.schulprojekt.duv.model.engine.SimulationEngine;
 import de.schulprojekt.duv.model.engine.SimulationParameters;
 import de.schulprojekt.duv.view.DashboardController;
 import javafx.animation.AnimationTimer;
+import javafx.animation.Animation;
 
-/**
- * The main application controller (in the MVC pattern).
- * It connects the (dumb) View (DashboardController) with the (dumb) Model (SimulationEngine).
- * It is responsible for handling all user input and running the simulation loop.
- */
 public class SimulationController {
 
     private final SimulationEngine engine;
-    private final AnimationTimer simulationTimer;
+    private AnimationTimer simulationTimer;
+    private boolean isRunning = false;
     private final DashboardController view;
 
-    // NOTE: The reference to the View (DashboardController) will be added here soon!
-
-    /**
-     * Initializes the SimulationController and sets up the Model with default parameters.
-     */
     public SimulationController(DashboardController view) {
-
         SimulationParameters defaultParams = createDefaultParameters();
-
         this.engine = new SimulationEngine(defaultParams);
         this.engine.initializeSimulation();
         this.view = view;
+        initializeTimer(defaultParams);
+    }
+
+    private SimulationParameters createDefaultParameters() {
+        return new SimulationParameters(
+                2500,
+                65.0,
+                35.0,
+                5.0,
+                50.0,
+                1,
+                1.0,
+                4
+        );
+    }
+
+    private void initializeTimer(SimulationParameters params) {
+        int ticksPerSecond = params.getSimulationTicksPerSecond();
+        if (ticksPerSecond <= 0) {
+            ticksPerSecond = 1;
+        }
+
+        long updateIntervalNano = 1_000_000_000L / ticksPerSecond;
+
         this.simulationTimer = new AnimationTimer() {
             private long lastUpdate = 0;
-            private final long updateIntervalNano = 1_000_000_000L / defaultParams.getSimulationTicksPerSecond();
 
             @Override
             public void handle(long now) {
@@ -43,38 +56,67 @@ public class SimulationController {
         };
     }
 
-    private SimulationParameters createDefaultParameters() {
-        return new SimulationParameters(
-                2500,   // totalVoterCount
-                65.0,   // globalMediaInfluence
-                35.0,   // baseMobilityRate
-                5.0,    // scandalChance
-                50.0,   // initialLoyaltyMean
-                1,      // simulationTicksPerSecond
-                1.0,    // uniformRandomRange
-                4       // numberOfParties
-        );
-    }
-
     private void updateView() {
         view.updateDashboard(engine.getParties(), engine.getVoters());
     }
 
     public void startSimulation() {
         simulationTimer.start();
+        this.isRunning = true;
     }
 
     public void pauseSimulation() {
         simulationTimer.stop();
+        this.isRunning = false;
     }
 
     public void resetSimulation() {
         simulationTimer.stop();
         engine.resetState();
         updateView();
-
-        // TODO: UI-Status des Reset-Buttons in DashboardController aktualisieren
     }
 
-    // TODO: Add Methods to update parameters from the View.
+    public SimulationParameters getCurrentParameters() {
+        return engine.getParameters();
+    }
+
+    public void updateAllParameters(SimulationParameters newParams) {
+        boolean wasRunning = this.isRunning;
+
+        engine.updateParameters(newParams);
+
+        if (newParams.getSimulationTicksPerSecond() != engine.getParameters().getSimulationTicksPerSecond()) {
+            initializeTimer(newParams);
+        }
+
+        if (wasRunning) {
+            simulationTimer.start();
+        }
+        engine.resetState();
+        updateView();
+    }
+
+    public void updateSimulationSpeed(int newTicksPerSecond) {
+        boolean wasRunning = this.isRunning;
+
+        SimulationParameters currentParams = engine.getParameters();
+
+        SimulationParameters newParams = new SimulationParameters(
+                currentParams.getTotalVoterCount(),
+                currentParams.getGlobalMediaInfluence(),
+                currentParams.getBaseMobilityRate(),
+                currentParams.getScandalChance(),
+                currentParams.getInitialLoyaltyMean(),
+                newTicksPerSecond,
+                currentParams.getUniformRandomRange(),
+                currentParams.getNumberOfParties()
+        );
+
+        engine.updateParameters(newParams);
+        initializeTimer(newParams);
+
+        if (wasRunning) {
+            simulationTimer.start();
+        }
+    }
 }

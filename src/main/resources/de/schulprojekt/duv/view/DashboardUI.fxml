@@ -1,15 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.PieChart?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Slider?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.Region?>
+
+<?import javafx.scene.control.TextField?>
 <BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="de.schulprojekt.duv.view.DashboardController"
-            prefHeight="900.0" prefWidth="1600.0" styleClass="root-pane">
+            prefHeight="750.0" prefWidth="1200.0" styleClass="root-pane">
 
     <top>
         <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-background-color: #1A1A1A; -fx-padding: 10;">
@@ -18,11 +23,73 @@
             </padding>
 
             <Label text="Das Unberechenbare Volk" style="-fx-font-size: 18px; -fx-text-fill: #C9A227;"/>
-            <Region HBox.hgrow="ALWAYS"/> <Button text="▶ Starten" onAction="#handleStartSimulation" styleClass="btn-primary"/>
-            <Button text="⏸ Pausieren" onAction="#handlePauseSimulation" styleClass="btn-secondary"/>
-            <Button text="↻ Zurücksetzen" onAction="#handleResetSimulation" styleClass="btn-tertiary"/>
+            <Region HBox.hgrow="ALWAYS"/>
 
+            <Label fx:id="timeStepLabel" text="Status: Initialisiert" style="-fx-text-fill: white;"/>
+
+            <Button text="▶ Starten" onAction="#handleStartSimulation"/>
+            <Button text="⏸ Pausieren" onAction="#handlePauseSimulation"/>
+            <Button text="↻ Zurücksetzen" onAction="#handleResetSimulation"/>
         </HBox>
     </top>
 
+    <left>
+        <VBox spacing="10" style="-fx-padding: 20; -fx-background-color: #2A2A2A;" prefWidth="300">
+            <Label text="Konfiguration" style="-fx-font-size: 16px; -fx-text-fill: #C9A227;"/>
+
+            <Label text="Wähleranzahl (Schritt: 100.000)" style="-fx-text-fill: white;"/>
+            <HBox spacing="5">
+                <Button text="-" onAction="#handleVoterCountDecrement"/>
+                <TextField fx:id="voterCountField" text="2500" prefWidth="150" onAction="#handleParameterChange"/>
+                <Button text="+" onAction="#handleVoterCountIncrement"/>
+            </HBox>
+
+            <Label text="Parteianzahl (2-8)" style="-fx-text-fill: white;"/>
+            <Slider fx:id="partyCountSlider" min="2" max="8" value="4" majorTickUnit="1" minorTickCount="0" snapToTicks="true" showTickMarks="true" onMouseReleased="#handleParameterChange"/>
+
+            <Label text="Medien-Einfluss (%)" style="-fx-text-fill: white;"/>
+            <Slider fx:id="mediaInfluenceSlider" min="0" max="100" value="65" onMouseReleased="#handleParameterChange"/>
+
+            <Label text="Basis Mobilität (%)" style="-fx-text-fill: white;"/>
+            <Slider fx:id="mobilityRateSlider" min="0" max="100" value="35" onMouseReleased="#handleParameterChange"/>
+
+            <Label text="Loyalitätsmittelwert (0-100)" style="-fx-text-fill: white;"/>
+            <Slider fx:id="loyaltyMeanSlider" min="0" max="100" value="50" onMouseReleased="#handleParameterChange"/>
+
+            <Label text="Skandal-Chance (%)" style="-fx-text-fill: white;"/>
+            <Slider fx:id="scandalChanceSlider" min="0" max="10" value="5" onMouseReleased="#handleParameterChange"/>
+
+            <Label text="Werbe-Zufallsbereich" style="-fx-text-fill: white;"/>
+            <Slider fx:id="randomRangeSlider" min="0.1" max="5.0" value="1.0" onMouseReleased="#handleParameterChange"/>
+
+            <Label text="Simulations-Geschw." style="-fx-text-fill: white;"/>
+            <HBox spacing="5" alignment="CENTER">
+                <Button text="1X" onAction="#handleSpeed1x" fx:id="speed1xButton"/>
+                <Button text="2X" onAction="#handleSpeed2x" fx:id="speed2xButton"/>
+                <Button text="4X" onAction="#handleSpeed4x" fx:id="speed4xButton"/>
+            </HBox>
+
+            <Button text="Parameter Übernehmen" onAction="#handleParameterChange"/>
+
+        </VBox>
+    </left>
+
+    <center>
+        <Pane fx:id="animationPane" style="-fx-background-color: #141414;">
+            <BorderPane.margin>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </BorderPane.margin>
+        </Pane>
+    </center>
+
+    <right>
+        <VBox spacing="10" style="-fx-padding: 20; -fx-background-color: #2A2A2A;" prefWidth="350">
+            <Label text="Aktuelle Unterstützerzahlen" style="-fx-font-size: 16px; -fx-text-fill: #C9A227;"/>
+
+            <PieChart fx:id="partyDistributionChart" legendVisible="true"/>
+
+            <Label text="Ereignis-Feed" style="-fx-font-size: 16px; -fx-text-fill: #C9A227;"/>
+            <Pane prefHeight="200" style="-fx-background-color: #1A1A1A;"/>
+        </VBox>
+    </right>
 </BorderPane>

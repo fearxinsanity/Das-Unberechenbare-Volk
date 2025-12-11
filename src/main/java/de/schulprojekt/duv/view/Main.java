@@ -36,9 +36,11 @@ public class Main extends Application {
         SimulationController simulationController = new SimulationController(view);
         view.setSimulationController(simulationController);
 
-        Scene scene = new Scene(root, 1600, 900); // Standard size from FXML
+        Scene scene = new Scene(root, 1200, 650); // Standard size from FXML
         primaryStage.setTitle(APP_TITLE);
         primaryStage.setScene(scene);
+        primaryStage.setMaximized(false);
+        primaryStage.setResizable(false);
         primaryStage.show();
     }
 
