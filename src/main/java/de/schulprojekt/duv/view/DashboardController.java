@@ -72,7 +72,8 @@ public class DashboardController {
     @FXML
     public void handleResetSimulation() {
         if (simulationController != null) {
-            // TODO: simulationController.resetSimulation() aktivieren, sobald implementiert
+            simulationController.resetSimulation();
+            // TODO: UI-Status (z.B. Buttons deaktivieren/aktivieren)
         }
     }
 

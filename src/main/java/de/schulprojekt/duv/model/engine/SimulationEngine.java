@@ -178,4 +178,10 @@ public class SimulationEngine {
 
         return transitions;
     }
+    public void resetState() {
+        this.voterList.clear();
+        this.partyList.clear();
+
+        initializeSimulation();
+    }
 }

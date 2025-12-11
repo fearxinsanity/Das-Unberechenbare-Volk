@@ -68,5 +68,13 @@ public class SimulationController {
         simulationTimer.stop();
     }
 
-    // TODO: Add resetSimulation() and methods to update parameters from the View.
+    public void resetSimulation() {
+        simulationTimer.stop();
+        engine.resetState();
+        updateView();
+
+        // TODO: UI-Status des Reset-Buttons in DashboardController aktualisieren
+    }
+
+    // TODO: Add Methods to update parameters from the View.
 }
