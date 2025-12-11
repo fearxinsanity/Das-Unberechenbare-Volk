@@ -4,11 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="Added parameter logic with view implementation">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/DashboardController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/DashboardController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/view/DashboardUI.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/view/DashboardUI.fxml" afterDir="false" />
-    </list>
+    <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="Removed everything and fresh start" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -35,12 +31,12 @@
     &quot;assignee&quot;: &quot;fearxinsanity&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/fearxinsanity/Das-Unberechenbare-Volk.git&quot;,
-    &quot;accountId&quot;: &quot;79da5971-a308-459c-94f0-745ff2f8a3a8&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/fearxinsanity/Das-Unberechenbare-Volk.git",
+    "accountId": "79da5971-a308-459c-94f0-745ff2f8a3a8"
   }
-}</component>
+}]]></component>
   <component name="MavenImportPreferences">
     <option name="explicitlyEnabledProfiles" value="portable" />
   </component>
@@ -60,7 +56,6 @@
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "Application.Main.executor": "Run",
     "Maven.Build EXE.executor": "Run",
-    "Maven.DUV - run.executor": "Run",
     "Maven.Das-Unberechenbare-Volk [install].executor": "Run",
     "Maven.Das-Unberechenbare-Volk [package].executor": "Run",
     "Maven.Package & Install.executor": "Run",
@@ -69,7 +64,7 @@
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "integrate-controller-view",
+    "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "D:/Programme/GitHub/Das-Unberechenbare-Volk",
@@ -85,7 +80,7 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RunManager" selected="Maven.DUV - run">
+  <component name="RunManager" selected="Maven.Build EXE">
     <configuration name="Build EXE" type="MavenRunConfiguration" factoryName="Maven">
       <MavenSettings>
         <option name="myGeneralSettings" />
@@ -174,7 +169,6 @@
       <workItem from="1762624203521" duration="8285000" />
       <workItem from="1762969109491" duration="323000" />
       <workItem from="1764102316398" duration="387000" />
-      <workItem from="1765191638381" duration="7164000" />
     </task>
     <task id="LOCAL-00001" summary="workspace.xml changed">
       <option name="closed" value="true" />
@@ -232,39 +226,7 @@
       <option name="project" value="LOCAL" />
       <updated>1764102613065</updated>
     </task>
-    <task id="LOCAL-00008" summary="Added parameters to SimulationParameters.java">
-      <option name="closed" value="true" />
-      <created>1765192482389</created>
-      <option name="number" value="00008" />
-      <option name="presentableId" value="LOCAL-00008" />
-      <option name="project" value="LOCAL" />
-      <updated>1765192482389</updated>
-    </task>
-    <task id="LOCAL-00009" summary="Filled SimulationParameters.java with parameters, getter and setter">
-      <option name="closed" value="true" />
-      <created>1765193992176</created>
-      <option name="number" value="00009" />
-      <option name="presentableId" value="LOCAL-00009" />
-      <option name="project" value="LOCAL" />
-      <updated>1765193992176</updated>
-    </task>
-    <task id="LOCAL-00010" summary="Added simulation reset method">
-      <option name="closed" value="true" />
-      <created>1765439395697</created>
-      <option name="number" value="00010" />
-      <option name="presentableId" value="LOCAL-00010" />
-      <option name="project" value="LOCAL" />
-      <updated>1765439395697</updated>
-    </task>
-    <task id="LOCAL-00011" summary="Added parameter logic with view implementation">
-      <option name="closed" value="true" />
-      <created>1765445368120</created>
-      <option name="number" value="00011" />
-      <option name="presentableId" value="LOCAL-00011" />
-      <option name="project" value="LOCAL" />
-      <updated>1765445368120</updated>
-    </task>
-    <option name="localTasksCounter" value="12" />
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
