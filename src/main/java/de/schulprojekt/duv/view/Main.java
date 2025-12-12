@@ -54,7 +54,7 @@ import java.net.URL;
         // DANACH die Visuals initialisieren (wenn Layout-Dimensionen bekannt sind)
         javafx.application.Platform.runLater(() -> {
             view.setupVisuals();
-            view.updateDashboard(simulationController.getParties(), simulationController.getVoters());
+            view.updateDashboard(simulationController.getParties(), simulationController.getVoters(), java.util.List.of());
         });
     }
 

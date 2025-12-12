@@ -2,11 +2,11 @@ package de.schulprojekt.duv.controller;
 
 import de.schulprojekt.duv.model.engine.SimulationEngine;
 import de.schulprojekt.duv.model.engine.SimulationParameters;
+import de.schulprojekt.duv.model.engine.VoterTransition;
 import de.schulprojekt.duv.model.entities.Party;
 import de.schulprojekt.duv.model.entities.Voter;
 import de.schulprojekt.duv.view.DashboardController;
 import javafx.animation.AnimationTimer;
-import javafx.animation.Animation;
 
 import java.util.List;
 
@@ -52,16 +52,17 @@ public class SimulationController {
             @Override
             public void handle(long now) {
                 if (now - lastUpdate >= updateIntervalNano) {
-                    engine.runSimulationStep();
-                    updateView();
+                    // Transitions vom Simulationsschritt abrufen
+                    List<VoterTransition> transitions = engine.runSimulationStep();
+                    updateView(transitions);
                     lastUpdate = now;
                 }
             }
         };
     }
 
-    private void updateView() {
-        view.updateDashboard(engine.getParties(), engine.getVoters());
+    private void updateView(List<VoterTransition> transitions) {
+        view.updateDashboard(engine.getParties(), engine.getVoters(), transitions);
     }
 
     public void startSimulation() {
@@ -76,8 +77,10 @@ public class SimulationController {
 
     public void resetSimulation() {
         simulationTimer.stop();
+        this.isRunning = false;
         engine.resetState();
-        updateView();
+        view.setupVisuals();
+        updateView(List.of());
     }
 
     public SimulationParameters getCurrentParameters() {
@@ -104,9 +107,10 @@ public class SimulationController {
 
         if (needsReset) {
             engine.resetState();
+            view.setupVisuals();
         }
 
-        updateView();
+        updateView(List.of());
     }
 
     public void updateSimulationSpeed(int newTicksPerSecond) {
