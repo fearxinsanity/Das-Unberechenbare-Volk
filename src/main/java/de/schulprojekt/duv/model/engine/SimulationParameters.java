@@ -19,6 +19,7 @@ public class SimulationParameters {
         this.initialLoyaltyMean = initialLoyaltyMean;
         this.simulationTicksPerSecond = simulationTicksPerSecond;
         this.uniformRandomRange = uniformRandomRange;
+        this.numberOfParties = numberOfParties;
     }
 
     public int getTotalVoterCount() {
