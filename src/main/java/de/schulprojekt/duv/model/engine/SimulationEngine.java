@@ -4,80 +4,77 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Random;
-//--- Distributions ---
-import org.apache.commons.math3.distribution.ExponentialDistribution;
+
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.distribution.UniformRealDistribution;
-//--- Internal imports ---
+
 import de.schulprojekt.duv.model.entities.Voter;
 import de.schulprojekt.duv.model.entities.Party;
 
 public class SimulationEngine {
 
-    // --- Distributions ---
+    // --- Verteilungen (Normalverteilung, Gleichverteilung) ---
     private NormalDistribution normalDistribution;
     private UniformRealDistribution uniformRealDistribution;
-    private ExponentialDistribution exponentialDistribution;
 
-    //--- Lists ---
     private final List<Voter> voterList;
     private final List<Party> partyList;
 
-    //--- Saved parameters locally ---
     private SimulationParameters parameters;
+    private Random random = new Random();
 
-    // --- CONSTRUCTOR ---
     public SimulationEngine(SimulationParameters params) {
-
         this.parameters = params;
         this.voterList = new ArrayList<>();
         this.partyList = new ArrayList<>();
 
-        // Initialisiere Verteilungen basierend auf Startparametern
+        // Normalverteilung für Loyalität (Mittelwert aus Parameter, Standardabweichung 15)
         this.normalDistribution = new NormalDistribution(
                 params.getInitialLoyaltyMean(),
-                10.0
+                15.0
         );
 
+        // Gleichverteilung für Kampagnen-Effektivität
         this.uniformRealDistribution = new UniformRealDistribution(
                 0.0,
                 params.getUniformRandomRange()
         );
-
-        this.exponentialDistribution = new ExponentialDistribution(
-                params.getScandalChance() / 100.0
-        );
     }
 
-    // --- DISTRIBUTION GENERATORS ---
-    public double generateLoyaltyValue(){
-        return normalDistribution.sample();
+    // --- VERTEILUNGS-GENERATOREN ---
+
+    /**
+     * Generiert einen Loyalitätswert mit Normalverteilung.
+     * Mittelwert: initialLoyaltyMean, Standardabweichung: 15
+     */
+    public double generateLoyaltyValue() {
+        double value = normalDistribution.sample();
+        // Auf Bereich 0-100 begrenzen
+        return Math.max(0, Math.min(100, value));
     }
 
-    public double generateCampaignEffectiveness(){
+    /**
+     * Generiert Kampagnen-Effektivität mit Gleichverteilung.
+     * Bereich: 0 bis uniformRandomRange
+     */
+    public double generateCampaignEffectiveness() {
         return uniformRealDistribution.sample();
     }
 
-    public double generateWaitingTimeForEvent() {
-        return exponentialDistribution.sample();
-    }
-
     // --- INITIALIZATION / RESET ---
-    public void initializeSimulation(){
+    public void initializeSimulation() {
         int partyCount = parameters.getNumberOfParties();
         if (partyCount == 0) {
             return;
         }
 
-        // Feste, kontrastreiche Farben für die Visualisierung (Checklistenpunkt 1)
         String[] partyColors = {"007bff", "dc3545", "ffc107", "28a745", "6f42c1", "20c997", "fd7e14", "6c757d"};
 
         // 1. Parteien erstellen
-        for(int i=0; i < partyCount; i++){
-            String name = "Partei " + (char)('A' + i);
+        for (int i = 0; i < partyCount; i++) {
+            String name = "Partei " + (char) ('A' + i);
             double position;
 
-            // Setzt die Position gleichmäßig auf der politischen Skala (0 bis 100)
             if (partyCount <= 1) {
                 position = 50.0;
             } else {
@@ -91,15 +88,23 @@ public class SimulationEngine {
             this.partyList.add(party);
         }
 
-        // 2. Wähler erstellen
+        // 2. Wähler erstellen mit Normalverteilung für politische Position
         int totalVoters = parameters.getTotalVoterCount();
-        Random generalRandom = new Random();
+        NormalDistribution positionDistribution = new NormalDistribution(50.0, 25.0);
 
         for (int i = 0; i < totalVoters; i++) {
-            Party initialParty = this.partyList.get(i % partyCount);
+            // Zufällige Partei zuweisen (gleichverteilt)
+            Party initialParty = this.partyList.get(random.nextInt(partyCount));
+
+            // Loyalität mit Normalverteilung
             double loyalty = generateLoyaltyValue();
-            double politicalPosition = generalRandom.nextDouble() * 100.0;
-            double mediaInfluenceability = generalRandom.nextDouble();
+
+            // Politische Position mit Normalverteilung (Mitte bei 50, Streuung 25)
+            double politicalPosition = positionDistribution.sample();
+            politicalPosition = Math.max(0, Math.min(100, politicalPosition));
+
+            // Medien-Beeinflussbarkeit gleichverteilt
+            double mediaInfluenceability = random.nextDouble();
 
             Voter voter = new Voter(initialParty, loyalty, politicalPosition, mediaInfluenceability);
             this.voterList.add(voter);
@@ -111,65 +116,72 @@ public class SimulationEngine {
     public void resetState() {
         this.voterList.clear();
         this.partyList.clear();
-
         initializeSimulation();
     }
 
-    // --- UPDATE PARAMETERS ---
     public void updateParameters(SimulationParameters newParams) {
         this.parameters = newParams;
 
-        // Re-initialisiere Verteilungen basierend auf den neuen Parametern
         this.normalDistribution = new NormalDistribution(
                 newParams.getInitialLoyaltyMean(),
-                10.0
+                15.0
         );
         this.uniformRealDistribution = new UniformRealDistribution(
                 0.0,
                 newParams.getUniformRandomRange()
         );
-        this.exponentialDistribution = new ExponentialDistribution(
-                newParams.getScandalChance() / 100.0
-        );
     }
 
-    // --- MAIN SIMULATION STEP LOGIC ---
+    // --- SIMULATION STEP LOGIC ---
 
+    /**
+     * Berechnet die Attraktivität einer Partei für einen Wähler.
+     * Basierend auf: politischer Distanz, Kampagnen-Budget und Medien-Beeinflussbarkeit.
+     */
     private double getPartyTargetScore(Voter voter, Party party, double campaignEffectiveness) {
+        // Je näher die politische Position, desto höher der Score
         double distance = Math.abs(voter.getPoliticalPosition() - party.getPoliticalPosition());
-        double baseScore = 1.0 / (distance + 1.0);
-        double campaignInfluence = party.getCampaignBudget() * campaignEffectiveness;
-        return baseScore + (campaignInfluence * voter.getMediaInfluenceability());
+        double proximityScore = 100.0 / (distance + 1.0);
+
+        // Kampagnen-Einfluss (Budget * Effektivität * Beeinflussbarkeit)
+        double campaignInfluence = (party.getCampaignBudget() / 100000.0)
+                * campaignEffectiveness
+                * voter.getMediaInfluenceability()
+                * (parameters.getGlobalMediaInfluence() / 100.0);
+
+        // Loyalitäts-Bonus wenn bereits bei dieser Partei
+        double loyaltyBonus = 0;
+        if (voter.getCurrentParty().equals(party)) {
+            loyaltyBonus = voter.getPartyLoyalty() * 0.5;
+        }
+
+        return proximityScore + campaignInfluence + loyaltyBonus;
     }
 
     /**
-     * Führt einen diskreten Zeitschritt der Simulation aus.
+     * Führt einen Simulationsschritt aus.
+     * Keine Skandale - nur normale Wähler-Mobilität.
      */
     public List<VoterTransition> runSimulationStep() {
         List<VoterTransition> transitions = new ArrayList<>();
-        Random random = new Random();
 
-        boolean scandalOccurred = (random.nextDouble() * 100.0 < parameters.getScandalChance());
-        Party affectedParty = null;
-
-        if (scandalOccurred) {
-            int partyIndex = random.nextInt(partyList.size());
-            affectedParty = partyList.get(partyIndex);
-        }
+        // Mobilität bestimmt die Wahrscheinlichkeit, dass ein Wähler wechselt
+        double baseMobility = parameters.getBaseMobilityRate() / 100.0;
 
         for (Voter voter : voterList) {
-            double chanceToConsiderSwitch = parameters.getBaseMobilityRate() * voter.getMediaInfluenceability();
+            // Wechsel-Wahrscheinlichkeit basierend auf Mobilität und inverser Loyalität
+            double switchProbability = baseMobility * (1.0 - voter.getPartyLoyalty() / 100.0) * voter.getMediaInfluenceability();
 
-            if (random.nextDouble() < chanceToConsiderSwitch) {
+            if (random.nextDouble() < switchProbability) {
                 Party currentParty = voter.getCurrentParty();
                 Party bestTargetParty = currentParty;
                 double highestScore = -1.0;
+
+                // Kampagnen-Effektivität für diesen Tick (Gleichverteilung)
                 double campaignEffectiveness = generateCampaignEffectiveness();
 
+                // Beste Partei finden
                 for (Party targetParty : partyList) {
-                    if (scandalOccurred && targetParty.equals(affectedParty)) {
-                        continue;
-                    }
                     double score = getPartyTargetScore(voter, targetParty, campaignEffectiveness);
                     if (score > highestScore) {
                         highestScore = score;
@@ -177,6 +189,7 @@ public class SimulationEngine {
                     }
                 }
 
+                // Partei wechseln wenn bessere gefunden
                 if (!currentParty.equals(bestTargetParty)) {
                     voter.setCurrentParty(bestTargetParty);
                     currentParty.setCurrentSupporterCount(currentParty.getCurrentSupporterCount() - 1);
@@ -185,10 +198,11 @@ public class SimulationEngine {
                 }
             }
         }
+
         return transitions;
     }
 
-    // --- GETTERS (Für Controller-Zugriff) ---
+    // --- GETTERS ---
     public List<Voter> getVoters() {
         return Collections.unmodifiableList(this.voterList);
     }

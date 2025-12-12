@@ -52,17 +52,12 @@ public class SimulationController {
             @Override
             public void handle(long now) {
                 if (now - lastUpdate >= updateIntervalNano) {
-                    // Transitions vom Simulationsschritt abrufen
                     List<VoterTransition> transitions = engine.runSimulationStep();
-                    updateView(transitions);
+                    view.updateDashboard(engine.getParties(), engine.getVoters(), transitions);
                     lastUpdate = now;
                 }
             }
         };
-    }
-
-    private void updateView(List<VoterTransition> transitions) {
-        view.updateDashboard(engine.getParties(), engine.getVoters(), transitions);
     }
 
     public void startSimulation() {
@@ -79,8 +74,6 @@ public class SimulationController {
         simulationTimer.stop();
         this.isRunning = false;
         engine.resetState();
-        view.setupVisuals();
-        updateView(List.of());
     }
 
     public SimulationParameters getCurrentParameters() {
@@ -107,10 +100,7 @@ public class SimulationController {
 
         if (needsReset) {
             engine.resetState();
-            view.setupVisuals();
         }
-
-        updateView(List.of());
     }
 
     public void updateSimulationSpeed(int newTicksPerSecond) {
