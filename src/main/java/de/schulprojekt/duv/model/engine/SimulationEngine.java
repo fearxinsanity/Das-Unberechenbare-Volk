@@ -26,6 +26,7 @@ public class SimulationEngine {
     private final CSVLoader csvLoader;
     private SimulationParameters parameters;
     private final Random random = new Random();
+    private double[] partyPermanentDamage;
 
     // Verteilungen
     private NormalDistribution normalDistribution;
@@ -75,6 +76,7 @@ public class SimulationEngine {
 
         // 1. Parteien initialisieren
         int partyCount = parameters.getNumberOfParties();
+        partyPermanentDamage = new double[partyCount + 1];
         undecidedParty = new Party(SimulationConfig.UNDECIDED_NAME, SimulationConfig.UNDECIDED_COLOR, SimulationConfig.UNDECIDED_POSITION, 0, 0);
         partyList.add(undecidedParty);
 
@@ -139,12 +141,12 @@ public class SimulationEngine {
         double globalMedia = parameters.getGlobalMediaInfluence() / 100.0;
         double uniformRange = parameters.getUniformRandomRange();
 
-        // --- SKANDAL MANAGEMENT (SANFTERE VERSION) ---
-        int scandalDuration = 100; // Dauer bleibt gleich, damit man es sieht
+        // --- SKANDAL MANAGEMENT ---
+        int scandalDuration = 100;
         activeScandals.removeIf(e -> currentStep - e.getOccurredAtStep() > scandalDuration);
         if (shouldScandalOccur() && partyList.size() > 1) triggerScandal();
 
-        // 1. Skandal-Druck ("Pressure") berechnen
+        // 1. Akuten Skandal-Druck ("Pressure") berechnen
         double[] currentScandalPressure = new double[partyList.size()];
 
         for (ScandalEvent event : activeScandals) {
@@ -155,14 +157,13 @@ public class SimulationEngine {
                 double strength = event.getScandal().getStrength();
 
                 double timeFactor;
-                if (age < 15) { // Etwas längerer Ramp-Up (15 Ticks), wirkt natürlicher
+                if (age < 15) {
                     timeFactor = (double) age / 15.0;
                 } else {
                     timeFactor = 1.0 - ((double) (age - 15) / (scandalDuration - 15));
                 }
 
-                // ANPASSUNG 1: Maximaler Druck reduziert (30 statt 60)
-                // Ein Skandal haut nicht mehr so extrem rein.
+                // Temporärer Druck (die Welle)
                 currentScandalPressure[pIndex] += strength * 30.0 * timeFactor;
             }
         }
@@ -187,30 +188,32 @@ public class SimulationEngine {
 
             int currentIdx = voterPartyIndices[i];
 
-            double myPartyPressure = (currentIdx > 0) ? currentScandalPressure[currentIdx] : 0;
+            // Gesamtschaden = Akuter Druck + Dauerhafter Schaden
+            // Hier greift die "Narbe" -> Auch wenn Druck weg ist, bleibt der Schaden.
+            double totalPenalty = 0;
+            if (currentIdx > 0) {
+                totalPenalty = currentScandalPressure[currentIdx] + partyPermanentDamage[currentIdx];
+            }
+
             double switchProb = baseMobility * (1.0 - voterLoyalties[i] / 200.0) * voterMediaInfluence[i];
 
-            // ANPASSUNG 2: Wechselwahrscheinlichkeit gedämpft
-            // Statt /200 teilen wir durch /300.
-            // Beispiel: Druck 30 -> +10% Wechselchance (vorher +15% bis +30%).
-            // Das sorgt für einen "Delle" im Graphen statt einen "Absturz".
-            if (myPartyPressure > 0) {
-                switchProb += (myPartyPressure / 300.0);
+            // Wechselwahrscheinlichkeit steigt durch Gesamtschaden
+            if (totalPenalty > 0) {
+                switchProb += (totalPenalty / 300.0);
             }
 
             if (currentIdx == 0) switchProb *= 1.5;
-            if (switchProb > 0.7) switchProb = 0.7; // Cap etwas niedriger
+            if (switchProb > 0.7) switchProb = 0.7;
 
             double rnd = java.util.concurrent.ThreadLocalRandom.current().nextDouble();
 
             if (rnd < switchProb) {
                 int targetIdx = currentIdx;
 
-                // ANPASSUNG 3: Nur noch bei stärkeren Skandalen (Druck > 8) flüchten Wähler gezielt ins "Unsicher"-Lager.
-                // Kleine Skandale führen eher zum Wechsel zur Konkurrenz.
-                boolean fleeingFromScandal = (myPartyPressure > 8.0);
+                // Wenn der Schaden sehr hoch ist (viele alte Skandale), flüchten die Leute dauerhaft
+                boolean fleeingFromDesaster = (totalPenalty > 8.0);
 
-                if (!fleeingFromScandal && currentIdx != 0 && java.util.concurrent.ThreadLocalRandom.current().nextDouble() < 0.2) {
+                if (!fleeingFromDesaster && currentIdx != 0 && java.util.concurrent.ThreadLocalRandom.current().nextDouble() < 0.2) {
                     targetIdx = 0;
                 } else {
                     double bestScore = -Double.MAX_VALUE;
@@ -227,8 +230,10 @@ public class SimulationEngine {
 
                         double score = distScore + budgetScore;
 
-                        // Konkurrenz wird durch deren Skandale unattraktiver
-                        score -= currentScandalPressure[pIdx];
+                        // WICHTIG: Auch beim Ziel prüfen wir auf Skandale + Dauerschaden
+                        // Parteien mit vielen vergangenen Skandalen (hoher partyPermanentDamage)
+                        // werden seltener als neue Heimat gewählt.
+                        score -= (currentScandalPressure[pIdx] + partyPermanentDamage[pIdx]);
 
                         double noise = (java.util.concurrent.ThreadLocalRandom.current().nextDouble() - 0.5) * 10.0 * uniformRange;
                         double finalScore = score + noise;
@@ -277,13 +282,20 @@ public class SimulationEngine {
     }
 
     private void triggerScandal() {
-        List<Party> realParties = partyList.stream().filter(p -> !p.getName().equals(SimulationConfig.UNDECIDED_NAME)).toList();
+        List<Party> realParties = partyList.stream()
+                .filter(p -> !p.getName().equals(SimulationConfig.UNDECIDED_NAME))
+                .toList();
+
         if (!realParties.isEmpty()) {
             Party target = realParties.get(random.nextInt(realParties.size()));
             Scandal s = csvLoader.getRandomScandal();
             ScandalEvent e = new ScandalEvent(s, target, currentStep);
             activeScandals.add(e);
             lastScandal = e;
+            int pIndex = partyList.indexOf(target);
+            if (pIndex != -1) {
+                partyPermanentDamage[pIndex] += s.getStrength() * 5.0;
+            }
         }
     }
 

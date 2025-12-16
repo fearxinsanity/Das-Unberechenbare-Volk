@@ -4,11 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="fixed folder structure and added new graph">
+    <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="changed logic with graph and scandal %">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/engine/SimulationEngine.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/engine/SimulationEngine.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/DashboardController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/DashboardController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/view/DashboardUI.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/view/DashboardUI.fxml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -252,7 +250,15 @@
       <option name="project" value="LOCAL" />
       <updated>1765898116199</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="changed logic with graph and scandal %">
+      <option name="closed" value="true" />
+      <created>1765900240471</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1765900240471</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -271,6 +277,7 @@
     <MESSAGE value="Added simulation reset method" />
     <MESSAGE value="Added parameter logic with view implementation" />
     <MESSAGE value="fixed folder structure and added new graph" />
-    <option name="LAST_COMMIT_MESSAGE" value="fixed folder structure and added new graph" />
+    <MESSAGE value="changed logic with graph and scandal %" />
+    <option name="LAST_COMMIT_MESSAGE" value="changed logic with graph and scandal %" />
   </component>
 </project>
