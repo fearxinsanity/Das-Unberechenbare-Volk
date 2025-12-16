@@ -19,8 +19,8 @@ import java.util.Random;
  */
 public class CSVLoader {
 
-    private static final String PARTY_NAMES_PATH = "/de.schulprojekt.duv/data/party_names.csv";
-    private static final String SCANDALS_PATH = "/de.schulprojekt.duv/data/scandals.csv";
+    private static final String PARTY_NAMES_PATH = "/de/schulprojekt/duv/data/party_names.csv";
+    private static final String SCANDALS_PATH = "/de/schulprojekt/duv/data/scandals.csv";
 
     private final List<PartyTemplate> partyTemplates;
     private final List<Scandal> scandals;

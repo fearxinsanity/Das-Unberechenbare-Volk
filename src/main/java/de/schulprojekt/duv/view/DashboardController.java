@@ -14,25 +14,31 @@ import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.chart.LineChart;
-import javafx.scene.chart.PieChart;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 
 import java.util.*;
 
 public class DashboardController {
 
     // --- FXML UI Elemente ---
-    @FXML private PieChart partyDistributionChart;
     @FXML private LineChart<Number, Number> historyChart;
     @FXML private Pane animationPane;
     @FXML private Pane eventFeedPane;
     @FXML private Label timeStepLabel;
+
+    // Legenden-Container (Neu)
+    @FXML private FlowPane legendPane;
 
     // Eingabefelder & Slider
     @FXML private TextField voterCountField;
@@ -87,11 +93,18 @@ public class DashboardController {
     }
 
     private void setupCharts() {
-        if (partyDistributionChart != null) partyDistributionChart.setAnimated(false);
         if (historyChart != null) {
             historyChart.setAnimated(false);
             historyChart.setCreateSymbols(false);
-            historyChart.setLegendVisible(false);
+            historyChart.setLegendVisible(false); // Eigene Legende unten
+
+            // Achsenbeschriftung explizit setzen (optional)
+            if (historyChart.getXAxis() instanceof NumberAxis) {
+                ((NumberAxis) historyChart.getXAxis()).setLabel("Zeit");
+            }
+            if (historyChart.getYAxis() instanceof NumberAxis) {
+                ((NumberAxis) historyChart.getYAxis()).setLabel("Stimmen");
+            }
         }
     }
 
@@ -116,9 +129,7 @@ public class DashboardController {
     @FXML
     public void handleResetSimulation(ActionEvent event) {
         if (controller != null) {
-            // Parameter neu senden (falls Slider geändert wurden ohne Übernehmen)
             handleParameterChange(null);
-
             controller.resetSimulation();
             clearVisuals();
             updateButtonState(false);
@@ -147,22 +158,11 @@ public class DashboardController {
         }
     }
 
-    @FXML
-    public void handleVoterCountIncrement(ActionEvent event) {
-        adjustVoterCount(1000);
-    }
-
-    @FXML
-    public void handleVoterCountDecrement(ActionEvent event) {
-        adjustVoterCount(-1000);
-    }
-
-    @FXML
-    public void handleSpeed1x(ActionEvent event) { controller.updateSimulationSpeed(1); }
-    @FXML
-    public void handleSpeed2x(ActionEvent event) { controller.updateSimulationSpeed(2); }
-    @FXML
-    public void handleSpeed4x(ActionEvent event) { controller.updateSimulationSpeed(4); }
+    @FXML public void handleVoterCountIncrement(ActionEvent event) { adjustVoterCount(1000); }
+    @FXML public void handleVoterCountDecrement(ActionEvent event) { adjustVoterCount(-1000); }
+    @FXML public void handleSpeed1x(ActionEvent event) { controller.updateSimulationSpeed(1); }
+    @FXML public void handleSpeed2x(ActionEvent event) { controller.updateSimulationSpeed(2); }
+    @FXML public void handleSpeed4x(ActionEvent event) { controller.updateSimulationSpeed(4); }
 
 
     // --- Hilfsmethoden UI ---
@@ -186,19 +186,26 @@ public class DashboardController {
 
     public void updateDashboard(List<Party> parties, List<VoterTransition> transitions, ScandalEvent scandal, int step) {
         if (!Platform.isFxApplicationThread()) {
-            // Falls wir im falschen Thread sind -> Auftrag an JavaFX übergeben und abbrechen
             Platform.runLater(() -> updateDashboard(parties, transitions, scandal, step));
             return;
         }
+
+        // Reset-Logik bei Schritt 0
         if (step == 0) {
             historySeriesMap.clear();
             if (historyChart != null) historyChart.getData().clear();
             activeParticles.forEach(particlePool::push);
             activeParticles.clear();
             if (gc != null) gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-
-            // WICHTIGSTER FIX: Positionen löschen, damit sie für die NEUEN Parteien berechnet werden!
             partyPositions.clear();
+
+            // Legende initial aufbauen
+            updateLegend(parties);
+        }
+
+        // Falls sich Parteienanzahl ändert, Legende neu aufbauen
+        if (legendPane != null && legendPane.getChildren().size() != parties.size()) {
+            updateLegend(parties);
         }
 
         // Labels
@@ -214,26 +221,25 @@ public class DashboardController {
             msg.setWrapText(true);
             msg.setMaxWidth(eventFeedPane.getWidth() - 10);
 
-            javafx.scene.layout.VBox box;
+            VBox box;
             if (eventFeedPane.getChildren().isEmpty()) {
-                box = new javafx.scene.layout.VBox(5);
+                box = new VBox(5);
                 eventFeedPane.getChildren().add(box);
             } else {
-                box = (javafx.scene.layout.VBox) eventFeedPane.getChildren().get(0);
+                box = (VBox) eventFeedPane.getChildren().get(0);
             }
             box.getChildren().add(0, msg);
             if (box.getChildren().size() > 8) box.getChildren().remove(8);
         }
 
-        // Charts aktualisieren
-        updateStandardCharts(parties);
-
-        if (historyChart != null && step % 5 == 0) {
+        // --- CHART UPDATE (FLÜSSIG) ---
+        // Früher: if (step % 5 == 0) -> Das hat das Ruckeln verursacht.
+        // Jetzt: Update jeden Tick für maximale Smoothness.
+        if (historyChart != null) {
             updateHistoryChart(parties, step);
         }
 
-        // Canvas Positionen prüfen und ggf. neu berechnen
-        // Falls partyPositions leer ist (durch Reset oben), wird hier neu berechnet.
+        // Canvas Positionen prüfen
         if (partyPositions.size() != parties.size()) {
             recalculatePartyPositions(parties);
         }
@@ -241,87 +247,32 @@ public class DashboardController {
         spawnParticles(transitions);
     }
 
-    private void updateStandardCharts(List<Party> parties) {
-        if (partyDistributionChart == null) return;
+    // Neue Legenden-Methode (aus vorherigem Schritt)
+    private void updateLegend(List<Party> parties) {
+        if (legendPane == null) return;
+        legendPane.getChildren().clear();
 
-        // 1. Daten aktualisieren oder neu bauen
-        boolean needsRebuild = partyDistributionChart.getData().size() != parties.size();
-        if (!needsRebuild && !partyDistributionChart.getData().isEmpty()) {
-            for (int i = 0; i < parties.size(); i++) {
-                if (!partyDistributionChart.getData().get(i).getName().equals(parties.get(i).getName())) {
-                    needsRebuild = true;
-                    break;
-                }
-            }
-        }
+        for (Party p : parties) {
+            HBox item = new HBox(6);
+            item.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+            item.setPadding(new javafx.geometry.Insets(0, 10, 0, 0));
 
-        if (partyDistributionChart.getData().isEmpty() || needsRebuild) {
-            partyDistributionChart.getData().clear();
-            for (Party p : parties) {
-                PieChart.Data data = new PieChart.Data(p.getName(), p.getCurrentSupporterCount());
-                partyDistributionChart.getData().add(data);
+            Circle icon = new Circle(6);
+            icon.setFill(Color.web(p.getColorCode()));
+            icon.setStroke(Color.WHITE);
+            icon.setStrokeWidth(1);
 
-                // Listener für Tortenstück-Farbe (Slice)
-                data.nodeProperty().addListener((obs, oldNode, newNode) -> {
-                    if (newNode != null) {
-                        newNode.setStyle("-fx-pie-color: #" + p.getColorCode() + ";");
-                    }
-                });
+            Label nameLabel = new Label(p.getName());
+            nameLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
 
-                // Fallback falls Node schon da
-                if (data.getNode() != null) {
-                    data.getNode().setStyle("-fx-pie-color: #" + p.getColorCode() + ";");
-                }
-            }
-        } else {
-            // Nur Werte updaten
-            for (int i = 0; i < parties.size(); i++) {
-                PieChart.Data data = partyDistributionChart.getData().get(i);
-                Party p = parties.get(i);
-                data.setPieValue(p.getCurrentSupporterCount());
+            // Prozentanzeige
+            int total = controller.getCurrentParameters().getTotalVoterCount();
+            double percent = total > 0 ? (double)p.getCurrentSupporterCount() / total * 100 : 0;
+            Label percentLabel = new Label(String.format("(%.1f%%)", percent));
+            percentLabel.setStyle("-fx-text-fill: #aaa; -fx-font-size: 10px;");
 
-                if (data.getNode() != null) {
-                    String style = "-fx-pie-color: #" + p.getColorCode() + ";";
-                    if (!style.equals(data.getNode().getStyle())) {
-                        data.getNode().setStyle(style);
-                    }
-                }
-            }
-        }
-
-        // 2. WICHTIG: Legenden-Farben korrigieren
-        // Wir führen das verzögert aus, damit JavaFX Zeit hat, die Legende zu rendern
-        Platform.runLater(() -> fixLegendColors(parties));
-    }
-
-    /**
-     * Sucht die Legenden-Einträge im Chart und färbt die Symbole korrekt ein.
-     */
-    private void fixLegendColors(List<Party> parties) {
-        if (partyDistributionChart == null) return;
-
-        // Erzwingt Layout-Update, damit Legenden-Nodes gefunden werden
-        partyDistributionChart.applyCss();
-        partyDistributionChart.layout();
-
-        // Alle Legenden-Items suchen (CSS Selektor)
-        Set<javafx.scene.Node> items = partyDistributionChart.lookupAll(".chart-legend-item");
-
-        for (javafx.scene.Node item : items) {
-            if (item instanceof Label) {
-                Label label = (Label) item;
-
-                // Den passenden Parteinamen suchen
-                for (Party p : parties) {
-                    if (p.getName().equals(label.getText())) {
-                        // Das Symbol (der Punkt) ist das "Graphic" des Labels
-                        if (label.getGraphic() != null) {
-                            label.getGraphic().setStyle("-fx-background-color: #" + p.getColorCode() + ";");
-                        }
-                        break;
-                    }
-                }
-            }
+            item.getChildren().addAll(icon, nameLabel, percentLabel);
+            legendPane.getChildren().add(item);
         }
     }
 
@@ -388,7 +339,6 @@ public class DashboardController {
             Point start = partyPositions.get(t.getOldParty().getName());
             Point end = partyPositions.get(t.getNewParty().getName());
 
-            // Wenn Cache leer (z.B. direkt nach Reset), nichts spawnen bis Neuberechnung
             if (start != null && end != null) {
                 Color c = Color.web(t.getNewParty().getColorCode());
                 MovingVoter p = particlePool.isEmpty() ? new MovingVoter() : particlePool.pop();
@@ -414,7 +364,6 @@ public class DashboardController {
                     gc.fillOval(pt.x - 10, pt.y - 10, 20, 20);
 
                     gc.setFill(Color.WHITE);
-                    // Einfache Zentrierung
                     gc.fillText(p.getName(), pt.x - 15, pt.y + 25);
                 }
             }
@@ -435,27 +384,15 @@ public class DashboardController {
     }
 
     private void clearVisuals() {
-        // Partikel zurücksetzen
         activeParticles.forEach(particlePool::push);
         activeParticles.clear();
-
-        // Historie zurücksetzen
         historySeriesMap.clear();
-
-        // Cache für Positionen löschen
         partyPositions.clear();
 
-        // Diagramme leeren
         if (historyChart != null) historyChart.getData().clear();
-        if (partyDistributionChart != null) partyDistributionChart.getData().clear();
-
-        // Canvas leeren
         if (gc != null) gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-
-        // NEU: Skandal-Feed leeren
-        if (eventFeedPane != null) {
-            eventFeedPane.getChildren().clear();
-        }
+        if (eventFeedPane != null) eventFeedPane.getChildren().clear();
+        if (legendPane != null) legendPane.getChildren().clear();
     }
 
     public void shutdown() {

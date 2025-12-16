@@ -4,7 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="changed math related to voter transition" />
+    <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="Removed everything and fresh start">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/engine/SimulationConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/engine/SimulationConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/util/CSVLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/util/CSVLoader.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/DashboardController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/DashboardController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/de.schulprojekt.duv/data/party_names.csv" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/data/party_names.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/de.schulprojekt.duv/data/scandals.csv" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/data/scandals.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/de.schulprojekt.duv/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/style.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/de.schulprojekt.duv/view/DashboardUI.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/view/DashboardUI.fxml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -20,7 +29,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="main" />
+        <entry key="$PROJECT_DIR$" value="implement-simulation-model" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -34,14 +43,14 @@
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/fearxinsanity/Das-Unberechenbare-Volk.git&quot;,
-    &quot;accountId&quot;: &quot;45aacc9e-d913-4d73-bb93-b9b4aa6592d6&quot;
+    &quot;accountId&quot;: &quot;79da5971-a308-459c-94f0-745ff2f8a3a8&quot;
   }
 }</component>
   <component name="MavenImportPreferences">
     <option name="explicitlyEnabledProfiles" value="portable" />
   </component>
-  <component name="MavenRunner">
-    <option name="vmOptions" value="--enable-native-access=ALL-UNNAMED" />
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="ProjectErrors" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 0
@@ -51,7 +60,6 @@
     <ConfirmationsSetting value="2" id="Add" />
   </component>
   <component name="ProjectViewState">
-    <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent"><![CDATA[{
@@ -60,6 +68,7 @@
     "Application.Main.executor": "Run",
     "Maven.Build EXE.executor": "Run",
     "Maven.DUV - run.executor": "Run",
+    "Maven.Das-Unberechenbare-Volk [clean].executor": "Run",
     "Maven.Das-Unberechenbare-Volk [install].executor": "Run",
     "Maven.Das-Unberechenbare-Volk [package].executor": "Run",
     "Maven.Package & Install.executor": "Run",
@@ -80,17 +89,17 @@
     "project.structure.last.edited": "Project",
     "project.structure.proportion": "0.0",
     "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "reference.settings.project.maven.runner",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "preferences.lookFeel",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Projekt\BS-Projekt\src\main\resources\de.schulprojekt.duv\data" />
-      <recent name="C:\Projekt\BS-Projekt\src\main\resources\de.schulprojekt.duv" />
-      <recent name="C:\Projekt\BS-Projekt\src\main\resources\de.schulprojekt.duv\" />
-      <recent name="C:\Projekt\BS-Projekt\src\main\resources\de\schulprojekt\duv\de.schulprojekt.duv\view" />
-      <recent name="C:\Projekt\BS-Projekt\src\main\resources\de.schulprojekt.duv\data\view" />
+      <recent name="D:\4_Projekte\IntelliJ\Das-Unberechenbare-Volk\src\main\resources\de\schulprojekt\duv\data" />
+      <recent name="D:\4_Projekte\IntelliJ\Das-Unberechenbare-Volk\src\main\resources\de\schulprojekt\duv" />
+      <recent name="D:\4_Projekte\IntelliJ\Das-Unberechenbare-Volk\src\main\resources\de\schulprojekt\duv\view" />
+      <recent name="D:\4_Projekte\IntelliJ\Das-Unberechenbare-Volk\src\main\resources" />
     </key>
   </component>
   <component name="RunManager" selected="Maven.DUV - run">
@@ -182,9 +191,6 @@
       <workItem from="1762624203521" duration="8285000" />
       <workItem from="1762969109491" duration="323000" />
       <workItem from="1764102316398" duration="387000" />
-      <workItem from="1765522046535" duration="2132000" />
-      <workItem from="1765527079982" duration="7437000" />
-      <workItem from="1765867575709" duration="4606000" />
     </task>
     <task id="LOCAL-00001" summary="workspace.xml changed">
       <option name="closed" value="true" />
@@ -242,71 +248,7 @@
       <option name="project" value="LOCAL" />
       <updated>1764102613065</updated>
     </task>
-    <task id="LOCAL-00008" summary="Tried to implement the animation ... failed">
-      <option name="closed" value="true" />
-      <created>1765452052211</created>
-      <option name="number" value="00008" />
-      <option name="presentableId" value="LOCAL-00008" />
-      <option name="project" value="LOCAL" />
-      <updated>1765452052211</updated>
-    </task>
-    <task id="LOCAL-00009" summary="Fixed the missing animation">
-      <option name="closed" value="true" />
-      <created>1765523327761</created>
-      <option name="number" value="00009" />
-      <option name="presentableId" value="LOCAL-00009" />
-      <option name="project" value="LOCAL" />
-      <updated>1765523327761</updated>
-    </task>
-    <task id="LOCAL-00010" summary="changed animation">
-      <option name="closed" value="true" />
-      <created>1765525230634</created>
-      <option name="number" value="00010" />
-      <option name="presentableId" value="LOCAL-00010" />
-      <option name="project" value="LOCAL" />
-      <updated>1765525230634</updated>
-    </task>
-    <task id="LOCAL-00011" summary="changed animation">
-      <option name="closed" value="true" />
-      <created>1765531660887</created>
-      <option name="number" value="00011" />
-      <option name="presentableId" value="LOCAL-00011" />
-      <option name="project" value="LOCAL" />
-      <updated>1765531660887</updated>
-    </task>
-    <task id="LOCAL-00012" summary="removed durationSlider">
-      <option name="closed" value="true" />
-      <created>1765878107769</created>
-      <option name="number" value="00012" />
-      <option name="presentableId" value="LOCAL-00012" />
-      <option name="project" value="LOCAL" />
-      <updated>1765878107769</updated>
-    </task>
-    <task id="LOCAL-00013" summary="fixed performance issues and changed animation">
-      <option name="closed" value="true" />
-      <created>1765883377210</created>
-      <option name="number" value="00013" />
-      <option name="presentableId" value="LOCAL-00013" />
-      <option name="project" value="LOCAL" />
-      <updated>1765883377210</updated>
-    </task>
-    <task id="LOCAL-00014" summary="fixed parallel access error">
-      <option name="closed" value="true" />
-      <created>1765884020563</created>
-      <option name="number" value="00014" />
-      <option name="presentableId" value="LOCAL-00014" />
-      <option name="project" value="LOCAL" />
-      <updated>1765884020563</updated>
-    </task>
-    <task id="LOCAL-00015" summary="changed math related to voter transition">
-      <option name="closed" value="true" />
-      <created>1765884517236</created>
-      <option name="number" value="00015" />
-      <option name="presentableId" value="LOCAL-00015" />
-      <option name="project" value="LOCAL" />
-      <updated>1765884517236</updated>
-    </task>
-    <option name="localTasksCounter" value="16" />
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -324,13 +266,6 @@
     <MESSAGE value="Filled SimulationParameters.java with parameters, getter and setter" />
     <MESSAGE value="Added simulation reset method" />
     <MESSAGE value="Added parameter logic with view implementation" />
-    <MESSAGE value="Tried to implement the animation ... failed" />
-    <MESSAGE value="Fixed the missing animation" />
-    <MESSAGE value="changed animation" />
-    <MESSAGE value="removed durationSlider" />
-    <MESSAGE value="fixed performance issues and changed animation" />
-    <MESSAGE value="fixed parallel access error" />
-    <MESSAGE value="changed math related to voter transition" />
-    <option name="LAST_COMMIT_MESSAGE" value="changed math related to voter transition" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added parameter logic with view implementation" />
   </component>
 </project>

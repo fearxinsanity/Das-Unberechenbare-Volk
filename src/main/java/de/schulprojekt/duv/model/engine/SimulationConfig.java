@@ -10,7 +10,9 @@ public class SimulationConfig {
     public static final double UNDECIDED_POSITION = 50.0;
     public static final double SCANDAL_IMPACT_FACTOR = 50.0;
     public static final double CAMPAIGN_BUDGET_FACTOR = 100000.0;
-    public static final int HISTORY_LENGTH = 100; // Für LineChart
+
+    // ANPASSUNG: Historie verlängert für flüssigere Darstellung (500 statt 100)
+    public static final int HISTORY_LENGTH = 500;
 
     // Visualisierung
     public static final int MAX_PARTICLES = 1500; // Maximale Anzahl gleichzeitiger Punkte
