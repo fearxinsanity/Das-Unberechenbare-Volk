@@ -14,7 +14,7 @@ public class SimulationParameters {
     private int simulationTicksPerSecond;
     private double uniformRandomRange;
     private int numberOfParties;
-    private int simulationDurationSeconds; // NEU: Gesamtdauer in Sekunden
+    // Removed: private int simulationDurationSeconds;
 
     // Konstante für den "Unsicher"-Anteil
     public static final double UNDECIDED_TRANSITION_RATE = 0.6; // 60% der Wechsel gehen erst zu "Unsicher"
@@ -22,15 +22,7 @@ public class SimulationParameters {
     public SimulationParameters(int totalVoterCount, double globalMediaInfluence,
                                 double baseMobilityRate, double scandalChance, double initialLoyaltyMean,
                                 int simulationTicksPerSecond, double uniformRandomRange, int numberOfParties) {
-        this(totalVoterCount, globalMediaInfluence, baseMobilityRate, scandalChance,
-                initialLoyaltyMean, simulationTicksPerSecond, uniformRandomRange,
-                numberOfParties, 120); // Standard: 2 Minuten
-    }
-
-    public SimulationParameters(int totalVoterCount, double globalMediaInfluence,
-                                double baseMobilityRate, double scandalChance, double initialLoyaltyMean,
-                                int simulationTicksPerSecond, double uniformRandomRange, int numberOfParties,
-                                int simulationDurationSeconds) {
+        // Der 9-Argumente-Konstruktor und die Dauer wurden entfernt.
         this.totalVoterCount = totalVoterCount;
         this.globalMediaInfluence = globalMediaInfluence;
         this.baseMobilityRate = baseMobilityRate;
@@ -39,7 +31,6 @@ public class SimulationParameters {
         this.simulationTicksPerSecond = simulationTicksPerSecond;
         this.uniformRandomRange = uniformRandomRange;
         this.numberOfParties = numberOfParties;
-        this.simulationDurationSeconds = simulationDurationSeconds;
     }
 
     // --- Getter und Setter ---
@@ -108,18 +99,13 @@ public class SimulationParameters {
         this.numberOfParties = numberOfParties;
     }
 
-    public int getSimulationDurationSeconds() {
-        return simulationDurationSeconds;
-    }
-
-    public void setSimulationDurationSeconds(int simulationDurationSeconds) {
-        this.simulationDurationSeconds = simulationDurationSeconds;
-    }
+    // Removed: getSimulationDurationSeconds() and setSimulationDurationSeconds()
 
     /**
-     * Berechnet die Gesamtzahl der Ticks basierend auf Dauer und Geschwindigkeit.
+     * Berechnet die Gesamtzahl der Ticks. Gibt Integer.MAX_VALUE zurück, da die
+     * Simulation nun unbegrenzt läuft.
      */
     public int getTotalSimulationTicks() {
-        return simulationDurationSeconds * simulationTicksPerSecond;
+        return Integer.MAX_VALUE;
     }
 }

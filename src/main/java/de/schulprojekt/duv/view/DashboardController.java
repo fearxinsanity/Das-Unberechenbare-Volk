@@ -76,8 +76,8 @@ public class DashboardController {
     @FXML private Label timeStepLabel;
     @FXML private Pane animationPane;
     @FXML private Pane eventFeedPane;
-    @FXML private ProgressBar simulationProgress;
-    @FXML private Label durationLabel; // NEU: Label fuer Dauer-Anzeige
+    // Removed: @FXML private ProgressBar simulationProgress;
+    // Removed: @FXML private Label durationLabel;
 
     // --- INPUT ELEMENTS ---
     @FXML private TextField voterCountField;
@@ -87,7 +87,7 @@ public class DashboardController {
     @FXML private Slider scandalChanceSlider;
     @FXML private Slider loyaltyMeanSlider;
     @FXML private Slider randomRangeSlider;
-    @FXML private Slider durationSlider;
+    // Removed: @FXML private Slider durationSlider;
 
     // --- STEUERUNGS-BUTTONS ---
     @FXML private Button startButton;
@@ -177,37 +177,10 @@ public class DashboardController {
             feedBox.setStyle("-fx-padding: 10;");
             eventFeedPane.getChildren().add(feedBox);
         }
-
-        // Duration-Slider Listener hinzufuegen
-        if (durationSlider != null) {
-            // Initiales Label setzen
-            updateDurationLabel((int) durationSlider.getValue());
-
-            // Listener fuer Aenderungen
-            durationSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
-                updateDurationLabel(newVal.intValue());
-            });
-
-            // Bei Maus-Release Parameter aktualisieren
-            durationSlider.setOnMouseReleased(event -> handleParameterChange());
-        }
+        // Removed: Duration-Slider Listener
     }
 
-    private void updateDurationLabel(int seconds) {
-        if (durationLabel != null) {
-            if (seconds >= 60) {
-                int minutes = seconds / 60;
-                int remainingSeconds = seconds % 60;
-                if (remainingSeconds == 0) {
-                    durationLabel.setText(minutes + " min");
-                } else {
-                    durationLabel.setText(minutes + "m " + remainingSeconds + "s");
-                }
-            } else {
-                durationLabel.setText(seconds + "s");
-            }
-        }
-    }
+    // Removed: updateDurationLabel method
 
     private void setupCanvas() {
         if (animationPane == null) return;
@@ -393,8 +366,9 @@ public class DashboardController {
     }
 
     public SimulationParameters collectCurrentParameters() {
-        SimulationParameters currentParams = simulationController.getCurrentParameters();
-        int totalVoters = currentParams.getTotalVoterCount();
+        // SimulationParameters currentParams = simulationController.getCurrentParameters(); // Nicht mehr nötig für Dauer
+
+        int totalVoters = simulationController.getCurrentParameters().getTotalVoterCount(); // Initialwert
         try {
             totalVoters = Integer.parseInt(voterCountField.getText());
             if (totalVoters < 0) totalVoters = 0;
@@ -402,10 +376,7 @@ public class DashboardController {
             System.err.println("Ungueltige Waehleranzahl im Textfeld.");
         }
 
-        int duration = currentParams.getSimulationDurationSeconds();
-        if (durationSlider != null) {
-            duration = (int) durationSlider.getValue();
-        }
+        // Removed: duration parameter collection
 
         return new SimulationParameters(
                 totalVoters,
@@ -413,10 +384,10 @@ public class DashboardController {
                 mobilityRateSlider.getValue(),
                 scandalChanceSlider.getValue(),
                 loyaltyMeanSlider.getValue(),
-                currentParams.getSimulationTicksPerSecond(),
+                simulationController.getCurrentParameters().getSimulationTicksPerSecond(),
                 randomRangeSlider.getValue(),
-                (int) partyCountSlider.getValue(),
-                duration
+                (int) partyCountSlider.getValue()
+                // Removed: duration parameter in constructor
         );
     }
 
@@ -508,12 +479,10 @@ public class DashboardController {
             if (pauseButton != null) pauseButton.setDisable(true);
             if (resetButton != null) resetButton.setDisable(true);
 
-            if (simulationProgress != null) {
-                simulationProgress.setProgress(0);
-            }
+            // Removed: simulationProgress logic
 
             updateDashboard(simulationController.getParties(), simulationController.getVoters(),
-                    List.of(), null, 0, simulationController.getCurrentParameters().getTotalSimulationTicks());
+                    List.of(), null, 0); // Removed totalSteps argument
         }
     }
 
@@ -527,7 +496,7 @@ public class DashboardController {
             updateScaling();
             rebuildPieChart();
             updateDashboard(simulationController.getParties(), simulationController.getVoters(),
-                    List.of(), null, 0, newParams.getTotalSimulationTicks());
+                    List.of(), null, 0); // Removed totalSteps argument
         }
     }
 
@@ -546,11 +515,7 @@ public class DashboardController {
         if (simulationController != null) simulationController.updateSimulationSpeed(4);
     }
 
-    public void onSimulationComplete() {
-        addEventFeedMessage("Simulation abgeschlossen!");
-        if (startButton != null) startButton.setDisable(true);
-        if (pauseButton != null) pauseButton.setDisable(true);
-    }
+    // Removed: onSimulationComplete method
 
     private void rebuildPieChart() {
         if (partyDistributionChart == null) return;
@@ -587,18 +552,17 @@ public class DashboardController {
 
     public void updateDashboard(List<Party> parties, List<Voter> voters,
                                 List<VoterTransition> transitions, ScandalEvent scandal,
-                                int currentStep, int totalSteps) {
+                                int currentStep) { // Removed totalSteps
 
         this.currentSimTimeStep = currentStep;
 
         if (timeStepLabel != null) {
             String status = simulationController.isRunning() ? "Laufend" : "Pausiert";
-            timeStepLabel.setText(String.format("Status: %s | Tick: %d/%d", status, currentStep, totalSteps));
+            // Updated text format to remove total steps
+            timeStepLabel.setText(String.format("Status: %s | Tick: %d", status, currentStep));
         }
 
-        if (simulationProgress != null && totalSteps > 0) {
-            simulationProgress.setProgress((double) currentStep / totalSteps);
-        }
+        // Removed: simulationProgress logic
 
         updatePieChartSmoothly(parties);
         updateScaling();
@@ -624,8 +588,7 @@ public class DashboardController {
 
     // Ueberladene Methode fuer Kompatibilitaet
     public void updateDashboard(List<Party> parties, List<Voter> voters, List<VoterTransition> transitions) {
-        updateDashboard(parties, voters, transitions, null, currentSimTimeStep,
-                simulationController.getCurrentParameters().getTotalSimulationTicks());
+        updateDashboard(parties, voters, transitions, null, currentSimTimeStep); // Removed totalTicks argument
     }
 
     private void spawnMovingVoter(Party fromParty, Party toParty, int representedVoters) {

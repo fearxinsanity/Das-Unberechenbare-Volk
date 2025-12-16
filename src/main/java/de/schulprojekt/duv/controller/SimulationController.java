@@ -35,8 +35,7 @@ public class SimulationController {
                 50.0,
                 1,
                 1.0,
-                4,
-                120);  // 120 Sekunden Standardwert
+                4); // Removed: 120 seconds default value
     }
 
     private void initializeTimer(SimulationParameters params) {
@@ -61,7 +60,7 @@ public class SimulationController {
 
                     // Aktuelle Schritte
                     int currentStep = engine.getCurrentStep();
-                    int totalSteps = engine.getParameters().getTotalSimulationTicks();
+                    // int totalSteps = engine.getParameters().getTotalSimulationTicks(); // Removed
 
                     // Dashboard mit allen Daten aktualisieren
                     view.updateDashboard(
@@ -69,15 +68,12 @@ public class SimulationController {
                             engine.getVoters(),
                             transitions,
                             scandal,
-                            currentStep,
-                            totalSteps
+                            currentStep
+                            // Removed: totalSteps
                     );
 
-                    // Simulation beenden wenn fertig
-                    if (currentStep >= totalSteps) {
-                        pauseSimulation();
-                        view.onSimulationComplete();
-                    }
+                    // Removed: Simulation beenden wenn fertig
+                    // Die Simulation läuft nun unbegrenzt.
 
                     lastUpdate = now;
                 }
@@ -141,8 +137,7 @@ public class SimulationController {
                 currentParams.getInitialLoyaltyMean(),
                 newTicksPerSecond,
                 currentParams.getUniformRandomRange(),
-                currentParams.getNumberOfParties(),
-                currentParams.getSimulationDurationSeconds());
+                currentParams.getNumberOfParties()); // Removed: currentParams.getSimulationDurationSeconds()
 
         engine.updateParameters(newParams);
         initializeTimer(newParams);
