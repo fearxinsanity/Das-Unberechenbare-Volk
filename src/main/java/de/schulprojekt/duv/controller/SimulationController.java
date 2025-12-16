@@ -4,158 +4,114 @@ import de.schulprojekt.duv.model.engine.ScandalEvent;
 import de.schulprojekt.duv.model.engine.SimulationEngine;
 import de.schulprojekt.duv.model.engine.SimulationParameters;
 import de.schulprojekt.duv.model.engine.VoterTransition;
-import de.schulprojekt.duv.model.entities.Party;
-import de.schulprojekt.duv.model.entities.Voter;
 import de.schulprojekt.duv.view.DashboardController;
-import javafx.animation.AnimationTimer;
+import javafx.application.Platform;
 
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 public class SimulationController {
 
     private final SimulationEngine engine;
-    private AnimationTimer simulationTimer;
-    private boolean isRunning = false;
     private final DashboardController view;
 
+    // Threading: SingleThreadExecutor garantiert, dass Tasks nacheinander laufen
+    private final ScheduledExecutorService executorService;
+    private ScheduledFuture<?> simulationTask;
+    private boolean isRunning = false;
+
     public SimulationController(DashboardController view) {
-        SimulationParameters defaultParams = createDefaultParameters();
-        this.engine = new SimulationEngine(defaultParams);
-        this.engine.initializeSimulation();
         this.view = view;
-        initializeTimer(defaultParams);
+        // Erstelle Engine
+        this.engine = new SimulationEngine(createDefaultParameters());
+        this.engine.initializeSimulation();
+
+        // Thread Setup
+        this.executorService = Executors.newSingleThreadScheduledExecutor(r -> {
+            Thread t = new Thread(r, "Simulation-Thread");
+            t.setDaemon(true);
+            return t;
+        });
     }
 
     private SimulationParameters createDefaultParameters() {
-        return new SimulationParameters(
-                2500,
-                65.0,
-                35.0,
-                5.0,
-                50.0,
-                1,
-                1.0,
-                4); // Removed: 120 seconds default value
-    }
-
-    private void initializeTimer(SimulationParameters params) {
-        int ticksPerSecond = params.getSimulationTicksPerSecond();
-        if (ticksPerSecond <= 0) {
-            ticksPerSecond = 1;
-        }
-
-        long updateIntervalNano = 1_000_000_000L / ticksPerSecond;
-
-        this.simulationTimer = new AnimationTimer() {
-            private long lastUpdate = 0;
-
-            @Override
-            public void handle(long now) {
-                if (now - lastUpdate >= updateIntervalNano) {
-                    // Simulation ausführen
-                    List<VoterTransition> transitions = engine.runSimulationStep();
-
-                    // Skandal abrufen (falls einer aufgetreten ist)
-                    ScandalEvent scandal = engine.getLastScandal();
-
-                    // Aktuelle Schritte
-                    int currentStep = engine.getCurrentStep();
-                    // int totalSteps = engine.getParameters().getTotalSimulationTicks(); // Removed
-
-                    // Dashboard mit allen Daten aktualisieren
-                    view.updateDashboard(
-                            engine.getParties(),
-                            engine.getVoters(),
-                            transitions,
-                            scandal,
-                            currentStep
-                            // Removed: totalSteps
-                    );
-
-                    // Removed: Simulation beenden wenn fertig
-                    // Die Simulation läuft nun unbegrenzt.
-
-                    lastUpdate = now;
-                }
-            }
-        };
+        return new SimulationParameters(2500, 65.0, 35.0, 5.0, 50.0, 5, 1.0, 4);
     }
 
     public void startSimulation() {
-        simulationTimer.start();
-        this.isRunning = true;
+        if (isRunning) return;
+        isRunning = true;
+        scheduleTask();
+    }
+
+    private void scheduleTask() {
+        if (simulationTask != null && !simulationTask.isCancelled()) {
+            simulationTask.cancel(false);
+        }
+
+        int tps = engine.getParameters().getSimulationTicksPerSecond();
+        long period = 1000 / (tps > 0 ? tps : 1);
+
+        simulationTask = executorService.scheduleAtFixedRate(() -> {
+            try {
+                // Berechnung im Hintergrund (DAS IST OK)
+                List<VoterTransition> transitions = engine.runSimulationStep();
+                ScandalEvent scandal = engine.getLastScandal();
+                int step = engine.getCurrentStep();
+
+                // UI-Update MUSS in runLater (HIER FEHLT ES WAHRSCHEINLICH)
+                Platform.runLater(() -> {
+                    view.updateDashboard(engine.getParties(), transitions, scandal, step);
+                });
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }, 0, period, TimeUnit.MILLISECONDS);
     }
 
     public void pauseSimulation() {
-        simulationTimer.stop();
-        this.isRunning = false;
+        isRunning = false;
+        if (simulationTask != null) simulationTask.cancel(false);
     }
 
     public void resetSimulation() {
-        simulationTimer.stop();
-        this.isRunning = false;
-        engine.resetState();
-    }
-
-    public SimulationParameters getCurrentParameters() {
-        return engine.getParameters();
-    }
-
-    public void updateAllParameters(SimulationParameters newParams) {
-        boolean wasRunning = this.isRunning;
-        SimulationParameters currentParams = engine.getParameters();
-
-        boolean needsReset =
-                newParams.getTotalVoterCount() != currentParams.getTotalVoterCount() ||
-                        newParams.getNumberOfParties() != currentParams.getNumberOfParties();
-
-        engine.updateParameters(newParams);
-
-        if (newParams.getSimulationTicksPerSecond() != currentParams.getSimulationTicksPerSecond()) {
-            initializeTimer(newParams);
-        }
-
-        if (wasRunning) {
-            simulationTimer.start();
-        }
-
-        if (needsReset) {
+        pauseSimulation();
+        // Reset sicher im Executor ausführen
+        executorService.execute(() -> {
             engine.resetState();
-        }
+            Platform.runLater(() -> view.updateDashboard(engine.getParties(), List.of(), null, 0));
+        });
     }
 
-    public void updateSimulationSpeed(int newTicksPerSecond) {
-        boolean wasRunning = this.isRunning;
-
-        SimulationParameters currentParams = engine.getParameters();
-
-        SimulationParameters newParams = new SimulationParameters(
-                currentParams.getTotalVoterCount(),
-                currentParams.getGlobalMediaInfluence(),
-                currentParams.getBaseMobilityRate(),
-                currentParams.getScandalChance(),
-                currentParams.getInitialLoyaltyMean(),
-                newTicksPerSecond,
-                currentParams.getUniformRandomRange(),
-                currentParams.getNumberOfParties()); // Removed: currentParams.getSimulationDurationSeconds()
-
-        engine.updateParameters(newParams);
-        initializeTimer(newParams);
-
-        if (wasRunning) {
-            simulationTimer.start();
-        }
+    public void updateSimulationSpeed(int factor) {
+        SimulationParameters p = engine.getParameters();
+        p.setSimulationTicksPerSecond(1 * factor); // Basis 1 * Faktor
+        // Parameter Update
+        updateAllParameters(p);
     }
 
-    public List<Voter> getVoters() {
-        return engine.getVoters();
+    public void updateAllParameters(SimulationParameters p) {
+        executorService.execute(() -> {
+            engine.updateParameters(p);
+
+            // AUCH HIER: Platform.runLater
+            Platform.runLater(() ->
+                    view.updateDashboard(engine.getParties(), List.of(), null, engine.getCurrentStep())
+            );
+
+            if (isRunning) scheduleTask();
+        });
     }
 
-    public List<Party> getParties() {
-        return engine.getParties();
-    }
+    public SimulationParameters getCurrentParameters() { return engine.getParameters(); }
+    public List<de.schulprojekt.duv.model.entities.Party> getParties() { return engine.getParties(); }
+    public boolean isRunning() { return isRunning; }
 
-    public boolean isRunning() {
-        return this.isRunning;
+    public void shutdown() {
+        executorService.shutdownNow();
     }
 }

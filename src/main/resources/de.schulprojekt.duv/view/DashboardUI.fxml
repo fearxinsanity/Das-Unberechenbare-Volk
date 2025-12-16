@@ -94,11 +94,17 @@
     </left>
 
     <center>
-        <Pane fx:id="animationPane" style="-fx-background-color: #0a0a0a;">
-            <BorderPane.margin>
-                <Insets top="5" right="5" bottom="5" left="5"/>
-            </BorderPane.margin>
-        </Pane>
+        <BorderPane>
+            <center>
+                <Pane fx:id="animationPane" style="-fx-background-color: #0a0a0a;" />
+            </center>
+            <bottom>
+                <javafx.scene.chart.LineChart fx:id="historyChart" createSymbols="false" animated="false" prefHeight="150" style="-fx-background-color: #2A2A2A;">
+                    <xAxis><javafx.scene.chart.NumberAxis label="Zeit" tickLabelFill="white"/></xAxis>
+                    <yAxis><javafx.scene.chart.NumberAxis label="Stimmen" tickLabelFill="white"/></yAxis>
+                </javafx.scene.chart.LineChart>
+            </bottom>
+        </BorderPane>
     </center>
 
 
