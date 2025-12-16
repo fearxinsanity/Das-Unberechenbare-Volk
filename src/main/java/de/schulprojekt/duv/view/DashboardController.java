@@ -435,16 +435,27 @@ public class DashboardController {
     }
 
     private void clearVisuals() {
+        // Partikel zurücksetzen
         activeParticles.forEach(particlePool::push);
         activeParticles.clear();
+
+        // Historie zurücksetzen
         historySeriesMap.clear();
 
-        // AUCH HIER: Cache löschen
+        // Cache für Positionen löschen
         partyPositions.clear();
 
+        // Diagramme leeren
         if (historyChart != null) historyChart.getData().clear();
         if (partyDistributionChart != null) partyDistributionChart.getData().clear();
+
+        // Canvas leeren
         if (gc != null) gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+
+        // NEU: Skandal-Feed leeren
+        if (eventFeedPane != null) {
+            eventFeedPane.getChildren().clear();
+        }
     }
 
     public void shutdown() {
