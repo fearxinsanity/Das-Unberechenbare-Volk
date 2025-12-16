@@ -129,7 +129,7 @@ public class SimulationEngine {
         currentStep++;
         ConcurrentLinkedQueue<VoterTransition> visualTransitions = new ConcurrentLinkedQueue<>();
 
-        // Thread-Safety Check: Falls Arrays noch nicht da sind
+        // Thread-Safety Check
         if (voterPartyIndices == null || voterPartyIndices.length == 0) return new ArrayList<>();
 
         AtomicInteger[] partyDeltas = new AtomicInteger[partyList.size()];
@@ -144,29 +144,54 @@ public class SimulationEngine {
         if (shouldScandalOccur() && partyList.size() > 1) triggerScandal();
 
         double[] partyPos = partyList.stream().mapToDouble(Party::getPoliticalPosition).toArray();
-        double[] partyBudgetFactor = partyList.stream().mapToDouble(p -> p.getCampaignBudget() / SimulationConfig.CAMPAIGN_BUDGET_FACTOR).toArray();
+        // Budget-Faktor berechnen
+        double[] partyBudgetFactor = partyList.stream()
+                .mapToDouble(p -> p.getCampaignBudget() / SimulationConfig.CAMPAIGN_BUDGET_FACTOR)
+                .toArray();
 
         IntStream.range(0, voterPartyIndices.length).parallel().forEach(i -> {
             int currentIdx = voterPartyIndices[i];
             double rnd = java.util.concurrent.ThreadLocalRandom.current().nextDouble();
 
+            // Wechselwahrscheinlichkeit
             double switchProb = baseMobility * (1.0 - voterLoyalties[i] / 200.0) * voterMediaInfluence[i];
-            if (currentIdx == 0) switchProb *= 1.5;
+            if (currentIdx == 0) switchProb *= 1.5; // Unsichere wechseln eher
 
             if (rnd < switchProb) {
                 int targetIdx = currentIdx;
-                if (currentIdx != 0 && java.util.concurrent.ThreadLocalRandom.current().nextDouble() < 0.6) {
+
+                // 20% Chance, ins "Unsicher"-Lager (0) zu wechseln, statt zu einer anderen Partei
+                if (currentIdx != 0 && java.util.concurrent.ThreadLocalRandom.current().nextDouble() < 0.2) {
                     targetIdx = 0;
                 } else {
                     double bestScore = -1;
+                    // Zufällige Effektivität der Kampagne für diesen Wähler in diesem Tick
                     double campaignEffectiveness = java.util.concurrent.ThreadLocalRandom.current().nextDouble() * uniformRange;
 
                     for (int pIdx = 1; pIdx < partyList.size(); pIdx++) {
                         if (pIdx == currentIdx) continue;
+
                         double dist = Math.abs(voterPositions[i] - partyPos[pIdx]);
-                        double score = (100.0 / (dist + 1.0)) +
-                                (partyBudgetFactor[pIdx] * campaignEffectiveness * voterMediaInfluence[i] * globalMedia);
-                        score *= (0.9 + java.util.concurrent.ThreadLocalRandom.current().nextDouble() * 0.2);
+
+                        // --- ANPASSUNG FÜR MEHR CHAOS ---
+
+                        // 1. Distanz-Score: Flacherer Verlauf.
+                        // Vorher: 100 / (dist + 1) -> Bei Distanz 50 fast 0.
+                        // Jetzt: 40 / (1 + dist * 0.05) -> Bei Distanz 0 = 40, bei Distanz 50 = ~11.
+                        // Das erlaubt Wechsel auch über größere Distanzen.
+                        double distScore = 40.0 / (1.0 + (dist * 0.05));
+
+                        // 2. Budget-Score: Deutlich verstärkt (Faktor 15).
+                        // Damit reiche Parteien auch entfernte Wähler anziehen können.
+                        double budgetScore = (partyBudgetFactor[pIdx] * campaignEffectiveness * voterMediaInfluence[i] * globalMedia) * 15.0;
+
+                        // Gesamt-Score
+                        double score = distScore + budgetScore;
+
+                        // 3. Zufall: Stärkere Varianz (+/- 50% statt +/- 10%)
+                        // Das sorgt für das "unberechenbare" Element.
+                        double chaosFactor = 0.5 + java.util.concurrent.ThreadLocalRandom.current().nextDouble() * 1.5;
+                        score *= chaosFactor;
 
                         if (score > bestScore) {
                             bestScore = score;
@@ -180,6 +205,7 @@ public class SimulationEngine {
                     partyDeltas[currentIdx].decrementAndGet();
                     partyDeltas[targetIdx].incrementAndGet();
 
+                    // Nur einen Teil der Wechsel visualisieren (Performance)
                     if (java.util.concurrent.ThreadLocalRandom.current().nextDouble() < SimulationConfig.VISUALIZATION_SAMPLE_RATE) {
                         visualTransitions.add(new VoterTransition(partyList.get(currentIdx), partyList.get(targetIdx)));
                     }
@@ -187,6 +213,7 @@ public class SimulationEngine {
             }
         });
 
+        // Supporter-Counts aktualisieren
         for (int i = 0; i < partyList.size(); i++) {
             int delta = partyDeltas[i].get();
             if (delta != 0) {
