@@ -1,29 +1,29 @@
 package de.schulprojekt.duv.view;
 
 import de.schulprojekt.duv.controller.SimulationController;
+import de.schulprojekt.duv.model.engine.ScandalEvent;
 import de.schulprojekt.duv.model.engine.SimulationParameters;
 import de.schulprojekt.duv.model.engine.VoterTransition;
 import de.schulprojekt.duv.model.entities.Party;
 import de.schulprojekt.duv.model.entities.Voter;
 import javafx.animation.AnimationTimer;
 import javafx.fxml.FXML;
+import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.chart.PieChart;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Slider;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.RadialGradient;
 import javafx.scene.paint.Stop;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.TextAlignment;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class DashboardController {
@@ -33,45 +33,51 @@ public class DashboardController {
     private Map<Party, PieChart.Data> pieDataMap;
     private int currentSimTimeStep = 0;
 
-    // Canvas für flüssige Animation
+    // Canvas fuer Animation
     private Canvas canvas;
     private GraphicsContext gc;
     private AnimationTimer renderLoop;
 
-    // Partei-Positionen und Zustände
+    // Partei-Positionen und Zustaende
     private Map<Party, PartyVisual> partyVisuals = new HashMap<>();
 
-    // Aktive Wähler-Animationen (nur sichtbar während Wechsel)
+    // Aktive Waehler-Animationen (verschwinden nach Ankunft!)
     private ConcurrentLinkedQueue<MovingVoter> movingVoters = new ConcurrentLinkedQueue<>();
-
-    // Statische Trails die nach Ankunft bleiben
-    private List<FadingTrail> fadingTrails = new ArrayList<>();
 
     // Pulse-Timer
     private double pulseTime = 0;
 
-    // Skalierung: Wie viele Wähler repräsentiert ein Punkt?
+    // Skalierung
     private int votersPerPoint = 1;
-    private static final int SCALING_THRESHOLD = 10000;  // Ab dieser Wählerzahl skalieren
-    private static final int TARGET_MAX_POINTS = 100;    // Maximale Anzahl gleichzeitiger Animationen
+    private static final int SCALING_THRESHOLD = 10000;
+    private static final int TARGET_MAX_POINTS = 100;
 
-    // Akkumulator für Übergänge (für Skalierung)
+    // Akkumulator fuer Uebergaenge
     private Map<String, Integer> transitionAccumulator = new HashMap<>();
+
+    // Event-Feed
+    private List<String> eventFeedMessages = new ArrayList<>();
+    private static final int MAX_FEED_MESSAGES = 10;
 
     // Konstanten
     private static final double MIN_PARTY_RADIUS = 40.0;
     private static final double MAX_PARTY_RADIUS = 90.0;
+    private static final double UNDECIDED_BASE_RADIUS = 60.0;
     private static final double VOTER_SIZE = 3.0;
     private static final int MAX_TRAIL_LENGTH = 25;
     private static final double ACCELERATION = 0.4;
     private static final double DAMPING = 0.96;
     private static final double ARRIVAL_THRESHOLD = 40.0;
-    private static final long TRAIL_FADE_DURATION_MS = 15000;  // 15 Sekunden
+
+    private static final String UNDECIDED_NAME = "Unsicher";
 
     // --- VISUALIZING ELEMENTS ---
     @FXML private PieChart partyDistributionChart;
     @FXML private Label timeStepLabel;
     @FXML private Pane animationPane;
+    @FXML private Pane eventFeedPane;
+    @FXML private ProgressBar simulationProgress;
+    @FXML private Label durationLabel; // NEU: Label fuer Dauer-Anzeige
 
     // --- INPUT ELEMENTS ---
     @FXML private TextField voterCountField;
@@ -81,13 +87,14 @@ public class DashboardController {
     @FXML private Slider scandalChanceSlider;
     @FXML private Slider loyaltyMeanSlider;
     @FXML private Slider randomRangeSlider;
+    @FXML private Slider durationSlider;
 
     // --- STEUERUNGS-BUTTONS ---
     @FXML private Button startButton;
     @FXML private Button pauseButton;
     @FXML private Button resetButton;
 
-    // Innere Klasse für Partei-Visualisierung
+    // Innere Klasse fuer Partei-Visualisierung
     private static class PartyVisual {
         double x, y;
         double radius;
@@ -95,8 +102,9 @@ public class DashboardController {
         Color color;
         Color glowColor;
         String name;
+        boolean isUndecided;
 
-        PartyVisual(double x, double y, double radius, Color color, String name) {
+        PartyVisual(double x, double y, double radius, Color color, String name, boolean isUndecided) {
             this.x = x;
             this.y = y;
             this.radius = radius;
@@ -104,10 +112,11 @@ public class DashboardController {
             this.color = color;
             this.glowColor = color.brighter();
             this.name = name;
+            this.isUndecided = isUndecided;
         }
     }
 
-    // Innere Klasse für bewegende Wähler
+    // Innere Klasse fuer bewegende Waehler
     private static class MovingVoter {
         double x, y;
         double vx, vy;
@@ -115,7 +124,7 @@ public class DashboardController {
         Color color;
         List<double[]> trail = new ArrayList<>();
         boolean arrived = false;
-        int representedVoters;  // Wie viele Wähler dieser Punkt repräsentiert
+        int representedVoters;
 
         MovingVoter(double startX, double startY, double targetX, double targetY, Color color, int representedVoters) {
             this.x = startX;
@@ -156,39 +165,48 @@ public class DashboardController {
         }
     }
 
-    // Innere Klasse für verblassende Trails nach Ankunft
-    private static class FadingTrail {
-        List<double[]> points;
-        Color color;
-        long creationTime;
-        double endX, endY;
-
-        FadingTrail(List<double[]> points, Color color, double endX, double endY) {
-            this.points = new ArrayList<>(points);
-            this.points.add(new double[]{endX, endY});
-            this.color = color;
-            this.creationTime = System.currentTimeMillis();
-            this.endX = endX;
-            this.endY = endY;
-        }
-
-        double getOpacity() {
-            long age = System.currentTimeMillis() - creationTime;
-            if (age >= TRAIL_FADE_DURATION_MS) return 0;
-            return 1.0 - ((double) age / TRAIL_FADE_DURATION_MS);
-        }
-
-        boolean isExpired() {
-            return System.currentTimeMillis() - creationTime >= TRAIL_FADE_DURATION_MS;
-        }
-    }
-
     public void setSimulationController(SimulationController controller) {
         this.simulationController = controller;
     }
 
     @FXML
     public void initialize() {
+        // Event-Feed initialisieren
+        if (eventFeedPane != null) {
+            VBox feedBox = new VBox(5);
+            feedBox.setStyle("-fx-padding: 10;");
+            eventFeedPane.getChildren().add(feedBox);
+        }
+
+        // Duration-Slider Listener hinzufuegen
+        if (durationSlider != null) {
+            // Initiales Label setzen
+            updateDurationLabel((int) durationSlider.getValue());
+
+            // Listener fuer Aenderungen
+            durationSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+                updateDurationLabel(newVal.intValue());
+            });
+
+            // Bei Maus-Release Parameter aktualisieren
+            durationSlider.setOnMouseReleased(event -> handleParameterChange());
+        }
+    }
+
+    private void updateDurationLabel(int seconds) {
+        if (durationLabel != null) {
+            if (seconds >= 60) {
+                int minutes = seconds / 60;
+                int remainingSeconds = seconds % 60;
+                if (remainingSeconds == 0) {
+                    durationLabel.setText(minutes + " min");
+                } else {
+                    durationLabel.setText(minutes + "m " + remainingSeconds + "s");
+                }
+            } else {
+                durationLabel.setText(seconds + "s");
+            }
+        }
     }
 
     private void setupCanvas() {
@@ -209,18 +227,11 @@ public class DashboardController {
         renderLoop.start();
     }
 
-    /**
-     * Berechnet die Skalierung basierend auf der Wähleranzahl.
-     */
     private void updateScaling() {
         int totalVoters = simulationController.getVoters().size();
-
         if (totalVoters <= SCALING_THRESHOLD) {
             votersPerPoint = 1;
         } else {
-            // Berechne wie viele Wähler ein Punkt repräsentieren soll
-            // Bei 100.000 Wählern = 100 Wähler pro Punkt
-            // Bei 1.000.000 Wählern = 1000 Wähler pro Punkt
             votersPerPoint = Math.max(1, totalVoters / TARGET_MAX_POINTS);
         }
     }
@@ -235,32 +246,24 @@ public class DashboardController {
         gc.setFill(Color.web("#0a0a0a"));
         gc.fillRect(0, 0, width, height);
 
-        // Pulse-Zeit updaten
         pulseTime += 0.03;
 
-        // Partei-Positionen updaten
         updatePartyPositions(width, height);
 
-        // Verblassende Trails zeichnen und aufräumen
-        fadingTrails.removeIf(FadingTrail::isExpired);
-        for (FadingTrail trail : fadingTrails) {
-            drawFadingTrail(trail);
-        }
+        // Parteien zeichnen (Unsicher zuerst, damit er "hinten" ist)
+        List<PartyVisual> sortedVisuals = new ArrayList<>(partyVisuals.values());
+        sortedVisuals.sort((a, b) -> Boolean.compare(b.isUndecided, a.isUndecided));
 
-        // Parteien zeichnen
-        for (PartyVisual pv : partyVisuals.values()) {
+        for (PartyVisual pv : sortedVisuals) {
             drawParty(pv);
         }
 
-        // Bewegende Wähler updaten und zeichnen
+        // Bewegende Waehler updaten und zeichnen
+        // WICHTIG: Angekommene Waehler werden direkt entfernt (keine fadingTrails!)
         List<MovingVoter> toRemove = new ArrayList<>();
         for (MovingVoter voter : movingVoters) {
             voter.update();
             if (voter.arrived) {
-                // Trail als verblassenden Trail speichern
-                if (!voter.trail.isEmpty()) {
-                    fadingTrails.add(new FadingTrail(voter.trail, voter.color, voter.x, voter.y));
-                }
                 toRemove.add(voter);
             } else {
                 drawMovingVoter(voter);
@@ -278,85 +281,63 @@ public class DashboardController {
         double centerY = height / 2;
         double spacing = Math.min(width, height) * 0.32;
 
-        double[][] positions = calculateGridPositions(count, centerX, centerY, spacing);
-
         for (int i = 0; i < parties.size(); i++) {
             Party party = parties.get(i);
             PartyVisual pv = partyVisuals.get(party);
 
-            if (pv == null) {
-                Color color = Color.web("#" + party.getColorCode());
-                pv = new PartyVisual(positions[i][0], positions[i][1], MIN_PARTY_RADIUS, color, party.getName());
-                partyVisuals.put(party, pv);
+            boolean isUndecided = party.getName().equals(UNDECIDED_NAME);
+            double x, y;
+
+            if (isUndecided) {
+                // Unsicher immer in der Mitte
+                x = centerX;
+                y = centerY;
             } else {
-                pv.x = positions[i][0];
-                pv.y = positions[i][1];
+                // Andere Parteien kreisfoermig um die Mitte
+                int realPartyIndex = i - 1; // Index ohne Unsicher
+                int realPartyCount = count - 1;
+
+                double angle = (2 * Math.PI * realPartyIndex / realPartyCount) - Math.PI / 2;
+                x = centerX + Math.cos(angle) * spacing;
+                y = centerY + Math.sin(angle) * spacing;
             }
 
-            double ratio = totalVoters > 0 ? (double) party.getCurrentSupporterCount() / totalVoters : 0.25;
-            pv.targetRadius = MIN_PARTY_RADIUS + (MAX_PARTY_RADIUS - MIN_PARTY_RADIUS) * Math.sqrt(ratio);
+            if (pv == null) {
+                Color color = Color.web("#" + party.getColorCode());
+                double baseRadius = isUndecided ? UNDECIDED_BASE_RADIUS : MIN_PARTY_RADIUS;
+                pv = new PartyVisual(x, y, baseRadius, color, party.getName(), isUndecided);
+                partyVisuals.put(party, pv);
+            } else {
+                pv.x = x;
+                pv.y = y;
+            }
+
+            // Radius basierend auf Unterstuetzern
+            double ratio = totalVoters > 0 ? (double) party.getCurrentSupporterCount() / totalVoters : 0.1;
+            double baseRadius = isUndecided ? UNDECIDED_BASE_RADIUS : MIN_PARTY_RADIUS;
+            double maxRadius = isUndecided ? MAX_PARTY_RADIUS * 1.2 : MAX_PARTY_RADIUS;
+            pv.targetRadius = baseRadius + (maxRadius - baseRadius) * Math.sqrt(ratio);
 
             pv.radius += (pv.targetRadius - pv.radius) * 0.08;
         }
     }
 
-    private double[][] calculateGridPositions(int count, double centerX, double centerY, double spacing) {
-        double[][] positions = new double[count][2];
-
-        if (count <= 2) {
-            positions[0] = new double[]{centerX - spacing, centerY};
-            if (count > 1) positions[1] = new double[]{centerX + spacing, centerY};
-        } else if (count <= 4) {
-            positions[0] = new double[]{centerX - spacing, centerY - spacing * 0.7};
-            if (count > 1) positions[1] = new double[]{centerX + spacing, centerY - spacing * 0.7};
-            if (count > 2) positions[2] = new double[]{centerX - spacing, centerY + spacing * 0.7};
-            if (count > 3) positions[3] = new double[]{centerX + spacing, centerY + spacing * 0.7};
-        } else {
-            for (int i = 0; i < count; i++) {
-                double angle = (2 * Math.PI * i / count) - Math.PI / 2;
-                positions[i] = new double[]{
-                        centerX + Math.cos(angle) * spacing,
-                        centerY + Math.sin(angle) * spacing
-                };
-            }
-        }
-
-        return positions;
-    }
-
-    private void drawFadingTrail(FadingTrail trail) {
-        double opacity = trail.getOpacity();
-        if (opacity <= 0 || trail.points.size() < 2) return;
-
-        gc.setStroke(Color.color(trail.color.getRed(), trail.color.getGreen(), trail.color.getBlue(), opacity * 0.5));
-        gc.setLineWidth(2);
-        gc.beginPath();
-        gc.moveTo(trail.points.get(0)[0], trail.points.get(0)[1]);
-        for (int i = 1; i < trail.points.size(); i++) {
-            gc.lineTo(trail.points.get(i)[0], trail.points.get(i)[1]);
-        }
-        gc.stroke();
-
-        // Endpunkt
-        gc.setFill(Color.color(trail.color.getRed(), trail.color.getGreen(), trail.color.getBlue(), opacity * 0.6));
-        gc.fillOval(trail.endX - VOTER_SIZE, trail.endY - VOTER_SIZE, VOTER_SIZE * 2, VOTER_SIZE * 2);
-    }
-
     private void drawParty(PartyVisual pv) {
-        double pulseSize = Math.sin(pulseTime) * 4;
+        double pulseSize = Math.sin(pulseTime) * (pv.isUndecided ? 2 : 4);
         double radius = pv.radius + pulseSize;
 
-        // Äußeres Glow
+        // Aeusseres Glow (gedaempfter fuer Unsicher)
+        double glowOpacity = pv.isUndecided ? 0.15 : 0.25;
         RadialGradient outerGlow = new RadialGradient(
                 0, 0, pv.x, pv.y, radius + 50, false, CycleMethod.NO_CYCLE,
-                new Stop(0, Color.color(pv.color.getRed(), pv.color.getGreen(), pv.color.getBlue(), 0.25)),
-                new Stop(0.5, Color.color(pv.color.getRed(), pv.color.getGreen(), pv.color.getBlue(), 0.1)),
+                new Stop(0, Color.color(pv.color.getRed(), pv.color.getGreen(), pv.color.getBlue(), glowOpacity)),
+                new Stop(0.5, Color.color(pv.color.getRed(), pv.color.getGreen(), pv.color.getBlue(), glowOpacity * 0.4)),
                 new Stop(1, Color.TRANSPARENT)
         );
         gc.setFill(outerGlow);
         gc.fillOval(pv.x - radius - 50, pv.y - radius - 50, (radius + 50) * 2, (radius + 50) * 2);
 
-        // Haupt-Kreis mit Gradient
+        // Haupt-Kreis
         RadialGradient mainGradient = new RadialGradient(
                 0, 0, pv.x - radius * 0.3, pv.y - radius * 0.3, radius * 1.5, false, CycleMethod.NO_CYCLE,
                 new Stop(0, pv.color.brighter()),
@@ -365,16 +346,22 @@ public class DashboardController {
         gc.setFill(mainGradient);
         gc.fillOval(pv.x - radius, pv.y - radius, radius * 2, radius * 2);
 
-        // Rand
+        // Rand (gestrichelt fuer Unsicher)
         gc.setStroke(pv.glowColor);
-        gc.setLineWidth(2.5);
+        gc.setLineWidth(pv.isUndecided ? 1.5 : 2.5);
+        if (pv.isUndecided) {
+            gc.setLineDashes(5, 5);
+        } else {
+            gc.setLineDashes();
+        }
         gc.strokeOval(pv.x - radius, pv.y - radius, radius * 2, radius * 2);
+        gc.setLineDashes();
 
         // Partei-Name
         gc.setFill(Color.WHITE);
-        gc.setFont(javafx.scene.text.Font.font("Segoe UI", javafx.scene.text.FontWeight.BOLD, 14));
-        gc.setTextAlign(javafx.scene.text.TextAlignment.CENTER);
-        gc.setTextBaseline(javafx.geometry.VPos.CENTER);
+        gc.setFont(Font.font("Segoe UI", FontWeight.BOLD, pv.isUndecided ? 12 : 14));
+        gc.setTextAlign(TextAlignment.CENTER);
+        gc.setTextBaseline(VPos.CENTER);
         gc.fillText(pv.name, pv.x, pv.y);
     }
 
@@ -391,17 +378,16 @@ public class DashboardController {
             gc.stroke();
         }
 
-        // Größe basierend auf repräsentierten Wählern
         double size = VOTER_SIZE;
         if (voter.representedVoters > 1) {
             size = VOTER_SIZE + Math.log10(voter.representedVoters) * 1.5;
         }
 
-        // Wähler-Punkt mit Glow
+        // Waehler-Punkt
         gc.setFill(voter.color);
         gc.fillOval(voter.x - size, voter.y - size, size * 2, size * 2);
 
-        // Glow-Effekt
+        // Glow
         gc.setFill(Color.color(voter.color.getRed(), voter.color.getGreen(), voter.color.getBlue(), 0.3));
         gc.fillOval(voter.x - size * 2, voter.y - size * 2, size * 4, size * 4);
     }
@@ -413,7 +399,12 @@ public class DashboardController {
             totalVoters = Integer.parseInt(voterCountField.getText());
             if (totalVoters < 0) totalVoters = 0;
         } catch (NumberFormatException e) {
-            System.err.println("Ungültige Wähleranzahl im Textfeld.");
+            System.err.println("Ungueltige Waehleranzahl im Textfeld.");
+        }
+
+        int duration = currentParams.getSimulationDurationSeconds();
+        if (durationSlider != null) {
+            duration = (int) durationSlider.getValue();
         }
 
         return new SimulationParameters(
@@ -424,7 +415,8 @@ public class DashboardController {
                 loyaltyMeanSlider.getValue(),
                 currentParams.getSimulationTicksPerSecond(),
                 randomRangeSlider.getValue(),
-                (int) partyCountSlider.getValue()
+                (int) partyCountSlider.getValue(),
+                duration
         );
     }
 
@@ -437,9 +429,35 @@ public class DashboardController {
                 voterCountField.setText(String.valueOf(newCount));
                 handleParameterChange();
             } catch (NumberFormatException e) {
-                System.err.println("Ungültige Wähleranzahl im Textfeld.");
+                System.err.println("Ungueltige Waehleranzahl im Textfeld.");
             }
         }
+    }
+
+    private void addEventFeedMessage(String message) {
+        eventFeedMessages.add(0, message);
+        if (eventFeedMessages.size() > MAX_FEED_MESSAGES) {
+            eventFeedMessages.remove(eventFeedMessages.size() - 1);
+        }
+        updateEventFeedDisplay();
+    }
+
+    private void updateEventFeedDisplay() {
+        if (eventFeedPane == null) return;
+
+        eventFeedPane.getChildren().clear();
+        VBox feedBox = new VBox(3);
+        feedBox.setStyle("-fx-padding: 5;");
+
+        for (String msg : eventFeedMessages) {
+            Label label = new Label(msg);
+            label.setStyle("-fx-text-fill: #ffcc00; -fx-font-size: 11px;");
+            label.setWrapText(true);
+            label.setMaxWidth(eventFeedPane.getWidth() - 10);
+            feedBox.getChildren().add(label);
+        }
+
+        eventFeedPane.getChildren().add(feedBox);
     }
 
     @FXML
@@ -479,9 +497,10 @@ public class DashboardController {
             this.currentSimTimeStep = 0;
 
             movingVoters.clear();
-            fadingTrails.clear();
             partyVisuals.clear();
             transitionAccumulator.clear();
+            eventFeedMessages.clear();
+            updateEventFeedDisplay();
 
             rebuildPieChart();
 
@@ -489,7 +508,12 @@ public class DashboardController {
             if (pauseButton != null) pauseButton.setDisable(true);
             if (resetButton != null) resetButton.setDisable(true);
 
-            updateDashboard(simulationController.getParties(), simulationController.getVoters(), List.of());
+            if (simulationProgress != null) {
+                simulationProgress.setProgress(0);
+            }
+
+            updateDashboard(simulationController.getParties(), simulationController.getVoters(),
+                    List.of(), null, 0, simulationController.getCurrentParameters().getTotalSimulationTicks());
         }
     }
 
@@ -502,7 +526,8 @@ public class DashboardController {
             transitionAccumulator.clear();
             updateScaling();
             rebuildPieChart();
-            updateDashboard(simulationController.getParties(), simulationController.getVoters(), List.of());
+            updateDashboard(simulationController.getParties(), simulationController.getVoters(),
+                    List.of(), null, 0, newParams.getTotalSimulationTicks());
         }
     }
 
@@ -519,6 +544,12 @@ public class DashboardController {
     @FXML
     public void handleSpeed4x() {
         if (simulationController != null) simulationController.updateSimulationSpeed(4);
+    }
+
+    public void onSimulationComplete() {
+        addEventFeedMessage("Simulation abgeschlossen!");
+        if (startButton != null) startButton.setDisable(true);
+        if (pauseButton != null) pauseButton.setDisable(true);
     }
 
     private void rebuildPieChart() {
@@ -554,28 +585,47 @@ public class DashboardController {
         }
     }
 
-    public void updateDashboard(List<Party> parties, List<Voter> voters, List<VoterTransition> transitions) {
+    public void updateDashboard(List<Party> parties, List<Voter> voters,
+                                List<VoterTransition> transitions, ScandalEvent scandal,
+                                int currentStep, int totalSteps) {
+
+        this.currentSimTimeStep = currentStep;
+
         if (timeStepLabel != null) {
-            String status = simulationController.isRunning() ? "Laufend" : "Pausiert/Initialisiert";
-            timeStepLabel.setText("Status: " + status + " | Zeitschritt: " + (++this.currentSimTimeStep));
+            String status = simulationController.isRunning() ? "Laufend" : "Pausiert";
+            timeStepLabel.setText(String.format("Status: %s | Tick: %d/%d", status, currentStep, totalSteps));
+        }
+
+        if (simulationProgress != null && totalSteps > 0) {
+            simulationProgress.setProgress((double) currentStep / totalSteps);
         }
 
         updatePieChartSmoothly(parties);
         updateScaling();
 
-        // Übergänge akkumulieren und bei Erreichen der Schwelle animieren
+        // Skandal-Event verarbeiten
+        if (scandal != null) {
+            addEventFeedMessage(scandal.getEventMessage());
+        }
+
+        // Uebergaenge animieren
         for (VoterTransition transition : transitions) {
             String key = transition.getOldParty().getName() + "->" + transition.getNewParty().getName();
             int count = transitionAccumulator.getOrDefault(key, 0) + 1;
 
             if (count >= votersPerPoint) {
-                // Genug Übergänge akkumuliert - Animation spawnen
                 spawnMovingVoter(transition.getOldParty(), transition.getNewParty(), count);
                 transitionAccumulator.put(key, 0);
             } else {
                 transitionAccumulator.put(key, count);
             }
         }
+    }
+
+    // Ueberladene Methode fuer Kompatibilitaet
+    public void updateDashboard(List<Party> parties, List<Voter> voters, List<VoterTransition> transitions) {
+        updateDashboard(parties, voters, transitions, null, currentSimTimeStep,
+                simulationController.getCurrentParameters().getTotalSimulationTicks());
     }
 
     private void spawnMovingVoter(Party fromParty, Party toParty, int representedVoters) {
@@ -597,8 +647,8 @@ public class DashboardController {
     public void setupVisuals() {
         partyVisuals.clear();
         movingVoters.clear();
-        fadingTrails.clear();
         transitionAccumulator.clear();
+        eventFeedMessages.clear();
 
         if (animationPane != null && canvas == null) {
             setupCanvas();
@@ -607,7 +657,7 @@ public class DashboardController {
         updateScaling();
 
         if (timeStepLabel != null) {
-            timeStepLabel.setText("Status: Initialisiert | Zeitschritt: 0");
+            timeStepLabel.setText("Status: Initialisiert | Tick: 0");
         }
     }
 }

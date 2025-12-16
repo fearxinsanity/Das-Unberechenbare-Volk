@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.Region?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="de.schulprojekt.duv.view.DashboardController"
+            prefHeight="750.0" prefWidth="1200.0" styleClass="root-pane">
+
+    <top>
+        <VBox style="-fx-background-color: #1A1A1A;">
+            <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 10;">
+                <padding>
+                    <Insets top="10" right="20" bottom="5" left="20"/>
+                </padding>
+
+                <Label text="Das Unberechenbare Volk" style="-fx-font-size: 18px; -fx-text-fill: #C9A227;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <Label fx:id="timeStepLabel" text="Status: Initialisiert" style="-fx-text-fill: white;"/>
+
+                <Button fx:id="startButton" text="Starten" onAction="#handleStartSimulation"/>
+                <Button fx:id="pauseButton" text="Pausieren" onAction="#handlePauseSimulation" disable="true"/>
+                <Button fx:id="resetButton" text="Reset" onAction="#handleResetSimulation" disable="true"/>
+            </HBox>
+
+            <HBox alignment="CENTER" style="-fx-padding: 0 20 10 20;">
+                <ProgressBar fx:id="simulationProgress" progress="0" prefWidth="1160" prefHeight="8"
+                             style="-fx-accent: #C9A227;"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <left>
+        <VBox spacing="8" style="-fx-padding: 15; -fx-background-color: #2A2A2A;" prefWidth="280">
+            <Label text="Konfiguration" style="-fx-font-size: 16px; -fx-text-fill: #C9A227;"/>
+
+            <Label text="Waehleranzahl" style="-fx-text-fill: white; -fx-font-size: 11px;"/>
+            <HBox spacing="5" alignment="CENTER_LEFT">
+                <Button text="-" onAction="#handleVoterCountDecrement" prefWidth="30"/>
+                <TextField fx:id="voterCountField" text="2500" prefWidth="120" onAction="#handleParameterChange"/>
+                <Button text="+" onAction="#handleVoterCountIncrement" prefWidth="30"/>
+            </HBox>
+
+            <Label text="Parteianzahl (2-8)" style="-fx-text-fill: white; -fx-font-size: 11px;"/>
+            <Slider fx:id="partyCountSlider" min="2" max="8" value="4" majorTickUnit="1" minorTickCount="0"
+                    snapToTicks="true" showTickMarks="true" onMouseReleased="#handleParameterChange"/>
+
+            <Label text="Simulations-Dauer (Sekunden)" style="-fx-text-fill: #C9A227; -fx-font-size: 11px;"/>
+            <Label fx:id="durationLabel" text="120s" style="-fx-font-weight: bold;"/>
+            <Slider fx:id="durationSlider" min="30" max="600" value="120" majorTickUnit="60"
+                    showTickLabels="true" showTickMarks="true" onMouseReleased="#handleParameterChange"/>
+
+            <Label text="Medien-Einfluss (%)" style="-fx-text-fill: white; -fx-font-size: 11px;"/>
+            <Slider fx:id="mediaInfluenceSlider" min="0" max="100" value="65" onMouseReleased="#handleParameterChange"/>
+
+            <Label text="Basis Mobilitaet (%)" style="-fx-text-fill: white; -fx-font-size: 11px;"/>
+            <Slider fx:id="mobilityRateSlider" min="0" max="100" value="35" onMouseReleased="#handleParameterChange"/>
+
+            <Label text="Loyalitaetsmittelwert (0-100)" style="-fx-text-fill: white; -fx-font-size: 11px;"/>
+            <Slider fx:id="loyaltyMeanSlider" min="0" max="100" value="50" onMouseReleased="#handleParameterChange"/>
+
+            <Label text="Skandal-Chance (%)" style="-fx-text-fill: #ff6b6b; -fx-font-size: 11px;"/>
+            <Slider fx:id="scandalChanceSlider" min="0" max="20" value="5" onMouseReleased="#handleParameterChange"/>
+
+            <Label text="Werbe-Zufallsbereich" style="-fx-text-fill: white; -fx-font-size: 11px;"/>
+            <Slider fx:id="randomRangeSlider" min="0.1" max="5.0" value="1.0" onMouseReleased="#handleParameterChange"/>
+
+            <Label text="Geschwindigkeit" style="-fx-text-fill: white; -fx-font-size: 11px;"/>
+            <HBox spacing="5" alignment="CENTER_LEFT">
+                <Button text="1X" onAction="#handleSpeed1x" prefWidth="45"/>
+                <Button text="2X" onAction="#handleSpeed2x" prefWidth="45"/>
+                <Button text="4X" onAction="#handleSpeed4x" prefWidth="45"/>
+            </HBox>
+
+            <Region VBox.vgrow="ALWAYS"/>
+            <Button text="Parameter Uebernehmen" onAction="#handleParameterChange" prefWidth="250"/>
+        </VBox>
+    </left>
+
+    <center>
+        <Pane fx:id="animationPane" style="-fx-background-color: #0a0a0a;">
+            <BorderPane.margin>
+                <Insets top="5" right="5" bottom="5" left="5"/>
+            </BorderPane.margin>
+        </Pane>
+    </center>
+
+    <right>
+        <VBox spacing="10" style="-fx-padding: 15; -fx-background-color: #2A2A2A;" prefWidth="320">
+            <Label text="Stimmenverteilung" style="-fx-font-size: 14px; -fx-text-fill: #C9A227;"/>
+
+            <PieChart fx:id="partyDistributionChart" legendVisible="true" prefHeight="250"/>
+
+            <Label text="Ereignis-Feed" style="-fx-font-size: 14px; -fx-text-fill: #C9A227;"/>
+            <Pane fx:id="eventFeedPane" prefHeight="180" style="-fx-background-color: #1A1A1A; -fx-border-color: #333; -fx-border-radius: 5;"/>
+
+            <Label text="Legende:" style="-fx-text-fill: #888; -fx-font-size: 10px;"/>
+            <Label text="Grauer Ball = Unsichere Waehler" style="-fx-text-fill: #6c757d; -fx-font-size: 10px;"/>
+            <Label text="Farbige Baelle = Parteien" style="-fx-text-fill: #aaa; -fx-font-size: 10px;"/>
+            <Label text="Fliegende Punkte = Waehlerwechsel" style="-fx-text-fill: #aaa; -fx-font-size: 10px;"/>
+        </VBox>
+    </right>
+</BorderPane>

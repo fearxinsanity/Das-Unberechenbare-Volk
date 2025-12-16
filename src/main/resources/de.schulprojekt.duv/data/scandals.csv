@@ -1,0 +1,41 @@
+id,type,title,description,strength
+1,CORRUPTION,Korruptionsskandal,Führende Parteimitglieder sollen Bestechungsgelder angenommen haben,0.85
+2,FINANCIAL,Spendenaffäre,Illegale Großspenden aus dem Ausland wurden entdeckt,0.75
+3,PERSONAL,Plagiatsvorwürfe,Prominentes Mitglied soll bei Doktorarbeit abgeschrieben haben,0.45
+4,POLITICAL,Wahlkampflügen,Zentrale Wahlversprechen wurden nachweislich gebrochen,0.65
+5,CORRUPTION,Vetternwirtschaft,Verwandte wurden in lukrative Posten befördert,0.70
+6,SCANDAL,Affäre aufgedeckt,Außereheliche Beziehung eines Spitzenpolitikers wurde öffentlich,0.40
+7,FINANCIAL,Steuerhinterziehung,Parteikasse wurde zur Steuervermeidung missbraucht,0.80
+8,POLITICAL,Geheimdokumente geleakt,Interne Strategiepapiere mit fragwürdigen Inhalten veröffentlicht,0.55
+9,PERSONAL,Rassismus-Vorwürfe,Diskriminierende Äußerungen in alten Interviews aufgetaucht,0.60
+10,CORRUPTION,Lobbyismus-Skandal,Bezahlte Einflussnahme durch Konzerne nachgewiesen,0.75
+11,FINANCIAL,Scheinrechnungen,Fingierte Abrechnungen für nicht erbrachte Leistungen,0.70
+12,POLITICAL,Extremismus-Verbindungen,Kontakte zu radikalen Gruppierungen aufgedeckt,0.90
+13,PERSONAL,Alkoholproblem,Öffentlicher Auftritt unter Alkoholeinfluss,0.35
+14,SCANDAL,Datenmissbrauch,Wählerdaten wurden ohne Zustimmung verwendet,0.65
+15,CORRUPTION,Immobilien-Deal,Verdächtige Grundstücksgeschäfte zu Dumpingpreisen,0.60
+16,FINANCIAL,Schwarzgeld-Konten,Geheime Auslandskonten der Partei entdeckt,0.85
+17,POLITICAL,Falschaussage,Nachweisliche Lüge vor Untersuchungsausschuss,0.70
+18,PERSONAL,Mobbing-Vorwürfe,Systematisches Schikanieren von Mitarbeitern,0.50
+19,SCANDAL,Geheimnisverrat,Vertrauliche Regierungsinformationen weitergegeben,0.80
+20,CORRUPTION,Auftragsvergabe,Staatliche Aufträge an Parteispender vergeben,0.75
+21,FINANCIAL,Bilanzfälschung,Parteifinanzen wurden systematisch manipuliert,0.80
+22,POLITICAL,Wahlmanipulation,Vorwürfe der internen Wahlbeeinflussung,0.85
+23,PERSONAL,Gewaltvorwürfe,Körperliche Auseinandersetzung mit Journalisten,0.55
+24,SCANDAL,Abhörskandal,Illegale Überwachung politischer Gegner,0.90
+25,CORRUPTION,Beamtenbestechung,Öffentliche Amtsträger wurden bestochen,0.80
+26,FINANCIAL,Subventionsbetrug,Fördermittel wurden zweckentfremdet,0.70
+27,POLITICAL,Wahlbetrug,Gefälschte Mitgliederlisten bei Vorwahlen,0.75
+28,PERSONAL,Sexuelle Belästigung,Vorwürfe gegen hochrangiges Parteimitglied,0.85
+29,SCANDAL,Umweltskandal,Partei-nahe Firma hat Umweltverschmutzung vertuscht,0.65
+30,CORRUPTION,Ämterpatronage,Systematische Besetzung von Posten mit Parteigängern,0.60
+31,FINANCIAL,Kreditbetrug,Bankkredite unter falschen Angaben erschlichen,0.75
+32,POLITICAL,Geheimabsprachen,Illegale Koalitionsvereinbarungen hinter verschlossenen Türen,0.55
+33,PERSONAL,Drogenskanal,Drogenkonsum eines Abgeordneten dokumentiert,0.50
+34,SCANDAL,Fake-News-Kampagne,Partei hat systematisch Desinformation verbreitet,0.70
+35,CORRUPTION,Provisionsaffäre,Kickbacks bei öffentlichen Beschaffungen kassiert,0.80
+36,FINANCIAL,Parteispenden-Wäsche,Spenden wurden über Strohmänner verschleiert,0.75
+37,POLITICAL,Verfassungsbruch,Parteiinterne Regeln systematisch missachtet,0.60
+38,PERSONAL,Plagiat bei Rede,Berühmte Rede war fast vollständig kopiert,0.35
+39,SCANDAL,Machtmissbrauch,Parteivorsitz hat Kritiker mundtot gemacht,0.65
+40,CORRUPTION,Baulandaffäre,Umwidmung von Grundstücken für Parteispender,0.70

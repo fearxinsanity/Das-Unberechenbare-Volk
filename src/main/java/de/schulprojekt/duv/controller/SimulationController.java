@@ -1,5 +1,6 @@
 package de.schulprojekt.duv.controller;
 
+import de.schulprojekt.duv.model.engine.ScandalEvent;
 import de.schulprojekt.duv.model.engine.SimulationEngine;
 import de.schulprojekt.duv.model.engine.SimulationParameters;
 import de.schulprojekt.duv.model.engine.VoterTransition;
@@ -34,8 +35,8 @@ public class SimulationController {
                 50.0,
                 1,
                 1.0,
-                4
-        );
+                4,
+                120);  // 120 Sekunden Standardwert
     }
 
     private void initializeTimer(SimulationParameters params) {
@@ -52,8 +53,32 @@ public class SimulationController {
             @Override
             public void handle(long now) {
                 if (now - lastUpdate >= updateIntervalNano) {
+                    // Simulation ausführen
                     List<VoterTransition> transitions = engine.runSimulationStep();
-                    view.updateDashboard(engine.getParties(), engine.getVoters(), transitions);
+
+                    // Skandal abrufen (falls einer aufgetreten ist)
+                    ScandalEvent scandal = engine.getLastScandal();
+
+                    // Aktuelle Schritte
+                    int currentStep = engine.getCurrentStep();
+                    int totalSteps = engine.getParameters().getTotalSimulationTicks();
+
+                    // Dashboard mit allen Daten aktualisieren
+                    view.updateDashboard(
+                            engine.getParties(),
+                            engine.getVoters(),
+                            transitions,
+                            scandal,
+                            currentStep,
+                            totalSteps
+                    );
+
+                    // Simulation beenden wenn fertig
+                    if (currentStep >= totalSteps) {
+                        pauseSimulation();
+                        view.onSimulationComplete();
+                    }
+
                     lastUpdate = now;
                 }
             }
@@ -116,8 +141,8 @@ public class SimulationController {
                 currentParams.getInitialLoyaltyMean(),
                 newTicksPerSecond,
                 currentParams.getUniformRandomRange(),
-                currentParams.getNumberOfParties()
-        );
+                currentParams.getNumberOfParties(),
+                currentParams.getSimulationDurationSeconds());
 
         engine.updateParameters(newParams);
         initializeTimer(newParams);

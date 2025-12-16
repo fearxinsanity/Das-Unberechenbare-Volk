@@ -1,5 +1,9 @@
 package de.schulprojekt.duv.model.engine;
 
+/**
+ * Parameter für die Simulation.
+ * Enthält alle konfigurierbaren Werte.
+ */
 public class SimulationParameters {
 
     private int totalVoterCount;
@@ -10,8 +14,23 @@ public class SimulationParameters {
     private int simulationTicksPerSecond;
     private double uniformRandomRange;
     private int numberOfParties;
+    private int simulationDurationSeconds; // NEU: Gesamtdauer in Sekunden
 
-    public SimulationParameters(int totalVoterCount, double globalMediaInfluence, double baseMobilityRate, double scandalChance, double initialLoyaltyMean, int simulationTicksPerSecond, double uniformRandomRange, int numberOfParties) {
+    // Konstante für den "Unsicher"-Anteil
+    public static final double UNDECIDED_TRANSITION_RATE = 0.6; // 60% der Wechsel gehen erst zu "Unsicher"
+
+    public SimulationParameters(int totalVoterCount, double globalMediaInfluence,
+                                double baseMobilityRate, double scandalChance, double initialLoyaltyMean,
+                                int simulationTicksPerSecond, double uniformRandomRange, int numberOfParties) {
+        this(totalVoterCount, globalMediaInfluence, baseMobilityRate, scandalChance,
+                initialLoyaltyMean, simulationTicksPerSecond, uniformRandomRange,
+                numberOfParties, 120); // Standard: 2 Minuten
+    }
+
+    public SimulationParameters(int totalVoterCount, double globalMediaInfluence,
+                                double baseMobilityRate, double scandalChance, double initialLoyaltyMean,
+                                int simulationTicksPerSecond, double uniformRandomRange, int numberOfParties,
+                                int simulationDurationSeconds) {
         this.totalVoterCount = totalVoterCount;
         this.globalMediaInfluence = globalMediaInfluence;
         this.baseMobilityRate = baseMobilityRate;
@@ -20,7 +39,10 @@ public class SimulationParameters {
         this.simulationTicksPerSecond = simulationTicksPerSecond;
         this.uniformRandomRange = uniformRandomRange;
         this.numberOfParties = numberOfParties;
+        this.simulationDurationSeconds = simulationDurationSeconds;
     }
+
+    // --- Getter und Setter ---
 
     public int getTotalVoterCount() {
         return totalVoterCount;
@@ -84,5 +106,20 @@ public class SimulationParameters {
 
     public void setNumberOfParties(int numberOfParties) {
         this.numberOfParties = numberOfParties;
+    }
+
+    public int getSimulationDurationSeconds() {
+        return simulationDurationSeconds;
+    }
+
+    public void setSimulationDurationSeconds(int simulationDurationSeconds) {
+        this.simulationDurationSeconds = simulationDurationSeconds;
+    }
+
+    /**
+     * Berechnet die Gesamtzahl der Ticks basierend auf Dauer und Geschwindigkeit.
+     */
+    public int getTotalSimulationTicks() {
+        return simulationDurationSeconds * simulationTicksPerSecond;
     }
 }
