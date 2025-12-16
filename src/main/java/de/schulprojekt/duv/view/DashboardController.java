@@ -185,9 +185,11 @@ public class DashboardController {
     // --- Update vom SimulationController (im UI Thread) ---
 
     public void updateDashboard(List<Party> parties, List<VoterTransition> transitions, ScandalEvent scandal, int step) {
-        // 1. AUTOMATISCHER RESET BEI STRUKTURÄNDERUNG
-        // Wenn step == 0 ist, wurde die Simulation (z.B. durch Parameteränderung) neu gestartet.
-        // Wir müssen alle Caches löschen, da sich die Parteinamen geändert haben könnten.
+        if (!Platform.isFxApplicationThread()) {
+            // Falls wir im falschen Thread sind -> Auftrag an JavaFX übergeben und abbrechen
+            Platform.runLater(() -> updateDashboard(parties, transitions, scandal, step));
+            return;
+        }
         if (step == 0) {
             historySeriesMap.clear();
             if (historyChart != null) historyChart.getData().clear();
