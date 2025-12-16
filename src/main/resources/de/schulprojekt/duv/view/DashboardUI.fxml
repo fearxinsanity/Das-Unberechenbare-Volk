@@ -58,8 +58,11 @@
             <Label text="Loyalitaetsmittelwert (0-100)" style="-fx-text-fill: white; -fx-font-size: 11px;"/>
             <Slider fx:id="loyaltyMeanSlider" min="0" max="100" value="50" onMouseReleased="#handleParameterChange"/>
 
-            <Label text="Skandal-Chance (%)" style="-fx-text-fill: #ff6b6b; -fx-font-size: 11px;"/>
-            <Slider fx:id="scandalChanceSlider" min="0" max="20" value="5" onMouseReleased="#handleParameterChange"/>
+            <Label text="Skandal-Chance (0-20%)" style="-fx-text-fill: #ff6b6b;
+                     -fx-font-size: 11px;"/>
+            <Slider fx:id="scandalChanceSlider" min="0" max="20" value="5"
+                    showTickMarks="true" majorTickUnit="5" minorTickCount="4" snapToTicks="true"
+                    onMouseReleased="#handleParameterChange"/>
 
             <Label text="Werbe-Zufallsbereich" style="-fx-text-fill: white; -fx-font-size: 11px;"/>
             <Slider fx:id="randomRangeSlider" min="0.1" max="5.0" value="1.0" onMouseReleased="#handleParameterChange"/>

@@ -142,6 +142,7 @@ public class DashboardController {
         if (controller == null) return;
         try {
             int voters = Integer.parseInt(voterCountField.getText());
+
             SimulationParameters params = new SimulationParameters(
                     voters,
                     mediaInfluenceSlider.getValue(),
@@ -180,6 +181,16 @@ public class DashboardController {
         if (startButton != null) startButton.setDisable(running);
         if (pauseButton != null) pauseButton.setDisable(!running);
         if (resetButton != null) resetButton.setDisable(running);
+    }
+
+    private void updateChartYAxis(int maxVoters) {
+        if (historyChart != null && historyChart.getYAxis() instanceof NumberAxis) {
+            NumberAxis yAxis = (NumberAxis) historyChart.getYAxis();
+            yAxis.setAutoRanging(false);
+            yAxis.setLowerBound(0);
+            yAxis.setUpperBound(maxVoters);
+            yAxis.setTickUnit(maxVoters / 10.0);
+        }
     }
 
     // --- Update vom SimulationController (im UI Thread) ---
@@ -277,9 +288,14 @@ public class DashboardController {
     }
 
     private void updateHistoryChart(List<Party> parties, int step) {
+        double currentMaxSupporters = 0;
+
         for (Party p : parties) {
+            // Wir ignorieren "Unsicher" für die Skalierung, wenn wir nur Parteien vergleichen wollen.
+            // Falls du "Unsicher" auch im Graphen hast, nimm die Zeile raus.
             if (p.getName().equals(SimulationConfig.UNDECIDED_NAME)) continue;
 
+            // 1. Datenpunkte hinzufügen (wie bisher)
             XYChart.Series<Number, Number> series = historySeriesMap.computeIfAbsent(p.getName(), k -> {
                 XYChart.Series<Number, Number> s = new XYChart.Series<>();
                 s.setName(k);
@@ -288,9 +304,44 @@ public class DashboardController {
                 return s;
             });
 
-            series.getData().add(new XYChart.Data<>(step, p.getCurrentSupporterCount()));
+            int supporters = p.getCurrentSupporterCount();
+            series.getData().add(new XYChart.Data<>(step, supporters));
+
+            // Datenmengen begrenzen
             if (series.getData().size() > SimulationConfig.HISTORY_LENGTH) {
                 series.getData().remove(0);
+            }
+
+            // 2. Maximum finden
+            if (supporters > currentMaxSupporters) {
+                currentMaxSupporters = supporters;
+            }
+        }
+
+        // 3. Achse dynamisch anpassen (Smart Scaling)
+        if (historyChart.getYAxis() instanceof NumberAxis) {
+            NumberAxis yAxis = (NumberAxis) historyChart.getYAxis();
+
+            // Auto-Ranging aus, damit wir volle Kontrolle haben
+            yAxis.setAutoRanging(false);
+            yAxis.setLowerBound(0);
+
+            // Ziel: Maximum + 10% Puffer
+            double targetUpperBound = currentMaxSupporters * 1.15;
+
+            // Damit es nicht zittert: Auf "schöne" Zahlen runden.
+            // Wenn wir bei 12.340 sind, runden wir auf 13.000 oder 15.000.
+            double stepSize = (targetUpperBound > 10000) ? 5000 : 1000;
+            double roundedUpperBound = Math.ceil(targetUpperBound / stepSize) * stepSize;
+
+            // Mindestens 1000 als Obergrenze, damit der Graph am Anfang nicht spinnt
+            if (roundedUpperBound < 1000) roundedUpperBound = 1000;
+
+            // Nur updaten, wenn sich der Wert geändert hat (spart Performance)
+            if (Math.abs(yAxis.getUpperBound() - roundedUpperBound) > 1.0) {
+                yAxis.setUpperBound(roundedUpperBound);
+                // TickUnit anpassen: Immer ca. 5-6 Linien anzeigen
+                yAxis.setTickUnit(roundedUpperBound / 5.0);
             }
         }
     }
