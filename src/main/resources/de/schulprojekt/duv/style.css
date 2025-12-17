@@ -122,16 +122,61 @@
     -fx-scale-y: 1.2;
 }
 
-/* === Charts & Feeds === */
-/* Grid-Linien im Chart kaum sichtbar machen für mehr "Leere" */
-.chart-vertical-grid-lines, .chart-horizontal-grid-lines {
-    -fx-stroke: #222222;
-}
-.axis-tick-mark, .axis-minor-tick-mark { -fx-stroke: #444; }
+/* === Charts (Stimmenverlauf) Styling === */
 
-/* Der Event-Feed Bereich */
-#eventFeedPane {
-    -fx-background-color: rgba(0,0,0,0.6) !important;
-    -fx-border-color: #D4AF37;
-    -fx-border-width: 0 0 0 2; /* Nur links ein goldener Streifen */
+/* 1. Der gesamte Chart-Container */
+.chart {
+    -fx-background-color: transparent;
+    -fx-padding: 10px;
+}
+
+/* 2. WICHTIG: Das weiße Rechteck entfernen (Plot-Area) */
+.chart-plot-background {
+    -fx-background-color: transparent;
+    /* Optional: Ein ganz leichtes Gittermuster für den Tech-Look */
+    -fx-background-image: repeating-linear-gradient(
+            45deg,
+            rgba(255, 255, 255, 0.02) 0px,
+            rgba(255, 255, 255, 0.02) 1px,
+            transparent 1px,
+            transparent 10px
+    );
+}
+
+/* 3. Inhalt des Charts */
+.chart-content {
+    -fx-background-color: transparent;
+}
+
+/* 4. Achsen-Beschriftungen (Zahlen) */
+.axis {
+    -fx-tick-label-fill: #D4AF37; /* Goldene Zahlen passend zum Theme */
+    -fx-tick-label-font-family: "Consolas", monospace;
+    -fx-tick-label-font-size: 10px;
+}
+
+/* 5. Achsen-Titel (z.B. "Zeit", "Stimmen") */
+.axis-label {
+    -fx-text-fill: #8a8a8a; /* Etwas dunkleres Grau */
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-weight: bold;
+}
+
+/* 6. Gitterlinien (Grid) - Hauchdünn und technisch */
+.chart-vertical-grid-lines, .chart-horizontal-grid-lines {
+    -fx-stroke: rgba(212, 175, 55, 0.15); /* Sehr transparentes Gold */
+    -fx-stroke-dash-array: 1 5; /* Gepunktete Linien wirken technischer */
+    -fx-stroke-width: 0.5;
+}
+
+/* 7. Die Linien der Parteien selbst (optionales Glow) */
+.chart-series-line {
+    -fx-stroke-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 5, 0, 0, 0);
+}
+
+/* Falls Symbole (Punkte) noch an sind, verstecken wir sie hier sicherheitshalber */
+.chart-line-symbol {
+    -fx-background-color: transparent, transparent;
+    -fx-background-size: 0;
 }

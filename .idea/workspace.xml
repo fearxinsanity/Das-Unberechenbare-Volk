@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="changed design">
+    <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="changed buttons from square to round">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/DashboardController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/DashboardController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/style.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -317,7 +318,15 @@
       <option name="project" value="LOCAL" />
       <updated>1765957336154</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="changed buttons from square to round">
+      <option name="closed" value="true" />
+      <created>1765957599218</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1765957599219</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -343,6 +352,7 @@
     <MESSAGE value="fixed parallel access error" />
     <MESSAGE value="changed math related to voter transition" />
     <MESSAGE value="changed design" />
-    <option name="LAST_COMMIT_MESSAGE" value="changed design" />
+    <MESSAGE value="changed buttons from square to round" />
+    <option name="LAST_COMMIT_MESSAGE" value="changed buttons from square to round" />
   </component>
 </project>

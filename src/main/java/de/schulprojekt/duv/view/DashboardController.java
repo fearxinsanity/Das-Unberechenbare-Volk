@@ -474,26 +474,36 @@ public class DashboardController {
 
         // --- NEU: PHASE 3 - Wähler als "Datenströme" mit Schweif ---
         Iterator<MovingVoter> it = activeParticles.iterator();
-        gc.setLineWidth(2.0); // Dicke der Datenpakete
+        gc.setLineWidth(2.5); // Etwas dicker für mehr "Glow"
 
         while (it.hasNext()) {
             MovingVoter p = it.next();
             p.move();
 
-            // Wir zeichnen den Partikel mehrmals, um einen "Schweif" zu simulieren
-            double trailLength = 3; // Anzahl der Schweif-Segmente
-            for (int i = 0; i < trailLength; i++) {
-                // Je weiter hinten im Schweif, desto transparenter
-                double alpha = 0.8 - (i * (0.8 / trailLength));
-                gc.setGlobalAlpha(alpha);
-                gc.setStroke(p.color.deriveColor(0, 1.0, 1.5, 1.0)); // Heller leuchtend
+            // Dynamische Transparenz abrufen (Fade-In / Fade-Out)
+            double baseAlpha = p.getOpacity();
 
-                // Berechnung der "Rückwärts"-Position für den Schweif
-                // Wir nutzen die aktuelle Geschwindigkeit (dx, dy)
-                double backX = p.x - (p.dx * i * 2.0); // Faktor 2.0 streckt den Schweif
-                double backY = p.y - (p.dy * i * 2.0);
-                // Ein kleines Stück Linie zeichnen, das in Bewegungsrichtung zeigt
-                gc.strokeLine(backX, backY, backX - p.dx*2, backY - p.dy*2);
+            // Schweif zeichnen
+            double trailLength = 5; // Längerer Schweif für mehr Speed-Gefühl
+
+            for (int i = 0; i < trailLength; i++) {
+                // Der Schweif wird nach hinten transparenter UND nimmt die Basis-Transparenz an
+                double segmentAlpha = baseAlpha * (1.0 - ((double)i / trailLength));
+
+                // Wenn fast unsichtbar, nicht zeichnen (spart Performance)
+                if (segmentAlpha < 0.05) continue;
+
+                gc.setGlobalAlpha(segmentAlpha);
+                // Farbe leuchtender machen (brighter)
+                gc.setStroke(p.color.deriveColor(0, 1.0, 1.0, 1.0));
+
+                // Position im Schweif berechnen
+                // Wir nutzen p.dx/dy (die Bewegung dieses Frames) um zurückzurechnen
+                double backX = p.x - (p.dx * i * 1.5);
+                double backY = p.y - (p.dy * i * 1.5);
+
+                // Linie zeichnen
+                gc.strokeLine(backX, backY, backX - p.dx, backY - p.dy);
             }
 
             if (p.hasArrived()) {
@@ -501,6 +511,7 @@ public class DashboardController {
                 particlePool.push(p);
             }
         }
+        // WICHTIG: Alpha resetten, sonst sind andere Zeichnungen danach transparent
         gc.setGlobalAlpha(1.0);
     }
 
@@ -540,45 +551,82 @@ public class DashboardController {
     }
 
     private static class MovingVoter {
-        // HIER SIND DIE NEUEN FELDER dx UND dy:
-        double x, y, targetX, targetY, speed = 4.0;
-        double dx, dy; // <-- Das hat gefehlt!
+        double startX, startY;
+        double targetX, targetY;
+        double x, y;
+        double dx, dy; // Für den Schweif
+
+        double progress; // 0.0 bis 1.0 (0% bis 100% der Strecke)
+        double speedStep; // Wie viel % pro Frame (z.B. 0.02)
 
         Color color;
         boolean arrived;
 
+        // Reset-Methode mit Streuung, damit sie nicht alle exakt in der Mitte landen
         void reset(double sx, double sy, double tx, double ty, Color c) {
-            this.x = sx + (Math.random() - 0.5) * 20;
-            this.y = sy + (Math.random() - 0.5) * 20;
-            this.targetX = tx;
-            this.targetY = ty;
+            // Zufällige Streuung am Start und Ziel (innerhalb des "Planeten")
+            double spread = 15.0;
+
+            this.startX = sx + (Math.random() - 0.5) * spread;
+            this.startY = sy + (Math.random() - 0.5) * spread;
+
+            this.targetX = tx + (Math.random() - 0.5) * spread;
+            this.targetY = ty + (Math.random() - 0.5) * spread;
+
+            this.x = startX;
+            this.y = startY;
             this.color = c;
+
+            this.progress = 0.0;
             this.arrived = false;
-            // Reset dx/dy
+
+            // Zufällige Geschwindigkeit: Manche Datenpakete sind schneller
+            // Basis: 1.5% der Strecke pro Frame + Zufall
+            this.speedStep = 0.010 + (Math.random() * 0.015);
+
             this.dx = 0;
             this.dy = 0;
         }
 
         void move() {
-            double distX = targetX - x;
-            double distY = targetY - y;
-            double dist = Math.sqrt(distX*distX + distY*distY);
+            if (arrived) return;
 
-            if (dist < speed) {
-                x = targetX;
-                y = targetY;
+            progress += speedStep;
+
+            if (progress >= 1.0) {
+                progress = 1.0;
                 arrived = true;
-                // Wenn angekommen, keine Bewegung mehr
-                this.dx = 0;
-                this.dy = 0;
-            } else {
-                // Speichern der aktuellen Bewegung für den Schweif
-                this.dx = (distX/dist)*speed;
-                this.dy = (distY/dist)*speed;
-
-                x += this.dx;
-                y += this.dy;
             }
+
+            // Easing Funktion: SmoothStep (Startet langsam, wird schnell, bremst ab)
+            // Formel: t * t * (3 - 2 * t) ist der Klassiker für sanfte Animationen
+            double t = progress * progress * (3 - 2 * progress);
+
+            // Neue Position berechnen (Lineare Interpolation mit Easing-Faktor t)
+            double newX = startX + (targetX - startX) * t;
+            double newY = startY + (targetY - startY) * t;
+
+            // Richtung und Geschwindigkeit für den Schweif berechnen
+            // (Unterschied zur Position im letzten Frame)
+            this.dx = newX - x;
+            this.dy = newY - y;
+
+            this.x = newX;
+            this.y = newY;
+        }
+
+        // Berechnet die Deckkraft basierend auf dem Fortschritt
+        double getOpacity() {
+            // Fade In (erste 15% der Strecke)
+            if (progress < 0.15) {
+                return progress / 0.15;
+            }
+            // Fade Out (letzte 15% der Strecke)
+            else if (progress > 0.85) {
+                return (1.0 - progress) / 0.15;
+            }
+            // Dazwischen voll sichtbar
+            return 1.0;
         }
 
         boolean hasArrived() { return arrived; }
