@@ -23,13 +23,9 @@
         <VBox styleClass="top-bar">
             <HBox alignment="CENTER_LEFT" spacing="20">
                 <Label text="Das Unberechenbare Volk" styleClass="app-title"/>
-
                 <Region HBox.hgrow="ALWAYS"/>
-
                 <Label fx:id="timeStepLabel" text="Status: Bereit" styleClass="status-label"/>
-
                 <Separator orientation="VERTICAL" />
-
                 <Button fx:id="startButton" text="▶ Starten" onAction="#handleStartSimulation" styleClass="action-button"/>
                 <Button fx:id="pauseButton" text="⏸ Pausieren" onAction="#handlePauseSimulation" disable="true"/>
                 <Button fx:id="resetButton" text="↺ Reset" onAction="#handleResetSimulation" disable="true"/>
@@ -47,7 +43,6 @@
             </BorderPane.margin>
 
             <Label text="Simulation Konfiguration" styleClass="section-title"/>
-
             <Separator style="-fx-opacity: 0.3;"/>
 
             <VBox spacing="5">
@@ -84,6 +79,13 @@
                 </VBox>
 
                 <VBox spacing="2">
+                    <Label text="Wahlkampf-Budget (Faktor)" styleClass="control-label"/>
+                    <Slider fx:id="campaignBudgetFactorSlider" min="0.5" max="2.0" value="1.0"
+                            showTickMarks="true" majorTickUnit="0.5" snapToTicks="true"
+                            onMouseReleased="#handleParameterChange"/>
+                </VBox>
+
+                <VBox spacing="2">
                     <Label text="Skandal-Wahrscheinlichkeit (0-20%)" styleClass="warning-label"/>
                     <Slider fx:id="scandalChanceSlider" min="0" max="20" value="5"
                             showTickMarks="true" majorTickUnit="5" minorTickCount="4" snapToTicks="true"
@@ -108,7 +110,6 @@
             </VBox>
 
             <Region VBox.vgrow="ALWAYS"/>
-
             <Button text="Parameter jetzt anwenden" onAction="#handleParameterChange" maxWidth="Infinity" style="-fx-base: #444;"/>
         </VBox>
     </left>
@@ -163,5 +164,4 @@
             </VBox>
         </VBox>
     </right>
-
 </BorderPane>

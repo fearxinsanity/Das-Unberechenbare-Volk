@@ -4,10 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="changed buttons from square to round">
+    <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="changed particel">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/engine/SimulationEngine.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/engine/SimulationEngine.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/engine/SimulationParameters.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/engine/SimulationParameters.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/DashboardController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/DashboardController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/style.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/view/DashboardUI.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/view/DashboardUI.fxml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -326,7 +328,15 @@
       <option name="project" value="LOCAL" />
       <updated>1765957599219</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="changed particel">
+      <option name="closed" value="true" />
+      <created>1765959044305</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1765959044305</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -353,6 +363,7 @@
     <MESSAGE value="changed math related to voter transition" />
     <MESSAGE value="changed design" />
     <MESSAGE value="changed buttons from square to round" />
-    <option name="LAST_COMMIT_MESSAGE" value="changed buttons from square to round" />
+    <MESSAGE value="changed particel" />
+    <option name="LAST_COMMIT_MESSAGE" value="changed particel" />
   </component>
 </project>

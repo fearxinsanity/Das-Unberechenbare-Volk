@@ -54,16 +54,17 @@ public class SimulationEngine {
         this.exponentialDistribution = new ExponentialDistribution(1.0 / scandalLambda);
     }
 
-    // --- WICHTIG: Die Methode zum Updaten der Parameter ---
     public void updateParameters(SimulationParameters newParams) {
         // Prüfen, ob strukturelle Änderungen vorliegen (Anzahl Parteien oder Wähler)
         boolean structuralChange = (newParams.getNumberOfParties() != parameters.getNumberOfParties()) ||
                 (newParams.getTotalVoterCount() != parameters.getTotalVoterCount());
 
+        // HINWEIS: Änderung des Budgets wirkt sich erst beim Reset aus, da Parteien hier nicht neu erstellt werden
+        // Das ist korrektes Verhalten für Laufzeit-Parameter-Updates.
+
         this.parameters = newParams;
         initializeDistributions();
 
-        // Wenn sich Parteien/Wähler geändert haben -> Welt neu erschaffen!
         if (structuralChange) {
             initializeSimulation();
         }
@@ -74,7 +75,6 @@ public class SimulationEngine {
         activeScandals.clear();
         currentStep = 0;
 
-        // 1. Parteien initialisieren
         int partyCount = parameters.getNumberOfParties();
         partyPermanentDamage = new double[partyCount + 1];
         undecidedParty = new Party(SimulationConfig.UNDECIDED_NAME, SimulationConfig.UNDECIDED_COLOR, SimulationConfig.UNDECIDED_POSITION, 0, 0);
@@ -83,13 +83,15 @@ public class SimulationEngine {
         List<PartyTemplate> templates = csvLoader.getRandomPartyTemplates(partyCount);
         for (int i = 0; i < partyCount; i++) {
             PartyTemplate template = templates.get(i);
-            // Gleichmäßige Verteilung der Parteien auf dem Spektrum
             double pos = Math.max(5, Math.min(95, (100.0 / (partyCount + 1)) * (i + 1) + (random.nextDouble() - 0.5) * 10));
-            double budget = 300000.0 + random.nextDouble() * 400000.0;
+
+            // NEU: Budget wird mit dem Faktor multipliziert
+            double baseBudget = 300000.0 + random.nextDouble() * 400000.0;
+            double budget = baseBudget * parameters.getCampaignBudgetFactor();
+
             partyList.add(template.toParty(pos, budget));
         }
 
-        // 2. Wähler Arrays initialisieren
         int totalVoters = parameters.getTotalVoterCount();
         voterPartyIndices = new byte[totalVoters];
         voterLoyalties = new float[totalVoters];
@@ -115,10 +117,7 @@ public class SimulationEngine {
     }
 
     private void recalculatePartyCounts() {
-        // Reset counts
         for(Party p : partyList) p.setCurrentSupporterCount(0);
-
-        // Count parallel friendly? Für Init reicht sequenziell oder synchronisiert
         int[] counts = new int[partyList.size()];
         for(byte idx : voterPartyIndices) {
             counts[idx]++;
@@ -141,12 +140,10 @@ public class SimulationEngine {
         double globalMedia = parameters.getGlobalMediaInfluence() / 100.0;
         double uniformRange = parameters.getUniformRandomRange();
 
-        // --- SKANDAL MANAGEMENT ---
         int scandalDuration = 100;
         activeScandals.removeIf(e -> currentStep - e.getOccurredAtStep() > scandalDuration);
         if (shouldScandalOccur() && partyList.size() > 1) triggerScandal();
 
-        // 1. Akuten Skandal-Druck ("Pressure") berechnen
         double[] currentScandalPressure = new double[partyList.size()];
 
         for (ScandalEvent event : activeScandals) {
@@ -155,15 +152,12 @@ public class SimulationEngine {
             if (pIndex != -1) {
                 int age = currentStep - event.getOccurredAtStep();
                 double strength = event.getScandal().getStrength();
-
                 double timeFactor;
                 if (age < 15) {
                     timeFactor = (double) age / 15.0;
                 } else {
                     timeFactor = 1.0 - ((double) (age - 15) / (scandalDuration - 15));
                 }
-
-                // Temporärer Druck (die Welle)
                 currentScandalPressure[pIndex] += strength * 30.0 * timeFactor;
             }
         }
@@ -173,35 +167,27 @@ public class SimulationEngine {
                 .mapToDouble(p -> p.getCampaignBudget() / SimulationConfig.CAMPAIGN_BUDGET_FACTOR)
                 .toArray();
 
-        // Momentum
         double[] partyDailyMomentum = new double[partyList.size()];
         for(int k=0; k < partyList.size(); k++) {
             partyDailyMomentum[k] = 0.9 + (java.util.concurrent.ThreadLocalRandom.current().nextDouble() * 0.2);
         }
 
         IntStream.range(0, voterPartyIndices.length).parallel().forEach(i -> {
-            // Wähler-Drift
             double drift = (java.util.concurrent.ThreadLocalRandom.current().nextDouble() - 0.5) * 0.3;
             voterPositions[i] += (float) drift;
             if (voterPositions[i] < 0) voterPositions[i] = 0;
             if (voterPositions[i] > 100) voterPositions[i] = 100;
 
             int currentIdx = voterPartyIndices[i];
-
-            // Gesamtschaden = Akuter Druck + Dauerhafter Schaden
-            // Hier greift die "Narbe" -> Auch wenn Druck weg ist, bleibt der Schaden.
             double totalPenalty = 0;
             if (currentIdx > 0) {
                 totalPenalty = currentScandalPressure[currentIdx] + partyPermanentDamage[currentIdx];
             }
 
             double switchProb = baseMobility * (1.0 - voterLoyalties[i] / 200.0) * voterMediaInfluence[i];
-
-            // Wechselwahrscheinlichkeit steigt durch Gesamtschaden
             if (totalPenalty > 0) {
                 switchProb += (totalPenalty / 300.0);
             }
-
             if (currentIdx == 0) switchProb *= 1.5;
             if (switchProb > 0.7) switchProb = 0.7;
 
@@ -209,8 +195,6 @@ public class SimulationEngine {
 
             if (rnd < switchProb) {
                 int targetIdx = currentIdx;
-
-                // Wenn der Schaden sehr hoch ist (viele alte Skandale), flüchten die Leute dauerhaft
                 boolean fleeingFromDesaster = (totalPenalty > 8.0);
 
                 if (!fleeingFromDesaster && currentIdx != 0 && java.util.concurrent.ThreadLocalRandom.current().nextDouble() < 0.2) {
@@ -229,10 +213,6 @@ public class SimulationEngine {
                         budgetScore *= partyDailyMomentum[pIdx];
 
                         double score = distScore + budgetScore;
-
-                        // WICHTIG: Auch beim Ziel prüfen wir auf Skandale + Dauerschaden
-                        // Parteien mit vielen vergangenen Skandalen (hoher partyPermanentDamage)
-                        // werden seltener als neue Heimat gewählt.
                         score -= (currentScandalPressure[pIdx] + partyPermanentDamage[pIdx]);
 
                         double noise = (java.util.concurrent.ThreadLocalRandom.current().nextDouble() - 0.5) * 10.0 * uniformRange;

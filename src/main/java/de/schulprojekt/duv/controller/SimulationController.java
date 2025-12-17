@@ -38,7 +38,8 @@ public class SimulationController {
     }
 
     private SimulationParameters createDefaultParameters() {
-        return new SimulationParameters(2500, 65.0, 35.0, 5.0, 50.0, 5, 1.0, 4);
+        // NEU: Letzter Parameter ist der Budget-Faktor (1.0 = 100% Budget)
+        return new SimulationParameters(2500, 65.0, 35.0, 5.0, 50.0, 5, 1.0, 4, 1.0);
     }
 
     public void startSimulation() {
@@ -57,12 +58,12 @@ public class SimulationController {
 
         simulationTask = executorService.scheduleAtFixedRate(() -> {
             try {
-                // Berechnung im Hintergrund (DAS IST OK)
+                // Berechnung im Hintergrund
                 List<VoterTransition> transitions = engine.runSimulationStep();
                 ScandalEvent scandal = engine.getLastScandal();
                 int step = engine.getCurrentStep();
 
-                // UI-Update MUSS in runLater (HIER FEHLT ES WAHRSCHEINLICH)
+                // UI-Update MUSS in runLater
                 Platform.runLater(() -> {
                     view.updateDashboard(engine.getParties(), transitions, scandal, step);
                 });
@@ -89,16 +90,13 @@ public class SimulationController {
 
     public void updateSimulationSpeed(int factor) {
         SimulationParameters p = engine.getParameters();
-        p.setSimulationTicksPerSecond(1 * factor); // Basis 1 * Faktor
-        // Parameter Update
+        p.setSimulationTicksPerSecond(1 * factor);
         updateAllParameters(p);
     }
 
     public void updateAllParameters(SimulationParameters p) {
         executorService.execute(() -> {
             engine.updateParameters(p);
-
-            // AUCH HIER: Platform.runLater
             Platform.runLater(() ->
                     view.updateDashboard(engine.getParties(), List.of(), null, engine.getCurrentStep())
             );
