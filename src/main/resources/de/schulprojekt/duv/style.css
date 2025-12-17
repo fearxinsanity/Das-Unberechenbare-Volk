@@ -101,7 +101,25 @@
 .slider .thumb {
     -fx-background-color: #D4AF37;
     -fx-border-color: black;
-    -fx-effect: dropshadow(gaussian, rgba(212, 175, 55, 0.5), 5, 0, 0, 0);
+    -fx-border-width: 1;
+
+    /* WICHTIG: Radius für Hintergrund UND Rand identisch setzen */
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+
+    /* Feste Größe definiert den Kreis (z.B. 14x14px) */
+    -fx-pref-width: 14px;
+    -fx-pref-height: 14px;
+
+    /* Dein Glühen-Effekt */
+    -fx-effect: dropshadow(gaussian, rgba(212, 175, 55, 0.8), 8, 0, 0, 0);
+}
+
+/* Optional: Wenn man mit der Maus drüberfährt, wird er etwas größer */
+.slider .thumb:hover {
+    -fx-background-color: #ffd54f;
+    -fx-scale-x: 1.2;
+    -fx-scale-y: 1.2;
 }
 
 /* === Charts & Feeds === */
