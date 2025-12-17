@@ -56,8 +56,11 @@
 
             <VBox spacing="5">
                 <Label text="Anzahl Parteien (2-8)" styleClass="control-label"/>
-                <Slider fx:id="partyCountSlider" min="2" max="8" value="5" majorTickUnit="1" minorTickCount="0"
-                        snapToTicks="true" showTickMarks="true" onMouseReleased="#handleParameterChange"/>
+                <HBox spacing="5" alignment="CENTER_LEFT">
+                    <Button text="-" onAction="#handlePartyCountDecrement" prefWidth="35"/>
+                    <TextField fx:id="partyCountField" text="5" HBox.hgrow="ALWAYS" alignment="CENTER" editable="false"/>
+                    <Button text="+" onAction="#handlePartyCountIncrement" prefWidth="35"/>
+                </HBox>
             </VBox>
 
             <Separator style="-fx-opacity: 0.2;"/>
@@ -79,17 +82,17 @@
                 </VBox>
 
                 <VBox spacing="2">
-                    <Label text="Wahlkampf-Budget (Faktor)" styleClass="control-label"/>
-                    <Slider fx:id="campaignBudgetFactorSlider" min="0.5" max="2.0" value="1.0"
-                            showTickMarks="true" majorTickUnit="0.5" snapToTicks="true"
-                            onMouseReleased="#handleParameterChange"/>
+                    <Label text="Ø Wahlkampf-Budget (€)" styleClass="control-label"/>
+                    <TextField fx:id="budgetField" text="500000" onAction="#handleParameterChange"/>
                 </VBox>
 
                 <VBox spacing="2">
-                    <Label text="Skandal-Wahrscheinlichkeit (0-20%)" styleClass="warning-label"/>
-                    <Slider fx:id="scandalChanceSlider" min="0" max="20" value="5"
-                            showTickMarks="true" majorTickUnit="5" minorTickCount="4" snapToTicks="true"
-                            onMouseReleased="#handleParameterChange"/>
+                    <Label text="Skandal-Chance (%)" styleClass="warning-label"/>
+                    <HBox spacing="5" alignment="CENTER_LEFT">
+                        <Button text="-" onAction="#handleScandalChanceDecrement" prefWidth="35"/>
+                        <TextField fx:id="scandalChanceField" text="5.0" HBox.hgrow="ALWAYS" alignment="CENTER" onAction="#handleParameterChange"/>
+                        <Button text="+" onAction="#handleScandalChanceIncrement" prefWidth="35"/>
+                    </HBox>
                 </VBox>
 
                 <VBox spacing="2">

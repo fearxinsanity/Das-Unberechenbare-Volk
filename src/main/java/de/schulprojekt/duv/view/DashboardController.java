@@ -39,16 +39,17 @@ public class DashboardController {
     @FXML private Pane eventFeedPane;
     @FXML private Label timeStepLabel;
 
-    // Eingabefelder & Slider
+    // Eingabefelder (Text & Buttons)
     @FXML private TextField voterCountField;
-    @FXML private Slider partyCountSlider;
+    @FXML private TextField partyCountField;    // NEU: TextField statt Slider
+    @FXML private TextField budgetField;        // NEU: Euro Betrag statt Faktor
+    @FXML private TextField scandalChanceField; // NEU: Präzise % statt Slider
+
+    // Slider (bleiben für Prozentwerte erhalten)
     @FXML private Slider mediaInfluenceSlider;
     @FXML private Slider mobilityRateSlider;
     @FXML private Slider loyaltyMeanSlider;
-    @FXML private Slider scandalChanceSlider;
     @FXML private Slider randomRangeSlider;
-    // NEU:
-    @FXML private Slider campaignBudgetFactorSlider;
 
     // Buttons
     @FXML private Button startButton;
@@ -125,44 +126,84 @@ public class DashboardController {
     public void handleParameterChange(Event event) {
         if (controller == null) return;
         try {
-            int voters = Integer.parseInt(voterCountField.getText());
+            // Wähler
+            int voters = parseIntSafe(voterCountField.getText(), 100000);
 
-            // NEU: Default für Slider, falls noch nicht initialisiert
-            double budgetFactor = 1.0;
-            if (campaignBudgetFactorSlider != null) {
-                budgetFactor = campaignBudgetFactorSlider.getValue();
-            }
+            // Parteien
+            int parties = parseIntSafe(partyCountField.getText(), 5);
+            parties = Math.max(2, Math.min(8, parties)); // Clamp 2-8
+
+            // Skandal Chance
+            double scandalChance = parseDoubleSafe(scandalChanceField.getText(), 5.0);
+            scandalChance = Math.max(0.0, Math.min(20.0, scandalChance)); // Clamp 0-20%
+
+            // Budget (Konvertierung Euro -> Faktor für die Engine)
+            // Basis-Referenzwert ist 500.000 (siehe SimulationEngine Durchschnitt)
+            double budgetInput = parseDoubleSafe(budgetField.getText(), 500000.0);
+            double budgetFactor = budgetInput / 500000.0;
+            budgetFactor = Math.max(0.1, Math.min(10.0, budgetFactor)); // Sicherheitslimit
 
             SimulationParameters params = new SimulationParameters(
                     voters,
                     mediaInfluenceSlider.getValue(),
                     mobilityRateSlider.getValue(),
-                    scandalChanceSlider.getValue(),
+                    scandalChance,
                     loyaltyMeanSlider.getValue(),
                     controller.getCurrentParameters().getSimulationTicksPerSecond(),
                     randomRangeSlider.getValue(),
-                    (int) partyCountSlider.getValue(),
-                    budgetFactor // NEU
+                    parties,
+                    budgetFactor
             );
             controller.updateAllParameters(params);
-        } catch (NumberFormatException e) {
-            // Ignorieren
+        } catch (Exception e) {
+            // Bei Fehler nichts tun (alte Werte behalten)
+            e.printStackTrace();
         }
     }
 
-    @FXML public void handleVoterCountIncrement(ActionEvent event) { adjustVoterCount(1000); }
-    @FXML public void handleVoterCountDecrement(ActionEvent event) { adjustVoterCount(-1000); }
+    // --- Helper für Zahlen-Parsing ---
+    private int parseIntSafe(String text, int def) {
+        try { return Integer.parseInt(text.replaceAll("[^0-9]", "")); }
+        catch (NumberFormatException e) { return def; }
+    }
+
+    private double parseDoubleSafe(String text, double def) {
+        try { return Double.parseDouble(text.replace(",", ".")); }
+        catch (NumberFormatException e) { return def; }
+    }
+
+    // --- Handler für +/- Buttons ---
+
+    @FXML public void handleVoterCountIncrement(ActionEvent event) {
+        adjustIntField(voterCountField, 10000, 1000, 2000000);
+    }
+    @FXML public void handleVoterCountDecrement(ActionEvent event) {
+        adjustIntField(voterCountField, -10000, 1000, 2000000);
+    }
+
+    @FXML public void handlePartyCountIncrement(ActionEvent event) { adjustIntField(partyCountField, 1, 2, 8); }
+    @FXML public void handlePartyCountDecrement(ActionEvent event) { adjustIntField(partyCountField, -1, 2, 8); }
+
+    @FXML public void handleScandalChanceIncrement(ActionEvent event) { adjustDoubleField(scandalChanceField, 0.5, 0.0, 20.0); }
+    @FXML public void handleScandalChanceDecrement(ActionEvent event) { adjustDoubleField(scandalChanceField, -0.5, 0.0, 20.0); }
+
     @FXML public void handleSpeed1x(ActionEvent event) { controller.updateSimulationSpeed(1); }
     @FXML public void handleSpeed2x(ActionEvent event) { controller.updateSimulationSpeed(2); }
     @FXML public void handleSpeed4x(ActionEvent event) { controller.updateSimulationSpeed(4); }
 
-    private void adjustVoterCount(int delta) {
-        try {
-            int current = Integer.parseInt(voterCountField.getText());
-            int newVal = Math.max(0, current + delta);
-            voterCountField.setText(String.valueOf(newVal));
-            handleParameterChange(null);
-        } catch (NumberFormatException ignored) { }
+    private void adjustIntField(TextField field, int delta, int min, int max) {
+        int current = parseIntSafe(field.getText(), min);
+        int newVal = Math.max(min, Math.min(max, current + delta));
+        field.setText(String.valueOf(newVal));
+        handleParameterChange(null);
+    }
+
+    private void adjustDoubleField(TextField field, double delta, double min, double max) {
+        double current = parseDoubleSafe(field.getText(), min);
+        double newVal = Math.max(min, Math.min(max, current + delta));
+        // Rundung auf 1 Nachkommastelle für saubere Anzeige
+        field.setText(String.format(Locale.US, "%.1f", newVal));
+        handleParameterChange(null);
     }
 
     private void updateButtonState(boolean running) {
@@ -171,6 +212,7 @@ public class DashboardController {
         if (resetButton != null) resetButton.setDisable(running);
     }
 
+    // --- Visualisierungs-Logik (unverändert) ---
     public void updateDashboard(List<Party> parties, List<VoterTransition> transitions, ScandalEvent scandal, int step) {
         if (!Platform.isFxApplicationThread()) {
             Platform.runLater(() -> updateDashboard(parties, transitions, scandal, step));

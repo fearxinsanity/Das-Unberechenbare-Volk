@@ -132,14 +132,12 @@
 
 /* 2. WICHTIG: Das weiße Rechteck entfernen (Plot-Area) */
 .chart-plot-background {
-    -fx-background-color: transparent;
-    /* Optional: Ein ganz leichtes Gittermuster für den Tech-Look */
-    -fx-background-image: repeating-linear-gradient(
-            45deg,
-            rgba(255, 255, 255, 0.02) 0px,
-            rgba(255, 255, 255, 0.02) 1px,
-            transparent 1px,
-            transparent 10px
+    -fx-background-color: linear-gradient(
+            from 0px 0px to 10px 10px, repeat,
+            rgba(255, 255, 255, 0.02) 0%,
+            rgba(255, 255, 255, 0.02) 10%,
+            transparent 10%,
+            transparent 100%
     );
 }
 

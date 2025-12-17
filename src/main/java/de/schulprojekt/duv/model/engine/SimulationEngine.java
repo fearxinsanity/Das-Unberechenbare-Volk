@@ -10,6 +10,7 @@ import org.apache.commons.math3.distribution.UniformRealDistribution;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CopyOnWriteArrayList; // WICHTIGER IMPORT
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
@@ -21,7 +22,9 @@ public class SimulationEngine {
     private float[] voterPositions;
     private float[] voterMediaInfluence;
 
-    private final List<Party> partyList;
+    // ÄNDERUNG: CopyOnWriteArrayList verhindert Abstürze beim gleichzeitigen Lesen/Schreiben
+    private final List<Party> partyList = new CopyOnWriteArrayList<>();
+
     private Party undecidedParty;
     private final CSVLoader csvLoader;
     private SimulationParameters parameters;
@@ -41,7 +44,7 @@ public class SimulationEngine {
 
     public SimulationEngine(SimulationParameters params) {
         this.parameters = params;
-        this.partyList = new ArrayList<>();
+        // partyList wird oben initialisiert
         this.csvLoader = new CSVLoader();
         initializeDistributions();
     }
@@ -55,12 +58,8 @@ public class SimulationEngine {
     }
 
     public void updateParameters(SimulationParameters newParams) {
-        // Prüfen, ob strukturelle Änderungen vorliegen (Anzahl Parteien oder Wähler)
         boolean structuralChange = (newParams.getNumberOfParties() != parameters.getNumberOfParties()) ||
                 (newParams.getTotalVoterCount() != parameters.getTotalVoterCount());
-
-        // HINWEIS: Änderung des Budgets wirkt sich erst beim Reset aus, da Parteien hier nicht neu erstellt werden
-        // Das ist korrektes Verhalten für Laufzeit-Parameter-Updates.
 
         this.parameters = newParams;
         initializeDistributions();
@@ -71,7 +70,7 @@ public class SimulationEngine {
     }
 
     public void initializeSimulation() {
-        partyList.clear();
+        partyList.clear(); // Sicher dank CopyOnWriteArrayList
         activeScandals.clear();
         currentStep = 0;
 
@@ -85,7 +84,6 @@ public class SimulationEngine {
             PartyTemplate template = templates.get(i);
             double pos = Math.max(5, Math.min(95, (100.0 / (partyCount + 1)) * (i + 1) + (random.nextDouble() - 0.5) * 10));
 
-            // NEU: Budget wird mit dem Faktor multipliziert
             double baseBudget = 300000.0 + random.nextDouble() * 400000.0;
             double budget = baseBudget * parameters.getCampaignBudgetFactor();
 
@@ -117,13 +115,23 @@ public class SimulationEngine {
     }
 
     private void recalculatePartyCounts() {
+        // Da wir multithreaded lesen, holen wir uns hier einen Snapshot oder iterieren sicher
+        // CopyOnWriteArrayList Iteration ist sicher.
         for(Party p : partyList) p.setCurrentSupporterCount(0);
+
         int[] counts = new int[partyList.size()];
+        // Schutz vor IndexOutOfBounds falls Resize passiert (unwahrscheinlich aber möglich bei Race Condition)
+        int maxIdx = counts.length - 1;
+
         for(byte idx : voterPartyIndices) {
-            counts[idx]++;
+            if (idx <= maxIdx) {
+                counts[idx]++;
+            }
         }
         for(int i=0; i<counts.length; i++) {
-            partyList.get(i).setCurrentSupporterCount(counts[i]);
+            if (i < partyList.size()) {
+                partyList.get(i).setCurrentSupporterCount(counts[i]);
+            }
         }
     }
 
@@ -133,8 +141,10 @@ public class SimulationEngine {
 
         if (voterPartyIndices == null || voterPartyIndices.length == 0) return new ArrayList<>();
 
-        AtomicInteger[] partyDeltas = new AtomicInteger[partyList.size()];
-        for(int i=0; i<partyDeltas.length; i++) partyDeltas[i] = new AtomicInteger(0);
+        // thread-safe size check
+        int pSize = partyList.size();
+        AtomicInteger[] partyDeltas = new AtomicInteger[pSize];
+        for(int i=0; i<pSize; i++) partyDeltas[i] = new AtomicInteger(0);
 
         double baseMobility = parameters.getBaseMobilityRate() / 100.0;
         double globalMedia = parameters.getGlobalMediaInfluence() / 100.0;
@@ -142,33 +152,30 @@ public class SimulationEngine {
 
         int scandalDuration = 100;
         activeScandals.removeIf(e -> currentStep - e.getOccurredAtStep() > scandalDuration);
-        if (shouldScandalOccur() && partyList.size() > 1) triggerScandal();
+        if (shouldScandalOccur() && pSize > 1) triggerScandal();
 
-        double[] currentScandalPressure = new double[partyList.size()];
+        double[] currentScandalPressure = new double[pSize];
 
         for (ScandalEvent event : activeScandals) {
             Party affected = event.getAffectedParty();
             int pIndex = partyList.indexOf(affected);
-            if (pIndex != -1) {
+            if (pIndex != -1 && pIndex < pSize) {
                 int age = currentStep - event.getOccurredAtStep();
                 double strength = event.getScandal().getStrength();
-                double timeFactor;
-                if (age < 15) {
-                    timeFactor = (double) age / 15.0;
-                } else {
-                    timeFactor = 1.0 - ((double) (age - 15) / (scandalDuration - 15));
-                }
+                double timeFactor = (age < 15) ? (double) age / 15.0 : 1.0 - ((double) (age - 15) / (scandalDuration - 15));
                 currentScandalPressure[pIndex] += strength * 30.0 * timeFactor;
             }
         }
 
-        double[] partyPos = partyList.stream().mapToDouble(Party::getPoliticalPosition).toArray();
-        double[] partyBudgetFactor = partyList.stream()
-                .mapToDouble(p -> p.getCampaignBudget() / SimulationConfig.CAMPAIGN_BUDGET_FACTOR)
-                .toArray();
+        // Snapshots der Werte für den parallelen Stream
+        double[] partyPos = new double[pSize];
+        double[] partyBudgetFactor = new double[pSize];
+        double[] partyDailyMomentum = new double[pSize];
 
-        double[] partyDailyMomentum = new double[partyList.size()];
-        for(int k=0; k < partyList.size(); k++) {
+        for(int k=0; k < pSize; k++) {
+            Party p = partyList.get(k);
+            partyPos[k] = p.getPoliticalPosition();
+            partyBudgetFactor[k] = p.getCampaignBudget() / SimulationConfig.CAMPAIGN_BUDGET_FACTOR;
             partyDailyMomentum[k] = 0.9 + (java.util.concurrent.ThreadLocalRandom.current().nextDouble() * 0.2);
         }
 
@@ -179,21 +186,24 @@ public class SimulationEngine {
             if (voterPositions[i] > 100) voterPositions[i] = 100;
 
             int currentIdx = voterPartyIndices[i];
+
+            // Safety Check für Index
+            if (currentIdx >= pSize) {
+                currentIdx = 0;
+                voterPartyIndices[i] = 0;
+            }
+
             double totalPenalty = 0;
             if (currentIdx > 0) {
                 totalPenalty = currentScandalPressure[currentIdx] + partyPermanentDamage[currentIdx];
             }
 
             double switchProb = baseMobility * (1.0 - voterLoyalties[i] / 200.0) * voterMediaInfluence[i];
-            if (totalPenalty > 0) {
-                switchProb += (totalPenalty / 300.0);
-            }
+            if (totalPenalty > 0) switchProb += (totalPenalty / 300.0);
             if (currentIdx == 0) switchProb *= 1.5;
             if (switchProb > 0.7) switchProb = 0.7;
 
-            double rnd = java.util.concurrent.ThreadLocalRandom.current().nextDouble();
-
-            if (rnd < switchProb) {
+            if (java.util.concurrent.ThreadLocalRandom.current().nextDouble() < switchProb) {
                 int targetIdx = currentIdx;
                 boolean fleeingFromDesaster = (totalPenalty > 8.0);
 
@@ -203,12 +213,11 @@ public class SimulationEngine {
                     double bestScore = -Double.MAX_VALUE;
                     double campaignEffectiveness = java.util.concurrent.ThreadLocalRandom.current().nextDouble() * uniformRange;
 
-                    for (int pIdx = 1; pIdx < partyList.size(); pIdx++) {
+                    for (int pIdx = 1; pIdx < pSize; pIdx++) {
                         if (pIdx == currentIdx) continue;
 
                         double dist = Math.abs(voterPositions[i] - partyPos[pIdx]);
                         double distScore = 40.0 / (1.0 + (dist * 0.05));
-
                         double budgetScore = (partyBudgetFactor[pIdx] * campaignEffectiveness * voterMediaInfluence[i] * globalMedia) * 15.0;
                         budgetScore *= partyDailyMomentum[pIdx];
 
@@ -223,10 +232,7 @@ public class SimulationEngine {
                             targetIdx = pIdx;
                         }
                     }
-
-                    if (bestScore < 0) {
-                        targetIdx = 0;
-                    }
+                    if (bestScore < 0) targetIdx = 0;
                 }
 
                 if (targetIdx != currentIdx) {
@@ -235,15 +241,18 @@ public class SimulationEngine {
                     partyDeltas[targetIdx].incrementAndGet();
 
                     if (java.util.concurrent.ThreadLocalRandom.current().nextDouble() < SimulationConfig.VISUALIZATION_SAMPLE_RATE) {
-                        visualTransitions.add(new VoterTransition(partyList.get(currentIdx), partyList.get(targetIdx)));
+                        // Safety Get
+                        if (currentIdx < partyList.size() && targetIdx < partyList.size()) {
+                            visualTransitions.add(new VoterTransition(partyList.get(currentIdx), partyList.get(targetIdx)));
+                        }
                     }
                 }
             }
         });
 
-        for (int i = 0; i < partyList.size(); i++) {
+        for (int i = 0; i < pSize; i++) {
             int delta = partyDeltas[i].get();
-            if (delta != 0) {
+            if (delta != 0 && i < partyList.size()) {
                 Party p = partyList.get(i);
                 p.setCurrentSupporterCount(p.getCurrentSupporterCount() + delta);
             }
