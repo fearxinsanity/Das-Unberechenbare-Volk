@@ -32,7 +32,8 @@ public class PartyTemplate {
      * Erstellt eine vollwertige Party-Instanz aus diesem Template.
      */
     public Party toParty(double politicalPosition, double campaignBudget) {
-        return new Party(abbreviation, colorCode, politicalPosition, campaignBudget, 0);
+        // Hier übergeben wir jetzt Name UND Abkürzung
+        return new Party(name, abbreviation, colorCode, politicalPosition, campaignBudget, 0);
     }
 
     @Override

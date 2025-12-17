@@ -10,7 +10,7 @@ import org.apache.commons.math3.distribution.UniformRealDistribution;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.CopyOnWriteArrayList; // WICHTIGER IMPORT
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
@@ -22,7 +22,6 @@ public class SimulationEngine {
     private float[] voterPositions;
     private float[] voterMediaInfluence;
 
-    // ÄNDERUNG: CopyOnWriteArrayList verhindert Abstürze beim gleichzeitigen Lesen/Schreiben
     private final List<Party> partyList = new CopyOnWriteArrayList<>();
 
     private Party undecidedParty;
@@ -44,7 +43,6 @@ public class SimulationEngine {
 
     public SimulationEngine(SimulationParameters params) {
         this.parameters = params;
-        // partyList wird oben initialisiert
         this.csvLoader = new CSVLoader();
         initializeDistributions();
     }
@@ -70,13 +68,22 @@ public class SimulationEngine {
     }
 
     public void initializeSimulation() {
-        partyList.clear(); // Sicher dank CopyOnWriteArrayList
+        partyList.clear();
         activeScandals.clear();
         currentStep = 0;
 
         int partyCount = parameters.getNumberOfParties();
         partyPermanentDamage = new double[partyCount + 1];
-        undecidedParty = new Party(SimulationConfig.UNDECIDED_NAME, SimulationConfig.UNDECIDED_COLOR, SimulationConfig.UNDECIDED_POSITION, 0, 0);
+
+        // ANPASSUNG: Unsicher-Partei mit gleichem Namen für voll/kurz initialisieren
+        undecidedParty = new Party(
+                SimulationConfig.UNDECIDED_NAME,
+                SimulationConfig.UNDECIDED_NAME,
+                SimulationConfig.UNDECIDED_COLOR,
+                SimulationConfig.UNDECIDED_POSITION,
+                0,
+                0
+        );
         partyList.add(undecidedParty);
 
         List<PartyTemplate> templates = csvLoader.getRandomPartyTemplates(partyCount);
@@ -115,12 +122,9 @@ public class SimulationEngine {
     }
 
     private void recalculatePartyCounts() {
-        // Da wir multithreaded lesen, holen wir uns hier einen Snapshot oder iterieren sicher
-        // CopyOnWriteArrayList Iteration ist sicher.
         for(Party p : partyList) p.setCurrentSupporterCount(0);
 
         int[] counts = new int[partyList.size()];
-        // Schutz vor IndexOutOfBounds falls Resize passiert (unwahrscheinlich aber möglich bei Race Condition)
         int maxIdx = counts.length - 1;
 
         for(byte idx : voterPartyIndices) {
@@ -141,7 +145,6 @@ public class SimulationEngine {
 
         if (voterPartyIndices == null || voterPartyIndices.length == 0) return new ArrayList<>();
 
-        // thread-safe size check
         int pSize = partyList.size();
         AtomicInteger[] partyDeltas = new AtomicInteger[pSize];
         for(int i=0; i<pSize; i++) partyDeltas[i] = new AtomicInteger(0);
@@ -167,7 +170,6 @@ public class SimulationEngine {
             }
         }
 
-        // Snapshots der Werte für den parallelen Stream
         double[] partyPos = new double[pSize];
         double[] partyBudgetFactor = new double[pSize];
         double[] partyDailyMomentum = new double[pSize];
@@ -187,7 +189,6 @@ public class SimulationEngine {
 
             int currentIdx = voterPartyIndices[i];
 
-            // Safety Check für Index
             if (currentIdx >= pSize) {
                 currentIdx = 0;
                 voterPartyIndices[i] = 0;
@@ -241,7 +242,6 @@ public class SimulationEngine {
                     partyDeltas[targetIdx].incrementAndGet();
 
                     if (java.util.concurrent.ThreadLocalRandom.current().nextDouble() < SimulationConfig.VISUALIZATION_SAMPLE_RATE) {
-                        // Safety Get
                         if (currentIdx < partyList.size() && targetIdx < partyList.size()) {
                             visualTransitions.add(new VoterTransition(partyList.get(currentIdx), partyList.get(targetIdx)));
                         }
@@ -281,6 +281,10 @@ public class SimulationEngine {
             ScandalEvent e = new ScandalEvent(s, target, currentStep);
             activeScandals.add(e);
             lastScandal = e;
+
+            // ANPASSUNG: Zähler hochzählen
+            target.incrementScandalCount();
+
             int pIndex = partyList.indexOf(target);
             if (pIndex != -1) {
                 partyPermanentDamage[pIndex] += s.getStrength() * 5.0;

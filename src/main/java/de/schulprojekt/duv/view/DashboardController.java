@@ -11,6 +11,7 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.chart.LineChart;
@@ -20,7 +21,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.RadialGradient;
@@ -39,19 +42,16 @@ public class DashboardController {
     @FXML private Pane eventFeedPane;
     @FXML private Label timeStepLabel;
 
-    // Eingabefelder (Text & Buttons)
     @FXML private TextField voterCountField;
-    @FXML private TextField partyCountField;    // NEU: TextField statt Slider
-    @FXML private TextField budgetField;        // NEU: Euro Betrag statt Faktor
-    @FXML private TextField scandalChanceField; // NEU: Präzise % statt Slider
+    @FXML private TextField partyCountField;
+    @FXML private TextField budgetField;
+    @FXML private TextField scandalChanceField;
 
-    // Slider (bleiben für Prozentwerte erhalten)
     @FXML private Slider mediaInfluenceSlider;
     @FXML private Slider mobilityRateSlider;
     @FXML private Slider loyaltyMeanSlider;
     @FXML private Slider randomRangeSlider;
 
-    // Buttons
     @FXML private Button startButton;
     @FXML private Button pauseButton;
     @FXML private Button resetButton;
@@ -62,11 +62,19 @@ public class DashboardController {
     private GraphicsContext gc;
     private AnimationTimer visualTimer;
 
-    // Visualisierung (Pooling & Caching)
+    // Visualisierung
     private final Stack<MovingVoter> particlePool = new Stack<>();
     private final List<MovingVoter> activeParticles = new ArrayList<>();
     private final Map<String, XYChart.Series<Number, Number>> historySeriesMap = new HashMap<>();
     private final Map<String, Point> partyPositions = new HashMap<>();
+
+    // NEU: Tooltip-Elemente
+    private VBox tooltipBox;
+    private Label tooltipNameLabel;
+    private Label tooltipAbbrLabel;
+    private Label tooltipVotersLabel;
+    private Label tooltipPositionLabel;
+    private Label tooltipScandalsLabel;
 
     @FXML
     public void initialize() {
@@ -77,6 +85,13 @@ public class DashboardController {
             canvas.heightProperty().bind(animationPane.heightProperty());
             animationPane.widthProperty().addListener((obs, old, val) -> recalculatePartyPositions());
             animationPane.heightProperty().addListener((obs, old, val) -> recalculatePartyPositions());
+
+            // NEU: Tooltip initialisieren
+            setupTooltip();
+
+            // NEU: Maus-Handler für Tooltip
+            canvas.setOnMouseMoved(e -> handleMouseMove(e.getX(), e.getY()));
+            canvas.setOnMouseExited(e -> hideTooltip());
         }
         gc = canvas.getGraphicsContext2D();
 
@@ -84,6 +99,107 @@ public class DashboardController {
         this.controller = new SimulationController(this);
         handleParameterChange(null);
         startVisualTimer();
+    }
+
+    // NEU: Tooltip aufbauen
+    private void setupTooltip() {
+        tooltipBox = new VBox(5);
+        tooltipBox.setPadding(new Insets(10));
+        tooltipBox.setStyle("-fx-background-color: rgba(30, 30, 35, 0.95); " +
+                "-fx-border-color: #D4AF37; " +
+                "-fx-border-width: 1; " +
+                "-fx-background-radius: 5; " +
+                "-fx-border-radius: 5;");
+        tooltipBox.setEffect(new DropShadow(10, Color.BLACK));
+        tooltipBox.setVisible(false);
+        tooltipBox.setMouseTransparent(true); // Klicks gehen durch
+
+        tooltipNameLabel = new Label();
+        tooltipNameLabel.setStyle("-fx-text-fill: #D4AF37; -fx-font-weight: bold; -fx-font-size: 14px;");
+
+        tooltipAbbrLabel = new Label();
+        tooltipVotersLabel = new Label();
+        tooltipPositionLabel = new Label();
+        tooltipScandalsLabel = new Label();
+
+        String infoStyle = "-fx-text-fill: #e0e0e0; -fx-font-size: 12px;";
+        tooltipAbbrLabel.setStyle(infoStyle);
+        tooltipVotersLabel.setStyle(infoStyle);
+        tooltipPositionLabel.setStyle(infoStyle);
+        tooltipScandalsLabel.setStyle(infoStyle);
+
+        tooltipBox.getChildren().addAll(
+                tooltipNameLabel,
+                tooltipAbbrLabel,
+                new javafx.scene.control.Separator(),
+                tooltipVotersLabel,
+                tooltipPositionLabel,
+                tooltipScandalsLabel
+        );
+
+        animationPane.getChildren().add(tooltipBox);
+    }
+
+    // NEU: Maus-Logik
+    private void handleMouseMove(double mouseX, double mouseY) {
+        if (controller == null || controller.getParties() == null) return;
+
+        boolean found = false;
+        int totalVoters = Math.max(1, controller.getCurrentParameters().getTotalVoterCount());
+
+        for (Party p : controller.getParties()) {
+            Point pt = partyPositions.get(p.getName()); // Achtung: Key ist hier der Name (abbreviation in alter Logik?)
+            // Wir müssen vorsichtig sein: In SimulationEngine wird der Key in die Map gepackt.
+            // Die partyPositions Map nutzt 'p.getName()'. Da wir 'getName()' jetzt auf FullName geändert haben,
+            // müssen wir prüfen, was beim Initialisieren passiert.
+            // WICHTIG: Wenn Party.getName() jetzt Full Name ist, sind die Keys in partyPositions auch Full Names.
+
+            if (pt != null) {
+                // Berechne Radius basierend auf Stimmenanteil (wie beim Rendern)
+                double share = (double) p.getCurrentSupporterCount() / totalVoters;
+                double dynamicRadius = 30.0 + (share * 60.0);
+
+                double dist = Math.sqrt(Math.pow(mouseX - pt.x, 2) + Math.pow(mouseY - pt.y, 2));
+
+                if (dist <= dynamicRadius) {
+                    showTooltip(p, mouseX, mouseY);
+                    found = true;
+                    break;
+                }
+            }
+        }
+
+        if (!found) {
+            hideTooltip();
+        }
+    }
+
+    private void showTooltip(Party p, double x, double y) {
+        tooltipNameLabel.setText(p.getName());
+        tooltipAbbrLabel.setText("Kürzel: " + p.getAbbreviation());
+        tooltipVotersLabel.setText(String.format("Wähler: %,d", p.getCurrentSupporterCount()));
+        tooltipPositionLabel.setText("Ausrichtung: " + p.getPoliticalOrientationName());
+        tooltipScandalsLabel.setText("Skandale: " + p.getScandalCount());
+
+        // Positionieren (etwas versetzt damit Maus nicht verdeckt)
+        double boxWidth = 180; // Geschätzt oder binden
+        double boxHeight = 120;
+
+        double layoutX = x + 15;
+        double layoutY = y + 15;
+
+        // Verhindern, dass es aus dem Bild rutscht
+        if (layoutX + boxWidth > animationPane.getWidth()) layoutX = x - boxWidth - 10;
+        if (layoutY + boxHeight > animationPane.getHeight()) layoutY = y - boxHeight - 10;
+
+        tooltipBox.setLayoutX(layoutX);
+        tooltipBox.setLayoutY(layoutY);
+        tooltipBox.setVisible(true);
+        tooltipBox.toFront();
+    }
+
+    private void hideTooltip() {
+        tooltipBox.setVisible(false);
     }
 
     private void setupCharts() {
@@ -126,22 +242,16 @@ public class DashboardController {
     public void handleParameterChange(Event event) {
         if (controller == null) return;
         try {
-            // Wähler
             int voters = parseIntSafe(voterCountField.getText(), 100000);
-
-            // Parteien
             int parties = parseIntSafe(partyCountField.getText(), 5);
-            parties = Math.max(2, Math.min(8, parties)); // Clamp 2-8
+            parties = Math.max(2, Math.min(8, parties));
 
-            // Skandal Chance
             double scandalChance = parseDoubleSafe(scandalChanceField.getText(), 5.0);
-            scandalChance = Math.max(0.0, Math.min(20.0, scandalChance)); // Clamp 0-20%
+            scandalChance = Math.max(0.0, Math.min(20.0, scandalChance));
 
-            // Budget (Konvertierung Euro -> Faktor für die Engine)
-            // Basis-Referenzwert ist 500.000 (siehe SimulationEngine Durchschnitt)
             double budgetInput = parseDoubleSafe(budgetField.getText(), 500000.0);
             double budgetFactor = budgetInput / 500000.0;
-            budgetFactor = Math.max(0.1, Math.min(10.0, budgetFactor)); // Sicherheitslimit
+            budgetFactor = Math.max(0.1, Math.min(10.0, budgetFactor));
 
             SimulationParameters params = new SimulationParameters(
                     voters,
@@ -156,12 +266,10 @@ public class DashboardController {
             );
             controller.updateAllParameters(params);
         } catch (Exception e) {
-            // Bei Fehler nichts tun (alte Werte behalten)
             e.printStackTrace();
         }
     }
 
-    // --- Helper für Zahlen-Parsing ---
     private int parseIntSafe(String text, int def) {
         try { return Integer.parseInt(text.replaceAll("[^0-9]", "")); }
         catch (NumberFormatException e) { return def; }
@@ -172,21 +280,12 @@ public class DashboardController {
         catch (NumberFormatException e) { return def; }
     }
 
-    // --- Handler für +/- Buttons ---
-
-    @FXML public void handleVoterCountIncrement(ActionEvent event) {
-        adjustIntField(voterCountField, 10000, 1000, 2000000);
-    }
-    @FXML public void handleVoterCountDecrement(ActionEvent event) {
-        adjustIntField(voterCountField, -10000, 1000, 2000000);
-    }
-
+    @FXML public void handleVoterCountIncrement(ActionEvent event) { adjustIntField(voterCountField, 10000, 1000, 2000000); }
+    @FXML public void handleVoterCountDecrement(ActionEvent event) { adjustIntField(voterCountField, -10000, 1000, 2000000); }
     @FXML public void handlePartyCountIncrement(ActionEvent event) { adjustIntField(partyCountField, 1, 2, 8); }
     @FXML public void handlePartyCountDecrement(ActionEvent event) { adjustIntField(partyCountField, -1, 2, 8); }
-
     @FXML public void handleScandalChanceIncrement(ActionEvent event) { adjustDoubleField(scandalChanceField, 0.5, 0.0, 20.0); }
     @FXML public void handleScandalChanceDecrement(ActionEvent event) { adjustDoubleField(scandalChanceField, -0.5, 0.0, 20.0); }
-
     @FXML public void handleSpeed1x(ActionEvent event) { controller.updateSimulationSpeed(1); }
     @FXML public void handleSpeed2x(ActionEvent event) { controller.updateSimulationSpeed(2); }
     @FXML public void handleSpeed4x(ActionEvent event) { controller.updateSimulationSpeed(4); }
@@ -201,7 +300,6 @@ public class DashboardController {
     private void adjustDoubleField(TextField field, double delta, double min, double max) {
         double current = parseDoubleSafe(field.getText(), min);
         double newVal = Math.max(min, Math.min(max, current + delta));
-        // Rundung auf 1 Nachkommastelle für saubere Anzeige
         field.setText(String.format(Locale.US, "%.1f", newVal));
         handleParameterChange(null);
     }
@@ -212,7 +310,6 @@ public class DashboardController {
         if (resetButton != null) resetButton.setDisable(running);
     }
 
-    // --- Visualisierungs-Logik (unverändert) ---
     public void updateDashboard(List<Party> parties, List<VoterTransition> transitions, ScandalEvent scandal, int step) {
         if (!Platform.isFxApplicationThread()) {
             Platform.runLater(() -> updateDashboard(parties, transitions, scandal, step));
@@ -275,6 +372,9 @@ public class DashboardController {
         if (partyDistributionChart.getData().isEmpty() || needsRebuild) {
             partyDistributionChart.getData().clear();
             for (Party p : parties) {
+                // Hier auch Kurzname (Abkürzung) verwenden, wenn gewünscht?
+                // Aktuell verwendet getName() den vollen Namen.
+                // Falls das PieChart zu voll wird, auf p.getAbbreviation() wechseln.
                 PieChart.Data data = new PieChart.Data(p.getName(), p.getCurrentSupporterCount());
                 partyDistributionChart.getData().add(data);
                 data.nodeProperty().addListener((obs, oldNode, newNode) -> {
@@ -327,7 +427,7 @@ public class DashboardController {
             if (p.getName().equals(SimulationConfig.UNDECIDED_NAME)) continue;
             XYChart.Series<Number, Number> series = historySeriesMap.computeIfAbsent(p.getName(), k -> {
                 XYChart.Series<Number, Number> s = new XYChart.Series<>();
-                s.setName(k);
+                s.setName(p.getAbbreviation()); // Im Chart lieber die Abkürzung für die Legende (falls sichtbar)
                 historyChart.getData().add(s);
                 s.getNode().setStyle("-fx-stroke: #" + p.getColorCode() + "; -fx-stroke-width: 2px;");
                 return s;
@@ -434,7 +534,9 @@ public class DashboardController {
                     gc.strokeOval(pt.x - 10, pt.y - 10, 20, 20);
                     gc.setFill(Color.web("#e0e0e0"));
                     gc.setFont(Font.font("Consolas", FontWeight.BOLD, 12));
-                    gc.fillText(p.getName(), pt.x - 20, pt.y + 35);
+
+                    // ANPASSUNG: Hier verwenden wir die Abkürzung für die Anzeige, damit es nicht überlappt!
+                    gc.fillText(p.getAbbreviation(), pt.x - 20, pt.y + 35);
                     gc.setFill(Color.web("#D4AF37"));
                     gc.fillText(String.format("%.1f%%", share * 100), pt.x - 10, pt.y + 48);
                 }
