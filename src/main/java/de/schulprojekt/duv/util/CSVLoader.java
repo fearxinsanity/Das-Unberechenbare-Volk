@@ -15,13 +15,17 @@ import java.util.Random;
 
 public class CSVLoader {
 
-    private static final String PARTY_FILE = "/de/schulprojekt/duv/data/party_names.csv";
-    private static final String SCANDAL_FILE = "/de/schulprojekt/duv/data/scandals.csv";
+    private static final String PARTY_FILE = "de/schulprojekt/duv/data/party_names.csv";
+    private static final String SCANDAL_FILE = "de/schulprojekt/duv/data/scandals.csv";
 
     private final Random random = new Random();
 
     public List<PartyTemplate> getRandomPartyTemplates(int count) {
         List<PartyTemplate> allTemplates = loadParties();
+        if (allTemplates.isEmpty()) {
+            System.err.println("WARNUNG: Keine Parteien in CSV gefunden!");
+            return new ArrayList<>();
+        }
         if (allTemplates.size() <= count) return allTemplates;
         Collections.shuffle(allTemplates);
         return allTemplates.subList(0, count);
@@ -37,10 +41,12 @@ public class CSVLoader {
 
     private List<PartyTemplate> loadParties() {
         List<PartyTemplate> list = new ArrayList<>();
-        try (InputStream is = getClass().getResourceAsStream(PARTY_FILE)) {
-            if (is == null) return list;
+        try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(PARTY_FILE)) {
+            if (is == null) {
+                System.err.println("FEHLER: Datei nicht gefunden: " + PARTY_FILE);
+                return list;
+            }
 
-            // FIX: UTF-8 erzwingen, da deine Datei UTF-8 ist (erkennbar an Ã-Fehlern)
             try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
                 String line;
                 boolean firstLine = true;
@@ -60,41 +66,23 @@ public class CSVLoader {
 
     private List<Scandal> loadScandals() {
         List<Scandal> list = new ArrayList<>();
-        try (InputStream is = getClass().getResourceAsStream(SCANDAL_FILE)) {
-            if (is == null) {
-                System.err.println("FEHLER: Skandal-Datei nicht gefunden: " + SCANDAL_FILE);
-                return list;
-            }
+        try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(SCANDAL_FILE)) {
+            if (is == null) return list;
 
-            // FIX: UTF-8 erzwingen
             try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
                 String line;
                 while ((line = br.readLine()) != null) {
-                    if (line.trim().isEmpty()) continue;
-                    if (line.toLowerCase().startsWith("id")) continue;
-
-                    // Robustes Splitting
+                    if (line.trim().isEmpty() || line.toLowerCase().startsWith("id")) continue;
                     String[] parts = line.split(",", -1);
-
                     if (parts.length >= 5) {
                         try {
-                            int id = 0;
-                            try { id = Integer.parseInt(parts[0].trim()); } catch(Exception e){}
-
-                            // Anführungszeichen entfernen
+                            int id = Integer.parseInt(parts[0].trim());
                             String type = parts[1].trim().replace("\"", "");
                             String name = parts[2].trim().replace("\"", "");
                             String desc = parts[3].trim().replace("\"", "");
-
-                            // Zahlenformat fixen (Komma zu Punkt)
-                            String strengthStr = parts[4].trim().replace(",", ".").replace("\"", "");
-                            double strength = Double.parseDouble(strengthStr);
-
+                            double strength = Double.parseDouble(parts[4].trim().replace(",", ".").replace("\"", ""));
                             list.add(new Scandal(id, type, name, desc, strength));
-
-                        } catch (Exception e) {
-                            System.err.println("Warnung in Zeile: " + line);
-                        }
+                        } catch (Exception e) { /* Skip malformed lines */ }
                     }
                 }
             }

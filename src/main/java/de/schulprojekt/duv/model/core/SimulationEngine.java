@@ -88,7 +88,7 @@ public class SimulationEngine {
      * Reagiert auf Änderungen an den Parametern (z.B. Slider in der GUI).
      */
     public void updateParameters(SimulationParameters newParams) {
-        // Prüfen, ob ein "harter" Reset nötig ist (Strukturänderung)
+        // Überprüfung auf strukturelle Änderungen (Reset nötig)
         boolean structuralChange = (newParams.getNumberOfParties() != parameters.getNumberOfParties()) ||
                 (newParams.getTotalVoterCount() != parameters.getTotalVoterCount());
 
@@ -96,6 +96,8 @@ public class SimulationEngine {
         distributionProvider.initialize(newParams);
 
         if (structuralChange) {
+            // Bei Strukturänderung muss auch der ImpactCalculator neu instanziiert werden,
+            // falls die Array-Größe dort fest im Konstruktor definiert ist.
             initializeSimulation();
         }
     }

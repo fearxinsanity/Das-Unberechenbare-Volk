@@ -84,8 +84,18 @@ public class SimulationController {
 
     public void updateSimulationSpeed(int factor) {
         SimulationParameters p = engine.getParameters();
-        p.setSimulationTicksPerSecond(1 * factor);
-        updateAllParameters(p);
+        // Das Dashboard liefert oft Faktoren (1x, 2x, 4x), die wir in Ticks pro Sekunde umrechnen
+        int newTps = factor;
+        p.setSimulationTicksPerSecond(newTps);
+
+        // Wir aktualisieren die Parameter in der Engine
+        executorService.execute(() -> {
+            engine.updateParameters(p);
+            // Wenn die Simulation läuft, muss der Schedule-Intervall angepasst werden
+            if (isRunning) {
+                scheduleTask();
+            }
+        });
     }
 
     public void updateAllParameters(SimulationParameters p) {
