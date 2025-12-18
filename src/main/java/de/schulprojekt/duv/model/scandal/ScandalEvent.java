@@ -1,7 +1,6 @@
-package de.schulprojekt.duv.model.engine;
+package de.schulprojekt.duv.model.scandal;
 
-import de.schulprojekt.duv.model.entities.Party;
-import de.schulprojekt.duv.model.entities.Scandal;
+import de.schulprojekt.duv.model.party.Party;
 
 /**
  * Repräsentiert ein aktives Skandal-Ereignis in der Simulation.
@@ -35,6 +34,7 @@ public class ScandalEvent {
      * Formatierte Nachricht für den Event-Feed.
      */
     public String getEventMessage() {
+        // FEHLERBEHEBUNG: scandal.getName() -> scandal.getTitle()
         return String.format("⚠ %s: %s betrifft %s",
                 scandal.getType(),
                 scandal.getTitle(),

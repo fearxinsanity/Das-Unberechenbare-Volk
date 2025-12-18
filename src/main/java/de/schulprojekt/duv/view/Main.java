@@ -24,9 +24,6 @@ public class Main extends Application {
         FXMLLoader loader = new FXMLLoader(fxmlURL);
         Parent root = loader.load();
 
-        // HINWEIS: Wir müssen hier nichts mehr manuell verknüpfen.
-        // Der DashboardController initialisiert sich und die Simulation selbst in seiner initialize()-Methode.
-
         Scene scene = new Scene(root, 1200, 650);
 
         URL cssURL = getClass().getResource("/de/schulprojekt/duv/style.css");
@@ -39,7 +36,6 @@ public class Main extends Application {
         primaryStage.setMaximized(false);
         primaryStage.setResizable(true);
 
-        // WICHTIG: Beim Schließen der Anwendung alle Threads stoppen!
         primaryStage.setOnCloseRequest(e -> {
             DashboardController controller = loader.getController();
             if (controller != null) {

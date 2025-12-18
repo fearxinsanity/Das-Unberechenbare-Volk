@@ -1,24 +1,26 @@
-package de.schulprojekt.duv.model.entities;
+package de.schulprojekt.duv.model.scandal;
 
 /**
- * Repräsentiert einen Skandal-Datensatz aus der CSV.
- * Die Stärke (strength) beeinflusst die Auswirkung auf Wählerstimmen.
+ * Repräsentiert einen Skandal-Datensatz.
+ * Aktualisiert für 5 Parameter (inkl. ID).
  */
 public class Scandal {
-
     private final int id;
-    private final String type;
-    private final String title;
-    private final String description;
-    private final double strength; // 0.0 - 1.0
+    private final String type;        // z.B. "CORRUPTION"
+    private final String title;       // z.B. "Spendenaffäre"
+    private final String description; // z.B. "Illegale Gelder..."
+    private final double strength;    // 0.0 bis 1.0
 
+    // Konstruktor passend zum CSVLoader (5 Argumente)
     public Scandal(int id, String type, String title, String description, double strength) {
         this.id = id;
         this.type = type;
         this.title = title;
         this.description = description;
-        this.strength = Math.max(0.0, Math.min(1.0, strength));
+        this.strength = strength;
     }
+
+    // --- Getter ---
 
     public int getId() {
         return id;
@@ -42,6 +44,6 @@ public class Scandal {
 
     @Override
     public String toString() {
-        return String.format("[%s] %s (Stärke: %.0f%%)", type, title, strength * 100);
+        return title + " (" + (int)(strength * 100) + "%)";
     }
 }
