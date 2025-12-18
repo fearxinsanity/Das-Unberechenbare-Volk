@@ -75,7 +75,6 @@ public class SimulationEngine {
         int partyCount = parameters.getNumberOfParties();
         partyPermanentDamage = new double[partyCount + 1];
 
-        // ANPASSUNG: Unsicher-Partei mit gleichem Namen für voll/kurz initialisieren
         undecidedParty = new Party(
                 SimulationConfig.UNDECIDED_NAME,
                 SimulationConfig.UNDECIDED_NAME,
@@ -153,20 +152,46 @@ public class SimulationEngine {
         double globalMedia = parameters.getGlobalMediaInfluence() / 100.0;
         double uniformRange = parameters.getUniformRandomRange();
 
-        int scandalDuration = 100;
+        // --- SKANDAL MANAGEMENT ---
+        int scandalDuration = 200; // Länger, dafür sanfter
         activeScandals.removeIf(e -> currentStep - e.getOccurredAtStep() > scandalDuration);
+
         if (shouldScandalOccur() && pSize > 1) triggerScandal();
 
         double[] currentScandalPressure = new double[pSize];
 
+        // 1. Skandal-Auswirkungen berechnen (DEUTLICH REDUZIERT)
         for (ScandalEvent event : activeScandals) {
             Party affected = event.getAffectedParty();
             int pIndex = partyList.indexOf(affected);
             if (pIndex != -1 && pIndex < pSize) {
                 int age = currentStep - event.getOccurredAtStep();
                 double strength = event.getScandal().getStrength();
-                double timeFactor = (age < 15) ? (double) age / 15.0 : 1.0 - ((double) (age - 15) / (scandalDuration - 15));
-                currentScandalPressure[pIndex] += strength * 30.0 * timeFactor;
+
+                // Kurzfristiger Druck (Fades out)
+                double timeFactor = (age < 20) ? (double) age / 20.0 : 1.0 - ((double) (age - 20) / (scandalDuration - 20));
+
+                // ÄNDERUNG: Faktor von 25.0 auf 8.0 reduziert.
+                // Skandale sind jetzt "unangenehm", aber kein Todesurteil.
+                currentScandalPressure[pIndex] += strength * 8.0 * timeFactor;
+
+                // Langfristiger Schaden baut sich auf
+                // ÄNDERUNG: Maximalschaden von 5.0 auf 2.5 halbiert
+                double damageBuildUp = (strength * 2.5) / (double) scandalDuration;
+                partyPermanentDamage[pIndex] += damageBuildUp;
+            }
+        }
+
+        // 2. Erholung (Recovery) berechnen
+        int totalVoters = Math.max(1, parameters.getTotalVoterCount());
+        for (int i = 1; i < pSize; i++) {
+            if (partyPermanentDamage[i] > 0) {
+                Party p = partyList.get(i);
+                double voterShare = (double) p.getCurrentSupporterCount() / totalVoters;
+                // ÄNDERUNG: Erholung etwas beschleunigt, damit Dellen sich füllen
+                double recoveryRate = 0.008 + (voterShare * 0.05);
+                partyPermanentDamage[i] -= recoveryRate;
+                if (partyPermanentDamage[i] < 0) partyPermanentDamage[i] = 0;
             }
         }
 
@@ -178,38 +203,44 @@ public class SimulationEngine {
             Party p = partyList.get(k);
             partyPos[k] = p.getPoliticalPosition();
             partyBudgetFactor[k] = p.getCampaignBudget() / SimulationConfig.CAMPAIGN_BUDGET_FACTOR;
-            partyDailyMomentum[k] = 0.9 + (java.util.concurrent.ThreadLocalRandom.current().nextDouble() * 0.2);
+            // Momentum leicht geglättet
+            partyDailyMomentum[k] = 0.95 + (java.util.concurrent.ThreadLocalRandom.current().nextDouble() * 0.1);
         }
 
         IntStream.range(0, voterPartyIndices.length).parallel().forEach(i -> {
-            double drift = (java.util.concurrent.ThreadLocalRandom.current().nextDouble() - 0.5) * 0.3;
+            // Meinung driftet sehr langsam
+            double drift = (java.util.concurrent.ThreadLocalRandom.current().nextDouble() - 0.5) * 0.2;
             voterPositions[i] += (float) drift;
             if (voterPositions[i] < 0) voterPositions[i] = 0;
             if (voterPositions[i] > 100) voterPositions[i] = 100;
 
             int currentIdx = voterPartyIndices[i];
+            if (currentIdx >= pSize) { currentIdx = 0; voterPartyIndices[i] = 0; }
 
-            if (currentIdx >= pSize) {
-                currentIdx = 0;
-                voterPartyIndices[i] = 0;
-            }
-
+            // Totaler Malus
             double totalPenalty = 0;
             if (currentIdx > 0) {
                 totalPenalty = currentScandalPressure[currentIdx] + partyPermanentDamage[currentIdx];
             }
 
             double switchProb = baseMobility * (1.0 - voterLoyalties[i] / 200.0) * voterMediaInfluence[i];
-            if (totalPenalty > 0) switchProb += (totalPenalty / 300.0);
-            if (currentIdx == 0) switchProb *= 1.5;
-            if (switchProb > 0.7) switchProb = 0.7;
+
+            // ÄNDERUNG: Penalty Auswirkungen massiv gedämpft.
+            // Vorher: / 200.0 -> Jetzt: / 600.0
+            // Ein Penalty von 10 erhöht die Wahrscheinlichkeit jetzt nur noch um 1.6% statt 5%
+            if (totalPenalty > 0) switchProb += (totalPenalty / 600.0);
+
+            if (currentIdx == 0) switchProb *= 1.2; // Unsicher wechselt etwas langsamer zurück
+            if (switchProb > 0.60) switchProb = 0.60; // Hard Cap niedriger gesetzt
 
             if (java.util.concurrent.ThreadLocalRandom.current().nextDouble() < switchProb) {
                 int targetIdx = currentIdx;
-                boolean fleeingFromDesaster = (totalPenalty > 8.0);
 
-                if (!fleeingFromDesaster && currentIdx != 0 && java.util.concurrent.ThreadLocalRandom.current().nextDouble() < 0.2) {
-                    targetIdx = 0;
+                // ÄNDERUNG: Flucht-Schwelle erhöht. Erst ab Penalty > 12 (sehr hoch) rennen alle weg.
+                boolean fleeingFromDisaster = (totalPenalty > 12.0);
+
+                if (!fleeingFromDisaster && currentIdx != 0 && java.util.concurrent.ThreadLocalRandom.current().nextDouble() < 0.15) {
+                    targetIdx = 0; // Zurück zu Unsicher
                 } else {
                     double bestScore = -Double.MAX_VALUE;
                     double campaignEffectiveness = java.util.concurrent.ThreadLocalRandom.current().nextDouble() * uniformRange;
@@ -218,12 +249,17 @@ public class SimulationEngine {
                         if (pIdx == currentIdx) continue;
 
                         double dist = Math.abs(voterPositions[i] - partyPos[pIdx]);
-                        double distScore = 40.0 / (1.0 + (dist * 0.05));
-                        double budgetScore = (partyBudgetFactor[pIdx] * campaignEffectiveness * voterMediaInfluence[i] * globalMedia) * 15.0;
+                        // Distanz etwas weniger bestrafend
+                        double distScore = 40.0 / (1.0 + (dist * 0.04));
+
+                        double budgetScore = (partyBudgetFactor[pIdx] * campaignEffectiveness * voterMediaInfluence[i] * globalMedia) * 12.0;
                         budgetScore *= partyDailyMomentum[pIdx];
 
                         double score = distScore + budgetScore;
-                        score -= (currentScandalPressure[pIdx] + partyPermanentDamage[pIdx]);
+
+                        // ÄNDERUNG: Skandal macht Partei unattraktiv, aber nicht "tot".
+                        // Faktor reduziert
+                        score -= (currentScandalPressure[pIdx] + partyPermanentDamage[pIdx] * 1.5);
 
                         double noise = (java.util.concurrent.ThreadLocalRandom.current().nextDouble() - 0.5) * 10.0 * uniformRange;
                         double finalScore = score + noise;
@@ -233,6 +269,7 @@ public class SimulationEngine {
                             targetIdx = pIdx;
                         }
                     }
+                    // Wenn selbst der Beste Score negativ ist, geh zu Unsicher
                     if (bestScore < 0) targetIdx = 0;
                 }
 
@@ -282,13 +319,13 @@ public class SimulationEngine {
             activeScandals.add(e);
             lastScandal = e;
 
-            // ANPASSUNG: Zähler hochzählen
             target.incrementScandalCount();
 
-            int pIndex = partyList.indexOf(target);
-            if (pIndex != -1) {
-                partyPermanentDamage[pIndex] += s.getStrength() * 5.0;
-            }
+            // ÄNDERUNG: Kein sofortiger Schaden mehr!
+            // int pIndex = partyList.indexOf(target);
+            // if (pIndex != -1) {
+            //    partyPermanentDamage[pIndex] += s.getStrength() * 5.0;
+            // }
         }
     }
 
