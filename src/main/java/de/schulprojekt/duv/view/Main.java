@@ -10,12 +10,9 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.net.URL;
 
-/**
- * Einstiegspunkt der Anwendung.
- * Lädt das FXML-Layout, initialisiert die Scene und kümmert sich um das saubere Beenden.
- */
 public class Main extends Application {
 
+    // Pfade zu den Ressourcen (müssen im resources-Ordner liegen)
     private static final String FXML_PATH = "/de/schulprojekt/duv/view/DashboardUI.fxml";
     private static final String CSS_PATH = "/de/schulprojekt/duv/style.css";
     private static final String APP_TITLE = "Das Unberechenbare Volk - Simulation";
@@ -32,18 +29,18 @@ public class Main extends Application {
             FXMLLoader loader = new FXMLLoader(fxmlUrl);
             Parent root = loader.load();
 
-            // 2. Controller holen (wird automatisch vom FXMLLoader erstellt)
+            // 2. Controller holen (wird automatisch vom FXMLLoader instanziiert)
             DashboardController dashboardController = loader.getController();
 
             // 3. Scene erstellen
-            Scene scene = new Scene(root, 1280, 800); // Standardgröße etwas erhöht für gute Übersicht
+            Scene scene = new Scene(root, 1280, 800);
 
-            // 4. Stylesheet laden
+            // 4. Stylesheet laden (optional, falls vorhanden)
             URL cssUrl = getClass().getResource(CSS_PATH);
             if (cssUrl != null) {
                 scene.getStylesheets().add(cssUrl.toExternalForm());
             } else {
-                System.err.println("Warnung: CSS-Datei nicht gefunden: " + CSS_PATH);
+                System.out.println("Info: CSS-Datei nicht gefunden oder nicht benötigt.");
             }
 
             // 5. Stage konfigurieren
@@ -52,20 +49,21 @@ public class Main extends Application {
             primaryStage.setMinWidth(1024);
             primaryStage.setMinHeight(768);
 
-            // 6. Shutdown-Logik: Threads beenden, wenn Fenster geschlossen wird
+            // 6. Shutdown-Logik: Threads sauber beenden
             primaryStage.setOnCloseRequest(e -> {
                 if (dashboardController != null) {
+                    // Ruft die Aufräum-Methode im Controller auf
                     dashboardController.shutdown();
                 }
                 Platform.exit();
-                System.exit(0); // Sicherstellen, dass auch ExecutorServices sterben
+                System.exit(0); // Beendet auch alle Hintergrund-Threads (ExecutorService)
             });
 
             primaryStage.show();
 
         } catch (Exception e) {
             e.printStackTrace();
-            System.err.println("Kritischer Fehler beim Starten der Anwendung: " + e.getMessage());
+            System.err.println("Kritischer Fehler beim Starten: " + e.getMessage());
         }
     }
 
