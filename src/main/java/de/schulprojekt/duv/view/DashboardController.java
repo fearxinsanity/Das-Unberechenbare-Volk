@@ -12,34 +12,44 @@ import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.chart.LineChart;
-import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Slider;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.RadialGradient;
 import javafx.scene.paint.Stop;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
+import javafx.util.Duration;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class DashboardController {
 
     // --- FXML UI Elemente ---
-    @FXML private PieChart partyDistributionChart;
+
+    // NEU: Der horizontale Ticker unten (statt PieChart)
+    @FXML private ScrollPane scandalTickerScroll;
+    @FXML private HBox scandalTickerBox;
+
     @FXML private LineChart<Number, Number> historyChart;
     @FXML private Pane animationPane;
-    @FXML private Pane eventFeedPane;
+    @FXML private Pane eventFeedPane; // Der vertikale Feed links
     @FXML private Label timeStepLabel;
 
     @FXML private TextField voterCountField;
@@ -68,7 +78,7 @@ public class DashboardController {
     private final Map<String, XYChart.Series<Number, Number>> historySeriesMap = new HashMap<>();
     private final Map<String, Point> partyPositions = new HashMap<>();
 
-    // NEU: Tooltip-Elemente
+    // Tooltip-Elemente (für die Map)
     private VBox tooltipBox;
     private Label tooltipNameLabel;
     private Label tooltipAbbrLabel;
@@ -86,22 +96,25 @@ public class DashboardController {
             animationPane.widthProperty().addListener((obs, old, val) -> recalculatePartyPositions());
             animationPane.heightProperty().addListener((obs, old, val) -> recalculatePartyPositions());
 
-            // NEU: Tooltip initialisieren
             setupTooltip();
-
-            // NEU: Maus-Handler für Tooltip
             canvas.setOnMouseMoved(e -> handleMouseMove(e.getX(), e.getY()));
             canvas.setOnMouseExited(e -> hideTooltip());
         }
         gc = canvas.getGraphicsContext2D();
 
         setupCharts();
+
+        // Ticker initialisieren
+        if (scandalTickerBox != null) {
+            scandalTickerBox.getStyleClass().add("ticker-container");
+        }
+
         this.controller = new SimulationController(this);
         handleParameterChange(null);
         startVisualTimer();
     }
 
-    // NEU: Tooltip aufbauen
+    // --- Tooltip Logik für die Karte ---
     private void setupTooltip() {
         tooltipBox = new VBox(5);
         tooltipBox.setPadding(new Insets(10));
@@ -112,7 +125,7 @@ public class DashboardController {
                 "-fx-border-radius: 5;");
         tooltipBox.setEffect(new DropShadow(10, Color.BLACK));
         tooltipBox.setVisible(false);
-        tooltipBox.setMouseTransparent(true); // Klicks gehen durch
+        tooltipBox.setMouseTransparent(true);
 
         tooltipNameLabel = new Label();
         tooltipNameLabel.setStyle("-fx-text-fill: #D4AF37; -fx-font-weight: bold; -fx-font-size: 14px;");
@@ -131,7 +144,7 @@ public class DashboardController {
         tooltipBox.getChildren().addAll(
                 tooltipNameLabel,
                 tooltipAbbrLabel,
-                new javafx.scene.control.Separator(),
+                new Separator(),
                 tooltipVotersLabel,
                 tooltipPositionLabel,
                 tooltipScandalsLabel
@@ -140,25 +153,16 @@ public class DashboardController {
         animationPane.getChildren().add(tooltipBox);
     }
 
-    // NEU: Maus-Logik
     private void handleMouseMove(double mouseX, double mouseY) {
         if (controller == null || controller.getParties() == null) return;
-
         boolean found = false;
         int totalVoters = Math.max(1, controller.getCurrentParameters().getTotalVoterCount());
 
         for (Party p : controller.getParties()) {
-            Point pt = partyPositions.get(p.getName()); // Achtung: Key ist hier der Name (abbreviation in alter Logik?)
-            // Wir müssen vorsichtig sein: In SimulationEngine wird der Key in die Map gepackt.
-            // Die partyPositions Map nutzt 'p.getName()'. Da wir 'getName()' jetzt auf FullName geändert haben,
-            // müssen wir prüfen, was beim Initialisieren passiert.
-            // WICHTIG: Wenn Party.getName() jetzt Full Name ist, sind die Keys in partyPositions auch Full Names.
-
+            Point pt = partyPositions.get(p.getName());
             if (pt != null) {
-                // Berechne Radius basierend auf Stimmenanteil (wie beim Rendern)
                 double share = (double) p.getCurrentSupporterCount() / totalVoters;
                 double dynamicRadius = 30.0 + (share * 60.0);
-
                 double dist = Math.sqrt(Math.pow(mouseX - pt.x, 2) + Math.pow(mouseY - pt.y, 2));
 
                 if (dist <= dynamicRadius) {
@@ -168,10 +172,7 @@ public class DashboardController {
                 }
             }
         }
-
-        if (!found) {
-            hideTooltip();
-        }
+        if (!found) hideTooltip();
     }
 
     private void showTooltip(Party p, double x, double y) {
@@ -181,14 +182,11 @@ public class DashboardController {
         tooltipPositionLabel.setText("Ausrichtung: " + p.getPoliticalOrientationName());
         tooltipScandalsLabel.setText("Skandale: " + p.getScandalCount());
 
-        // Positionieren (etwas versetzt damit Maus nicht verdeckt)
-        double boxWidth = 180; // Geschätzt oder binden
+        double boxWidth = 180;
         double boxHeight = 120;
-
         double layoutX = x + 15;
         double layoutY = y + 15;
 
-        // Verhindern, dass es aus dem Bild rutscht
         if (layoutX + boxWidth > animationPane.getWidth()) layoutX = x - boxWidth - 10;
         if (layoutY + boxHeight > animationPane.getHeight()) layoutY = y - boxHeight - 10;
 
@@ -202,8 +200,8 @@ public class DashboardController {
         tooltipBox.setVisible(false);
     }
 
+    // --- Chart Setup ---
     private void setupCharts() {
-        if (partyDistributionChart != null) partyDistributionChart.setAnimated(false);
         if (historyChart != null) {
             historyChart.setAnimated(false);
             historyChart.setCreateSymbols(false);
@@ -211,6 +209,7 @@ public class DashboardController {
         }
     }
 
+    // --- Button Actions ---
     @FXML
     public void handleStartSimulation(ActionEvent event) {
         if (controller != null) {
@@ -238,6 +237,7 @@ public class DashboardController {
         }
     }
 
+    // --- Parameter & Cap Logic (bis 60%) ---
     @FXML
     public void handleParameterChange(Event event) {
         if (controller == null) return;
@@ -247,7 +247,8 @@ public class DashboardController {
             parties = Math.max(2, Math.min(8, parties));
 
             double scandalChance = parseDoubleSafe(scandalChanceField.getText(), 5.0);
-            scandalChance = Math.max(0.0, Math.min(20.0, scandalChance));
+            // HIER: Cap auf 60.0 angepasst
+            scandalChance = Math.max(0.0, Math.min(60.0, scandalChance));
 
             double budgetInput = parseDoubleSafe(budgetField.getText(), 500000.0);
             double budgetFactor = budgetInput / 500000.0;
@@ -284,8 +285,11 @@ public class DashboardController {
     @FXML public void handleVoterCountDecrement(ActionEvent event) { adjustIntField(voterCountField, -10000, 1000, 2000000); }
     @FXML public void handlePartyCountIncrement(ActionEvent event) { adjustIntField(partyCountField, 1, 2, 8); }
     @FXML public void handlePartyCountDecrement(ActionEvent event) { adjustIntField(partyCountField, -1, 2, 8); }
-    @FXML public void handleScandalChanceIncrement(ActionEvent event) { adjustDoubleField(scandalChanceField, 0.5, 0.0, 20.0); }
-    @FXML public void handleScandalChanceDecrement(ActionEvent event) { adjustDoubleField(scandalChanceField, -0.5, 0.0, 20.0); }
+
+    // HIER: Cap auf 60.0 angepasst
+    @FXML public void handleScandalChanceIncrement(ActionEvent event) { adjustDoubleField(scandalChanceField, 0.5, 0.0, 60.0); }
+    @FXML public void handleScandalChanceDecrement(ActionEvent event) { adjustDoubleField(scandalChanceField, -0.5, 0.0, 60.0); }
+
     @FXML public void handleSpeed1x(ActionEvent event) { controller.updateSimulationSpeed(1); }
     @FXML public void handleSpeed2x(ActionEvent event) { controller.updateSimulationSpeed(2); }
     @FXML public void handleSpeed4x(ActionEvent event) { controller.updateSimulationSpeed(4); }
@@ -310,11 +314,14 @@ public class DashboardController {
         if (resetButton != null) resetButton.setDisable(running);
     }
 
+    // === HAUPT UPDATE LOOP ===
     public void updateDashboard(List<Party> parties, List<VoterTransition> transitions, ScandalEvent scandal, int step) {
         if (!Platform.isFxApplicationThread()) {
             Platform.runLater(() -> updateDashboard(parties, transitions, scandal, step));
             return;
         }
+
+        // Initialer Reset
         if (step == 0) {
             historySeriesMap.clear();
             if (historyChart != null) historyChart.getData().clear();
@@ -322,6 +329,10 @@ public class DashboardController {
             activeParticles.clear();
             if (gc != null) gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
             partyPositions.clear();
+
+            // Feeds leeren
+            if (eventFeedPane != null) eventFeedPane.getChildren().clear();
+            if (scandalTickerBox != null) scandalTickerBox.getChildren().clear();
         }
 
         if (timeStepLabel != null) {
@@ -329,24 +340,19 @@ public class DashboardController {
             timeStepLabel.setText(String.format("Status: %s | Tick: %d", status, step));
         }
 
-        if (scandal != null && eventFeedPane != null) {
-            Label msg = new Label("⚠ " + scandal.getScandal().getTitle() + " (" + scandal.getAffectedParty().getName() + ")");
-            msg.setTextFill(Color.web("#ff5555"));
-            msg.setWrapText(true);
-            msg.setMaxWidth(eventFeedPane.getWidth() - 10);
-
-            javafx.scene.layout.VBox box;
-            if (eventFeedPane.getChildren().isEmpty()) {
-                box = new javafx.scene.layout.VBox(5);
-                eventFeedPane.getChildren().add(box);
-            } else {
-                box = (javafx.scene.layout.VBox) eventFeedPane.getChildren().get(0);
+        // --- SKANDAL VERARBEITUNG ---
+        if (scandal != null) {
+            // 1. Vertikaler Feed (Links - falls gewünscht)
+            if (eventFeedPane != null) {
+                addToVerticalFeed(scandal, step);
             }
-            box.getChildren().add(0, msg);
-            if (box.getChildren().size() > 8) box.getChildren().remove(8);
+
+            // 2. Horizontaler Ticker (Unten - Icons only)
+            if (scandalTickerBox != null) {
+                addScandalToTicker(scandal, step);
+            }
         }
 
-        updateStandardCharts(parties);
         if (historyChart != null && step % 5 == 0) {
             updateHistoryChart(parties, step);
         }
@@ -357,77 +363,188 @@ public class DashboardController {
         spawnParticles(transitions);
     }
 
-    private void updateStandardCharts(List<Party> parties) {
-        if (partyDistributionChart == null) return;
-        boolean needsRebuild = partyDistributionChart.getData().size() != parties.size();
-        if (!needsRebuild && !partyDistributionChart.getData().isEmpty()) {
-            for (int i = 0; i < parties.size(); i++) {
-                if (!partyDistributionChart.getData().get(i).getName().equals(parties.get(i).getName())) {
-                    needsRebuild = true;
-                    break;
-                }
-            }
-        }
-
-        if (partyDistributionChart.getData().isEmpty() || needsRebuild) {
-            partyDistributionChart.getData().clear();
-            for (Party p : parties) {
-                // Hier auch Kurzname (Abkürzung) verwenden, wenn gewünscht?
-                // Aktuell verwendet getName() den vollen Namen.
-                // Falls das PieChart zu voll wird, auf p.getAbbreviation() wechseln.
-                PieChart.Data data = new PieChart.Data(p.getName(), p.getCurrentSupporterCount());
-                partyDistributionChart.getData().add(data);
-                data.nodeProperty().addListener((obs, oldNode, newNode) -> {
-                    if (newNode != null) {
-                        newNode.setStyle("-fx-pie-color: #" + p.getColorCode() + ";");
-                    }
-                });
-                if (data.getNode() != null) {
-                    data.getNode().setStyle("-fx-pie-color: #" + p.getColorCode() + ";");
-                }
-            }
+    // --- Helper: Vertikaler Feed (Detaillierte Liste) ---
+    private void addToVerticalFeed(ScandalEvent event, int step) {
+        // Container holen oder erstellen
+        VBox feedBox;
+        if (eventFeedPane.getChildren().isEmpty()) {
+            feedBox = new VBox();
+            feedBox.getStyleClass().add("event-feed-container");
+            feedBox.prefWidthProperty().bind(eventFeedPane.widthProperty());
+            eventFeedPane.getChildren().add(feedBox);
         } else {
-            for (int i = 0; i < parties.size(); i++) {
-                PieChart.Data data = partyDistributionChart.getData().get(i);
-                Party p = parties.get(i);
-                data.setPieValue(p.getCurrentSupporterCount());
-                if (data.getNode() != null) {
-                    String style = "-fx-pie-color: #" + p.getColorCode() + ";";
-                    if (!style.equals(data.getNode().getStyle())) {
-                        data.getNode().setStyle(style);
-                    }
-                }
-            }
+            feedBox = (VBox) eventFeedPane.getChildren().get(0);
         }
-        Platform.runLater(() -> fixLegendColors(parties));
+
+        // LOGIK-ÄNDERUNG: Vorherige Meldungen löschen -> Nur die Neueste anzeigen
+        feedBox.getChildren().clear();
+
+        // Neue Karte erstellen und hinzufügen
+        HBox eventCard = createVerticalEventCard(event, step);
+        feedBox.getChildren().add(eventCard);
     }
 
-    private void fixLegendColors(List<Party> parties) {
-        if (partyDistributionChart == null) return;
-        partyDistributionChart.applyCss();
-        partyDistributionChart.layout();
-        Set<javafx.scene.Node> items = partyDistributionChart.lookupAll(".chart-legend-item");
-        for (javafx.scene.Node item : items) {
-            if (item instanceof Label) {
-                Label label = (Label) item;
-                for (Party p : parties) {
-                    if (p.getName().equals(label.getText())) {
-                        if (label.getGraphic() != null) {
-                            label.getGraphic().setStyle("-fx-background-color: #" + p.getColorCode() + ";");
-                        }
-                        break;
-                    }
-                }
-            }
+    private HBox createVerticalEventCard(ScandalEvent event, int step) {
+        // 1. Linke Spalte: Icon
+        VBox leftCol = new VBox();
+        leftCol.getStyleClass().add("event-timeline-col");
+        leftCol.setAlignment(Pos.TOP_CENTER);
+        leftCol.setMinWidth(40);
+        leftCol.setMaxWidth(40);
+
+        String typeStyle = getScandalStyle(event);
+        String symbol = getScandalSymbol(event);
+
+        // Kreis Hintergrund
+        Circle iconBg = new Circle(14);
+        iconBg.getStyleClass().addAll("event-icon-bg", typeStyle);
+
+        Text iconSymbol = new Text(symbol);
+        iconSymbol.getStyleClass().add("event-icon-symbol");
+
+        StackPane iconStack = new StackPane(iconBg, iconSymbol);
+
+        // Nur das Icon hinzufügen (keine vertikale Linie mehr, da Einzelelement)
+        leftCol.getChildren().add(iconStack);
+
+        // 2. Rechte Spalte: Inhalt
+        VBox rightCol = new VBox(2);
+        rightCol.getStyleClass().add("event-content-col");
+        HBox.setHgrow(rightCol, Priority.ALWAYS);
+
+        // ÄNDERUNG: Hier stand vorher die Uhrzeit-Berechnung.
+        // Jetzt zeigen wir nur noch den Tick an.
+        Label timeLbl = new Label("Tick: " + step);
+        timeLbl.getStyleClass().add("event-time");
+
+        Label titleLbl = new Label(event.getScandal().getTitle() + " (" + event.getAffectedParty().getAbbreviation() + ")");
+        titleLbl.getStyleClass().add("event-title");
+        titleLbl.setWrapText(true);
+
+        Label descLbl = new Label("Prognose: -" + (int)(event.getScandal().getStrength() * 50) + "% Beliebtheit.");
+        descLbl.getStyleClass().add("event-desc");
+        descLbl.setWrapText(true);
+
+        rightCol.getChildren().addAll(timeLbl, titleLbl, descLbl);
+
+        // 3. Zusammenfügen
+        HBox card = new HBox(0);
+        card.getStyleClass().add("event-card");
+        card.getChildren().addAll(leftCol, rightCol);
+
+        return card;
+    }
+
+    // --- Helper: Horizontaler Ticker (Icons only) ---
+    private void addScandalToTicker(ScandalEvent event, int step) {
+        // WICHTIG: Ausrichtung oben links für exakte Positionierung
+        scandalTickerBox.setAlignment(Pos.TOP_LEFT);
+
+        // 1. Verbindungslinie einfügen
+        if (!scandalTickerBox.getChildren().isEmpty()) {
+            Line connector = new Line(0, 0, 50, 0); // Länge 50px
+            connector.getStyleClass().add("ticker-connector");
+
+            // Linie vertikal zentrieren (Radius 16px -> Mitte bei 16px)
+            connector.setTranslateY(16);
+
+            scandalTickerBox.getChildren().add(connector);
+        }
+
+        // 2. Icon und Text vorbereiten
+        String typeStyle = getScandalStyle(event);
+        String symbol = getScandalSymbol(event);
+        String typeName = (event.getScandal() != null) ? event.getScandal().getType() : "Skandal";
+
+        // Label unter dem Icon: Nur Tick-Nummer
+        String tickString = "Tick " + step;
+
+        // Icon Hintergrund (Kreis)
+        Circle iconBg = new Circle(16);
+        iconBg.getStyleClass().addAll("event-icon-bg", typeStyle);
+
+        Text iconSymbol = new Text(symbol);
+        iconSymbol.getStyleClass().add("event-icon-symbol");
+
+        StackPane iconStack = new StackPane(iconBg, iconSymbol);
+        iconStack.getStyleClass().add("ticker-item");
+
+        // FIX: Verhindern, dass der Kreis zur Ellipse wird
+        // Radius 16 = Durchmesser 32. Wir erzwingen eine quadratische Box.
+        iconStack.setMinWidth(32);
+        iconStack.setMinHeight(32);
+        iconStack.setMaxWidth(32);
+        iconStack.setMaxHeight(32);
+
+        // Label unter dem Icon
+        Label tickLabel = new Label(tickString);
+        tickLabel.getStyleClass().add("ticker-time");
+
+        // Container (Icon oben, Text unten)
+        VBox tickerEntry = new VBox(iconStack, tickLabel);
+        tickerEntry.getStyleClass().add("ticker-box");
+
+        // FIX: Tooltip - Uhrzeit komplett entfernt
+        String partyName = event.getAffectedParty().getAbbreviation();
+        double impact = event.getScandal().getStrength() * 100;
+
+        String tooltipText = String.format(
+                "TICK: %d\nPARTEI: %s\nTYP: %s\n\n%s\n\nAUSWIRKUNG: -%.0f%%",
+                step,           // Nur noch der Tick
+                partyName,
+                typeName,
+                event.getScandal().getTitle(),
+                impact * 0.5
+        );
+
+        Tooltip tooltip = new Tooltip(tooltipText);
+        tooltip.getStyleClass().add("scandal-tooltip");
+        tooltip.setShowDelay(Duration.ZERO);
+        tooltip.setShowDuration(Duration.seconds(10));
+        Tooltip.install(iconStack, tooltip);
+
+        // 3. Element hinzufügen
+        scandalTickerBox.getChildren().add(tickerEntry);
+
+        // Auto-Scroll nach rechts
+        scandalTickerBox.applyCss();
+        scandalTickerBox.layout();
+        scandalTickerScroll.layout();
+        scandalTickerScroll.setHvalue(1.0);
+    }
+
+    // Hilfsmethoden für Styles
+    private String getScandalStyle(ScandalEvent event) {
+        if (event.getScandal() == null) return "type-default";
+        switch (event.getScandal().getType()) {
+            case "CORRUPTION": return "type-corruption";
+            case "FINANCIAL": return "type-financial";
+            case "POLITICAL": return "type-political";
+            case "PERSONAL": return "type-personal";
+            case "SCANDAL": return "type-scandal";
+            default: return "type-default";
         }
     }
 
+    private String getScandalSymbol(ScandalEvent event) {
+        if (event.getScandal() == null) return "!";
+        switch (event.getScandal().getType()) {
+            case "CORRUPTION": return "⚖";
+            case "FINANCIAL": return "$";
+            case "POLITICAL": return "♟";
+            case "PERSONAL": return "☹";
+            case "SCANDAL": return "⚠";
+            default: return "!";
+        }
+    }
+
+    // --- Chart Logik ---
     private void updateHistoryChart(List<Party> parties, int step) {
         for (Party p : parties) {
             if (p.getName().equals(SimulationConfig.UNDECIDED_NAME)) continue;
             XYChart.Series<Number, Number> series = historySeriesMap.computeIfAbsent(p.getName(), k -> {
                 XYChart.Series<Number, Number> s = new XYChart.Series<>();
-                s.setName(p.getAbbreviation()); // Im Chart lieber die Abkürzung für die Legende (falls sichtbar)
+                s.setName(p.getAbbreviation());
                 historyChart.getData().add(s);
                 s.getNode().setStyle("-fx-stroke: #" + p.getColorCode() + "; -fx-stroke-width: 2px;");
                 return s;
@@ -439,6 +556,7 @@ public class DashboardController {
         }
     }
 
+    // --- Engine & Render Methoden (unverändert wichtig) ---
     private void startVisualTimer() {
         visualTimer = new AnimationTimer() {
             @Override
@@ -492,6 +610,7 @@ public class DashboardController {
         double height = canvas.getHeight();
         gc.clearRect(0, 0, width, height);
 
+        // Verbindungslinien
         if (controller != null && !controller.getParties().isEmpty()) {
             gc.setStroke(Color.web("#D4AF37", 0.15));
             gc.setLineWidth(0.8);
@@ -507,6 +626,7 @@ public class DashboardController {
             }
         }
 
+        // Parteien (Kreise)
         if (controller != null) {
             int totalVoters = controller.getCurrentParameters().getTotalVoterCount();
             if (totalVoters <= 0) totalVoters = 1;
@@ -535,7 +655,6 @@ public class DashboardController {
                     gc.setFill(Color.web("#e0e0e0"));
                     gc.setFont(Font.font("Consolas", FontWeight.BOLD, 12));
 
-                    // ANPASSUNG: Hier verwenden wir die Abkürzung für die Anzeige, damit es nicht überlappt!
                     gc.fillText(p.getAbbreviation(), pt.x - 20, pt.y + 35);
                     gc.setFill(Color.web("#D4AF37"));
                     gc.fillText(String.format("%.1f%%", share * 100), pt.x - 10, pt.y + 48);
@@ -543,6 +662,7 @@ public class DashboardController {
             }
         }
 
+        // Partikel
         Iterator<MovingVoter> it = activeParticles.iterator();
         gc.setLineWidth(2.5);
 
@@ -574,11 +694,9 @@ public class DashboardController {
         historySeriesMap.clear();
         partyPositions.clear();
         if (historyChart != null) historyChart.getData().clear();
-        if (partyDistributionChart != null) partyDistributionChart.getData().clear();
         if (gc != null) gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        if (eventFeedPane != null) {
-            eventFeedPane.getChildren().clear();
-        }
+        if (eventFeedPane != null) eventFeedPane.getChildren().clear();
+        if (scandalTickerBox != null) scandalTickerBox.getChildren().clear();
     }
 
     public void shutdown() {

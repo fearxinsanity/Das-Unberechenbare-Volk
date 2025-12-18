@@ -178,3 +178,172 @@
     -fx-background-color: transparent, transparent;
     -fx-background-size: 0;
 }
+
+/* === Ereignis-Feed Timeline Design === */
+
+.event-feed-container {
+    -fx-padding: 10;
+    -fx-background-color: transparent;
+}
+
+.event-card {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+/* Linke Spalte: Icon und Linie */
+.event-timeline-col {
+    -fx-alignment: top-center;
+    -fx-padding: 0 10 0 0;
+}
+
+.timeline-line {
+    -fx-stroke: #444;
+    -fx-stroke-width: 2;
+    -fx-stroke-dash-array: 2 4; /* Gestrichelte Linie passt gut zum Terminal-Look */
+}
+
+/* Das Icon (Kreis) */
+.event-icon-bg {
+    -fx-radius: 14;
+    -fx-stroke: rgba(0,0,0,0.5);
+    -fx-stroke-width: 2;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 5, 0, 0, 1);
+}
+
+.event-icon-symbol {
+    -fx-fill: white;
+    -fx-font-family: "Segoe UI Symbol", "Consolas"; /* Für Icons */
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+/* Rechte Spalte: Text */
+.event-content-col {
+    -fx-padding: 0 0 15 0; /* Abstand nach unten zum nächsten Event */
+}
+
+.event-time {
+    -fx-text-fill: #8a8a8a;
+    -fx-font-size: 10px;
+    -fx-font-family: "Consolas", monospace;
+}
+
+.event-title {
+    -fx-text-fill: #e0e0e0;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.event-desc {
+    -fx-text-fill: #aaaaaa;
+    -fx-font-size: 11px;
+    -fx-wrap-text: true;
+}
+
+/* === Farb-Definitionen für Ereignis-Typen === */
+.type-corruption { -fx-fill: #dc3545; } /* Rot */
+.type-financial  { -fx-fill: #ffc107; } /* Gelb/Gold */
+.type-political  { -fx-fill: #17a2b8; } /* Cyan */
+.type-personal   { -fx-fill: #d63384; } /* Pink/Lila */
+.type-scandal    { -fx-fill: #fd7e14; } /* Orange */
+.type-default    { -fx-fill: #6c757d; } /* Grau */
+
+/* === EREIGNIS FEED (Links, Vertikal) === */
+.event-feed-container {
+    -fx-padding: 10;
+    -fx-background-color: transparent;
+}
+.event-card {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+.event-timeline-col {
+    -fx-alignment: top-center;
+    -fx-padding: 0 10 0 0;
+}
+.timeline-line {
+    -fx-stroke: #444;
+    -fx-stroke-width: 2;
+    -fx-stroke-dash-array: 2 4;
+}
+.event-content-col {
+    -fx-padding: 0 0 15 0;
+}
+.event-time {
+    -fx-text-fill: #8a8a8a;
+    -fx-font-size: 10px;
+    -fx-font-family: "Consolas", monospace;
+}
+.event-title {
+    -fx-text-fill: #e0e0e0;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+.event-desc {
+    -fx-text-fill: #aaaaaa;
+    -fx-font-size: 11px;
+    -fx-wrap-text: true;
+}
+
+/* === SKANDAL TICKER (Unten, Horizontal) === */
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.ticker-container {
+    -fx-background-color: transparent;
+    -fx-padding: 10;
+    /* spacing auf 0 setzen, da wir jetzt echte Linien dazwischen haben,
+       die den Abstand definieren */
+    -fx-spacing: 0;
+    -fx-alignment: top-left;
+}
+
+/* Die neue Verbindungslinie (wird im Code erzeugt) */
+.ticker-connector {
+    -fx-stroke: #555;
+    -fx-stroke-width: 2;
+}
+
+.ticker-box {
+    -fx-alignment: center;
+    -fx-spacing: 5;
+    /* Kleiner Abstand links/rechts, damit der Text Platz hat */
+    -fx-padding: 0 5 0 5;
+}
+
+.ticker-item {
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 5, 0, 0, 1);
+    -fx-transition: all 0.2s;
+    -fx-background-color: #2b2b2b;
+    -fx-background-radius: 50%;
+}
+
+.ticker-item:hover {
+    -fx-scale-x: 1.2;
+    -fx-scale-y: 1.2;
+    -fx-effect: dropshadow(three-pass-box, #D4AF37, 10, 0, 0, 0);
+}
+
+.ticker-time {
+    -fx-text-fill: #8a8a8a;
+    -fx-font-family: "Consolas", monospace;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+}
+
+/* === TOOLTIP DESIGN === */
+.scandal-tooltip {
+    -fx-background-color: rgba(30, 30, 35, 0.95);
+    -fx-background-radius: 5;
+    -fx-border-color: #D4AF37;
+    -fx-border-width: 1;
+    -fx-border-radius: 5;
+    -fx-padding: 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);
+    -fx-font-family: "Consolas";
+    -fx-font-size: 12px;
+}
