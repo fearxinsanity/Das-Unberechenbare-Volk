@@ -1,96 +1,186 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
-<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
 
 <BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="de.schulprojekt.duv.view.DashboardController"
-            prefHeight="750.0" prefWidth="1200.0" styleClass="root-pane">
+            prefHeight="800.0" prefWidth="1280.0" styleClass="root-pane">
 
     <top>
-        <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-background-color: #1A1A1A; -fx-padding: 10;">
-            <padding>
-                <Insets top="10" right="20" bottom="10" left="20"/>
-            </padding>
-
-            <Label text="Das Unberechenbare Volk" style="-fx-font-size: 18px; -fx-text-fill: #C9A227;"/>
-            <Region HBox.hgrow="ALWAYS"/>
-
-            <Label fx:id="timeStepLabel" text="Status: Initialisiert" style="-fx-text-fill: white;"/>
-
-            <Button text="▶ Starten" onAction="#handleStartSimulation"/>
-            <Button text="⏸ Pausieren" onAction="#handlePauseSimulation"/>
-            <Button text="↻ Zurücksetzen" onAction="#handleResetSimulation"/>
-        </HBox>
+        <VBox styleClass="top-bar">
+            <HBox alignment="CENTER_LEFT" spacing="20">
+                <Label text="Das Unberechenbare Volk" styleClass="app-title"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="timeStepLabel" text="Status: Bereit" styleClass="status-label"/>
+                <Separator orientation="VERTICAL" />
+                <Button fx:id="startButton" text="▶ Starten" onAction="#handleStartSimulation" styleClass="action-button"/>
+                <Button fx:id="pauseButton" text="⏸ Pausieren" onAction="#handlePauseSimulation" disable="true"/>
+                <Button fx:id="resetButton" text="↺ Reset" onAction="#handleResetSimulation" disable="true"/>
+            </HBox>
+        </VBox>
     </top>
 
     <left>
-        <VBox spacing="10" style="-fx-padding: 20; -fx-background-color: #2A2A2A;" prefWidth="300">
-            <Label text="Konfiguration" style="-fx-font-size: 16px; -fx-text-fill: #C9A227;"/>
+        <VBox spacing="15" styleClass="sidebar" prefWidth="300">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+            <BorderPane.margin>
+                <Insets top="15" left="15" bottom="15" right="0"/>
+            </BorderPane.margin>
 
-            <Label text="Wähleranzahl (Schritt: 100.000)" style="-fx-text-fill: white;"/>
-            <HBox spacing="5">
-                <Button text="-" onAction="#handleVoterCountDecrement"/>
-                <TextField fx:id="voterCountField" text="2500" prefWidth="150" onAction="#handleParameterChange"/>
-                <Button text="+" onAction="#handleVoterCountIncrement"/>
-            </HBox>
+            <Label text="Simulation Konfiguration" styleClass="section-title"/>
+            <Separator style="-fx-opacity: 0.3;"/>
 
-            <Label text="Parteianzahl (2-8)" style="-fx-text-fill: white;"/>
-            <Slider fx:id="partyCountSlider" min="2" max="8" value="4" majorTickUnit="1" minorTickCount="0" snapToTicks="true" showTickMarks="true" onMouseReleased="#handleParameterChange"/>
+            <VBox spacing="5">
+                <Label text="Wähleranzahl" styleClass="control-label"/>
+                <HBox spacing="5" alignment="CENTER_LEFT">
+                    <Button text="-" onAction="#handleVoterCountDecrement" prefWidth="35"/>
+                    <TextField fx:id="voterCountField" text="100000" HBox.hgrow="ALWAYS" onAction="#handleParameterChange" alignment="CENTER"/>
+                    <Button text="+" onAction="#handleVoterCountIncrement" prefWidth="35"/>
+                </HBox>
+            </VBox>
 
-            <Label text="Medien-Einfluss (%)" style="-fx-text-fill: white;"/>
-            <Slider fx:id="mediaInfluenceSlider" min="0" max="100" value="65" onMouseReleased="#handleParameterChange"/>
+            <VBox spacing="5">
+                <Label text="Anzahl Parteien (2-8)" styleClass="control-label"/>
+                <HBox spacing="5" alignment="CENTER_LEFT">
+                    <Button text="-" onAction="#handlePartyCountDecrement" prefWidth="35"/>
+                    <TextField fx:id="partyCountField" text="5" HBox.hgrow="ALWAYS" alignment="CENTER" editable="false"/>
+                    <Button text="+" onAction="#handlePartyCountIncrement" prefWidth="35"/>
+                </HBox>
+            </VBox>
 
-            <Label text="Basis Mobilität (%)" style="-fx-text-fill: white;"/>
-            <Slider fx:id="mobilityRateSlider" min="0" max="100" value="35" onMouseReleased="#handleParameterChange"/>
+            <Separator style="-fx-opacity: 0.2;"/>
 
-            <Label text="Loyalitätsmittelwert (0-100)" style="-fx-text-fill: white;"/>
-            <Slider fx:id="loyaltyMeanSlider" min="0" max="100" value="50" onMouseReleased="#handleParameterChange"/>
+            <VBox spacing="12">
+                <VBox spacing="2">
+                    <Label text="Medien-Einfluss (%)" styleClass="control-label"/>
+                    <Slider fx:id="mediaInfluenceSlider" min="0" max="100" value="65" onMouseReleased="#handleParameterChange"/>
+                </VBox>
 
-            <Label text="Skandal-Chance (%)" style="-fx-text-fill: white;"/>
-            <Slider fx:id="scandalChanceSlider" min="0" max="10" value="5" onMouseReleased="#handleParameterChange"/>
+                <VBox spacing="2">
+                    <Label text="Basis Mobilität (Wechselwille %)" styleClass="control-label"/>
+                    <Slider fx:id="mobilityRateSlider" min="0" max="100" value="35" onMouseReleased="#handleParameterChange"/>
+                </VBox>
 
-            <Label text="Werbe-Zufallsbereich" style="-fx-text-fill: white;"/>
-            <Slider fx:id="randomRangeSlider" min="0.1" max="5.0" value="1.0" onMouseReleased="#handleParameterChange"/>
+                <VBox spacing="2">
+                    <Label text="Loyalität (Mittelwert)" styleClass="control-label"/>
+                    <Slider fx:id="loyaltyMeanSlider" min="0" max="100" value="50" onMouseReleased="#handleParameterChange"/>
+                </VBox>
 
-            <Label text="Simulations-Geschw." style="-fx-text-fill: white;"/>
-            <HBox spacing="5" alignment="CENTER_LEFT">
-                <Button text="1X" onAction="#handleSpeed1x"/>
-                <Button text="2X" onAction="#handleSpeed2x"/>
-                <Button text="4X" onAction="#handleSpeed4x"/>
-            </HBox>
+                <VBox spacing="2">
+                    <Label text="Ø Wahlkampf-Budget (€)" styleClass="control-label"/>
+                    <TextField fx:id="budgetField" text="500000" onAction="#handleParameterChange"/>
+                </VBox>
+
+                <VBox spacing="2">
+                    <Label text="Skandal-Chance (%)" styleClass="warning-label"/>
+                    <HBox spacing="5" alignment="CENTER_LEFT">
+                        <Button text="-" onAction="#handleScandalChanceDecrement" prefWidth="35"/>
+                        <TextField fx:id="scandalChanceField" text="5.0" HBox.hgrow="ALWAYS" alignment="CENTER" onAction="#handleParameterChange"/>
+                        <Button text="+" onAction="#handleScandalChanceIncrement" prefWidth="35"/>
+                    </HBox>
+                </VBox>
+
+                <VBox spacing="2">
+                    <Label text="Wahlkampf Varianz (Zufall)" styleClass="control-label"/>
+                    <Slider fx:id="randomRangeSlider" min="0.1" max="5.0" value="1.0" onMouseReleased="#handleParameterChange"/>
+                </VBox>
+            </VBox>
+
+            <Separator style="-fx-opacity: 0.2;"/>
+
+            <VBox spacing="5">
+                <Label text="Simulations-Geschwindigkeit" styleClass="control-label"/>
+                <HBox spacing="5" alignment="CENTER">
+                    <Button text="1x" onAction="#handleSpeed1x" prefWidth="50"/>
+                    <Button text="2x" onAction="#handleSpeed2x" prefWidth="50"/>
+                    <Button text="4x" onAction="#handleSpeed4x" prefWidth="50"/>
+                </HBox>
+            </VBox>
 
             <Region VBox.vgrow="ALWAYS"/>
-            <Button text="Parameter Übernehmen (Fallback)" onAction="#handleParameterChange"/>
-
+            <Button text="Parameter jetzt anwenden" onAction="#handleParameterChange" maxWidth="Infinity" style="-fx-base: #444;"/>
         </VBox>
     </left>
 
     <center>
-        <Pane fx:id="animationPane" style="-fx-background-color: #141414;">
-            <BorderPane.margin>
-                <Insets top="10" right="10" bottom="10" left="10"/>
-            </BorderPane.margin>
-        </Pane>
+        <BorderPane>
+            <center>
+                <Pane fx:id="animationPane" style="-fx-background-color: transparent;">
+                    <BorderPane.margin>
+                        <Insets top="15" left="15" right="15" bottom="0"/>
+                    </BorderPane.margin>
+                </Pane>
+            </center>
+
+            <bottom>
+                <VBox styleClass="sidebar" style="-fx-padding: 5;">
+                    <BorderPane.margin>
+                        <Insets top="15" left="15" right="15" bottom="15"/>
+                    </BorderPane.margin>
+
+                    <Label text="Skandal-Ticker (Live)" styleClass="control-label" style="-fx-padding: 0 0 5 10;"/>
+
+                    <ScrollPane fx:id="scandalTickerScroll"
+                                fitToHeight="true"
+                                vbarPolicy="NEVER"
+                                hbarPolicy="AS_NEEDED"
+                                style="-fx-background-color: transparent; -fx-background: transparent;"
+                                minHeight="80.0" prefHeight="100.0">
+                        <content>
+                            <HBox fx:id="scandalTickerBox"
+                                  alignment="CENTER_LEFT"
+                                  spacing="20.0"
+                                  style="-fx-padding: 10;">
+                            </HBox>
+                        </content>
+                    </ScrollPane>
+                </VBox>
+            </bottom>
+        </BorderPane>
     </center>
 
     <right>
-        <VBox spacing="10" style="-fx-padding: 20; -fx-background-color: #2A2A2A;" prefWidth="350">
-            <Label text="Aktuelle Unterstützerzahlen" style="-fx-font-size: 16px; -fx-text-fill: #C9A227;"/>
+        <VBox spacing="15" styleClass="sidebar" prefWidth="320">
+            <BorderPane.margin>
+                <Insets top="15" right="15" bottom="15" left="0"/>
+            </BorderPane.margin>
 
-            <PieChart fx:id="partyDistributionChart" legendVisible="true"/>
+            <VBox spacing="5" VBox.vgrow="NEVER">
+                <Label text="Letzte Meldungen" styleClass="section-title"/>
+                <Pane fx:id="eventFeedPane" prefHeight="180" style="-fx-background-color: rgba(0,0,0,0.2); -fx-background-radius: 5;"/>
+            </VBox>
 
-            <Label text="Ereignis-Feed" style="-fx-font-size: 16px; -fx-text-fill: #C9A227;"/>
-            <Pane prefHeight="200" style="-fx-background-color: #1A1A1A;"/>
+            <Separator style="-fx-opacity: 0.3;"/>
+
+            <VBox VBox.vgrow="ALWAYS" spacing="5">
+                <Label text="Stimmenverlauf (Historie)" styleClass="section-title"/>
+                <LineChart fx:id="historyChart" createSymbols="false" animated="false" VBox.vgrow="ALWAYS" legendVisible="false">
+                    <xAxis><NumberAxis label="Zeit (Ticks)" tickLabelFill="white"/></xAxis>
+                    <yAxis><NumberAxis label="Stimmen" tickLabelFill="white"/></yAxis>
+                </LineChart>
+            </VBox>
+
+            <VBox spacing="2" style="-fx-opacity: 0.6;">
+                <Label text="Legende:" style="-fx-font-size: 10px; -fx-font-weight: bold;"/>
+                <Label text="• Grauer Orbit = Unsichere Wähler" style="-fx-font-size: 10px;"/>
+                <Label text="• Partikel-Schwarm = Wählerwanderung" style="-fx-font-size: 10px;"/>
+            </VBox>
         </VBox>
     </right>
+
 </BorderPane>

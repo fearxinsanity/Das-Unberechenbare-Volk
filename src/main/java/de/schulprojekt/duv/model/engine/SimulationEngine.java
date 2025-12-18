@@ -1,206 +1,337 @@
 package de.schulprojekt.duv.model.engine;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Random;
-//--- Distributions ---
+import de.schulprojekt.duv.model.entities.Party;
+import de.schulprojekt.duv.model.entities.PartyTemplate;
+import de.schulprojekt.duv.model.entities.Scandal;
+import de.schulprojekt.duv.util.CSVLoader;
 import org.apache.commons.math3.distribution.ExponentialDistribution;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.distribution.UniformRealDistribution;
-//--- Internal imports ---
-import de.schulprojekt.duv.model.entities.Voter;
-import de.schulprojekt.duv.model.entities.Party;
 
-/**
- * The central class of the Model (MVC). It controls the main simulation loop,
- * manages the state of all entities, and contains all business logic,
- * completely decoupled from the GUI.
- */
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
+
 public class SimulationEngine {
 
-    //--- Distributions ---
+    // Arrays (Structure of Arrays)
+    private byte[] voterPartyIndices;
+    private float[] voterLoyalties;
+    private float[] voterPositions;
+    private float[] voterMediaInfluence;
+
+    private final List<Party> partyList = new CopyOnWriteArrayList<>();
+
+    private Party undecidedParty;
+    private final CSVLoader csvLoader;
+    private SimulationParameters parameters;
+    private final Random random = new Random();
+    private double[] partyPermanentDamage;
+
+    // Verteilungen
     private NormalDistribution normalDistribution;
     private UniformRealDistribution uniformRealDistribution;
     private ExponentialDistribution exponentialDistribution;
 
-    //--- Lists ---
-    private final List<Voter> voterList;
-    private final List<Party> partyList;
-
-    //--- Saved parameters locally ---
-    private SimulationParameters parameters;
+    // Status
+    private double timeUntilNextScandal;
+    private int currentStep = 0;
+    private final List<ScandalEvent> activeScandals = new ArrayList<>();
+    private ScandalEvent lastScandal = null;
 
     public SimulationEngine(SimulationParameters params) {
-
         this.parameters = params;
-        this.voterList = new ArrayList<>();
-        this.partyList = new ArrayList<>();
-
-        //Normal distribution for Voter loyalty
-        this.normalDistribution = new NormalDistribution(
-                params.getInitialLoyaltyMean(),
-                10.0 //Standard deviation for dispersion
-        );
-
-        //Uniform distribution for media effectivity
-        this.uniformRealDistribution = new UniformRealDistribution(
-                0.0,
-                params.getUniformRandomRange()
-        );
-
-        this.exponentialDistribution = new ExponentialDistribution(
-                params.getScandalChance() / 100.0 //Scandal chance percentage
-        );
+        this.csvLoader = new CSVLoader();
+        initializeDistributions();
     }
 
-    public double generateLoyaltyValue(){
-        return normalDistribution.sample();
-    }
-
-    public double generateCampaignEffectiveness(){
-        return uniformRealDistribution.sample();
-    }
-
-    public double generateWaitingTimeForEvent() {
-        return exponentialDistribution.sample();
-    }
-
-    public void initializeSimulation(){
-        int partyCount = parameters.getNumberOfParties();
-        if (partyCount == 0) {
-            return;
-        }
-        for(int i=0; i < partyCount; i++){
-            String name = "Partei " + (char)('A' + i);
-            double position;
-            if (partyCount <= 1) {
-                position = 50.0; // Setzt die Position auf die Mitte (50.0)
-            } else {
-                position = 100.0 / (partyCount - 1) * i;
-            }
-            //TODO: Color & Budget initializing
-            String color = "5E2028";
-            double budget = 500000.0;
-
-            Party party = new Party(name, color, position, budget, 0);
-            this.partyList.add(party);
-        }
-
-        int totalVoters = parameters.getTotalVoterCount();
-        Random generalRandom = new Random();
-
-        for (int i = 0; i < totalVoters; i++) {
-            Party initialParty = this.partyList.get(i % partyCount);
-            double loyalty = generateLoyaltyValue();
-            double politicalPosition = generalRandom.nextDouble() * 100.0;
-            double mediaInfluenceability = generalRandom.nextDouble();
-
-            Voter voter = new Voter(initialParty, loyalty, politicalPosition, mediaInfluenceability);
-            this.voterList.add(voter);
-
-            initialParty.setCurrentSupporterCount(initialParty.getCurrentSupporterCount() + 1);
-        }
-    }
-
-    // --- Getter for Controller (Encapsulation) ---
-    public List<Voter> getVoters() {
-        return Collections.unmodifiableList(this.voterList);
-    }
-
-    public List<Party> getParties() {
-        return Collections.unmodifiableList(this.partyList);
-    }
-
-    public SimulationParameters getParameters() {
-        return parameters;
-    }
-
-    /**
-     * Calculates an attractiveness score for a target party for a given voter.
-     * @param voter The voter currently considering a switch.
-     * @param party The target party.
-     * @param campaignEffectiveness The uniform random value for budget effectiveness.
-     * @return A double score, where a higher score means higher attractiveness.
-     */
-    private double getPartyTargetScore(Voter voter, Party party, double campaignEffectiveness) {
-        double distance = Math.abs(voter.getPoliticalPosition() - party.getPoliticalPosition());
-        double baseScore = 1.0 / (distance + 1.0);
-        double campaignInfluence = party.getCampaignBudget() * campaignEffectiveness;
-        return baseScore + (campaignInfluence * voter.getMediaInfluenceability());
-    }
-
-    // --- Main Simulation Step ---
-
-    /**
-     * Executes one discrete time step of the simulation.
-     * It iterates through all voters and calculates potential party changes
-     * and random events. Uses Normal, Uniform, and Exponential Distributions.
-     * @return A list of all VoterTransition DTOs for the View's animation update.
-     */
-    public List<VoterTransition> runSimulationStep() {
-        List<VoterTransition> transitions = new ArrayList<>();
-
-        boolean scandalOccurred = (uniformRealDistribution.sample() * 100.0 < parameters.getScandalChance());
-        Party affectedParty = null;
-
-        if (scandalOccurred) {
-            int partyIndex = new Random().nextInt(partyList.size());
-            affectedParty = partyList.get(partyIndex);
-        }
-
-        for (Voter voter : voterList) {
-            double chanceToConsiderSwitch = parameters.getBaseMobilityRate() * voter.getMediaInfluenceability();
-
-            if (new Random().nextDouble() < chanceToConsiderSwitch) {
-                Party currentParty = voter.getCurrentParty();
-                Party bestTargetParty = currentParty;
-                double highestScore = -1.0;
-                double campaignEffectiveness = generateCampaignEffectiveness();
-
-                for (Party targetParty : partyList) {
-                    if (scandalOccurred && targetParty.equals(affectedParty)) {
-                        continue;
-                    }
-                    double score = getPartyTargetScore(voter, targetParty, campaignEffectiveness);
-                    if (score > highestScore) {
-                        highestScore = score;
-                        bestTargetParty = targetParty;
-                    }
-                }
-
-                if (!currentParty.equals(bestTargetParty)) {
-                    voter.setCurrentParty(bestTargetParty);
-                    currentParty.setCurrentSupporterCount(currentParty.getCurrentSupporterCount() - 1);
-                    bestTargetParty.setCurrentSupporterCount(bestTargetParty.getCurrentSupporterCount() + 1);
-                    transitions.add(new VoterTransition(currentParty, bestTargetParty));
-                }
-            }
-        }
-
-        return transitions;
-    }
-
-    public void resetState() {
-        this.voterList.clear();
-        this.partyList.clear();
-
-        initializeSimulation();
+    private void initializeDistributions() {
+        this.normalDistribution = new NormalDistribution(parameters.getInitialLoyaltyMean(), SimulationConfig.DEFAULT_LOYALTY_STD_DEV);
+        this.uniformRealDistribution = new UniformRealDistribution(0.0, parameters.getUniformRandomRange());
+        double scandalProb = parameters.getScandalChance();
+        double scandalLambda = Math.max(0.00001, scandalProb / 3000.0);
+        this.exponentialDistribution = new ExponentialDistribution(1.0 / scandalLambda);
     }
 
     public void updateParameters(SimulationParameters newParams) {
+        boolean structuralChange = (newParams.getNumberOfParties() != parameters.getNumberOfParties()) ||
+                (newParams.getTotalVoterCount() != parameters.getTotalVoterCount());
+
         this.parameters = newParams;
-        this.normalDistribution = new NormalDistribution(
-                newParams.getInitialLoyaltyMean(),
-                10.0
-        );
-        this.uniformRealDistribution = new UniformRealDistribution(
-                0.0,
-                newParams.getUniformRandomRange()
-        );
-        this.exponentialDistribution = new ExponentialDistribution(
-                newParams.getScandalChance() / 100.0
-        );
+        initializeDistributions();
+
+        if (structuralChange) {
+            initializeSimulation();
+        }
     }
 
+    public void initializeSimulation() {
+        partyList.clear();
+        activeScandals.clear();
+        currentStep = 0;
+
+        int partyCount = parameters.getNumberOfParties();
+        partyPermanentDamage = new double[partyCount + 1];
+
+        undecidedParty = new Party(
+                SimulationConfig.UNDECIDED_NAME,
+                SimulationConfig.UNDECIDED_NAME,
+                SimulationConfig.UNDECIDED_COLOR,
+                SimulationConfig.UNDECIDED_POSITION,
+                0,
+                0
+        );
+        partyList.add(undecidedParty);
+
+        List<PartyTemplate> templates = csvLoader.getRandomPartyTemplates(partyCount);
+        for (int i = 0; i < partyCount; i++) {
+            PartyTemplate template = templates.get(i);
+            double pos = Math.max(5, Math.min(95, (100.0 / (partyCount + 1)) * (i + 1) + (random.nextDouble() - 0.5) * 10));
+
+            double baseBudget = 300000.0 + random.nextDouble() * 400000.0;
+            double budget = baseBudget * parameters.getCampaignBudgetFactor();
+
+            partyList.add(template.toParty(pos, budget));
+        }
+
+        int totalVoters = parameters.getTotalVoterCount();
+        voterPartyIndices = new byte[totalVoters];
+        voterLoyalties = new float[totalVoters];
+        voterPositions = new float[totalVoters];
+        voterMediaInfluence = new float[totalVoters];
+
+        NormalDistribution posDist = new NormalDistribution(50.0, 25.0);
+
+        IntStream.range(0, totalVoters).parallel().forEach(i -> {
+            boolean isUndecided = Math.random() < 0.20;
+            voterPartyIndices[i] = (byte) (isUndecided ? 0 : 1 + random.nextInt(partyCount));
+            voterLoyalties[i] = (float) Math.max(0, Math.min(100, normalDistribution.sample()));
+            voterPositions[i] = (float) Math.max(0, Math.min(100, posDist.sample()));
+            voterMediaInfluence[i] = (float) Math.pow(random.nextDouble(), 0.7);
+        });
+
+        recalculatePartyCounts();
+        scheduleNextScandal();
+    }
+
+    private void scheduleNextScandal() {
+        this.timeUntilNextScandal = exponentialDistribution.sample();
+    }
+
+    private void recalculatePartyCounts() {
+        for(Party p : partyList) p.setCurrentSupporterCount(0);
+
+        int[] counts = new int[partyList.size()];
+        int maxIdx = counts.length - 1;
+
+        for(byte idx : voterPartyIndices) {
+            if (idx <= maxIdx) {
+                counts[idx]++;
+            }
+        }
+        for(int i=0; i<counts.length; i++) {
+            if (i < partyList.size()) {
+                partyList.get(i).setCurrentSupporterCount(counts[i]);
+            }
+        }
+    }
+
+    public List<VoterTransition> runSimulationStep() {
+        currentStep++;
+        ConcurrentLinkedQueue<VoterTransition> visualTransitions = new ConcurrentLinkedQueue<>();
+
+        if (voterPartyIndices == null || voterPartyIndices.length == 0) return new ArrayList<>();
+
+        int pSize = partyList.size();
+        AtomicInteger[] partyDeltas = new AtomicInteger[pSize];
+        for(int i=0; i<pSize; i++) partyDeltas[i] = new AtomicInteger(0);
+
+        double baseMobility = parameters.getBaseMobilityRate() / 100.0;
+        double globalMedia = parameters.getGlobalMediaInfluence() / 100.0;
+        double uniformRange = parameters.getUniformRandomRange();
+
+        // --- SKANDAL MANAGEMENT ---
+        int scandalDuration = 200; // Länger, dafür sanfter
+        activeScandals.removeIf(e -> currentStep - e.getOccurredAtStep() > scandalDuration);
+
+        if (shouldScandalOccur() && pSize > 1) triggerScandal();
+
+        double[] currentScandalPressure = new double[pSize];
+
+        // 1. Skandal-Auswirkungen berechnen (DEUTLICH REDUZIERT)
+        for (ScandalEvent event : activeScandals) {
+            Party affected = event.getAffectedParty();
+            int pIndex = partyList.indexOf(affected);
+            if (pIndex != -1 && pIndex < pSize) {
+                int age = currentStep - event.getOccurredAtStep();
+                double strength = event.getScandal().getStrength();
+
+                // Kurzfristiger Druck (Fades out)
+                double timeFactor = (age < 20) ? (double) age / 20.0 : 1.0 - ((double) (age - 20) / (scandalDuration - 20));
+
+                // ÄNDERUNG: Faktor von 25.0 auf 8.0 reduziert.
+                // Skandale sind jetzt "unangenehm", aber kein Todesurteil.
+                currentScandalPressure[pIndex] += strength * 8.0 * timeFactor;
+
+                // Langfristiger Schaden baut sich auf
+                // ÄNDERUNG: Maximalschaden von 5.0 auf 2.5 halbiert
+                double damageBuildUp = (strength * 2.5) / (double) scandalDuration;
+                partyPermanentDamage[pIndex] += damageBuildUp;
+            }
+        }
+
+        // 2. Erholung (Recovery) berechnen
+        int totalVoters = Math.max(1, parameters.getTotalVoterCount());
+        for (int i = 1; i < pSize; i++) {
+            if (partyPermanentDamage[i] > 0) {
+                Party p = partyList.get(i);
+                double voterShare = (double) p.getCurrentSupporterCount() / totalVoters;
+                // ÄNDERUNG: Erholung etwas beschleunigt, damit Dellen sich füllen
+                double recoveryRate = 0.008 + (voterShare * 0.05);
+                partyPermanentDamage[i] -= recoveryRate;
+                if (partyPermanentDamage[i] < 0) partyPermanentDamage[i] = 0;
+            }
+        }
+
+        double[] partyPos = new double[pSize];
+        double[] partyBudgetFactor = new double[pSize];
+        double[] partyDailyMomentum = new double[pSize];
+
+        for(int k=0; k < pSize; k++) {
+            Party p = partyList.get(k);
+            partyPos[k] = p.getPoliticalPosition();
+            partyBudgetFactor[k] = p.getCampaignBudget() / SimulationConfig.CAMPAIGN_BUDGET_FACTOR;
+            // Momentum leicht geglättet
+            partyDailyMomentum[k] = 0.95 + (java.util.concurrent.ThreadLocalRandom.current().nextDouble() * 0.1);
+        }
+
+        IntStream.range(0, voterPartyIndices.length).parallel().forEach(i -> {
+            // Meinung driftet sehr langsam
+            double drift = (java.util.concurrent.ThreadLocalRandom.current().nextDouble() - 0.5) * 0.2;
+            voterPositions[i] += (float) drift;
+            if (voterPositions[i] < 0) voterPositions[i] = 0;
+            if (voterPositions[i] > 100) voterPositions[i] = 100;
+
+            int currentIdx = voterPartyIndices[i];
+            if (currentIdx >= pSize) { currentIdx = 0; voterPartyIndices[i] = 0; }
+
+            // Totaler Malus
+            double totalPenalty = 0;
+            if (currentIdx > 0) {
+                totalPenalty = currentScandalPressure[currentIdx] + partyPermanentDamage[currentIdx];
+            }
+
+            double switchProb = baseMobility * (1.0 - voterLoyalties[i] / 200.0) * voterMediaInfluence[i];
+
+            // ÄNDERUNG: Penalty Auswirkungen massiv gedämpft.
+            // Vorher: / 200.0 -> Jetzt: / 600.0
+            // Ein Penalty von 10 erhöht die Wahrscheinlichkeit jetzt nur noch um 1.6% statt 5%
+            if (totalPenalty > 0) switchProb += (totalPenalty / 600.0);
+
+            if (currentIdx == 0) switchProb *= 1.2; // Unsicher wechselt etwas langsamer zurück
+            if (switchProb > 0.60) switchProb = 0.60; // Hard Cap niedriger gesetzt
+
+            if (java.util.concurrent.ThreadLocalRandom.current().nextDouble() < switchProb) {
+                int targetIdx = currentIdx;
+
+                // ÄNDERUNG: Flucht-Schwelle erhöht. Erst ab Penalty > 12 (sehr hoch) rennen alle weg.
+                boolean fleeingFromDisaster = (totalPenalty > 12.0);
+
+                if (!fleeingFromDisaster && currentIdx != 0 && java.util.concurrent.ThreadLocalRandom.current().nextDouble() < 0.15) {
+                    targetIdx = 0; // Zurück zu Unsicher
+                } else {
+                    double bestScore = -Double.MAX_VALUE;
+                    double campaignEffectiveness = java.util.concurrent.ThreadLocalRandom.current().nextDouble() * uniformRange;
+
+                    for (int pIdx = 1; pIdx < pSize; pIdx++) {
+                        if (pIdx == currentIdx) continue;
+
+                        double dist = Math.abs(voterPositions[i] - partyPos[pIdx]);
+                        // Distanz etwas weniger bestrafend
+                        double distScore = 40.0 / (1.0 + (dist * 0.04));
+
+                        double budgetScore = (partyBudgetFactor[pIdx] * campaignEffectiveness * voterMediaInfluence[i] * globalMedia) * 12.0;
+                        budgetScore *= partyDailyMomentum[pIdx];
+
+                        double score = distScore + budgetScore;
+
+                        // ÄNDERUNG: Skandal macht Partei unattraktiv, aber nicht "tot".
+                        // Faktor reduziert
+                        score -= (currentScandalPressure[pIdx] + partyPermanentDamage[pIdx] * 1.5);
+
+                        double noise = (java.util.concurrent.ThreadLocalRandom.current().nextDouble() - 0.5) * 10.0 * uniformRange;
+                        double finalScore = score + noise;
+
+                        if (finalScore > bestScore) {
+                            bestScore = finalScore;
+                            targetIdx = pIdx;
+                        }
+                    }
+                    // Wenn selbst der Beste Score negativ ist, geh zu Unsicher
+                    if (bestScore < 0) targetIdx = 0;
+                }
+
+                if (targetIdx != currentIdx) {
+                    voterPartyIndices[i] = (byte) targetIdx;
+                    partyDeltas[currentIdx].decrementAndGet();
+                    partyDeltas[targetIdx].incrementAndGet();
+
+                    if (java.util.concurrent.ThreadLocalRandom.current().nextDouble() < SimulationConfig.VISUALIZATION_SAMPLE_RATE) {
+                        if (currentIdx < partyList.size() && targetIdx < partyList.size()) {
+                            visualTransitions.add(new VoterTransition(partyList.get(currentIdx), partyList.get(targetIdx)));
+                        }
+                    }
+                }
+            }
+        });
+
+        for (int i = 0; i < pSize; i++) {
+            int delta = partyDeltas[i].get();
+            if (delta != 0 && i < partyList.size()) {
+                Party p = partyList.get(i);
+                p.setCurrentSupporterCount(p.getCurrentSupporterCount() + delta);
+            }
+        }
+
+        return new ArrayList<>(visualTransitions);
+    }
+
+    private boolean shouldScandalOccur() {
+        timeUntilNextScandal -= 1.0;
+        if (timeUntilNextScandal <= 0) {
+            scheduleNextScandal();
+            return true;
+        }
+        return false;
+    }
+
+    private void triggerScandal() {
+        List<Party> realParties = partyList.stream()
+                .filter(p -> !p.getName().equals(SimulationConfig.UNDECIDED_NAME))
+                .toList();
+
+        if (!realParties.isEmpty()) {
+            Party target = realParties.get(random.nextInt(realParties.size()));
+            Scandal s = csvLoader.getRandomScandal();
+            ScandalEvent e = new ScandalEvent(s, target, currentStep);
+            activeScandals.add(e);
+            lastScandal = e;
+
+            target.incrementScandalCount();
+
+            // ÄNDERUNG: Kein sofortiger Schaden mehr!
+            // int pIndex = partyList.indexOf(target);
+            // if (pIndex != -1) {
+            //    partyPermanentDamage[pIndex] += s.getStrength() * 5.0;
+            // }
+        }
+    }
+
+    public void resetState() { initializeSimulation(); }
+    public List<Party> getParties() { return partyList; }
+    public SimulationParameters getParameters() { return parameters; }
+    public ScandalEvent getLastScandal() { ScandalEvent s = lastScandal; lastScandal = null; return s; }
+    public int getCurrentStep() { return currentStep; }
 }
