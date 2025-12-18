@@ -1,9 +1,10 @@
 package de.schulprojekt.duv.controller;
 
-import de.schulprojekt.duv.model.engine.ScandalEvent;
-import de.schulprojekt.duv.model.engine.SimulationEngine;
-import de.schulprojekt.duv.model.engine.SimulationParameters;
-import de.schulprojekt.duv.model.engine.VoterTransition;
+import de.schulprojekt.duv.model.core.SimulationEngine;
+import de.schulprojekt.duv.model.core.SimulationParameters;
+import de.schulprojekt.duv.model.scandal.ScandalEvent;
+import de.schulprojekt.duv.model.voter.VoterTransition;
+import de.schulprojekt.duv.model.party.Party;
 import de.schulprojekt.duv.view.DashboardController;
 import javafx.application.Platform;
 
@@ -17,29 +18,22 @@ public class SimulationController {
 
     private final SimulationEngine engine;
     private final DashboardController view;
-
-    // Threading: SingleThreadExecutor garantiert, dass Tasks nacheinander laufen
     private final ScheduledExecutorService executorService;
     private ScheduledFuture<?> simulationTask;
     private boolean isRunning = false;
 
     public SimulationController(DashboardController view) {
         this.view = view;
-        // Erstelle Engine
-        this.engine = new SimulationEngine(createDefaultParameters());
+        // Parameter Default
+        SimulationParameters params = new SimulationParameters(2500, 65.0, 35.0, 5.0, 50.0, 5, 1.0, 4, 1.0);
+        this.engine = new SimulationEngine(params);
         this.engine.initializeSimulation();
 
-        // Thread Setup
         this.executorService = Executors.newSingleThreadScheduledExecutor(r -> {
             Thread t = new Thread(r, "Simulation-Thread");
             t.setDaemon(true);
             return t;
         });
-    }
-
-    private SimulationParameters createDefaultParameters() {
-        // NEU: Letzter Parameter ist der Budget-Faktor (1.0 = 100% Budget)
-        return new SimulationParameters(2500, 65.0, 35.0, 5.0, 50.0, 5, 1.0, 4, 1.0);
     }
 
     public void startSimulation() {
@@ -58,14 +52,14 @@ public class SimulationController {
 
         simulationTask = executorService.scheduleAtFixedRate(() -> {
             try {
-                // Berechnung im Hintergrund
+                // Berechnung (Logik in Core -> Subsysteme)
                 List<VoterTransition> transitions = engine.runSimulationStep();
                 ScandalEvent scandal = engine.getLastScandal();
                 int step = engine.getCurrentStep();
+                List<Party> parties = engine.getParties();
 
-                // UI-Update MUSS in runLater
                 Platform.runLater(() -> {
-                    view.updateDashboard(engine.getParties(), transitions, scandal, step);
+                    view.updateDashboard(parties, transitions, scandal, step);
                 });
 
             } catch (Exception e) {
@@ -81,10 +75,10 @@ public class SimulationController {
 
     public void resetSimulation() {
         pauseSimulation();
-        // Reset sicher im Executor ausführen
         executorService.execute(() -> {
             engine.resetState();
-            Platform.runLater(() -> view.updateDashboard(engine.getParties(), List.of(), null, 0));
+            List<Party> parties = engine.getParties();
+            Platform.runLater(() -> view.updateDashboard(parties, List.of(), null, 0));
         });
     }
 
@@ -100,16 +94,12 @@ public class SimulationController {
             Platform.runLater(() ->
                     view.updateDashboard(engine.getParties(), List.of(), null, engine.getCurrentStep())
             );
-
             if (isRunning) scheduleTask();
         });
     }
 
     public SimulationParameters getCurrentParameters() { return engine.getParameters(); }
-    public List<de.schulprojekt.duv.model.entities.Party> getParties() { return engine.getParties(); }
+    public List<Party> getParties() { return engine.getParties(); }
     public boolean isRunning() { return isRunning; }
-
-    public void shutdown() {
-        executorService.shutdownNow();
-    }
+    public void shutdown() { executorService.shutdownNow(); }
 }
