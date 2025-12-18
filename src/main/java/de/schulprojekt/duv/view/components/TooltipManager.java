@@ -1,35 +1,80 @@
 package de.schulprojekt.duv.view.components;
 
 import de.schulprojekt.duv.model.party.Party;
-import javafx.geometry.Point2D;
-import javafx.scene.Node;
-import javafx.scene.control.Tooltip;
+import javafx.geometry.Insets;
+import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseEvent;
-import javafx.util.Duration;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 
 import java.util.List;
 
 public class TooltipManager {
-    private final Node interactionLayer; // Normalerweise das Canvas oder die Pane darüber
+    private final Pane parentPane;
     private final CanvasRenderer renderer;
-    private final Tooltip tooltip;
+
+    // Custom UI Elemente
+    private VBox tooltipBox;
+    private Label tooltipNameLabel;
+    private Label tooltipAbbrLabel;
+    private Label tooltipVotersLabel;
+    private Label tooltipPositionLabel;
+    private Label tooltipScandalsLabel;
 
     private List<Party> currentParties;
 
-    public TooltipManager(Node interactionLayer, CanvasRenderer renderer) {
-        this.interactionLayer = interactionLayer;
+    public TooltipManager(Pane parentPane, CanvasRenderer renderer) {
+        this.parentPane = parentPane;
         this.renderer = renderer;
-
-        this.tooltip = new Tooltip();
-        this.tooltip.setShowDelay(Duration.ZERO);
-        this.tooltip.setHideDelay(Duration.ZERO);
-
+        setupTooltip();
         setupListeners();
     }
 
+    private void setupTooltip() {
+        tooltipBox = new VBox(5);
+        tooltipBox.setPadding(new Insets(10));
+        // ORIGINAL STYLING
+        tooltipBox.setStyle("-fx-background-color: rgba(30, 30, 35, 0.95); " +
+                "-fx-border-color: #D4AF37; " +
+                "-fx-border-width: 1; " +
+                "-fx-background-radius: 5; " +
+                "-fx-border-radius: 5;");
+        tooltipBox.setEffect(new DropShadow(10, Color.BLACK));
+        tooltipBox.setVisible(false);
+        tooltipBox.setMouseTransparent(true);
+
+        tooltipNameLabel = new Label();
+        tooltipNameLabel.setStyle("-fx-text-fill: #D4AF37; -fx-font-weight: bold; -fx-font-size: 14px;");
+
+        tooltipAbbrLabel = new Label();
+        tooltipVotersLabel = new Label();
+        tooltipPositionLabel = new Label();
+        tooltipScandalsLabel = new Label();
+
+        String infoStyle = "-fx-text-fill: #e0e0e0; -fx-font-size: 12px;";
+        tooltipAbbrLabel.setStyle(infoStyle);
+        tooltipVotersLabel.setStyle(infoStyle);
+        tooltipPositionLabel.setStyle(infoStyle);
+        tooltipScandalsLabel.setStyle(infoStyle);
+
+        tooltipBox.getChildren().addAll(
+                tooltipNameLabel,
+                tooltipAbbrLabel,
+                new Separator(),
+                tooltipVotersLabel,
+                tooltipPositionLabel,
+                tooltipScandalsLabel
+        );
+
+        parentPane.getChildren().add(tooltipBox);
+    }
+
     private void setupListeners() {
-        interactionLayer.setOnMouseMoved(this::handleMouseMove);
-        interactionLayer.setOnMouseExited(e -> tooltip.hide());
+        parentPane.setOnMouseMoved(this::handleMouseMove);
+        parentPane.setOnMouseExited(e -> hideTooltip());
     }
 
     public void updateData(List<Party> parties) {
@@ -43,37 +88,53 @@ public class TooltipManager {
         double mouseX = event.getX();
         double mouseY = event.getY();
 
-        // Prüfen, ob Maus über einer Partei ist
+        // Summe aller Wähler berechnen
+        int totalVoters = currentParties.stream().mapToInt(Party::getCurrentSupporterCount).sum();
+        if (totalVoters <= 0) totalVoters = 1;
+
         for (Party p : currentParties) {
             CanvasRenderer.Point pos = renderer.getPartyPosition(p.getName());
             if (pos == null) continue;
 
-            double dist = new Point2D(mouseX, mouseY).distance(pos.x, pos.y);
+            // Dynamischer Hit-Radius passend zur gezeichneten Größe
+            double share = (double) p.getCurrentSupporterCount() / totalVoters;
+            double hitRadius = 30.0 + (share * 60.0);
 
-            // Annahme: Radius ~40px als Hitbox
-            if (dist < 40) {
-                showTooltip(p, event);
+            double dist = Math.sqrt(Math.pow(mouseX - pos.x, 2) + Math.pow(mouseY - pos.y, 2));
+
+            if (dist <= hitRadius) {
+                showTooltip(p, mouseX, mouseY);
                 found = true;
                 break;
             }
         }
 
-        if (!found) {
-            tooltip.hide();
-        }
+        if (!found) hideTooltip();
     }
 
-    private void showTooltip(Party p, MouseEvent event) {
-        // WICHTIG: Achte auf das "%s" am Ende des Strings, nicht "%.2f"
-        String text = String.format("%s\nWähler: %d\nAusrichtung: %s",
-                p.getName(),
-                p.getCurrentSupporterCount(),
-                p.getPoliticalOrientationName());
+    private void showTooltip(Party p, double x, double y) {
+        tooltipNameLabel.setText(p.getName());
+        tooltipAbbrLabel.setText("Kürzel: " + p.getAbbreviation());
+        tooltipVotersLabel.setText(String.format("Wähler: %,d", p.getCurrentSupporterCount()));
+        tooltipPositionLabel.setText("Ausrichtung: " + p.getPoliticalOrientationName());
+        tooltipScandalsLabel.setText("Skandale: " + p.getScandalCount());
 
-        tooltip.setText(text);
+        // Smart Positioning (damit es im Bild bleibt)
+        double boxWidth = 180;
+        double boxHeight = 120;
+        double layoutX = x + 15;
+        double layoutY = y + 15;
 
-        if (interactionLayer.getScene() != null && interactionLayer.getScene().getWindow() != null) {
-            tooltip.show(interactionLayer.getScene().getWindow(), event.getScreenX() + 10, event.getScreenY() + 10);
-        }
+        if (layoutX + boxWidth > parentPane.getWidth()) layoutX = x - boxWidth - 10;
+        if (layoutY + boxHeight > parentPane.getHeight()) layoutY = y - boxHeight - 10;
+
+        tooltipBox.setLayoutX(layoutX);
+        tooltipBox.setLayoutY(layoutY);
+        tooltipBox.setVisible(true);
+        tooltipBox.toFront();
+    }
+
+    private void hideTooltip() {
+        tooltipBox.setVisible(false);
     }
 }

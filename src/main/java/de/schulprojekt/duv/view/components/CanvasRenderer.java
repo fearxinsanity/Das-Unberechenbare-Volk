@@ -6,7 +6,11 @@ import de.schulprojekt.duv.util.SimulationConfig;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.RadialGradient;
+import javafx.scene.paint.Stop;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
 
 import java.util.*;
@@ -15,217 +19,207 @@ public class CanvasRenderer {
     private final Canvas canvas;
     private final GraphicsContext gc;
 
-    // Positionen der Parteien
     private final Map<String, Point> partyPositions = new HashMap<>();
-
-    // Partikel-System
     private final Stack<MovingVoter> particlePool = new Stack<>();
     private final List<MovingVoter> activeParticles = new ArrayList<>();
-    private final Random random = new Random();
+
+    // Zum Erkennen von Größenänderungen
+    private double lastWidth = 0;
+    private double lastHeight = 0;
 
     public CanvasRenderer(Canvas canvas) {
         this.canvas = canvas;
         this.gc = canvas.getGraphicsContext2D();
     }
 
-    /**
-     * Berechnet die Positionen der Parteien im Kreis neu.
-     */
     public void recalculatePositions(List<Party> parties) {
         partyPositions.clear();
         double width = canvas.getWidth();
         double height = canvas.getHeight();
-        double centerX = width / 2;
-        double centerY = height / 2;
-        double radius = Math.min(centerX, centerY) * 0.75; // 75% des verfügbaren Platzes
 
-        int partyCount = parties.size();
-        for (int i = 0; i < partyCount; i++) {
+        if (width <= 0 || height <= 0) return;
+
+        double cx = width / 2;
+        double cy = height / 2;
+        double radius = Math.min(cx, cy) * 0.75;
+
+        int count = parties.size();
+        for (int i = 0; i < count; i++) {
             Party p = parties.get(i);
             if (p.getName().equals(SimulationConfig.UNDECIDED_NAME)) {
-                // Nichtwähler in die Mitte
-                partyPositions.put(p.getName(), new Point(centerX, centerY));
-            } else {
-                // Andere im Kreis anordnen
-                double angle = 2 * Math.PI * i / partyCount - Math.PI / 2;
-                double x = centerX + radius * Math.cos(angle);
-                double y = centerY + radius * Math.sin(angle);
-                partyPositions.put(p.getName(), new Point(x, y));
+                partyPositions.put(p.getName(), new Point(cx, cy));
+                continue;
             }
+            double angle = 2 * Math.PI * i / count - Math.PI / 2;
+            double x = cx + radius * Math.cos(angle);
+            double y = cy + radius * Math.sin(angle);
+            partyPositions.put(p.getName(), new Point(x, y));
         }
     }
 
-    /**
-     * Haupt-Render-Methode.
-     */
     public void render(List<Party> parties, int totalVoters) {
         double width = canvas.getWidth();
         double height = canvas.getHeight();
-
-        // 1. Hintergrund löschen
         gc.clearRect(0, 0, width, height);
 
-        // Falls noch keine Positionen berechnet wurden
-        if (partyPositions.isEmpty() && !parties.isEmpty()) {
+        // FIX: Automatisch neu berechnen, wenn Größe sich ändert
+        if (width != lastWidth || height != lastHeight || (partyPositions.isEmpty() && !parties.isEmpty())) {
             recalculatePositions(parties);
+            lastWidth = width;
+            lastHeight = height;
         }
 
-        // 2. Verbindungslinien zeichnen (rein optisch, z.B. zur Mitte)
-        Point center = partyPositions.get(SimulationConfig.UNDECIDED_NAME);
-        if (center != null) {
-            gc.setStroke(Color.LIGHTGRAY);
-            gc.setLineWidth(1.0);
-            for (Point p : partyPositions.values()) {
-                if (p != center) {
-                    gc.strokeLine(center.x, center.y, p.x, p.y);
-                }
+        // 1. Verbindungslinien
+        gc.setStroke(Color.web("#D4AF37", 0.15));
+        gc.setLineWidth(0.8);
+        for (int i = 0; i < parties.size(); i++) {
+            Point p1 = partyPositions.get(parties.get(i).getName());
+            if (p1 == null) continue;
+            for (int j = i + 1; j < parties.size(); j++) {
+                Point p2 = partyPositions.get(parties.get(j).getName());
+                if (p2 == null) continue;
+                gc.strokeLine(p1.x, p1.y, p2.x, p2.y);
             }
         }
 
-        // 3. Parteien zeichnen
+        // 2. Parteien
         for (Party p : parties) {
-            drawPartyCircle(p, totalVoters);
+            drawParty(p, totalVoters);
         }
 
-        // 4. Partikel animieren und zeichnen
-        updateAndDrawParticles();
+        // 3. Partikel
+        renderParticles();
     }
 
-    private void drawPartyCircle(Party p, int totalVoters) {
-        Point pos = partyPositions.get(p.getName());
-        if (pos == null) return;
+    private void drawParty(Party p, int totalVoters) {
+        Point pt = partyPositions.get(p.getName());
+        if (pt == null) return;
 
-        // Größe basierend auf Stimmenanteil
+        String hex = p.getColorCode();
+        if (hex != null && !hex.startsWith("#")) hex = "#" + hex;
+        Color pColor = (hex != null) ? Color.web(hex) : Color.GRAY;
+
+        Color mysteryColor = pColor.deriveColor(0, 0.8, 0.9, 1.0);
         double share = (double) p.getCurrentSupporterCount() / totalVoters;
-        double radius = 20 + (share * 100); // Mindestgröße 20
+        double dynamicRadius = 30.0 + (share * 60.0);
 
-        // Farbe
-        Color color = p.getName().equals(SimulationConfig.UNDECIDED_NAME) ? Color.GRAY : Color.web(p.getColorCode());
+        RadialGradient glow = new RadialGradient(
+                0, 0, pt.x, pt.y, dynamicRadius, false, CycleMethod.NO_CYCLE,
+                new Stop(0.0, mysteryColor.deriveColor(0, 1.0, 1.0, 0.7)),
+                new Stop(0.6, mysteryColor.deriveColor(0, 1.0, 0.6, 0.2)),
+                new Stop(1.0, Color.TRANSPARENT)
+        );
 
-        // Kreis füllen
-        gc.setFill(color.deriveColor(0, 1, 1, 0.7));
-        gc.fillOval(pos.x - radius, pos.y - radius, radius * 2, radius * 2);
+        gc.setFill(glow);
+        gc.fillOval(pt.x - dynamicRadius, pt.y - dynamicRadius, dynamicRadius * 2, dynamicRadius * 2);
 
-        // Rand
-        gc.setStroke(color.darker());
-        gc.setLineWidth(2);
-        gc.strokeOval(pos.x - radius, pos.y - radius, radius * 2, radius * 2);
+        gc.setGlobalAlpha(1.0);
+        gc.setFill(mysteryColor.brighter());
+        gc.fillOval(pt.x - 10, pt.y - 10, 20, 20);
+        gc.setStroke(Color.web("#D4AF37"));
+        gc.setLineWidth(1.5);
+        gc.strokeOval(pt.x - 10, pt.y - 10, 20, 20);
 
-        // Text (Name + %)
-        gc.setFill(Color.BLACK);
+        gc.setFill(Color.web("#e0e0e0"));
+        gc.setFont(Font.font("Consolas", FontWeight.BOLD, 12));
         gc.setTextAlign(TextAlignment.CENTER);
-        gc.setFont(new Font("System", 12));
-        gc.fillText(p.getName(), pos.x, pos.y - radius - 5);
-        gc.fillText(String.format("%.1f%%", share * 100), pos.x, pos.y + 5);
+        gc.fillText(p.getAbbreviation(), pt.x, pt.y + 35);
+
+        gc.setFill(Color.web("#D4AF37"));
+        gc.fillText(String.format("%.1f%%", share * 100), pt.x, pt.y + 48);
     }
 
-    /**
-     * Erstellt neue Partikel basierend auf den Wählerwanderungen.
-     */
     public void spawnParticles(List<VoterTransition> transitions) {
-        // 1. Zählen: Wie viele Wähler wechseln von A nach B?
-        // Key: "VonPartei->NachPartei", Value: Anzahl
-        Map<String, Integer> transitionCounts = new HashMap<>();
-
-        // Wir brauchen auch die Start/End-Namen, um die Positionen zu finden
-        // (Da wir im Key nur Strings speichern, müssen wir die Zuordnung behalten)
-        Map<String, String> routeToFromParty = new HashMap<>();
-        Map<String, String> routeToToParty = new HashMap<>();
-
+        int limit = 0;
         for (VoterTransition t : transitions) {
-            String fromName = t.getOldParty().getName(); // FIX: getOldParty() statt fromParty()
-            String toName = t.getNewParty().getName();   // FIX: getNewParty() statt toParty()
+            if (limit++ > 50) break;
 
-            String key = fromName + "->" + toName;
-
-            transitionCounts.put(key, transitionCounts.getOrDefault(key, 0) + 1);
-
-            if (!routeToFromParty.containsKey(key)) {
-                routeToFromParty.put(key, fromName);
-                routeToToParty.put(key, toName);
-            }
-        }
-
-        // 2. Partikel für die Gruppen erzeugen
-        for (String key : transitionCounts.keySet()) {
-            int count = transitionCounts.get(key);
-            String fromName = routeToFromParty.get(key);
-            String toName = routeToToParty.get(key);
-
-            Point start = partyPositions.get(fromName);
-            Point end = partyPositions.get(toName);
+            Point start = partyPositions.get(t.getOldParty().getName());
+            Point end = partyPositions.get(t.getNewParty().getName());
 
             if (start != null && end != null) {
-                int particleCount = Math.max(1, count / 5);
-                // Performance-Bremse: Nicht mehr als 20 Partikel pro Route gleichzeitig
-                particleCount = Math.min(particleCount, 20);
+                String hex = t.getNewParty().getColorCode();
+                if (hex != null && !hex.startsWith("#")) hex = "#" + hex;
 
-                for (int i = 0; i < particleCount; i++) {
-                    MovingVoter p = particlePool.isEmpty() ? new MovingVoter() : particlePool.pop();
-                    p.init(start.x, start.y, end.x, end.y);
-                    activeParticles.add(p);
-                }
+                MovingVoter p = particlePool.isEmpty() ? new MovingVoter() : particlePool.pop();
+                p.reset(start.x, start.y, end.x, end.y, Color.web(hex));
+                activeParticles.add(p);
             }
         }
     }
 
-    private void updateAndDrawParticles() {
-        gc.setFill(Color.DARKGRAY);
+    private void renderParticles() {
         Iterator<MovingVoter> it = activeParticles.iterator();
+        gc.setLineWidth(2.5);
+
         while (it.hasNext()) {
             MovingVoter p = it.next();
-            if (p.update()) {
-                // Partikel ist am Ziel angekommen
+            p.move();
+
+            double baseAlpha = p.getOpacity();
+            double trailLength = 5;
+            for (int i = 0; i < trailLength; i++) {
+                double segmentAlpha = baseAlpha * (1.0 - ((double)i / trailLength));
+                if (segmentAlpha < 0.05) continue;
+                gc.setGlobalAlpha(segmentAlpha);
+                gc.setStroke(p.color.deriveColor(0, 1.0, 1.0, 1.0));
+
+                double backX = p.x - (p.dx * i * 1.5);
+                double backY = p.y - (p.dy * i * 1.5);
+                double prevX = p.x - (p.dx * (i * 1.5 + 1));
+                double prevY = p.y - (p.dy * (i * 1.5 + 1));
+                gc.strokeLine(backX, backY, prevX, prevY);
+            }
+
+            if (p.hasArrived()) {
                 it.remove();
                 particlePool.push(p);
-            } else {
-                // Zeichnen
-                gc.fillOval(p.x - 2, p.y - 2, 4, 4);
             }
         }
+        gc.setGlobalAlpha(1.0);
     }
 
-    public void clearParticles() {
-        activeParticles.clear();
-    }
+    public void clearParticles() { activeParticles.clear(); }
+    public Point getPartyPosition(String name) { return partyPositions.get(name); }
 
-    public Point getPartyPosition(String name) {
-        return partyPositions.get(name);
-    }
-
-    // Hilfsklasse für Koordinaten
     public static class Point {
         public final double x, y;
         public Point(double x, double y) { this.x = x; this.y = y; }
     }
 
-    // Innere Klasse für die Partikel
-    private class MovingVoter {
-        double x, y, targetX, targetY;
-        double speed;
+    private static class MovingVoter {
+        double startX, startY, targetX, targetY, x, y, dx, dy, progress, speedStep;
+        Color color;
+        boolean arrived;
 
-        void init(double startX, double startY, double endX, double endY) {
-            this.x = startX;
-            this.y = startY;
-            this.targetX = endX;
-            this.targetY = endY;
-            // Zufällige Geschwindigkeit und leichter Streuung
-            this.speed = 2.0 + random.nextDouble() * 3.0;
+        void reset(double sx, double sy, double tx, double ty, Color c) {
+            double spread = 15.0;
+            this.startX = sx + (Math.random() - 0.5) * spread;
+            this.startY = sy + (Math.random() - 0.5) * spread;
+            this.targetX = tx + (Math.random() - 0.5) * spread;
+            this.targetY = ty + (Math.random() - 0.5) * spread;
+            this.x = startX; this.y = startY; this.color = c;
+            this.progress = 0.0; this.arrived = false;
+            this.speedStep = 0.010 + (Math.random() * 0.015);
+            this.dx = 0; this.dy = 0;
         }
 
-        // Gibt true zurück, wenn das Ziel erreicht ist
-        boolean update() {
-            double dx = targetX - x;
-            double dy = targetY - y;
-            double dist = Math.sqrt(dx * dx + dy * dy);
-
-            if (dist < speed) {
-                return true;
-            }
-
-            x += (dx / dist) * speed;
-            y += (dy / dist) * speed;
-            return false;
+        void move() {
+            if (arrived) return;
+            progress += speedStep;
+            if (progress >= 1.0) { progress = 1.0; arrived = true; }
+            double t = progress * progress * (3 - 2 * progress);
+            double newX = startX + (targetX - startX) * t;
+            double newY = startY + (targetY - startY) * t;
+            this.dx = newX - x; this.dy = newY - y;
+            this.x = newX; this.y = newY;
         }
+
+        double getOpacity() {
+            if (progress < 0.15) return progress / 0.15;
+            else if (progress > 0.85) return (1.0 - progress) / 0.15;
+            return 1.0;
+        }
+        boolean hasArrived() { return arrived; }
     }
 }

@@ -19,12 +19,14 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class DashboardController {
 
-    // --- FXML IDs (müssen exakt zur .fxml Datei passen) ---
-    @FXML private Label timeStepLabel; // In FXML heißt es "timeStepLabel"
+    // --- FXML IDs ---
+    @FXML private Label timeStepLabel;
     @FXML private Button startButton;
     @FXML private Button pauseButton;
     @FXML private Button resetButton;
@@ -55,11 +57,16 @@ public class DashboardController {
     private SimulationController controller;
     private AnimationTimer visualTimer;
     private boolean isRunning = false;
-    private int currentSpeed = 4; // Standard TPS (Ticks per Second)
+
+    private int currentSpeed = 4;
+    private int currentStep = 0;
+
+    // UI-Kopie der Parteien
+    private List<Party> uiParties = new ArrayList<>();
 
     @FXML
     public void initialize() {
-        // 1. Canvas initialisieren
+        // 1. Canvas Setup
         Canvas canvas = new Canvas(800, 600);
         animationPane.getChildren().add(canvas);
         canvas.widthProperty().bind(animationPane.widthProperty());
@@ -69,119 +76,129 @@ public class DashboardController {
         this.canvasRenderer = new CanvasRenderer(canvas);
         this.feedManager = new FeedManager(eventFeedPane, scandalTickerBox, scandalTickerScroll);
         this.chartManager = new ChartManager(historyChart);
-        this.tooltipManager = new TooltipManager(canvas, canvasRenderer); // Tooltip auf Canvas binden
+        this.tooltipManager = new TooltipManager(animationPane, canvasRenderer);
 
-        // 3. Resize Listener
-        animationPane.widthProperty().addListener((obs, oldVal, newVal) -> {
-            if (controller != null) canvasRenderer.recalculatePositions(controller.getParties());
-        });
-
-        // 4. Controller starten
+        // 3. Controller starten
         this.controller = new SimulationController(this);
 
-        // Initiale Button-Status setzen
-        updateUIState();
+        // 4. Initialisierung
+        currentStep = 0;
 
-        // 5. Visuellen Loop starten
+        // WICHTIG: Sofort Daten laden
+        updateUiPartiesFromController();
+
+        // Parameter initial anwenden
+        handleParameterChange();
+
+        updateButtonState();
         startVisualLoop();
     }
 
     // =========================================================
-    //               FXML EVENT HANDLER
+    //               EVENT HANDLER
     // =========================================================
 
     @FXML
     public void handleStartSimulation() {
-        // Parameter einlesen bevor es losgeht
         applyParameters();
         controller.startSimulation();
         isRunning = true;
-        updateUIState();
+        updateButtonState();
     }
 
     @FXML
     public void handlePauseSimulation() {
         controller.pauseSimulation();
         isRunning = false;
-        updateUIState();
+        updateButtonState();
     }
 
     @FXML
     public void handleResetSimulation() {
+        handleParameterChange();
         controller.resetSimulation();
         isRunning = false;
-        // UI zurücksetzen
+        currentStep = 0;
+
+        clearVisuals();
+        updateUiPartiesFromController();
+
+        timeStepLabel.setText("Status: Reset");
+        updateButtonState();
+    }
+
+    private void clearVisuals() {
         feedManager.clear();
         chartManager.clear();
         canvasRenderer.clearParticles();
-        timeStepLabel.setText("Status: Reset");
-        updateUIState();
     }
 
-    /**
-     * Wird von allen Inputs (Slider, Textfelder) aufgerufen,
-     * wenn sich ein Wert ändert.
-     */
     @FXML
     public void handleParameterChange(Event event) {
-        // Wir wenden die Parameter sofort an (Live-Update)
+        if (controller == null) return;
         applyParameters();
     }
 
-    // Überladung, falls FXML die Methode ohne Argumente sucht
-    @FXML
-    public void handleParameterChange() {
-        applyParameters();
+    @FXML public void handleParameterChange() { applyParameters(); }
+
+    private void applyParameters() {
+        try {
+            int voters = parseIntSafe(voterCountField.getText(), 100000);
+            int parties = parseIntSafe(partyCountField.getText(), 5);
+            parties = Math.max(2, Math.min(8, parties));
+
+            double scandalChance = parseDoubleSafe(scandalChanceField.getText(), 5.0);
+            scandalChance = Math.max(0.0, Math.min(60.0, scandalChance));
+
+            double budgetInput = parseDoubleSafe(budgetField.getText(), 500000.0);
+            double budgetFactor = budgetInput / 500000.0;
+            budgetFactor = Math.max(0.1, Math.min(10.0, budgetFactor));
+
+            // KORREKTUR: Reihenfolge an Main-Branch angepasst!
+            // (Parteien und Budget kommen VOR Speed und Variance)
+            SimulationParameters params = new SimulationParameters(
+                    voters,
+                    mediaInfluenceSlider.getValue(),
+                    mobilityRateSlider.getValue(),
+                    scandalChance,
+                    loyaltyMeanSlider.getValue(),
+                    parties,                        // HIER war der Fehler (vorher Speed)
+                    budgetFactor,                   // HIER war der Fehler
+                    currentSpeed,                   // Speed kommt danach
+                    randomRangeSlider.getValue()    // Variance am Ende
+            );
+
+            controller.updateAllParameters(params);
+
+            // Live-Update bei Änderung (wenn pausiert)
+            if (!isRunning) {
+                updateUiPartiesFromController();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void updateUiPartiesFromController() {
+        if (controller != null && controller.getParties() != null) {
+            this.uiParties = new ArrayList<>(controller.getParties());
+        }
     }
 
     // --- Helper für +/- Buttons ---
+    @FXML public void handleVoterCountIncrement() { adjustIntField(voterCountField, 10000, 1000, 2000000); }
+    @FXML public void handleVoterCountDecrement() { adjustIntField(voterCountField, -10000, 1000, 2000000); }
+    @FXML public void handlePartyCountIncrement() { adjustIntField(partyCountField, 1, 2, 8); }
+    @FXML public void handlePartyCountDecrement() { adjustIntField(partyCountField, -1, 2, 8); }
 
-    @FXML
-    public void handleVoterCountIncrement() {
-        adjustTextFieldInteger(voterCountField, 1000);
-        applyParameters();
-    }
-
-    @FXML
-    public void handleVoterCountDecrement() {
-        adjustTextFieldInteger(voterCountField, -1000);
-        applyParameters();
-    }
-
-    @FXML
-    public void handlePartyCountIncrement() {
-        adjustTextFieldInteger(partyCountField, 1);
-        applyParameters();
-    }
-
-    @FXML
-    public void handlePartyCountDecrement() {
-        adjustTextFieldInteger(partyCountField, -1);
-        applyParameters();
-    }
-
-    @FXML
-    public void handleScandalChanceIncrement() {
-        adjustTextFieldDouble(scandalChanceField, 0.5);
-        applyParameters();
-    }
-
-    @FXML
-    public void handleScandalChanceDecrement() {
-        adjustTextFieldDouble(scandalChanceField, -0.5);
-        applyParameters();
-    }
+    @FXML public void handleScandalChanceIncrement() { adjustDoubleField(scandalChanceField, 0.5, 0.0, 60.0); }
+    @FXML public void handleScandalChanceDecrement() { adjustDoubleField(scandalChanceField, -0.5, 0.0, 60.0); }
 
     // --- Geschwindigkeit ---
-
-    @FXML
-    public void handleSpeed1x() { setSpeed(2); }
-
-    @FXML
-    public void handleSpeed2x() { setSpeed(10); }
-
-    @FXML
-    public void handleSpeed4x() { setSpeed(50); } // Turbo
+    @FXML public void handleSpeed1x() { setSpeed(2); }
+    @FXML public void handleSpeed2x() { setSpeed(10); }
+    @FXML public void handleSpeed4x() { setSpeed(50); }
 
     private void setSpeed(int tps) {
         this.currentSpeed = tps;
@@ -189,83 +206,30 @@ public class DashboardController {
     }
 
     // =========================================================
-    //               LOGIK & UPDATE
+    //               UPDATE LOOP
     // =========================================================
 
-    private void updateUIState() {
-        startButton.setDisable(isRunning);
-        pauseButton.setDisable(!isRunning);
-        resetButton.setDisable(isRunning); // Reset nur möglich wenn pausiert
-
-        // Konfiguration sperren während Simulation läuft?
-        // Optional. Hier lassen wir es offen für Live-Tuning.
-        partyCountField.setDisable(isRunning); // Parteianzahl ändern im laufenden Betrieb ist heikel
-        voterCountField.setDisable(isRunning);
-    }
-
-    private void applyParameters() {
-        try {
-            SimulationParameters params = readParametersFromUI();
-            // Simulations-Speed beibehalten
-            params.setSimulationTicksPerSecond(currentSpeed);
-            controller.updateAllParameters(params);
-        } catch (NumberFormatException e) {
-            // Ignorieren solange User tippt (ungültige Zahl)
-        }
-    }
-
-    private SimulationParameters readParametersFromUI() {
-        int voters = Integer.parseInt(voterCountField.getText());
-        int parties = Integer.parseInt(partyCountField.getText());
-        double media = mediaInfluenceSlider.getValue();
-        double mobility = mobilityRateSlider.getValue();
-        double loyalty = loyaltyMeanSlider.getValue();
-        double scandalChance = Double.parseDouble(scandalChanceField.getText());
-        double randomVar = randomRangeSlider.getValue();
-
-        // Budget lesen wir als Double (ggf. Multiplikator oder Absolutwert)
-        double budget = 1.0;
-        try {
-            budget = Double.parseDouble(budgetField.getText());
-        } catch (Exception e) { /* fallback 1.0 */ }
-
-        // Parameter Objekt erstellen (Reihenfolge muss zum Konstruktor passen!)
-        // Constructor: (voters, media, mobility, scandalProb, loyalty, partyCount, budget, tps, variance)
-        return new SimulationParameters(
-                voters,
-                media,
-                mobility,
-                scandalChance,
-                loyalty,
-                parties,
-                budget,
-                currentSpeed,
-                randomVar
-        );
-    }
-
-    /**
-     * Wird vom SimulationController aufgerufen (Callback).
-     */
     public void updateDashboard(List<Party> parties, List<VoterTransition> transitions, ScandalEvent scandal, int step) {
         if (!Platform.isFxApplicationThread()) {
             Platform.runLater(() -> updateDashboard(parties, transitions, scandal, step));
             return;
         }
 
-        // Status Label
+        if (parties != null) this.uiParties = new ArrayList<>(parties);
+        this.currentStep = step;
+
+        if (step == 0) clearVisuals();
+
         timeStepLabel.setText("Woche: " + step + (isRunning ? " (Läuft)" : " (Pausiert)"));
 
-        // Delegation an Sub-Manager
         if (scandal != null) feedManager.addScandal(scandal, step);
-        if (step % 5 == 0) chartManager.update(parties, step);
+        if (step % 5 == 0) chartManager.update(this.uiParties, step);
 
-        // Canvas Data Update
-        if (canvasRenderer.getPartyPosition(parties.get(0).getName()) == null) {
-            canvasRenderer.recalculatePositions(parties);
-        }
+        // Renderer kümmert sich um die Darstellung
         canvasRenderer.spawnParticles(transitions);
-        tooltipManager.updateData(parties);
+        tooltipManager.updateData(this.uiParties);
+
+        updateButtonState();
     }
 
     public void shutdown() {
@@ -277,35 +241,42 @@ public class DashboardController {
         visualTimer = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                if (controller != null && controller.getParties() != null) {
-                    // Rendert den aktuellen Zustand (Partikel bewegen sich flüssig)
-                    canvasRenderer.render(controller.getParties(), getCurrentTotalVoters());
+                if (!uiParties.isEmpty()) {
+                    int total = parseIntSafe(voterCountField.getText(), 100000);
+                    canvasRenderer.render(uiParties, total);
                 }
             }
         };
         visualTimer.start();
     }
 
-    private int getCurrentTotalVoters() {
-        try {
-            return Integer.parseInt(voterCountField.getText());
-        } catch (Exception e) { return 10000; }
+    private int parseIntSafe(String text, int def) {
+        try { return Integer.parseInt(text.replaceAll("[^0-9]", "")); }
+        catch (Exception e) { return def; }
     }
 
-    // Hilfsmethoden für TextField Parsing
-    private void adjustTextFieldInteger(TextField field, int delta) {
-        try {
-            int val = Integer.parseInt(field.getText());
-            field.setText(String.valueOf(Math.max(0, val + delta)));
-        } catch (Exception e) { field.setText("0"); }
+    private double parseDoubleSafe(String text, double def) {
+        try { return Double.parseDouble(text.replace(",", ".")); }
+        catch (Exception e) { return def; }
     }
 
-    private void adjustTextFieldDouble(TextField field, double delta) {
-        try {
-            double val = Double.parseDouble(field.getText());
-            // Runden auf 1 Nachkommastelle
-            double newVal = Math.round((val + delta) * 10.0) / 10.0;
-            field.setText(String.valueOf(Math.max(0, newVal)));
-        } catch (Exception e) { field.setText("0.0"); }
+    private void adjustIntField(TextField field, int delta, int min, int max) {
+        int val = parseIntSafe(field.getText(), min);
+        val = Math.max(min, Math.min(max, val + delta));
+        field.setText(String.valueOf(val));
+        applyParameters();
+    }
+
+    private void adjustDoubleField(TextField field, double delta, double min, double max) {
+        double val = parseDoubleSafe(field.getText(), min);
+        val = Math.max(min, Math.min(max, val + delta));
+        field.setText(String.format(Locale.US, "%.1f", val));
+        applyParameters();
+    }
+
+    private void updateButtonState() {
+        if (startButton != null) startButton.setDisable(isRunning);
+        if (pauseButton != null) pauseButton.setDisable(!isRunning);
+        if (resetButton != null) resetButton.setDisable(isRunning || currentStep == 0);
     }
 }

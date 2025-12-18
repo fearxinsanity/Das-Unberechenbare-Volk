@@ -1,111 +1,163 @@
 package de.schulprojekt.duv.view.components;
 
 import de.schulprojekt.duv.model.scandal.ScandalEvent;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Line;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 public class FeedManager {
-    private final Pane eventFeedPane; // Parent Container für vertical box
+    private final Pane eventFeedPane;
     private final HBox scandalTickerBox;
     private final ScrollPane scandalTickerScroll;
-    private final VBox verticalFeedBox; // Interne Box für die vertikale Liste
 
     public FeedManager(Pane eventFeedPane, HBox scandalTickerBox, ScrollPane scandalTickerScroll) {
         this.eventFeedPane = eventFeedPane;
         this.scandalTickerBox = scandalTickerBox;
         this.scandalTickerScroll = scandalTickerScroll;
 
-        // Initialisiere die VBox für den vertikalen Feed
-        this.verticalFeedBox = new VBox(10);
-        this.eventFeedPane.getChildren().add(verticalFeedBox);
+        if (scandalTickerBox != null) {
+            scandalTickerBox.getStyleClass().add("ticker-container");
+            scandalTickerBox.setAlignment(Pos.TOP_LEFT);
+        }
     }
 
     public void addScandal(ScandalEvent event, int step) {
-        // 1. Vertikaler Feed (Karte)
-        VBox card = createVerticalEventCard(event, step);
-        // Neue Events oben einfügen
-        verticalFeedBox.getChildren().add(0, card);
-
-        // Begrenzen auf z.B. 10 Einträge, um Speicher zu sparen
-        if (verticalFeedBox.getChildren().size() > 20) {
-            verticalFeedBox.getChildren().remove(20);
-        }
-
-        // 2. Horizontaler Ticker (Laufschrift-Element)
-        HBox tickerItem = createTickerItem(event);
-        scandalTickerBox.getChildren().add(tickerItem);
-
-        // Auto-Scroll nach rechts
-        startAutoScroll();
+        if (eventFeedPane != null) addToVerticalFeed(event, step);
+        if (scandalTickerBox != null) addToTicker(event, step);
     }
 
     public void clear() {
-        verticalFeedBox.getChildren().clear();
-        scandalTickerBox.getChildren().clear();
+        if (eventFeedPane != null) eventFeedPane.getChildren().clear();
+        if (scandalTickerBox != null) scandalTickerBox.getChildren().clear();
     }
 
-    private VBox createVerticalEventCard(ScandalEvent event, int step) {
-        VBox card = new VBox(5);
-        card.setStyle("-fx-background-color: white; -fx-padding: 10; -fx-background-radius: 5; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 0);");
+    private void addToVerticalFeed(ScandalEvent event, int step) {
+        VBox feedBox;
+        if (eventFeedPane.getChildren().isEmpty()) {
+            feedBox = new VBox();
+            feedBox.getStyleClass().add("event-feed-container");
+            feedBox.prefWidthProperty().bind(eventFeedPane.widthProperty());
+            eventFeedPane.getChildren().add(feedBox);
+        } else {
+            feedBox = (VBox) eventFeedPane.getChildren().get(0);
+        }
 
-        Label title = new Label(getScandalSymbol(event) + " " + event.getScandal().getTitle());
-        title.setFont(Font.font("System", FontWeight.BOLD, 14));
-        title.setTextFill(Color.web(getScandalColor(event)));
+        feedBox.getChildren().clear(); // Originalverhalten: Alte Karten löschen
+        feedBox.getChildren().add(createVerticalEventCard(event, step));
+    }
 
-        Label partyLabel = new Label("Betrifft: " + event.getAffectedParty().getName());
-        Label stepLabel = new Label("Zeitpunkt: Woche " + step);
-        stepLabel.setTextFill(Color.GRAY);
-        stepLabel.setFont(Font.font(10));
+    private HBox createVerticalEventCard(ScandalEvent event, int step) {
+        // Linke Spalte (Icon)
+        VBox leftCol = new VBox();
+        leftCol.getStyleClass().add("event-timeline-col");
+        leftCol.setAlignment(Pos.TOP_CENTER);
+        leftCol.setMinWidth(40);
+        leftCol.setMaxWidth(40);
 
-        card.getChildren().addAll(title, partyLabel, stepLabel);
+        StackPane iconStack = createIconStack(event, 14);
+        leftCol.getChildren().add(iconStack);
+
+        // Rechte Spalte (Content)
+        VBox rightCol = new VBox(2);
+        rightCol.getStyleClass().add("event-content-col");
+        HBox.setHgrow(rightCol, Priority.ALWAYS);
+
+        Label timeLbl = new Label("Tick: " + step);
+        timeLbl.getStyleClass().add("event-time");
+
+        Label titleLbl = new Label(event.getScandal().getTitle() + " (" + event.getAffectedParty().getAbbreviation() + ")");
+        titleLbl.getStyleClass().add("event-title");
+        titleLbl.setWrapText(true);
+
+        Label descLbl = new Label("Prognose: -" + (int)(event.getScandal().getStrength() * 50) + "% Beliebtheit.");
+        descLbl.getStyleClass().add("event-desc");
+        descLbl.setWrapText(true);
+
+        rightCol.getChildren().addAll(timeLbl, titleLbl, descLbl);
+
+        HBox card = new HBox(0);
+        card.getStyleClass().add("event-card");
+        card.getChildren().addAll(leftCol, rightCol);
         return card;
     }
 
-    private HBox createTickerItem(ScandalEvent event) {
-        HBox item = new HBox(5);
-        item.setStyle("-fx-padding: 5 15 5 15; -fx-background-color: " + getScandalColor(event) + "; -fx-background-radius: 15;");
+    private void addToTicker(ScandalEvent event, int step) {
+        // Verbindungslinie
+        if (!scandalTickerBox.getChildren().isEmpty()) {
+            Line connector = new Line(0, 0, 50, 0);
+            connector.getStyleClass().add("ticker-connector");
+            connector.setTranslateY(16); // Zentrieren
+            scandalTickerBox.getChildren().add(connector);
+        }
 
-        Label text = new Label(getScandalSymbol(event) + " EILMELDUNG: " + event.getScandal().getTitle() + " (" + event.getAffectedParty().getName() + ")");
-        text.setTextFill(Color.WHITE);
-        text.setFont(Font.font("System", FontWeight.BOLD, 12));
+        StackPane iconStack = createIconStack(event, 16);
+        iconStack.getStyleClass().add("ticker-item");
+        iconStack.setMinSize(32, 32);
+        iconStack.setMaxSize(32, 32);
 
-        item.getChildren().add(text);
-        return item;
+        Label tickLabel = new Label("Tick " + step);
+        tickLabel.getStyleClass().add("ticker-time");
+
+        VBox tickerEntry = new VBox(iconStack, tickLabel);
+        tickerEntry.getStyleClass().add("ticker-box");
+
+        // Tooltip für Ticker
+        String tooltipText = String.format("TICK: %d\nPARTEI: %s\n%s",
+                step, event.getAffectedParty().getName(), event.getScandal().getTitle());
+        Tooltip tooltip = new Tooltip(tooltipText);
+        tooltip.getStyleClass().add("scandal-tooltip");
+        tooltip.setShowDelay(Duration.ZERO);
+        Tooltip.install(iconStack, tooltip);
+
+        scandalTickerBox.getChildren().add(tickerEntry);
+
+        scandalTickerScroll.layout();
+        scandalTickerScroll.setHvalue(1.0);
     }
 
-    private void startAutoScroll() {
-        // Simples Auto-Scroll für den Ticker
-        Timeline timeline = new Timeline(new KeyFrame(Duration.millis(50), e -> {
-            scandalTickerScroll.setHvalue(scandalTickerScroll.getHvalue() + 0.001);
-            if (scandalTickerScroll.getHvalue() >= 1.0) {
-                // Reset optional, hier lassen wir es einfach laufen
-            }
-        }));
-        timeline.setCycleCount(1);
-        timeline.play();
+    private StackPane createIconStack(ScandalEvent event, double radius) {
+        String typeStyle = getScandalStyle(event);
+        String symbol = getScandalSymbol(event);
+
+        Circle iconBg = new Circle(radius);
+        iconBg.getStyleClass().addAll("event-icon-bg", typeStyle);
+
+        Text iconSymbol = new Text(symbol);
+        iconSymbol.getStyleClass().add("event-icon-symbol");
+
+        return new StackPane(iconBg, iconSymbol);
     }
 
-    // Hilfsmethoden für Styling
-    private String getScandalColor(ScandalEvent event) {
-        double sev = event.getScandal().getStrength();
-        if (sev > 0.8) return "#e74c3c"; // Rot (Kritisch)
-        if (sev > 0.5) return "#f39c12"; // Orange (Mittel)
-        return "#3498db"; // Blau (Gering)
+    private String getScandalStyle(ScandalEvent event) {
+        // Logik aus Main: Versuche Type zu matchen, sonst Fallback auf Severity
+        try {
+            // Falls dein Model im Restructure Branch kein getType() hat, nutzen wir die Severity Logik
+            // (Im Main Branch gab es switch case auf Type Strings)
+            double sev = event.getScandal().getStrength();
+            if (sev > 0.8) return "type-corruption";
+            if (sev > 0.6) return "type-financial";
+            if (sev > 0.4) return "type-scandal";
+            return "type-default";
+        } catch (Exception e) {
+            return "type-default";
+        }
     }
 
     private String getScandalSymbol(ScandalEvent event) {
         double sev = event.getScandal().getStrength();
-        if (sev > 0.8) return "⚡";
-        if (sev > 0.5) return "⚠";
-        return "ℹ";
+        if (sev > 0.8) return "⚖";
+        if (sev > 0.6) return "$";
+        if (sev > 0.4) return "⚠";
+        return "!";
     }
 }
