@@ -4,6 +4,7 @@ import de.schulprojekt.duv.model.core.SimulationParameters;
 import de.schulprojekt.duv.model.party.Party;
 import de.schulprojekt.duv.model.scandal.ScandalImpactCalculator;
 import de.schulprojekt.duv.util.SimulationConfig;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -13,11 +14,14 @@ import java.util.stream.IntStream;
 
 public class VoterBehavior {
 
+    /**
+     * @param acutePressures Array mit NUR akutem Druck (von ScandalImpactCalculator)
+     */
     public List<VoterTransition> processVoterDecisions(
             VoterPopulation population,
             List<Party> parties,
             SimulationParameters params,
-            double[] partyPressures,
+            double[] acutePressures,
             ScandalImpactCalculator impactCalculator
     ) {
         ConcurrentLinkedQueue<VoterTransition> visualTransitions = new ConcurrentLinkedQueue<>();
@@ -31,18 +35,19 @@ public class VoterBehavior {
         double globalMedia = params.getGlobalMediaInfluence() / 100.0;
         double uniformRange = params.getUniformRandomRange();
 
+        // Caching für Performance
         double[] partyPos = new double[pSize];
-        double[] partyBudgetFactor = new double[pSize];
+        double[] partyBudgetScores = new double[pSize];
         double[] partyDailyMomentum = new double[pSize];
 
         for(int k=0; k < pSize; k++) {
             Party p = parties.get(k);
             partyPos[k] = p.getPoliticalPosition();
-            partyBudgetFactor[k] = p.getCampaignBudget() / SimulationConfig.CAMPAIGN_BUDGET_FACTOR;
+            partyBudgetScores[k] = (p.getCampaignBudget() / SimulationConfig.CAMPAIGN_BUDGET_FACTOR) * 12.0;
             partyDailyMomentum[k] = 0.95 + (ThreadLocalRandom.current().nextDouble() * 0.1);
         }
 
-        // --- PARALLEL LOOP (Das Herzstück aus deiner Engine) ---
+        // --- PARALLEL LOOP ---
         IntStream.range(0, population.size()).parallel().forEach(i -> {
             ThreadLocalRandom rnd = ThreadLocalRandom.current();
 
@@ -53,24 +58,29 @@ public class VoterBehavior {
             population.setPosition(i, newPos);
 
             int currentIdx = population.getPartyIndex(i);
+            // Safety check
             if (currentIdx >= pSize) { currentIdx = 0; population.setPartyIndex(i, (byte)0); }
 
-            // 2. Penalty & Wechselwahrscheinlichkeit
+            // 2. Penalty Berechnung (Original Logik: Summe aus Akut + Perm)
             double totalPenalty = 0;
             if (currentIdx > 0) {
-                // Druck + Permanenter Schaden
-                totalPenalty = partyPressures[currentIdx]; // In pressures ist perm-damage schon drin (siehe ImpactCalc)
+                totalPenalty = acutePressures[currentIdx] + impactCalculator.getPermanentDamage(currentIdx);
             }
 
+            // 3. Wechselwahrscheinlichkeit
             double switchProb = baseMobility * (1.0 - population.getLoyalty(i) / 200.0) * population.getMediaInfluence(i);
 
+            // Penalty erhöht Wechseldruck (Faktor 600.0 aus Original)
             if (totalPenalty > 0) switchProb += (totalPenalty / 600.0);
-            if (currentIdx == 0) switchProb *= 1.2;
-            if (switchProb > 0.60) switchProb = 0.60;
 
-            // 3. Entscheidung
+            if (currentIdx == 0) switchProb *= 1.2;
+            if (switchProb > 0.60) switchProb = 0.60; // Cap
+
+            // 4. Entscheidung
             if (rnd.nextDouble() < switchProb) {
                 int targetIdx = currentIdx;
+
+                // Flucht bei extremem Skandal (Original Schwelle: 12.0)
                 boolean fleeingFromDisaster = (totalPenalty > 12.0);
 
                 if (!fleeingFromDisaster && currentIdx != 0 && rnd.nextDouble() < 0.15) {
@@ -82,15 +92,20 @@ public class VoterBehavior {
                     for (int pIdx = 1; pIdx < pSize; pIdx++) {
                         if (pIdx == currentIdx) continue;
 
+                        // Distanz Score
                         double dist = Math.abs(population.getPosition(i) - partyPos[pIdx]);
                         double distScore = 40.0 / (1.0 + (dist * 0.04));
-                        double budgetScore = (partyBudgetFactor[pIdx] * campaignEffectiveness * population.getMediaInfluence(i) * globalMedia) * 12.0;
+
+                        // Budget Score
+                        double budgetScore = partyBudgetScores[pIdx] * campaignEffectiveness * population.getMediaInfluence(i) * globalMedia;
                         double score = distScore + (budgetScore * partyDailyMomentum[pIdx]);
 
-                        // Penalty abziehen
-                        score -= (partyPressures[pIdx] + impactCalculator.getPermanentDamage(pIdx) * 1.5);
+                        // Penalty Score Abzug (Original Logik: Akut + Perm * 1.5)
+                        double penaltyScore = acutePressures[pIdx] + (impactCalculator.getPermanentDamage(pIdx) * 1.5);
+                        score -= penaltyScore;
 
                         double noise = (rnd.nextDouble() - 0.5) * 10.0 * uniformRange;
+
                         if ((score + noise) > bestScore) {
                             bestScore = score + noise;
                             targetIdx = pIdx;
@@ -99,6 +114,7 @@ public class VoterBehavior {
                     if (bestScore < 0) targetIdx = 0;
                 }
 
+                // 5. Durchführung
                 if (targetIdx != currentIdx) {
                     population.setPartyIndex(i, (byte) targetIdx);
                     partyDeltas[currentIdx].decrementAndGet();
@@ -111,12 +127,12 @@ public class VoterBehavior {
             }
         });
 
-        // Ergebnisse zurückschreiben
+        // 6. Aggregation
         for (int i = 0; i < pSize; i++) {
             int delta = partyDeltas[i].get();
             if (delta != 0) {
                 Party p = parties.get(i);
-                p.setCurrentSupporterCount(p.getCurrentSupporterCount() + delta);
+                p.setCurrentSupporterCount(Math.max(0, p.getCurrentSupporterCount() + delta));
             }
         }
 

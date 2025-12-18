@@ -1,105 +1,58 @@
 package de.schulprojekt.duv.model.party;
 
-import javafx.scene.paint.Color;
-
-/**
- * Repräsentiert eine politische Partei oder Gruppe (z.B. Nichtwähler) in der Simulation.
- * Diese Klasse hält die Stammdaten (Name, Farbe, Position) sowie den aktuellen Status
- * (Wählerzahlen, Budget, Skandal-Statistik).
- */
 public class Party {
-
-    // --- Stammdaten (Immutable) ---
-    private final String name;
-    private final String abbreviation; // Kürzel für Diagramme
-    private final Color color;
-    private final double politicalPosition; // Wert von 0.0 (Links) bis 100.0 (Rechts)
-
-    // --- Dynamische Daten (Mutable) ---
-    private int currentSupporterCount;
+    private String name;
+    private String abbreviation;
+    private String colorCode; // Hex-Code als String (z.B. "FF0000")
+    private double politicalPosition; // 0 (Links) bis 100 (Rechts)
     private double campaignBudget;
+    private int currentSupporterCount;
+    private int scandalCount;
 
-    // Statistik
-    private int scandalCount = 0;
-
-    /**
-     * Konstruktor für eine neue Partei.
-     *
-     * @param name Name der Partei
-     * @param abbreviation Kürzel (z.B. "SPD", "CDU")
-     * @param color Farbe für die UI
-     * @param politicalPosition Politische Ausrichtung (0-100)
-     * @param initialBudget Startbudget
-     * @param initialSupporters Startanzahl der Wähler
-     */
-    public Party(String name, String abbreviation, Color color, double politicalPosition, double initialBudget, int initialSupporters) {
+    public Party(String name, String abbreviation, String colorCode, double politicalPosition, double campaignBudget, int currentSupporterCount) {
         this.name = name;
         this.abbreviation = abbreviation;
-        this.color = color;
+        this.colorCode = colorCode;
         this.politicalPosition = politicalPosition;
-        this.campaignBudget = initialBudget;
-        this.currentSupporterCount = initialSupporters;
-    }
-
-    // --- Logik-Methoden ---
-
-    public void incrementScandalCount() {
-        this.scandalCount++;
-    }
-
-    /**
-     * Zieht Budget für Wahlkampfmaßnahmen ab.
-     * @param amount Betrag
-     * @return true, wenn genug Budget vorhanden war
-     */
-    public boolean spendBudget(double amount) {
-        if (campaignBudget >= amount) {
-            campaignBudget -= amount;
-            return true;
-        }
-        return false;
+        this.campaignBudget = campaignBudget;
+        this.currentSupporterCount = currentSupporterCount;
+        this.scandalCount = 0;
     }
 
     // --- Getter & Setter ---
 
-    public String getName() {
-        return name;
-    }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
-    public String getAbbreviation() {
-        return abbreviation;
-    }
+    public String getAbbreviation() { return abbreviation; }
+    public void setAbbreviation(String abbreviation) { this.abbreviation = abbreviation; }
 
-    public Color getColor() {
-        return color;
-    }
+    public String getColorCode() { return colorCode; }
+    public void setColorCode(String colorCode) { this.colorCode = colorCode; }
 
-    public double getPoliticalPosition() {
-        return politicalPosition;
-    }
+    public double getPoliticalPosition() { return politicalPosition; }
+    public void setPoliticalPosition(double politicalPosition) { this.politicalPosition = politicalPosition; }
 
-    public int getCurrentSupporterCount() {
-        return currentSupporterCount;
-    }
+    public double getCampaignBudget() { return campaignBudget; }
+    public void setCampaignBudget(double campaignBudget) { this.campaignBudget = campaignBudget; }
 
-    public void setCurrentSupporterCount(int currentSupporterCount) {
-        this.currentSupporterCount = currentSupporterCount;
-    }
+    public int getCurrentSupporterCount() { return currentSupporterCount; }
+    public void setCurrentSupporterCount(int currentSupporterCount) { this.currentSupporterCount = currentSupporterCount; }
 
-    public double getCampaignBudget() {
-        return campaignBudget;
-    }
+    public int getScandalCount() { return scandalCount; }
+    public void incrementScandalCount() { this.scandalCount++; }
 
-    public void setCampaignBudget(double campaignBudget) {
-        this.campaignBudget = campaignBudget;
-    }
+    // --- Logik-Methoden für UI ---
 
-    public int getScandalCount() {
-        return scandalCount;
-    }
-
-    @Override
-    public String toString() {
-        return String.format("%s (%d Wähler, Pos: %.1f)", name, currentSupporterCount, politicalPosition);
+    /**
+     * Gibt einen lesbaren Text für die politische Ausrichtung zurück.
+     * Wichtig für den Tooltip im Dashboard.
+     */
+    public String getPoliticalOrientationName() {
+        if (politicalPosition < 20) return "Linksextrem";
+        if (politicalPosition < 40) return "Links";
+        if (politicalPosition < 60) return "Zentristisch";
+        if (politicalPosition < 80) return "Rechts";
+        return "Rechtsextrem";
     }
 }

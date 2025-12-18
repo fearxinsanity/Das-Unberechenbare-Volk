@@ -1,42 +1,49 @@
 package de.schulprojekt.duv.model.scandal;
 
 /**
- * Repräsentiert eine Vorlage für einen Skandal (Typ und Grundstärke).
- * Instanzen dieser Klasse werden beim Start aus der CSV geladen und dienen als Blueprint
- * für konkrete {@link ScandalEvent}s.
+ * Repräsentiert einen Skandal-Datensatz.
+ * Aktualisiert für 5 Parameter (inkl. ID).
  */
 public class Scandal {
+    private final int id;
+    private final String type;        // z.B. "CORRUPTION"
+    private final String title;       // z.B. "Spendenaffäre"
+    private final String description; // z.B. "Illegale Gelder..."
+    private final double strength;    // 0.0 bis 1.0
 
-    private final String name;
-    private final double strength; // Basis-Schadenswirkung (0.0 bis 1.0)
-    private final String description;
-
-    /**
-     * Erstellt einen neuen Skandal-Typ.
-     * * @param name Bezeichnung (z.B. "Spendenaffäre")
-     * @param strength Stärke der Auswirkung (wird mit Zufall und Parametern verrechnet)
-     * @param description Text für die UI-Benachrichtigung
-     */
-    public Scandal(String name, double strength, String description) {
-        this.name = name;
-        this.strength = strength;
+    // Konstruktor passend zum CSVLoader (5 Argumente)
+    public Scandal(int id, String type, String title, String description, double strength) {
+        this.id = id;
+        this.type = type;
+        this.title = title;
         this.description = description;
+        this.strength = strength;
     }
 
-    public String getName() {
-        return name;
+    // --- Getter ---
+
+    public int getId() {
+        return id;
     }
 
-    public double getStrength() {
-        return strength;
+    public String getType() {
+        return type;
+    }
+
+    public String getTitle() {
+        return title;
     }
 
     public String getDescription() {
         return description;
     }
 
+    public double getStrength() {
+        return strength;
+    }
+
     @Override
     public String toString() {
-        return String.format("%s (Stärke: %.2f)", name, strength);
+        return title + " (" + (int)(strength * 100) + "%)";
     }
 }

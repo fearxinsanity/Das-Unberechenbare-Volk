@@ -13,10 +13,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-/**
- * Utility-Klasse zum Laden von Daten aus CSV-Dateien (Resources).
- * Liest Parteinamen und Skandale ein.
- */
 public class CSVLoader {
 
     private static final String PARTY_FILE = "/de/schulprojekt/duv/data/party_names.csv";
@@ -24,112 +20,85 @@ public class CSVLoader {
 
     private final Random random = new Random();
 
-    /**
-     * Lädt eine zufällige Auswahl an Parteivorlagen aus der CSV-Datei.
-     *
-     * @param count Die gewünschte Anzahl an Parteien.
-     * @return Eine Liste von PartyTemplates.
-     */
     public List<PartyTemplate> getRandomPartyTemplates(int count) {
         List<PartyTemplate> allTemplates = loadParties();
-
-        // Falls wir weniger Vorlagen haben als gewünscht, nehmen wir alle
-        if (allTemplates.size() <= count) {
-            return allTemplates;
-        }
-
-        // Zufällig mischen und die ersten 'count' zurückgeben
+        if (allTemplates.size() <= count) return allTemplates;
         Collections.shuffle(allTemplates);
         return allTemplates.subList(0, count);
     }
 
-    /**
-     * Liefert einen zufälligen Skandal aus der Datenbank.
-     *
-     * @return Ein Scandal-Objekt.
-     */
     public Scandal getRandomScandal() {
         List<Scandal> scandals = loadScandals();
         if (scandals.isEmpty()) {
-            // Fallback, falls Datei leer oder nicht gefunden
-            return new Scandal("Unbekannter Fehler", 0.1, "Ein unerwartetes Ereignis ist eingetreten.");
+            return new Scandal(0, "SCANDAL", "Unbekannt", "Keine Daten geladen.", 0.5);
         }
         return scandals.get(random.nextInt(scandals.size()));
     }
 
     private List<PartyTemplate> loadParties() {
         List<PartyTemplate> list = new ArrayList<>();
-
         try (InputStream is = getClass().getResourceAsStream(PARTY_FILE)) {
-            if (is == null) {
-                System.err.println("FEHLER: Konnte Partei-Datei nicht finden: " + PARTY_FILE);
-                return list;
-            }
+            if (is == null) return list;
 
+            // FIX: UTF-8 erzwingen, da deine Datei UTF-8 ist (erkennbar an Ã-Fehlern)
             try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
                 String line;
                 boolean firstLine = true;
-
                 while ((line = br.readLine()) != null) {
-                    // Header überspringen
                     if (firstLine) { firstLine = false; continue; }
                     if (line.trim().isEmpty()) continue;
 
-                    // Trennzeichen erkennen (Semikolon oder Komma)
-                    String[] parts = line.contains(";") ? line.split(";") : line.split(",");
-
+                    String[] parts = line.split(line.contains(";") ? ";" : ",");
                     if (parts.length >= 3) {
-                        String name = parts[0].trim();
-                        String abbr = parts[1].trim();
-                        String color = parts[2].trim();
-
-                        list.add(new PartyTemplate(name, abbr, color));
+                        list.add(new PartyTemplate(parts[0].trim(), parts[1].trim(), parts[2].trim()));
                     }
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        } catch (IOException e) { e.printStackTrace(); }
         return list;
     }
 
     private List<Scandal> loadScandals() {
         List<Scandal> list = new ArrayList<>();
-
         try (InputStream is = getClass().getResourceAsStream(SCANDAL_FILE)) {
             if (is == null) {
-                System.err.println("FEHLER: Konnte Skandal-Datei nicht finden: " + SCANDAL_FILE);
+                System.err.println("FEHLER: Skandal-Datei nicht gefunden: " + SCANDAL_FILE);
                 return list;
             }
 
+            // FIX: UTF-8 erzwingen
             try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
                 String line;
-                boolean firstLine = true;
-
                 while ((line = br.readLine()) != null) {
-                    if (firstLine) { firstLine = false; continue; }
                     if (line.trim().isEmpty()) continue;
+                    if (line.toLowerCase().startsWith("id")) continue;
 
-                    String[] parts = line.contains(";") ? line.split(";") : line.split(",");
+                    // Robustes Splitting
+                    String[] parts = line.split(",", -1);
 
-                    if (parts.length >= 3) {
+                    if (parts.length >= 5) {
                         try {
-                            String name = parts[0].trim();
-                            // Stärke parsen (Punkt oder Komma als Dezimaltrenner erlauben)
-                            String strengthStr = parts[1].trim().replace(",", ".");
-                            double strength = Double.parseDouble(strengthStr);
-                            String desc = parts[2].trim();
+                            int id = 0;
+                            try { id = Integer.parseInt(parts[0].trim()); } catch(Exception e){}
 
-                            list.add(new Scandal(name, strength, desc));
-                        } catch (NumberFormatException e) {
-                            System.err.println("Warnung: Ungültige Zahl in Skandal-CSV: " + line);
+                            // Anführungszeichen entfernen
+                            String type = parts[1].trim().replace("\"", "");
+                            String name = parts[2].trim().replace("\"", "");
+                            String desc = parts[3].trim().replace("\"", "");
+
+                            // Zahlenformat fixen (Komma zu Punkt)
+                            String strengthStr = parts[4].trim().replace(",", ".").replace("\"", "");
+                            double strength = Double.parseDouble(strengthStr);
+
+                            list.add(new Scandal(id, type, name, desc, strength));
+
+                        } catch (Exception e) {
+                            System.err.println("Warnung in Zeile: " + line);
                         }
                     }
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        } catch (IOException e) { e.printStackTrace(); }
         return list;
     }
 }
