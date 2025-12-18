@@ -13,6 +13,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
 <BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
@@ -34,97 +35,107 @@
     </top>
 
     <left>
-        <VBox spacing="15" styleClass="sidebar" prefWidth="300">
-            <padding>
-                <Insets top="20" right="20" bottom="20" left="20"/>
-            </padding>
+        <ScrollPane fitToWidth="true"
+                    fitToHeight="true"
+                    hbarPolicy="NEVER"
+                    vbarPolicy="AS_NEEDED"
+                    style="-fx-background-color: transparent; -fx-background: transparent; -fx-padding: 0;">
+
             <BorderPane.margin>
                 <Insets top="15" left="15" bottom="15" right="0"/>
             </BorderPane.margin>
 
-            <Label text="Simulation Konfiguration" styleClass="section-title"/>
-            <Separator style="-fx-opacity: 0.3;"/>
+            <content>
+                <VBox spacing="15" styleClass="sidebar" prefWidth="300" minHeight="0">
+                    <padding>
+                        <Insets top="20" right="20" bottom="20" left="20"/>
+                    </padding>
 
-            <VBox spacing="5">
-                <Label text="Wähleranzahl" styleClass="control-label"/>
-                <HBox spacing="5" alignment="CENTER_LEFT">
-                    <Button text="-" onAction="#handleVoterCountDecrement" prefWidth="35"/>
-                    <TextField fx:id="voterCountField" text="100000" HBox.hgrow="ALWAYS" onAction="#handleParameterChange" alignment="CENTER"/>
-                    <Button text="+" onAction="#handleVoterCountIncrement" prefWidth="35"/>
-                </HBox>
-            </VBox>
+                    <Label text="Simulation Konfiguration" styleClass="section-title"/>
+                    <Separator style="-fx-opacity: 0.3;"/>
 
-            <VBox spacing="5">
-                <Label text="Anzahl Parteien (2-8)" styleClass="control-label"/>
-                <HBox spacing="5" alignment="CENTER_LEFT">
-                    <Button text="-" onAction="#handlePartyCountDecrement" prefWidth="35"/>
-                    <TextField fx:id="partyCountField" text="5" HBox.hgrow="ALWAYS" alignment="CENTER" editable="false"/>
-                    <Button text="+" onAction="#handlePartyCountIncrement" prefWidth="35"/>
-                </HBox>
-            </VBox>
+                    <VBox spacing="5">
+                        <Label text="Wähleranzahl" styleClass="control-label"/>
+                        <HBox spacing="5" alignment="CENTER_LEFT">
+                            <Button text="-" onAction="#handleVoterCountDecrement" prefWidth="35"/>
+                            <TextField fx:id="voterCountField" text="100000" HBox.hgrow="ALWAYS" onAction="#handleParameterChange" alignment="CENTER"/>
+                            <Button text="+" onAction="#handleVoterCountIncrement" prefWidth="35"/>
+                        </HBox>
+                    </VBox>
 
-            <Separator style="-fx-opacity: 0.2;"/>
+                    <VBox spacing="5">
+                        <Label text="Anzahl Parteien (2-8)" styleClass="control-label"/>
+                        <HBox spacing="5" alignment="CENTER_LEFT">
+                            <Button text="-" onAction="#handlePartyCountDecrement" prefWidth="35"/>
+                            <TextField fx:id="partyCountField" text="5" HBox.hgrow="ALWAYS" alignment="CENTER" editable="false"/>
+                            <Button text="+" onAction="#handlePartyCountIncrement" prefWidth="35"/>
+                        </HBox>
+                    </VBox>
 
-            <VBox spacing="12">
-                <VBox spacing="2">
-                    <Label text="Medien-Einfluss (%)" styleClass="control-label"/>
-                    <Slider fx:id="mediaInfluenceSlider" min="0" max="100" value="65" onMouseReleased="#handleParameterChange"/>
+                    <Separator style="-fx-opacity: 0.2;"/>
+
+                    <VBox spacing="12">
+                        <VBox spacing="2">
+                            <Label text="Medien-Einfluss (%)" styleClass="control-label"/>
+                            <Slider fx:id="mediaInfluenceSlider" min="0" max="100" value="65" onMouseReleased="#handleParameterChange"/>
+                        </VBox>
+
+                        <VBox spacing="2">
+                            <Label text="Basis Mobilität (Wechselwille %)" styleClass="control-label"/>
+                            <Slider fx:id="mobilityRateSlider" min="0" max="100" value="35" onMouseReleased="#handleParameterChange"/>
+                        </VBox>
+
+                        <VBox spacing="2">
+                            <Label text="Loyalität (Mittelwert)" styleClass="control-label"/>
+                            <Slider fx:id="loyaltyMeanSlider" min="0" max="100" value="50" onMouseReleased="#handleParameterChange"/>
+                        </VBox>
+
+                        <VBox spacing="2">
+                            <Label text="Ø Wahlkampf-Budget (€)" styleClass="control-label"/>
+                            <TextField fx:id="budgetField" text="500000" onAction="#handleParameterChange"/>
+                        </VBox>
+
+                        <VBox spacing="2">
+                            <Label text="Skandal-Chance (%)" styleClass="warning-label"/>
+                            <HBox spacing="5" alignment="CENTER_LEFT">
+                                <Button text="-" onAction="#handleScandalChanceDecrement" prefWidth="35"/>
+                                <TextField fx:id="scandalChanceField" text="5.0" HBox.hgrow="ALWAYS" alignment="CENTER" onAction="#handleParameterChange"/>
+                                <Button text="+" onAction="#handleScandalChanceIncrement" prefWidth="35"/>
+                            </HBox>
+                        </VBox>
+
+                        <VBox spacing="2">
+                            <Label text="Wahlkampf Varianz (Zufall)" styleClass="control-label"/>
+                            <Slider fx:id="randomRangeSlider" min="0.1" max="5.0" value="1.0" onMouseReleased="#handleParameterChange"/>
+                        </VBox>
+                    </VBox>
+
+                    <Separator style="-fx-opacity: 0.2;"/>
+
+                    <VBox spacing="5">
+                        <Label text="Simulations-Geschwindigkeit" styleClass="control-label"/>
+                        <HBox spacing="5" alignment="CENTER">
+                            <Button text="1x" onAction="#handleSpeed1x" prefWidth="50"/>
+                            <Button text="2x" onAction="#handleSpeed2x" prefWidth="50"/>
+                            <Button text="4x" onAction="#handleSpeed4x" prefWidth="50"/>
+                        </HBox>
+                    </VBox>
+
+                    <Region VBox.vgrow="ALWAYS"/>
+                    <Button text="Parameter jetzt anwenden" onAction="#handleParameterChange" maxWidth="Infinity" style="-fx-base: #444;"/>
                 </VBox>
-
-                <VBox spacing="2">
-                    <Label text="Basis Mobilität (Wechselwille %)" styleClass="control-label"/>
-                    <Slider fx:id="mobilityRateSlider" min="0" max="100" value="35" onMouseReleased="#handleParameterChange"/>
-                </VBox>
-
-                <VBox spacing="2">
-                    <Label text="Loyalität (Mittelwert)" styleClass="control-label"/>
-                    <Slider fx:id="loyaltyMeanSlider" min="0" max="100" value="50" onMouseReleased="#handleParameterChange"/>
-                </VBox>
-
-                <VBox spacing="2">
-                    <Label text="Ø Wahlkampf-Budget (€)" styleClass="control-label"/>
-                    <TextField fx:id="budgetField" text="500000" onAction="#handleParameterChange"/>
-                </VBox>
-
-                <VBox spacing="2">
-                    <Label text="Skandal-Chance (%)" styleClass="warning-label"/>
-                    <HBox spacing="5" alignment="CENTER_LEFT">
-                        <Button text="-" onAction="#handleScandalChanceDecrement" prefWidth="35"/>
-                        <TextField fx:id="scandalChanceField" text="5.0" HBox.hgrow="ALWAYS" alignment="CENTER" onAction="#handleParameterChange"/>
-                        <Button text="+" onAction="#handleScandalChanceIncrement" prefWidth="35"/>
-                    </HBox>
-                </VBox>
-
-                <VBox spacing="2">
-                    <Label text="Wahlkampf Varianz (Zufall)" styleClass="control-label"/>
-                    <Slider fx:id="randomRangeSlider" min="0.1" max="5.0" value="1.0" onMouseReleased="#handleParameterChange"/>
-                </VBox>
-            </VBox>
-
-            <Separator style="-fx-opacity: 0.2;"/>
-
-            <VBox spacing="5">
-                <Label text="Simulations-Geschwindigkeit" styleClass="control-label"/>
-                <HBox spacing="5" alignment="CENTER">
-                    <Button text="1x" onAction="#handleSpeed1x" prefWidth="50"/>
-                    <Button text="2x" onAction="#handleSpeed2x" prefWidth="50"/>
-                    <Button text="4x" onAction="#handleSpeed4x" prefWidth="50"/>
-                </HBox>
-            </VBox>
-
-            <Region VBox.vgrow="ALWAYS"/>
-            <Button text="Parameter jetzt anwenden" onAction="#handleParameterChange" maxWidth="Infinity" style="-fx-base: #444;"/>
-        </VBox>
+            </content>
+        </ScrollPane>
     </left>
 
     <center>
         <BorderPane>
             <center>
-                <Pane fx:id="animationPane" style="-fx-background-color: transparent;">
+                <StackPane fx:id="animationPane" style="-fx-background-color: transparent;" minWidth="0" minHeight="0">
                     <BorderPane.margin>
                         <Insets top="15" left="15" right="15" bottom="0"/>
                     </BorderPane.margin>
-                </Pane>
+                </StackPane>
             </center>
 
             <bottom>

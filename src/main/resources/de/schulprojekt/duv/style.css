@@ -347,3 +347,26 @@
     -fx-font-family: "Consolas";
     -fx-font-size: 12px;
 }
+
+/* === Scrollbar Styling (Dark Theme) === */
+.scroll-bar:horizontal, .scroll-bar:vertical{
+    -fx-background-color: transparent;
+}
+.scroll-bar:vertical .track, .scroll-bar:horizontal .track {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-radius: 0em;
+}
+.scroll-bar:vertical .thumb, .scroll-bar:horizontal .thumb {
+    -fx-background-color: #444;
+    -fx-background-radius: 5em;
+}
+.scroll-bar:vertical .thumb:hover, .scroll-bar:horizontal .thumb:hover {
+    -fx-background-color: #D4AF37;
+}
+/* Versteckt die kleinen Pfeile an der Scrollbar für cleaneren Look */
+.scroll-bar .increment-button, .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
