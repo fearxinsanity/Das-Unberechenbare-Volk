@@ -55,4 +55,4 @@ Die folgenden Maßnahmen sind wesentliche Bestandteile der Qualitätssicherung:
 **Stabilität der Benutzeroberfläche**: Die Kommunikation zwischen ``Controller`` und ``View`` wird optimiert, um Ruckler oder Verzögerungen bei der Echtzeit-Aktualisierung der dynamischen Diagramme und des Ereignis-Feeds zu verhindern.
 
 ## 7. Dokumentation
-Die Projektdokumentation wird nach IHK-Standard erstellt und hat einen Mindestumfang von 6 Seiten ohne Anhang. Sie wird alle Phasen des gewählten Vorgehensmodells abbilden und die Auswahl der Technologien und des Designs detailliert begründen. Ein separates, digitales Benutzerhandbuch wird ebenfalls bereitgestellt.
+Die Projektdokumentation wird nach IHK-Standard erstellt und hat einen Mindestumfang von 6 Seiten ohne Anhang. Sie wird alle Phasen des gewählten Vorgehensmodells abbilden und die Auswahl der Technologien und des Designs detailliert begründen. Ein separates, digitales Benutzerhandbuch wird ebenfalls bereitgestellt. 
