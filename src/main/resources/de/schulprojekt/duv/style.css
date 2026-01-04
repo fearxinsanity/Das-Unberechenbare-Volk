@@ -2,15 +2,12 @@
    === GLOBALE EINSTELLUNGEN & SCHRIFTARTEN ===
    ========================================================================= */
 .root {
-    /* Monospace-Schriften wirken technischer, wie ein Terminal oder geheime Akten */
     -fx-font-family: "Consolas", "Courier New", monospace;
-    /* Basisschriftgröße wird dynamisch im Controller gesetzt */
     -fx-text-fill: #e0e0e0;
 }
 
 /* === Hintergrund & Atmosphäre === */
 .root-pane {
-    /* Tiefer, dunkler Verlauf für Startscreen und Dashboard */
     -fx-background-color: linear-gradient(to bottom, #1a1a1d 0%, #050505 100%);
 }
 
@@ -256,43 +253,32 @@
 .type-default    { -fx-fill: #6c757d; }
 
 /* =========================================================================
-   === START-SCREEN DESIGN (HIGH-TECH / MYSTERIOUS) ===
+   === START-SCREEN DESIGN (RESPONSIVE & HIGH-TECH) ===
    ========================================================================= */
 
-.logo-glow-effect {
-    /* Ein weicher, goldener Schein hinter der Karte */
-    -fx-background-color: radial-gradient(center 50% 50%, radius 50%, rgba(212, 175, 55, 0.15) 0%, transparent 60%);
-    /* Starker Weichzeichner für Atmosphäre */
-    -fx-effect: dropshadow(gaussian, rgba(212, 175, 55, 0.3), 120, 0.6, 0, 0);
-}
-
-/* Der "Mysteriöse" Hintergrund-Effekt (Technisches Gitter) */
 .grid-background {
-    /* WICHTIG: JavaFX nutzt -fx-background-color für Verläufe, nicht -image */
-    /* Wir erstellen zwei wiederholende Verläufe: Einen horizontal, einen vertikal */
     -fx-background-color:
-        /* Vertikale Linien alle 40px (bei 100% Zoom) */
             linear-gradient(from 0px 0px to 40px 0px, repeat, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.15) 2%, transparent 2%, transparent 100%),
-                /* Horizontale Linien alle 40px */
             linear-gradient(from 0px 0px to 0px 40px, repeat, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.15) 2%, transparent 2%, transparent 100%);
-
     -fx-opacity: 0.4;
 }
 
-/* Die zentrale Karte */
+/* Die zentrale Karte - JETZT RESPONSIVE */
 .start-screen-card {
-    -fx-background-color: rgba(10, 10, 12, 0.85); /* Fast schwarz, leicht transparent */
+    -fx-background-color: rgba(10, 10, 12, 0.85);
     -fx-border-color: rgba(212, 175, 55, 0.3);
     -fx-border-width: 1px;
-    /* Leuchtender Rand (Glow) */
     -fx-effect: dropshadow(gaussian, rgba(212, 175, 55, 0.15), 50, 0.1, 0, 0);
-    -fx-background-radius: 2px; /* Eckiger für technischeren Look */
+    -fx-background-radius: 2px;
     -fx-border-radius: 2px;
+
+    /* WICHTIG: EM-Werte skalieren mit der Schriftgröße! */
+    /* Vorher waren hier feste Pixelwerte in der FXML */
+    -fx-padding: 3em 4em;
+    -fx-spacing: 1.5em; /* Abstand zwischen den Elementen in der VBox */
 }
 
-/* Der Lichtschein hinter dem Logo */
 .logo-glow-effect {
-    /* Pulsierender Schein hinter dem Logo */
     -fx-background-color: radial-gradient(center 50% 50%, radius 50%, rgba(212, 175, 55, 0.15) 0%, transparent 60%);
     -fx-effect: dropshadow(gaussian, rgba(212, 175, 55, 0.3), 120, 0.6, 0, 0);
 }
@@ -306,7 +292,6 @@
     -fx-effect: dropshadow(gaussian, rgba(212, 175, 55, 0.4), 10, 0, 0, 0);
 }
 
-/* Dekorative HUD-Texte in den Ecken */
 .hud-text {
     -fx-text-fill: rgba(255, 255, 255, 0.15);
     -fx-font-size: 0.7em;
@@ -317,7 +302,6 @@
     -fx-font-weight: bold;
 }
 
-/* Footer Version */
 .start-footer {
     -fx-text-fill: rgba(255, 255, 255, 0.2);
     -fx-font-size: 0.75em;
@@ -326,9 +310,10 @@
 /* --- Spezial-Buttons Start-Screen --- */
 .start-button-hero {
     -fx-font-size: 1.3em;
-    -fx-padding: 0.8em 3em;
-    /* Dunkles Grün, sehr dezent, technischer Look */
-    -fx-background-color: rgba(46, 125, 50, 0.15);
+    /* padding auch relativ */
+    -fx-padding: 0.6em 2em;
+
+    -fx-background-color: linear-gradient(to bottom, rgba(46, 125, 50, 0.25) 0%, rgba(27, 75, 30, 0.4) 100%);
     -fx-border-color: #2E7D32;
     -fx-text-fill: #81c784;
     -fx-font-family: "Consolas", monospace;
@@ -340,7 +325,7 @@
 }
 
 .start-button-hero:hover {
-    -fx-background-color: rgba(46, 125, 50, 0.3);
+    -fx-background-color: linear-gradient(to bottom, rgba(46, 125, 50, 0.5) 0%, rgba(27, 75, 30, 0.6) 100%);
     -fx-effect: dropshadow(gaussian, #2E7D32, 20, 0.2, 0, 0);
     -fx-text-fill: #a5d6a7;
     -fx-border-color: #4CAF50;
@@ -358,7 +343,6 @@
     -fx-effect: dropshadow(gaussian, rgba(212, 175, 55, 0.3), 5, 0, 0, 0);
 }
 
-/* --- Dekoration --- */
 .deco-line {
     -fx-stroke: rgba(212, 175, 55, 0.2);
     -fx-stroke-width: 1;

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.effect.DropShadow?>
@@ -13,9 +14,11 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Line?>
 
-<StackPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+<StackPane fx:id="rootPane" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="de.schulprojekt.duv.view.StartController"
            styleClass="root-pane" prefHeight="750.0" prefWidth="1200.0">
+
+    <Canvas fx:id="codeCanvas" width="1200" height="750" opacity="0.6" />
 
     <Region styleClass="grid-background" opacity="0.4" />
 
@@ -40,10 +43,7 @@
 
     <Region fx:id="glowRegion" maxHeight="500" maxWidth="700" styleClass="logo-glow-effect" StackPane.alignment="CENTER"/>
 
-    <VBox fx:id="cardBox" alignment="CENTER" spacing="0" maxWidth="700" styleClass="start-screen-card">
-        <padding>
-            <Insets top="50" right="60" bottom="50" left="60"/>
-        </padding>
+    <VBox fx:id="cardBox" alignment="CENTER" maxWidth="700" styleClass="start-screen-card">
 
         <ImageView fx:id="logoImageView" fitWidth="550" preserveRatio="true">
             <image>
@@ -54,8 +54,6 @@
             </effect>
         </ImageView>
 
-        <Region prefHeight="30" />
-
         <VBox alignment="CENTER" spacing="5">
             <Label text="SIMULATION POLITISCHER DYNAMIKEN" styleClass="start-subtitle">
                 <effect>
@@ -65,8 +63,6 @@
             <Line startX="0" endX="300" styleClass="deco-line" stroke="#D4AF37" opacity="0.3"/>
         </VBox>
 
-        <Region prefHeight="50" />
-
         <VBox alignment="CENTER" spacing="15" fillWidth="true">
             <Button text="[ SIMULATION INITIALISIEREN ]" onAction="#handleStartSimulation"
                     styleClass="action-button, start-button-hero" maxWidth="Infinity"/>
@@ -74,8 +70,6 @@
             <Button text="ABBRUCH" onAction="#handleExitApplication"
                     styleClass="button, start-button-secondary" maxWidth="200"/>
         </VBox>
-
-        <Region prefHeight="40" />
 
         <Label text="© 2025 DUV-SYSTEMS | INTERNAL USE ONLY" styleClass="start-footer"/>
 
