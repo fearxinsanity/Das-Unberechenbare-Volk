@@ -1,0 +1,104 @@
+% ============================================================
+% KAPITEL 3: TECHNISCHE UMSETZUNG
+% ============================================================
+
+\section{Technische Umsetzung}
+
+\subsection{Architektur und Design}
+
+\subsubsection{Architektur-Konzept (MVC)}
+
+Das Projekt folgt einer Model-View-Controller (\ac{MVC})-Architektur. Dieses Entwurfsmuster wurde gewählt, um eine klare Trennung der Verantwortlichkeiten zu gewährleisten und die Wartbarkeit sowie Erweiterbarkeit des Systems zu erhöhen.
+
+Das \textbf{Model} enthält die gesamte Simulationslogik und ist vollständig vom User Interface entkoppelt. Die \textbf{View} ist ausschließlich für die Darstellung der Daten und die Erfassung von Benutzereingaben verantwortlich und wird mit JavaFX umgesetzt. Der \textbf{Controller} dient als Vermittler zwischen Model und View, verarbeitet Benutzereingaben und aktualisiert beide Komponenten entsprechend.
+
+Als Alternative wurde das Model-View-View-Model (MVVM)-Pattern in Betracht gezogen, das durch Data Binding eine noch stärkere Entkopplung zwischen View und Logik ermöglicht. MVVM wird häufig in modernen \ac{UI}-Frameworks wie JavaFX eingesetzt und würde die automatische Synchronisation von Daten und \ac{UI}-Elementen vereinfachen. Allerdings wurde \ac{MVC} bevorzugt, da es für die Projektkomplexität ausreichend ist, eine geringere Einarbeitungszeit erfordert und eine klarere, explizite Kontrolle über den Datenfluss bietet. Der zusätzliche Overhead durch Data Binding würde bei diesem Projektumfang keinen signifikanten Mehrwert bieten.
+
+Diese Architektur bietet den Vorteil, dass Änderungen an der Benutzeroberfläche die Simulationslogik nicht beeinträchtigen und umgekehrt. Zudem ermöglicht die klare Struktur eine parallele Entwicklung der Komponenten und erleichtert das Testen einzelner Module.
+
+
+\subsubsection{Datenfluss}
+
+Der Datenfluss im System folgt einem unidirektionalen Prinzip und ist im Sequenzdiagramm (siehe Anhang A1, Abbildung~\ref{fig:sequenz}) visualisiert. Die Daten durchlaufen drei zentrale Phasen: Eingabe, Verarbeitung und Ausgabe.
+
+In der \textbf{Eingabephase} erfasst die View Konfigurationsparameter vom Benutzer, wie die Anzahl der Wähler und Parteien, Anfangspräferenzen, Medieneinfluss und Kampagnenbudgets. Diese Daten werden vom Controller validiert und als strukturierte Parameter an das Model übergeben.
+
+Das Model führt in der \textbf{Verarbeitungsphase} die Simulation in diskreten Zeitschritten durch. Dabei werden die Eingabeparameter mit den Zufallsverteilungen (Normal-, Gleich-, Exponentialverteilung) kombiniert, um Meinungsänderungen der Wähler, Kampagneneffekte und zufällige Ereignisse zu berechnen. Das Ergebnis sind aktualisierte Zustandsdaten, die die Verteilung der Wählerpräferenzen, Unterstützerzahlen der Parteien und aufgetretene Ereignisse beschreiben.
+
+In der \textbf{Ausgabephase} werden die berechneten Daten vom Controller abgerufen und an die View weitergegeben. Diese transformiert die numerischen Daten in visuelle Darstellungen (dynamische Diagramme, Animation) und textuelles Feedback (Ereignis-Feed). Die Aktualisierung erfolgt in Echtzeit, sodass Änderungen unmittelbar für den Benutzer sichtbar werden.
+
+Dieser unidirektionale Datenfluss stellt sicher, dass die Komponenten lose gekoppelt bleiben und Daten niemals direkt von der View zum Model oder umgekehrt fließen, sondern immer über den Controller vermittelt werden.
+
+
+\subsection{Auswahl der Technologien}
+
+\subsubsection{Software- und Hardware}
+
+Für die Entwicklung des Projekts wird eine Reihe von Software-Tools eingesetzt, die den Vorgaben der Kostenplanung entsprechen und größtenteils kostenfrei verfügbar sind.
+
+Die wichtigsten technologischen Entscheidungen im Bereich Software und Hardware sind:
+
+\begin{itemize}
+    \item \textbf{Entwicklungsumgebung (IDE):} Als integrierte Entwicklungsumgebung kommt die IntelliJ IDEA Ultimate Edition zum Einsatz.
+    
+    \item \textbf{Build-Management:} Die Verwaltung der Projektabhängigkeiten und der Build-Prozess erfolgen über Apache Maven.
+    
+    \item \textbf{Zielsystem:} Die Anwendung ist als Windows-Desktop-Anwendung konzipiert.
+    
+    \item \textbf{Auslieferung:} Das Projekt muss als einzelne, ausführbare Windows-Datei (.exe) bereitgestellt werden, die ohne Installation auf den Schulrechnern lauffähig ist. Die Kompatibilität mit der schulischen IT-Infrastruktur ist zwingend erforderlich.
+    
+    \item \textbf{Hardware:} Die Entwicklung erfolgt auf einem vorhandenen Entwicklungsrechner. Die Performance muss jedoch auch bei Belastungstests mit bis zu 2.000.000 simulierten Wählern stabil gewährleistet sein.
+\end{itemize}
+
+
+\subsubsection{Programmiersprache und Frameworks}
+
+Die technische Kernumsetzung basiert auf einem robusten und für Desktop-Anwendungen optimierten Technologie-Stack:
+
+\begin{itemize}
+    \item \textbf{Programmiersprache:} Als Programmiersprache wird Java \ac{SE} (Standard-Edition) verwendet.
+    
+    \item \textbf{Java Development Kit (\ac{JDK}):} Konkret wird das \ac{JDK} 25 in der \ac{LTS} (Long Term Support)-Version eingesetzt.
+    
+    \item \textbf{\ac{GUI}-Framework:} Für die grafische Benutzeroberfläche (\ac{GUI}) und die Echtzeit-Visualisierung wird das Framework JavaFX genutzt.
+\end{itemize}
+
+
+\subsection{Implementierung}
+
+\subsubsection{Kernkomponenten der Simulation}
+
+% TODO: Hier die Kernkomponenten beschreiben
+[Hier beschreiben: Welche Klassen/Module gibt es? Wie interagieren sie?]
+
+% Beispiel für Code-Listing:
+% \begin{lstlisting}[language=Java, caption={Beispiel: SimulationEngine Klasse}]
+% public class SimulationEngine {
+%     private List<Voter> voters;
+%     private List<Party> parties;
+%     
+%     public void runSimulationStep() {
+%         // Simulationslogik
+%     }
+% }
+% \end{lstlisting}
+
+
+\subsubsection{Zufallselemente und Verteilung}
+
+% TODO: Hier die Zufallsverteilungen beschreiben
+[Hier beschreiben: Normalverteilung, Gleichverteilung, Exponentialverteilung -- Wo und wie werden sie eingesetzt?]
+
+
+\subsection{Benutzeroberfläche}
+
+\subsubsection{UI-Konzept und Usability}
+
+% TODO: Hier das UI-Konzept beschreiben
+[Hier beschreiben: Wie ist die Oberfläche aufgebaut? Wie wird ISO 9241-110 umgesetzt?]
+
+
+\subsubsection{Elemente und Animation}
+
+% TODO: Hier die Animation beschreiben
+[Hier beschreiben: Welche Animation wurde implementiert? Wie unterstützt sie die UX?]
