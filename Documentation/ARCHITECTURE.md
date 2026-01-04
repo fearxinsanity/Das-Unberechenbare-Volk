@@ -1,46 +1,99 @@
-# Architektur-Dokument: "Das unberechenbare Volk"
-## 1. Gesamtsystem-Architektur
-Das Projekt folgt einer Model-View-Controller (MVC)-Architektur, um eine klare Trennung der Verantwortlichkeiten zu gewährleisten.
+# 🏗️ Architektur-Dokumentation: Das Unberechenbare Volk
 
- - **Model**: Enthält die gesamte **Kernlogik der Simulation** und die zugehörigen Daten. Es ist komplett vom UI entkoppelt und kann theoretisch auch von einem anderen Frontend verwendet werden.
+Dieses Dokument beschreibt die technische Architektur, die Design-Entscheidungen und die Struktur der Anwendung **Das Unberechenbare Volk**.
 
-- **View**: Repräsentiert das **User Interface (UI)**, das mit **JavaFX** umgesetzt wird. Es ist für die Darstellung der Simulation und die Erfassung der Benutzereingaben verantwortlich. Die View ist passiv und wird durch den Controller aktualisiert.
+---
 
-- **Controller**: Dient als **Vermittler** zwischen Model und View. Er verarbeitet Ereignisse aus der View (z. B. eine Änderung an einem Slider), leitet die Anfragen an das Model weiter, ruft die Simulationsdaten ab und aktualisiert die View.
+## 1. Architektur-Muster: MVC (Model-View-Controller)
 
-Diese Struktur stellt sicher, dass Änderungen am UI die Simulationslogik nicht beeinträchtigen und umgekehrt, was die Wartbarkeit und Skalierbarkeit des Systems erhöht.
+Die Anwendung folgt strikt dem **Model-View-Controller (MVC)** Muster, um die Logik von der Darstellung und der Benutzerinteraktion zu trennen.
 
-## 2. Datenfluss
-Der Datenfluss im System ist unidirektional und klar definiert:
+### 🧩 Die drei Schichten
 
-1. **Benutzereingabe**: Der Benutzer ändert über die UI-Steuerung (z. B. einen Slider im **View**) einen Parameter wie den Medieneinfluss oder das Budget einer Partei.
+| Schicht | Verantwortung | Hauptkomponenten |
+| :--- | :--- | :--- |
+| **Model** | Beinhaltet die gesamte Simulationslogik, den Status (State) und die Datenstrukturen. Es weiß nichts von der UI. | `SimulationEngine`, `VoterPopulation`, `Party`, `Scandal`, `SimulationState` |
+| **View** | Zeigt die Daten an und leitet Benutzerinteraktionen weiter. Sie besteht aus FXML-Layouts, CSS und Canvas-Renderern. | `StartView.fxml`, `DashboardUI.fxml`, `CanvasRenderer`, `ChartManager` |
+| **Controller** | Vermittelt zwischen Model und View. Er verarbeitet Inputs, steuert die Simulation und aktualisiert die View. | `SimulationController`, `DashboardController`, `StartController` |
 
-2. **Eingabeverarbeitung**: Der **Controller** fängt dieses Ereignis ab und ruft eine entsprechende Methode im **Model** auf, um die Simulationsparameter zu aktualisieren.
+---
 
-3. **Simulations-Logik**: Das **Model** verarbeitet die neuen Parameter und führt die Simulation für den nächsten Zeitschritt aus. Hierbei werden die Meinungen der Wähler aktualisiert, neue Ereignisse generiert etc.
+## 2. Detaillierte Komponenten-Beschreibung
 
-4. **Datenabfrage**: Der **Controller** fragt die aktualisierten Daten (z. B. aktuelle Wählerpräferenzen, Unterstützerzahlen der Parteien) aus dem **Model** ab.
+### 2.1 Model (Logik & Daten)
+Das Herzstück der Anwendung. Hier werden Entscheidungen getroffen und Berechnungen durchgeführt.
 
-5. **View-Aktualisierung**: Der **Controller** übergibt die abgerufenen Daten an die **View**, die sie in Echtzeit aktualisiert. Dies betrifft dynamische Diagramme und den Ereignis-Feed.
+* **`SimulationEngine`**: Die Hauptklasse, die den Simulations-Loop steuert. Sie triggert Updates für Wähler, Parteien und Ereignisse.
+* **`VoterPopulation`**: Verwaltet die Gesamtheit aller Wähler (Agenten). Berechnet Wählerwanderungen basierend auf Wahrscheinlichkeiten (Matrix).
+* **`Party`**: Repräsentiert eine politische Partei mit Attributen wie Budget, Beliebtheit, Programm und Farbe.
+* **`ScandalScheduler`**: Ein Zufallsgenerator, der basierend auf Parametern (z.B. Skandal-Chance) Ereignisse auslöst.
+* **`SimulationState`**: Ein Singleton oder zentrales Objekt, das den aktuellen Zustand (laufend, pausiert) und globale Parameter hält.
 
-## 3. Kern-Komponenten (Geplante Klassen)
-Die folgenden Klassen bilden das Rückgrat der Anwendung. Sie sollten im Einklang mit unseren Javadoc-Konventionen dokumentiert werden.
+### 2.2 View (Benutzeroberfläche)
+Die UI ist modern gestaltet ("Dark/Gold"-Theme) und nutzt JavaFX.
 
-- `Voter`: Einfaches POJO. Speichert Attribute wie die aktuelle politische Präferenz.
+* **FXML-Dateien**:
+    * `StartView.fxml`: Der Einstiegspunkt (Landing Page).
+    * `DashboardUI.fxml`: Die Hauptansicht. Nutzt eine `StackPane`-Architektur, um Hintergrund-Layer (Gitter) und UI-Layer (HUD, Controls) zu überlagern.
+* **`CanvasRenderer` (Performance-Optimierung)**:
+    * Statt tausende JavaFX-Nodes für Wähler zu nutzen, zeichnet diese Komponente Wähler als **Partikel** und Verbindungen direkt auf ein `Canvas`.
+    * Dies ermöglicht flüssige Animationen auch bei hohen Wählerzahlen (>100.000 simuliert, visuell repräsentiert).
+* **CSS-Styling**:
+    * `common.css`: Globale Stile (Fonts, Gitter-Hintergründe, HUD-Texte).
+    * `dashboard.css` & `start.css`: Spezifische Stile für die jeweiligen Screens.
 
-- `Party`: Einfaches POJO. Speichert Attribute wie das Kampagnenbudget und die aktuelle Anzahl der Unterstützer.
+### 2.3 Controller (Steuerung)
+* **`StartController`**: Handhabt die Navigation vom Start-Screen zum Dashboard.
+* **`DashboardController`**:
+    * Verbindet die UI-Elemente (Slider, Buttons) mit der `SimulationEngine`.
+    * Nutzt `AnimationTimer` für den visuellen Update-Loop (60 FPS), getrennt vom logischen Simulations-Tick.
 
-- `SimulationEngine`: Die zentrale Klasse des Models. Sie enthält die Haupt-Schleife der Simulation, implementiert die Logik für die Zeitschritte und verwaltet die Interaktionen zwischen Wählern und Parteien.
+---
 
-- `SimulationController`: Der **Controller**, der die Kommunikation zwischen der `View` und der `SimulationEngine` steuert. Er verarbeitet die Benutzerinteraktionen und löst die Simulation aus.
+## 3. Datenfluss und Simulations-Loop
 
-- `DashboardUI`: Die zentrale Klasse des **Views**, die das JavaFX-Frontend mit allen Diagrammen und Steuerelementen aufbaut und verwaltet.
+### Der Simulations-Zyklus (Tick)
+Ein "Tick" repräsentiert eine Zeiteinheit (z.B. eine Woche im Wahlkampf).
 
-4. Modellierung der Zufallselemente
-Die Unberechenbarkeit des politischen Prozesses wird durch die Integration von Zufallselementen modelliert.
+1.  **Input**: Benutzer ändert Parameter (z.B. Medien-Einfluss) im Dashboard.
+2.  **Update**: `SimulationEngine` berechnet neuen Status:
+    * Skandale werden gewürfelt.
+    * Parteibudgets werden verbraucht.
+    * Wähler berechnen ihre Zufriedenheit neu und wechseln ggf. die Partei.
+3.  **Notify**: Die Engine informiert den Controller über Änderungen.
+4.  **Render**:
+    * `ChartManager` aktualisiert den LineChart mit neuen Stimmenzahlen.
+    * `CanvasRenderer` animiert die Partikel, die zwischen den Parteien "fliegen".
+    * `FeedManager` fügt neue Ereignisse zum Ticker hinzu.
 
-- **Zufällige Meinungsänderungen**: Um die persönliche Meinungsbildung zu simulieren, wird eine **Wahrscheinlichkeitsverteilung** (z.B. eine Normalverteilung) verwendet. Jeder Wähler hat eine kleine Chance, seine Präferenz zu ändern. Die Wahrscheinlichkeit dafür kann durch den Medieneinfluss-Faktor gewichtet werden.
+---
 
-- **Effektivität der Wahlwerbung**: Der Erfolg von Kampagnen ist zufällig. Die Wirkung eines eingesetzten Budgets sollte nicht deterministisch sein, sondern als ein Wahrscheinlichkeitsereignis mit einer variablen Effektivität modelliert werden.
+## 4. Wichtige Design-Entscheidungen
 
-- **Zufällige Ereignisse**: Skandale oder Debatten können mit einer bestimmten, geringen Wahrscheinlichkeit pro Zeitschritt auftreten. Wenn ein Ereignis eintritt, wird seine Auswirkung (z.B. eine starke Verschiebung der Präferenzen einer bestimmten Wählergruppe) mit einer Gewichtung auf die Simulation angewendet.
+### A. Canvas vs. Scene Graph für Wähler
+**Entscheidung:** Nutzung von `javafx.scene.canvas.Canvas` für die Darstellung der Wählerströme.
+**Begründung:** JavaFX Scene Graph (einzelne Nodes pro Wähler) skaliert schlecht bei tausenden von Objekten. Ein Canvas, der Pixel direkt manipuliert ("Blitting" oder Drawing Primitives), ist wesentlich performanter für Partikel-Systeme.
+
+### B. Trennung von Simulation und Visualisierung
+**Entscheidung:** Die Simulation läuft in einem eigenen Takt (Ticks), während die Visualisierung (`AnimationTimer`) so oft wie möglich (bis zu 60fps) zeichnet.
+**Vorteil:** Auch wenn die Simulation komplex rechnet, bleibt die UI reaktionsfähig. Partikel bewegen sich flüssig zwischen Start- und Endpunkt, unabhängig davon, wie schnell die Simulations-Ticks feuern.
+
+### C. Zentrales Konfigurations-Objekt (`SimulationConfig` / Parameters)
+**Entscheidung:** Alle Schwellenwerte (Farben, Startwerte, Limits) sind in Konfigurationsklassen ausgelagert.
+**Vorteil:** Einfache Anpassung des Balancings ohne tiefes Eingreifen in den Code.
+
+---
+
+## 5. Verzeichnisstruktur (Auszug)
+
+```text
+src/main/java/de/schulprojekt/duv/
+├── model/           # Reine Logik (Kein JavaFX Code!)
+│   ├── core/        # Engine & State
+│   ├── voter/       # Wählerverhalten
+│   └── scandal/     # Ereignis-System
+├── view/            # UI Code
+│   ├── components/  # Spezialisierte Renderer (Canvas, Charts)
+│   └── ...
+├── controller/      # Verbindungsschicht
+└── util/            # Hilfsklassen (CSV Loader, Config)
