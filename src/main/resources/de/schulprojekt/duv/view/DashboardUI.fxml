@@ -46,7 +46,7 @@
             </BorderPane.margin>
 
             <content>
-                <VBox spacing="15" styleClass="sidebar" prefWidth="300" minHeight="0">
+                <VBox fx:id="leftSidebar" spacing="15" styleClass="sidebar" prefWidth="300" minHeight="0">
                     <padding>
                         <Insets top="20" right="20" bottom="20" left="20"/>
                     </padding>
@@ -166,7 +166,7 @@
     </center>
 
     <right>
-        <VBox spacing="15" styleClass="sidebar" prefWidth="320">
+        <VBox fx:id="rightSidebar" spacing="15" styleClass="sidebar" prefWidth="320">
             <BorderPane.margin>
                 <Insets top="15" right="15" bottom="15" left="0"/>
             </BorderPane.margin>

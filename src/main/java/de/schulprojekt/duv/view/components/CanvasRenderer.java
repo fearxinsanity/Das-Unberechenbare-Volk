@@ -23,6 +23,9 @@ public class CanvasRenderer {
     private List<Party> currentParties = new ArrayList<>();
     private int currentTotalVoters = 1;
 
+    // Neuer Skalierungsfaktor für responsive Grafik
+    private double currentScaleFactor = 1.0;
+
     public CanvasRenderer(Pane animationPane) {
         // Initialgröße 0, damit Layout nicht blockiert wird
         this.canvas = new Canvas(0, 0);
@@ -73,10 +76,18 @@ public class CanvasRenderer {
     private void recalculatePartyPositions(List<Party> parties) {
         partyPositions.clear();
 
-        double cx = canvas.getWidth() / 2;
-        double cy = canvas.getHeight() / 2;
-        // Radius für die Anordnung der Parteien (35% der kleineren Seite)
-        double r = Math.min(canvas.getWidth(), canvas.getHeight()) * 0.35;
+        double w = canvas.getWidth();
+        double h = canvas.getHeight();
+        double cx = w / 2;
+        double cy = h / 2;
+
+        // Dynamische Skalierung basierend auf Referenzgröße 800px
+        double minDim = Math.min(w, h);
+        double scaleRef = minDim / 800.0;
+        this.currentScaleFactor = Math.max(0.6, scaleRef); // Mindestens 60% Größe
+
+        // Radius für die Anordnung (35% der kleineren Seite)
+        double r = minDim * 0.35;
 
         for (int i = 0; i < parties.size(); i++) {
             if (parties.get(i).getName().equals(SimulationConfig.UNDECIDED_NAME)) {
@@ -107,7 +118,8 @@ public class CanvasRenderer {
         if (currentParties.isEmpty()) return;
 
         // 1. Verbindungslinien
-        gc.setStroke(Color.web("#D4AF37", 0.15)); gc.setLineWidth(0.8);
+        gc.setStroke(Color.web("#D4AF37", 0.15));
+        gc.setLineWidth(0.8 * currentScaleFactor);
         for (int i = 0; i < currentParties.size(); i++) {
             Point p1 = partyPositions.get(currentParties.get(i).getName());
             for (int j = i + 1; j < currentParties.size(); j++) {
@@ -116,59 +128,59 @@ public class CanvasRenderer {
             }
         }
 
-        // 2. Parteien zeichnen (RE-DESIGN: Zurück zum Gradienten)
+        // 2. Parteien zeichnen
         for (Party p : currentParties) {
             Point pt = partyPositions.get(p.getName());
             if (pt != null) {
                 Color pColor = Color.web(p.getColorCode());
-                // Farbe etwas "magischer" machen für den Glow
                 Color mysteryColor = pColor.deriveColor(0, 0.8, 0.9, 1.0);
 
                 double share = (double) p.getCurrentSupporterCount() / currentTotalVoters;
-                // Basis-Größe + Anteil
-                double r = 30.0 + (share * 60.0);
-                double d = r * 2; // Durchmesser
+
+                // Basis-Größe skaliert nun auch mit Monitor-Größe
+                double r = (30.0 + (share * 60.0)) * currentScaleFactor;
+                double d = r * 2;
 
                 // A. GLOW (Radial Gradient)
-                // Wir nutzen exakte Koordinaten (pt.x, pt.y) als Zentrum für absolute Symmetrie
                 RadialGradient gradient = new RadialGradient(
                         0, 0, pt.x, pt.y, r, false, CycleMethod.NO_CYCLE,
-                        new Stop(0.0, mysteryColor.deriveColor(0, 1.0, 1.0, 0.7)),  // Kern: Hell & Deckend
-                        new Stop(0.6, mysteryColor.deriveColor(0, 1.0, 0.8, 0.3)),  // Mitte: Leuchtend
-                        new Stop(1.0, Color.TRANSPARENT)                            // Rand: Unsichtbar
+                        new Stop(0.0, mysteryColor.deriveColor(0, 1.0, 1.0, 0.7)),
+                        new Stop(0.6, mysteryColor.deriveColor(0, 1.0, 0.8, 0.3)),
+                        new Stop(1.0, Color.TRANSPARENT)
                 );
 
                 gc.setFill(gradient);
-                // WICHTIG: width und height sind identisch (d), damit es ein Kreis bleibt!
                 gc.fillOval(pt.x - r, pt.y - r, d, d);
 
-                // B. Kern (Fester Punkt in der Mitte)
+                // B. Kern
+                double coreSize = 20.0 * currentScaleFactor;
+                double coreOffset = coreSize / 2.0;
+
                 gc.setFill(mysteryColor.brighter());
-                gc.fillOval(pt.x - 10, pt.y - 10, 20, 20);
+                gc.fillOval(pt.x - coreOffset, pt.y - coreOffset, coreSize, coreSize);
 
-                // C. Rand um den Kern (Gold)
+                // C. Rand
                 gc.setStroke(Color.web("#D4AF37"));
-                gc.setLineWidth(1.5);
-                gc.strokeOval(pt.x - 10, pt.y - 10, 20, 20);
+                gc.setLineWidth(1.5 * currentScaleFactor);
+                gc.strokeOval(pt.x - coreOffset, pt.y - coreOffset, coreSize, coreSize);
 
-                // D. Text Labels
-                // Zentriert unter dem Kreis, damit es symmetrisch wirkt
+                // D. Text Labels (Skalierte Schrift)
                 gc.setTextAlign(TextAlignment.CENTER);
 
                 gc.setFill(Color.web("#e0e0e0"));
-                gc.setFont(Font.font("Consolas", FontWeight.BOLD, 12));
-                gc.fillText(p.getAbbreviation(), pt.x, pt.y + 35); // Etwas tiefer setzen
+                gc.setFont(Font.font("Consolas", FontWeight.BOLD, 12 * currentScaleFactor));
+                gc.fillText(p.getAbbreviation(), pt.x, pt.y + (35 * currentScaleFactor));
 
                 gc.setFill(Color.web("#D4AF37"));
-                gc.fillText(String.format("%.1f%%", share * 100), pt.x, pt.y + 48);
+                gc.fillText(String.format("%.1f%%", share * 100), pt.x, pt.y + (48 * currentScaleFactor));
 
-                gc.setTextAlign(TextAlignment.LEFT); // Reset
+                gc.setTextAlign(TextAlignment.LEFT);
             }
         }
 
         // 3. Partikel
         Iterator<MovingVoter> it = activeParticles.iterator();
-        gc.setLineWidth(2.5);
+        gc.setLineWidth(2.5 * currentScaleFactor);
         while (it.hasNext()) {
             MovingVoter p = it.next(); p.move();
             double alpha = p.getOpacity();
@@ -176,7 +188,9 @@ public class CanvasRenderer {
                 double segAlpha = alpha * (1.0 - ((double)i / 5));
                 if (segAlpha < 0.05) continue;
                 gc.setGlobalAlpha(segAlpha); gc.setStroke(p.color.deriveColor(0, 1.0, 1.0, 1.0));
-                double bx = p.x - (p.dx * i * 1.5), by = p.y - (p.dy * i * 1.5);
+
+                double tailFactor = 1.5 * currentScaleFactor;
+                double bx = p.x - (p.dx * i * tailFactor), by = p.y - (p.dy * i * tailFactor);
                 gc.strokeLine(bx, by, bx - p.dx, by - p.dy);
             }
             if (p.hasArrived()) { it.remove(); particlePool.push(p); }
