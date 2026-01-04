@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.effect.Glow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Line?>
+
+<StackPane fx:id="rootPane" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="de.schulprojekt.duv.view.StartController"
+           styleClass="root-pane" prefHeight="750.0" prefWidth="1200.0">
+
+    <Canvas fx:id="codeCanvas" width="1200" height="750" opacity="0.6" />
+
+    <Region fx:id="gridRegion" styleClass="grid-background" opacity="0.4" />
+
+    <AnchorPane fx:id="hudLayer" pickOnBounds="false">
+        <VBox AnchorPane.topAnchor="20" AnchorPane.leftAnchor="20" spacing="2">
+            <Label text="SYS.STATUS: NOMINAL" styleClass="hud-text, hud-text-highlight"/>
+            <Label text="CONN: SECURE_ENCRYPTED_V4" styleClass="hud-text"/>
+        </VBox>
+        <VBox AnchorPane.topAnchor="20" AnchorPane.rightAnchor="20" alignment="TOP_RIGHT" spacing="2">
+            <Label text="GEOLOC: UNKNOWN" styleClass="hud-text"/>
+            <Label text="PROTOCOL: OMEGA" styleClass="hud-text, hud-text-highlight"/>
+        </VBox>
+        <VBox AnchorPane.bottomAnchor="20" AnchorPane.leftAnchor="20" spacing="2">
+            <Label text="CORE: RUNNING" styleClass="hud-text"/>
+            <Label text="MEM: 14024 TB ASSIGNED" styleClass="hud-text"/>
+        </VBox>
+        <VBox AnchorPane.bottomAnchor="20" AnchorPane.rightAnchor="20" alignment="BOTTOM_RIGHT" spacing="2">
+            <Label text="BUILD: 2025.01.04.RC1" styleClass="hud-text"/>
+            <Label text="AUTH: ADMIN_LVL_5" styleClass="hud-text, hud-text-highlight"/>
+        </VBox>
+    </AnchorPane>
+
+    <Region fx:id="glowRegion" maxHeight="500" maxWidth="700" styleClass="logo-glow-effect" StackPane.alignment="CENTER"/>
+
+    <VBox fx:id="cardBox" alignment="CENTER" maxWidth="700" styleClass="start-screen-card">
+
+        <ImageView fx:id="logoImageView" fitWidth="550" preserveRatio="true">
+            <image>
+                <Image url="@../Pictures/Project_logo.png"/>
+            </image>
+            <effect>
+                <DropShadow color="rgba(0,0,0,1.0)" radius="30" spread="0.2" offsetY="10"/>
+            </effect>
+        </ImageView>
+
+        <VBox alignment="CENTER" spacing="5">
+            <Label text="SIMULATION POLITISCHER DYNAMIKEN" styleClass="start-subtitle">
+                <effect>
+                    <Glow level="0.6"/>
+                </effect>
+            </Label>
+            <Line startX="0" endX="300" styleClass="deco-line" stroke="#D4AF37" opacity="0.3"/>
+        </VBox>
+
+        <VBox alignment="CENTER" spacing="15" fillWidth="true">
+            <Button text="[ SIMULATION INITIALISIEREN ]" onAction="#handleStartSimulation"
+                    styleClass="action-button, start-button-hero" maxWidth="Infinity"/>
+
+            <Button text="ABBRUCH" onAction="#handleExitApplication"
+                    styleClass="button, start-button-secondary" maxWidth="200"/>
+        </VBox>
+
+        <Label text="© 2025 DUV-SYSTEMS | INTERNAL USE ONLY" styleClass="start-footer"/>
+
+    </VBox>
+</StackPane>

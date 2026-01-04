@@ -5,45 +5,41 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-
 import java.io.IOException;
 import java.net.URL;
 
 public class Main extends Application {
 
-    private static final String FXML_PATH = "/de/schulprojekt/duv/view/DashboardUI.fxml";
+    private static final String START_VIEW_FXML = "/de/schulprojekt/duv/view/StartView.fxml";
+    // NEU: Zwei CSS-Dateien statt einer
+    private static final String COMMON_CSS = "/de/schulprojekt/duv/common.css";
+    private static final String START_CSS = "/de/schulprojekt/duv/start.css";
     private static final String APP_TITLE = "Das Unberechenbare Volk";
 
     @Override
     public void start(Stage primaryStage) throws IOException {
-        URL fxmlURL = getClass().getResource(FXML_PATH);
+        URL fxmlURL = getClass().getResource(START_VIEW_FXML);
         if (fxmlURL == null) {
-            throw new IOException("FXML resource not found: " + FXML_PATH);
+            throw new IOException("FXML resource not found: " + START_VIEW_FXML);
         }
 
         FXMLLoader loader = new FXMLLoader(fxmlURL);
         Parent root = loader.load();
 
-        Scene scene = new Scene(root, 1200, 650);
+        Scene scene = new Scene(root, 1200, 750);
 
-        URL cssURL = getClass().getResource("/de/schulprojekt/duv/style.css");
-        if (cssURL != null) {
-            scene.getStylesheets().add(cssURL.toExternalForm());
-        }
+        // CSS: Common + Start Screen laden
+        URL commonUrl = getClass().getResource(COMMON_CSS);
+        URL startUrl = getClass().getResource(START_CSS);
+
+        if (commonUrl != null) scene.getStylesheets().add(commonUrl.toExternalForm());
+        if (startUrl != null) scene.getStylesheets().add(startUrl.toExternalForm());
 
         primaryStage.setTitle(APP_TITLE);
         primaryStage.setScene(scene);
-        primaryStage.setMaximized(false);
         primaryStage.setResizable(true);
 
-        primaryStage.setOnCloseRequest(e -> {
-            DashboardController controller = loader.getController();
-            if (controller != null) {
-                controller.shutdown();
-            }
-            System.exit(0);
-        });
-
+        primaryStage.setOnCloseRequest(e -> System.exit(0));
         primaryStage.show();
     }
 

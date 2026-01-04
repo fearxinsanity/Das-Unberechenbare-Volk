@@ -1,18 +1,8 @@
-/* === Globale Einstellungen & Schriftarten === */
-.root {
-    /* Monospace-Schriften wirken technischer, wie ein Terminal oder geheime Akten */
-    -fx-font-family: "Consolas", "Courier New", monospace;
-    /* Basisschriftgröße wird dynamisch im Controller gesetzt (z.B. 12px - 18px) */
-    -fx-text-fill: #e0e0e0;
-}
+/* =========================================================================
+   === DASHBOARD.CSS - Simulation Interface ===
+   ========================================================================= */
 
-/* === Hintergrund & Atmosphäre === */
-.root-pane {
-    /* Starke Vignette: Helles Zentrum, fast schwarze Ecken. */
-    -fx-background-color: radial-gradient(center 50% 50%, radius 80%, #2b2b2b 0%, #000000 100%);
-}
-
-/* === Container & Cards (Seitenleisten) === */
+/* --- Container & Layout --- */
 .sidebar, .top-bar {
     -fx-background-color: rgba(30, 30, 35, 0.85);
     -fx-background-radius: 0.6em;
@@ -20,7 +10,6 @@
     -fx-border-color: rgba(201, 162, 39, 0.3);
     -fx-border-width: 1;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 20, 0, 0, 5);
-    /* Padding relativ zur Schriftgröße */
     -fx-padding: 1.5em;
 }
 .top-bar {
@@ -29,70 +18,7 @@
     -fx-border-width: 0 0 1 0;
 }
 
-/* === Typografie & Akzente === */
-.label { -fx-text-fill: #d0d0d0; }
-
-.app-title {
-    -fx-text-fill: #D4AF37;
-    -fx-font-size: 1.8em; /* Relativ zur Basis */
-    -fx-font-weight: bold;
-    -fx-effect: dropshadow(gaussian, rgba(212, 175, 55, 0.6), 15, 0.3, 0, 0);
-    -fx-font-family: "Segoe UI", sans-serif;
-}
-
-.section-title {
-    -fx-text-fill: #D4AF37;
-    -fx-font-size: 1.2em;
-    -fx-font-weight: bold;
-    -fx-underline: true;
-    -fx-padding: 0 0 0.8em 0;
-}
-
-.control-label, .status-label {
-    -fx-text-fill: #8a8a8a;
-    -fx-font-size: 0.9em;
-}
-.warning-label {
-    -fx-text-fill: #ff4444;
-    -fx-effect: dropshadow(gaussian, rgba(255, 68, 68, 0.4), 5, 0, 0, 0);
-}
-
-/* === Buttons & Interaktion === */
-.button {
-    -fx-background-color: #2a2a2e;
-    -fx-text-fill: #D4AF37;
-    -fx-background-radius: 0.3em;
-    -fx-border-radius: 0.3em;
-    -fx-border-color: #D4AF37;
-    -fx-border-width: 1;
-    -fx-cursor: hand;
-    -fx-font-weight: bold;
-    -fx-padding: 0.4em 0.8em 0.4em 0.8em;
-}
-.button:hover {
-    -fx-background-color: rgba(212, 175, 55, 0.2);
-    -fx-effect: dropshadow(gaussian, #D4AF37, 10, 0, 0, 0);
-}
-.button:pressed { -fx-background-color: #D4AF37; -fx-text-fill: black; }
-.button:disabled { -fx-opacity: 0.4; -fx-border-color: #555; -fx-text-fill: #777;}
-
-.action-button {
-    -fx-background-color: rgba(46, 125, 50, 0.3);
-    -fx-border-color: #2E7D32;
-    -fx-text-fill: #4CAF50;
-}
-.action-button:hover {
-    -fx-background-color: rgba(46, 125, 50, 0.6);
-    -fx-effect: dropshadow(gaussian, #2E7D32, 15, 0, 0, 0);
-}
-
-/* === Inputs & Slider === */
-.text-field {
-    -fx-background-color: rgba(0,0,0,0.5);
-    -fx-text-fill: #D4AF37;
-    -fx-border-color: #444;
-    -fx-background-radius: 0.2em;
-}
+/* --- Sliders --- */
 .slider .track { -fx-background-color: #333; }
 .slider .thumb {
     -fx-background-color: #D4AF37;
@@ -100,7 +26,6 @@
     -fx-border-width: 1;
     -fx-background-radius: 1em;
     -fx-border-radius: 1em;
-    /* Slider Daumen skaliert mit em */
     -fx-pref-width: 1.2em;
     -fx-pref-height: 1.2em;
     -fx-effect: dropshadow(gaussian, rgba(212, 175, 55, 0.8), 8, 0, 0, 0);
@@ -111,7 +36,7 @@
     -fx-scale-y: 1.2;
 }
 
-/* === Charts Styling === */
+/* --- Charts Styling --- */
 .chart { -fx-background-color: transparent; -fx-padding: 0.8em; }
 .chart-plot-background {
     -fx-background-color: linear-gradient(
@@ -145,7 +70,7 @@
 }
 .chart-line-symbol { -fx-background-color: transparent, transparent; -fx-background-size: 0; }
 
-/* === Ereignis-Feed === */
+/* --- Ereignis-Feed --- */
 .event-feed-container { -fx-padding: 0.8em; -fx-background-color: transparent; }
 .event-card { -fx-background-color: transparent; -fx-padding: 0; }
 .event-timeline-col { -fx-alignment: top-center; -fx-padding: 0 0.8em 0 0; }
@@ -180,7 +105,7 @@
     -fx-wrap-text: true;
 }
 
-/* === SKANDAL TICKER === */
+/* --- SKANDAL TICKER --- */
 .scroll-pane > .viewport { -fx-background-color: transparent; }
 .ticker-container {
     -fx-background-color: transparent;
@@ -225,25 +150,7 @@
     -fx-font-size: 1em;
 }
 
-/* Scrollbar */
-.scroll-bar:horizontal, .scroll-bar:vertical{ -fx-background-color: transparent; }
-.scroll-bar:vertical .track, .scroll-bar:horizontal .track {
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
-    -fx-background-radius: 0em;
-}
-.scroll-bar:vertical .thumb, .scroll-bar:horizontal .thumb {
-    -fx-background-color: #444;
-    -fx-background-radius: 5em;
-}
-.scroll-bar:vertical .thumb:hover, .scroll-bar:horizontal .thumb:hover { -fx-background-color: #D4AF37; }
-.scroll-bar .increment-button, .scroll-bar .decrement-button {
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
-    -fx-padding: 0;
-}
-
-/* Colors */
+/* --- Colors (Parties & Types) --- */
 .type-corruption { -fx-fill: #dc3545; }
 .type-financial  { -fx-fill: #ffc107; }
 .type-political  { -fx-fill: #17a2b8; }
