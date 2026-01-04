@@ -2,20 +2,26 @@
    === DASHBOARD.CSS - Simulation Interface ===
    ========================================================================= */
 
-/* --- Container & Layout --- */
+/* --- Container & Layout (Angepasst an Start-Screen Design) --- */
 .sidebar, .top-bar {
-    -fx-background-color: rgba(30, 30, 35, 0.85);
-    -fx-background-radius: 0.6em;
-    -fx-border-radius: 0.6em;
-    -fx-border-color: rgba(201, 162, 39, 0.3);
+    /* Dunkler Hintergrund wie die Card im Start-Screen */
+    -fx-background-color: rgba(10, 10, 12, 0.85);
+    /* Goldener Rahmen */
+    -fx-border-color: rgba(212, 175, 55, 0.3);
     -fx-border-width: 1;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 20, 0, 0, 5);
+    -fx-background-radius: 2px;
+    -fx-border-radius: 2px;
+    /* Glow Effekt */
+    -fx-effect: dropshadow(gaussian, rgba(212, 175, 55, 0.15), 20, 0.1, 0, 0);
     -fx-padding: 1.5em;
 }
+
 .top-bar {
     -fx-padding: 1.2em;
-    -fx-background-radius: 0 0 0.6em 0.6em;
+    -fx-background-radius: 0 0 2px 2px;
     -fx-border-width: 0 0 1 0;
+    /* Etwas stärkerer Schatten für die Top-Bar */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 20, 0, 0, 5);
 }
 
 /* --- Sliders --- */
@@ -39,11 +45,12 @@
 /* --- Charts Styling --- */
 .chart { -fx-background-color: transparent; -fx-padding: 0.8em; }
 .chart-plot-background {
+    /* Leichtes Gitter für den Chart-Hintergrund passend zum Tech-Look */
     -fx-background-color: linear-gradient(
-            from 0px 0px to 10px 10px, repeat,
-            rgba(255, 255, 255, 0.02) 0%,
-            rgba(255, 255, 255, 0.02) 10%,
-            transparent 10%,
+            from 0px 0px to 20px 20px, repeat,
+            rgba(255, 255, 255, 0.03) 0%,
+            rgba(255, 255, 255, 0.03) 1%,
+            transparent 1%,
             transparent 100%
     );
 }
@@ -55,13 +62,13 @@
 }
 .axis-label {
     -fx-text-fill: #8a8a8a;
-    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-family: "Consolas", monospace; /* Konsistentere Schriftart */
     -fx-font-weight: bold;
     -fx-font-size: 1em;
 }
 .chart-vertical-grid-lines, .chart-horizontal-grid-lines {
     -fx-stroke: rgba(212, 175, 55, 0.15);
-    -fx-stroke-dash-array: 1 5;
+    -fx-stroke-dash-array: 2 5; /* Tech-Look: Gepunktete Linien */
     -fx-stroke-width: 0.5;
 }
 .chart-series-line {
@@ -78,8 +85,8 @@
 
 .event-icon-bg {
     -fx-radius: 1.1em;
-    -fx-stroke: rgba(0,0,0,0.5);
-    -fx-stroke-width: 2;
+    -fx-stroke: rgba(212, 175, 55, 0.5); /* Goldener Rand */
+    -fx-stroke-width: 1;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 5, 0, 0, 1);
 }
 .event-icon-symbol {

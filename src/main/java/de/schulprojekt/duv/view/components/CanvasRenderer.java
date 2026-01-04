@@ -23,14 +23,10 @@ public class CanvasRenderer {
     private List<Party> currentParties = new ArrayList<>();
     private int currentTotalVoters = 1;
 
-    // Neuer Skalierungsfaktor für responsive Grafik
     private double currentScaleFactor = 1.0;
 
     public CanvasRenderer(Pane animationPane) {
-        // Initialgröße 0, damit Layout nicht blockiert wird
         this.canvas = new Canvas(0, 0);
-
-        // Responsive Logic:
         canvas.setManaged(true);
         canvas.widthProperty().bind(animationPane.widthProperty());
         canvas.heightProperty().bind(animationPane.heightProperty());
@@ -38,7 +34,6 @@ public class CanvasRenderer {
         animationPane.getChildren().add(0, canvas);
         this.gc = canvas.getGraphicsContext2D();
 
-        // Listener: Bei Größenänderung sofort neu berechnen
         javafx.beans.value.ChangeListener<Number> resizeListener = (obs, oldVal, newVal) -> {
             if (canvas.getWidth() > 0 && canvas.getHeight() > 0 && !currentParties.isEmpty()) {
                 recalculatePartyPositions(currentParties);
@@ -75,18 +70,15 @@ public class CanvasRenderer {
 
     private void recalculatePartyPositions(List<Party> parties) {
         partyPositions.clear();
-
         double w = canvas.getWidth();
         double h = canvas.getHeight();
         double cx = w / 2;
         double cy = h / 2;
 
-        // Dynamische Skalierung basierend auf Referenzgröße 800px
         double minDim = Math.min(w, h);
         double scaleRef = minDim / 800.0;
-        this.currentScaleFactor = Math.max(0.6, scaleRef); // Mindestens 60% Größe
+        this.currentScaleFactor = Math.max(0.6, scaleRef);
 
-        // Radius für die Anordnung (35% der kleineren Seite)
         double r = minDim * 0.35;
 
         for (int i = 0; i < parties.size(); i++) {
@@ -107,6 +99,7 @@ public class CanvasRenderer {
             Point e = partyPositions.get(t.getNewParty().getName());
             if (s != null && e != null) {
                 MovingVoter p = particlePool.isEmpty() ? new MovingVoter() : particlePool.pop();
+                // Verwende die Farbe der Zielpartei für das Partikel
                 p.reset(s.x, s.y, e.x, e.y, Color.web(t.getNewParty().getColorCode()));
                 activeParticles.add(p);
             }
@@ -117,9 +110,11 @@ public class CanvasRenderer {
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         if (currentParties.isEmpty()) return;
 
-        // 1. Verbindungslinien
-        gc.setStroke(Color.web("#D4AF37", 0.15));
+        // 1. Verbindungslinien (DESIGN ÄNDERUNG: Gold, wie im Start-Screen)
+        gc.setStroke(Color.web("#D4AF37", 0.15)); // Gold, niedrige Opazität
         gc.setLineWidth(0.8 * currentScaleFactor);
+
+        // Zeichne Linien zu allen anderen (Netzwerk-Stil)
         for (int i = 0; i < currentParties.size(); i++) {
             Point p1 = partyPositions.get(currentParties.get(i).getName());
             for (int j = i + 1; j < currentParties.size(); j++) {
@@ -132,89 +127,92 @@ public class CanvasRenderer {
         for (Party p : currentParties) {
             Point pt = partyPositions.get(p.getName());
             if (pt != null) {
-                Color pColor = Color.web(p.getColorCode());
-                Color mysteryColor = pColor.deriveColor(0, 0.8, 0.9, 1.0);
+                // Farbe: Entweder Partei-Farbe oder Grau für Unsicher
+                Color pColor = p.getName().equals(SimulationConfig.UNDECIDED_NAME)
+                        ? Color.web("#666666")
+                        : Color.web(p.getColorCode());
 
                 double share = (double) p.getCurrentSupporterCount() / currentTotalVoters;
-
-                // Basis-Größe skaliert nun auch mit Monitor-Größe
                 double r = (30.0 + (share * 60.0)) * currentScaleFactor;
                 double d = r * 2;
 
-                // A. GLOW (Radial Gradient)
+                // A. GLOW (Radial Gradient) - Angepasst an Gold-Look
                 RadialGradient gradient = new RadialGradient(
                         0, 0, pt.x, pt.y, r, false, CycleMethod.NO_CYCLE,
-                        new Stop(0.0, mysteryColor.deriveColor(0, 1.0, 1.0, 0.7)),
-                        new Stop(0.6, mysteryColor.deriveColor(0, 1.0, 0.8, 0.3)),
+                        new Stop(0.0, pColor.deriveColor(0, 1.0, 1.0, 0.4)),
                         new Stop(1.0, Color.TRANSPARENT)
                 );
 
                 gc.setFill(gradient);
                 gc.fillOval(pt.x - r, pt.y - r, d, d);
 
-                // B. Kern
-                double coreSize = 20.0 * currentScaleFactor;
+                // B. Kern (Tech-Look: Solide mit Gold-Rand)
+                double coreSize = 16.0 * currentScaleFactor;
                 double coreOffset = coreSize / 2.0;
 
-                gc.setFill(mysteryColor.brighter());
+                gc.setFill(Color.web("#1a1a1d")); // Dunkler Kern
                 gc.fillOval(pt.x - coreOffset, pt.y - coreOffset, coreSize, coreSize);
 
-                // C. Rand
-                gc.setStroke(Color.web("#D4AF37"));
-                gc.setLineWidth(1.5 * currentScaleFactor);
+                gc.setStroke(pColor); // Farbiger Ring
+                gc.setLineWidth(2.0 * currentScaleFactor);
                 gc.strokeOval(pt.x - coreOffset, pt.y - coreOffset, coreSize, coreSize);
 
-                // D. Text Labels (Skalierte Schrift)
+                // C. Text Labels (Consolas, Tech-Style)
                 gc.setTextAlign(TextAlignment.CENTER);
-
-                gc.setFill(Color.web("#e0e0e0"));
                 gc.setFont(Font.font("Consolas", FontWeight.BOLD, 12 * currentScaleFactor));
+
+                // Kürzel
+                gc.setFill(Color.web("#e0e0e0"));
                 gc.fillText(p.getAbbreviation(), pt.x, pt.y + (35 * currentScaleFactor));
 
-                gc.setFill(Color.web("#D4AF37"));
+                // Prozent
+                gc.setFill(Color.web("#D4AF37")); // Goldene Zahlen
                 gc.fillText(String.format("%.1f%%", share * 100), pt.x, pt.y + (48 * currentScaleFactor));
-
-                gc.setTextAlign(TextAlignment.LEFT);
             }
         }
 
-        // 3. Partikel
+        // 3. Partikel (DESIGN ÄNDERUNG: Punkte statt Striche)
         Iterator<MovingVoter> it = activeParticles.iterator();
-        gc.setLineWidth(2.5 * currentScaleFactor);
         while (it.hasNext()) {
-            MovingVoter p = it.next(); p.move();
-            double alpha = p.getOpacity();
-            for (int i = 0; i < 5; i++) {
-                double segAlpha = alpha * (1.0 - ((double)i / 5));
-                if (segAlpha < 0.05) continue;
-                gc.setGlobalAlpha(segAlpha); gc.setStroke(p.color.deriveColor(0, 1.0, 1.0, 1.0));
+            MovingVoter p = it.next();
+            p.move();
 
-                double tailFactor = 1.5 * currentScaleFactor;
-                double bx = p.x - (p.dx * i * tailFactor), by = p.y - (p.dy * i * tailFactor);
-                gc.strokeLine(bx, by, bx - p.dx, by - p.dy);
-            }
+            // Partikelgröße und Farbe
+            double size = 3.0 * currentScaleFactor;
+
+            // Leuchteffekt für Partikel
+            gc.setGlobalAlpha(p.getOpacity());
+            gc.setFill(p.color.brighter());
+            gc.fillOval(p.x - size/2, p.y - size/2, size, size);
+
+            // Glow um Partikel (optional für Performance, hier einfach größerer kreis mit weniger opacity)
+            gc.setGlobalAlpha(p.getOpacity() * 0.3);
+            gc.fillOval(p.x - size, p.y - size, size * 2, size * 2);
+
+            gc.setGlobalAlpha(1.0);
+
             if (p.hasArrived()) { it.remove(); particlePool.push(p); }
         }
-        gc.setGlobalAlpha(1.0);
     }
 
     public static class Point { public double x, y; public Point(double x, double y) { this.x = x; this.y = y; } }
 
     private static class MovingVoter {
-        double startX, startY, targetX, targetY, x, y, dx, dy, progress, speedStep; Color color; boolean arrived;
+        double startX, startY, targetX, targetY, x, y, progress, speedStep; Color color; boolean arrived;
         void reset(double sx, double sy, double tx, double ty, Color c) {
             this.startX = sx + (Math.random() - 0.5) * 15.0; this.startY = sy + (Math.random() - 0.5) * 15.0;
             this.targetX = tx + (Math.random() - 0.5) * 15.0; this.targetY = ty + (Math.random() - 0.5) * 15.0;
             this.x = startX; this.y = startY; this.color = c; this.progress = 0.0; this.arrived = false;
-            this.speedStep = 0.010 + (Math.random() * 0.015); this.dx = 0; this.dy = 0;
+            this.speedStep = 0.010 + (Math.random() * 0.015);
         }
         void move() {
             if (arrived) return; progress += speedStep; if (progress >= 1.0) { progress = 1.0; arrived = true; }
+            // Ease-In-Out Bewegung
             double t = progress * progress * (3 - 2 * progress);
-            double nX = startX + (targetX - startX) * t, nY = startY + (targetY - startY) * t;
-            this.dx = nX - x; this.dy = nY - y; this.x = nX; this.y = nY;
+            this.x = startX + (targetX - startX) * t;
+            this.y = startY + (targetY - startY) * t;
         }
-        double getOpacity() { return progress < 0.15 ? progress / 0.15 : (progress > 0.85 ? (1.0 - progress) / 0.15 : 1.0); }
+        double getOpacity() { return progress < 0.1 ? progress / 0.1 : (progress > 0.9 ? (1.0 - progress) / 0.1 : 1.0); }
         boolean hasArrived() { return arrived; }
     }
 }
