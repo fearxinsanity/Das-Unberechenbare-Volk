@@ -10,9 +10,10 @@ import java.net.URL;
 
 public class Main extends Application {
 
-    // Startpunkt ist jetzt der StartView, nicht mehr das Dashboard
     private static final String START_VIEW_FXML = "/de/schulprojekt/duv/view/StartView.fxml";
-    private static final String CSS_PATH = "/de/schulprojekt/duv/style.css";
+    // NEU: Zwei CSS-Dateien statt einer
+    private static final String COMMON_CSS = "/de/schulprojekt/duv/common.css";
+    private static final String START_CSS = "/de/schulprojekt/duv/start.css";
     private static final String APP_TITLE = "Das Unberechenbare Volk";
 
     @Override
@@ -25,23 +26,20 @@ public class Main extends Application {
         FXMLLoader loader = new FXMLLoader(fxmlURL);
         Parent root = loader.load();
 
-        // Fenstergröße initial festlegen
         Scene scene = new Scene(root, 1200, 750);
 
-        URL cssURL = getClass().getResource(CSS_PATH);
-        if (cssURL != null) {
-            scene.getStylesheets().add(cssURL.toExternalForm());
-        }
+        // CSS: Common + Start Screen laden
+        URL commonUrl = getClass().getResource(COMMON_CSS);
+        URL startUrl = getClass().getResource(START_CSS);
+
+        if (commonUrl != null) scene.getStylesheets().add(commonUrl.toExternalForm());
+        if (startUrl != null) scene.getStylesheets().add(startUrl.toExternalForm());
 
         primaryStage.setTitle(APP_TITLE);
         primaryStage.setScene(scene);
-        primaryStage.setResizable(true); // Responsive Design zulassen
+        primaryStage.setResizable(true);
 
-        // Sauberer Shutdown
-        primaryStage.setOnCloseRequest(e -> {
-            System.exit(0);
-        });
-
+        primaryStage.setOnCloseRequest(e -> System.exit(0));
         primaryStage.show();
     }
 

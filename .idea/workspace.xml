@@ -5,9 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/common.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/dashboard.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/start.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/StartController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/StartController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/style.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/style.css" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/view/StartView.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/view/StartView.fxml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -94,11 +98,11 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\4_Projekte\IntelliJ\Das-Unberechenbare-Volk\src\main\resources\de\schulprojekt\duv" />
       <recent name="D:\4_Projekte\IntelliJ\Das-Unberechenbare-Volk\src\main\resources\de\schulprojekt\duv\Pictures" />
       <recent name="C:\Projekt\BS-Projekt\src\main\resources\de.schulprojekt.duv\data" />
       <recent name="C:\Projekt\BS-Projekt\src\main\resources\de.schulprojekt.duv" />
       <recent name="C:\Projekt\BS-Projekt\src\main\resources\de.schulprojekt.duv\" />
-      <recent name="C:\Projekt\BS-Projekt\src\main\resources\de\schulprojekt\duv\de.schulprojekt.duv\view" />
     </key>
   </component>
   <component name="RunManager" selected="Maven.DUV - run">

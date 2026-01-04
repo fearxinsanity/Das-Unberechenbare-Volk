@@ -1,0 +1,159 @@
+/* =========================================================================
+   === DASHBOARD.CSS - Simulation Interface ===
+   ========================================================================= */
+
+/* --- Container & Layout --- */
+.sidebar, .top-bar {
+    -fx-background-color: rgba(30, 30, 35, 0.85);
+    -fx-background-radius: 0.6em;
+    -fx-border-radius: 0.6em;
+    -fx-border-color: rgba(201, 162, 39, 0.3);
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 20, 0, 0, 5);
+    -fx-padding: 1.5em;
+}
+.top-bar {
+    -fx-padding: 1.2em;
+    -fx-background-radius: 0 0 0.6em 0.6em;
+    -fx-border-width: 0 0 1 0;
+}
+
+/* --- Sliders --- */
+.slider .track { -fx-background-color: #333; }
+.slider .thumb {
+    -fx-background-color: #D4AF37;
+    -fx-border-color: black;
+    -fx-border-width: 1;
+    -fx-background-radius: 1em;
+    -fx-border-radius: 1em;
+    -fx-pref-width: 1.2em;
+    -fx-pref-height: 1.2em;
+    -fx-effect: dropshadow(gaussian, rgba(212, 175, 55, 0.8), 8, 0, 0, 0);
+}
+.slider .thumb:hover {
+    -fx-background-color: #ffd54f;
+    -fx-scale-x: 1.2;
+    -fx-scale-y: 1.2;
+}
+
+/* --- Charts Styling --- */
+.chart { -fx-background-color: transparent; -fx-padding: 0.8em; }
+.chart-plot-background {
+    -fx-background-color: linear-gradient(
+            from 0px 0px to 10px 10px, repeat,
+            rgba(255, 255, 255, 0.02) 0%,
+            rgba(255, 255, 255, 0.02) 10%,
+            transparent 10%,
+            transparent 100%
+    );
+}
+.chart-content { -fx-background-color: transparent; }
+.axis {
+    -fx-tick-label-fill: #D4AF37;
+    -fx-tick-label-font-family: "Consolas", monospace;
+    -fx-tick-label-font-size: 0.85em;
+}
+.axis-label {
+    -fx-text-fill: #8a8a8a;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-weight: bold;
+    -fx-font-size: 1em;
+}
+.chart-vertical-grid-lines, .chart-horizontal-grid-lines {
+    -fx-stroke: rgba(212, 175, 55, 0.15);
+    -fx-stroke-dash-array: 1 5;
+    -fx-stroke-width: 0.5;
+}
+.chart-series-line {
+    -fx-stroke-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 5, 0, 0, 0);
+}
+.chart-line-symbol { -fx-background-color: transparent, transparent; -fx-background-size: 0; }
+
+/* --- Ereignis-Feed --- */
+.event-feed-container { -fx-padding: 0.8em; -fx-background-color: transparent; }
+.event-card { -fx-background-color: transparent; -fx-padding: 0; }
+.event-timeline-col { -fx-alignment: top-center; -fx-padding: 0 0.8em 0 0; }
+.timeline-line { -fx-stroke: #444; -fx-stroke-width: 2; -fx-stroke-dash-array: 2 4; }
+
+.event-icon-bg {
+    -fx-radius: 1.1em;
+    -fx-stroke: rgba(0,0,0,0.5);
+    -fx-stroke-width: 2;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 5, 0, 0, 1);
+}
+.event-icon-symbol {
+    -fx-fill: white;
+    -fx-font-family: "Segoe UI Symbol", "Consolas";
+    -fx-font-size: 1.1em;
+    -fx-font-weight: bold;
+}
+.event-content-col { -fx-padding: 0 0 1.2em 0; }
+.event-time {
+    -fx-text-fill: #8a8a8a;
+    -fx-font-size: 0.8em;
+    -fx-font-family: "Consolas", monospace;
+}
+.event-title {
+    -fx-text-fill: #e0e0e0;
+    -fx-font-size: 1em;
+    -fx-font-weight: bold;
+}
+.event-desc {
+    -fx-text-fill: #aaaaaa;
+    -fx-font-size: 0.9em;
+    -fx-wrap-text: true;
+}
+
+/* --- SKANDAL TICKER --- */
+.scroll-pane > .viewport { -fx-background-color: transparent; }
+.ticker-container {
+    -fx-background-color: transparent;
+    -fx-padding: 0.8em;
+    -fx-spacing: 0;
+    -fx-alignment: top-left;
+}
+.ticker-connector { -fx-stroke: #555; -fx-stroke-width: 2; }
+.ticker-box {
+    -fx-alignment: center;
+    -fx-spacing: 0.4em;
+    -fx-padding: 0 0.4em 0 0.4em;
+}
+.ticker-item {
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 5, 0, 0, 1);
+    -fx-transition: all 0.2s;
+    -fx-background-color: #2b2b2b;
+    -fx-background-radius: 50%;
+}
+.ticker-item:hover {
+    -fx-scale-x: 1.2;
+    -fx-scale-y: 1.2;
+    -fx-effect: dropshadow(three-pass-box, #D4AF37, 10, 0, 0, 0);
+}
+.ticker-time {
+    -fx-text-fill: #8a8a8a;
+    -fx-font-family: "Consolas", monospace;
+    -fx-font-size: 0.8em;
+    -fx-font-weight: bold;
+}
+
+.scandal-tooltip {
+    -fx-background-color: rgba(30, 30, 35, 0.95);
+    -fx-background-radius: 0.4em;
+    -fx-border-color: #D4AF37;
+    -fx-border-width: 1;
+    -fx-border-radius: 0.4em;
+    -fx-padding: 0.8em;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);
+    -fx-font-family: "Consolas";
+    -fx-font-size: 1em;
+}
+
+/* --- Colors (Parties & Types) --- */
+.type-corruption { -fx-fill: #dc3545; }
+.type-financial  { -fx-fill: #ffc107; }
+.type-political  { -fx-fill: #17a2b8; }
+.type-personal   { -fx-fill: #d63384; }
+.type-scandal    { -fx-fill: #fd7e14; }
+.type-default    { -fx-fill: #6c757d; }
