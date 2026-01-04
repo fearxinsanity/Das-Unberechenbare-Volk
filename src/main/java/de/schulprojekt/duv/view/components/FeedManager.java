@@ -62,14 +62,31 @@ public class FeedManager {
             Line conn = new Line(0, 0, 50, 0); conn.getStyleClass().add("ticker-connector"); conn.setTranslateY(16);
             tickerBox.getChildren().add(conn);
         }
-        Circle bg = new Circle(16); bg.getStyleClass().addAll("event-icon-bg", getStyle(event));
-        Text sym = new Text(getSymbol(event)); sym.getStyleClass().add("event-icon-symbol");
-        StackPane st = new StackPane(bg, sym); st.getStyleClass().add("ticker-item");
-        st.setMinWidth(32); st.setMinHeight(32);
-        Label l = new Label("Tick " + step); l.getStyleClass().add("ticker-time");
-        VBox box = new VBox(st, l); box.getStyleClass().add("ticker-box");
+
+        Circle bg = new Circle(16);
+        bg.getStyleClass().addAll("event-icon-bg", getStyle(event));
+
+        Text sym = new Text(getSymbol(event));
+        sym.getStyleClass().add("event-icon-symbol");
+
+        StackPane st = new StackPane(bg, sym);
+        st.getStyleClass().add("ticker-item");
+
+        // FIX: Erzwingen einer quadratischen Form, damit der Kreis rund bleibt!
+        st.setMinWidth(32);
+        st.setMinHeight(32);
+        st.setPrefSize(32, 32);
+        st.setMaxSize(32, 32);
+
+        Label l = new Label("Tick " + step);
+        l.getStyleClass().add("ticker-time");
+
+        VBox box = new VBox(st, l);
+        box.getStyleClass().add("ticker-box");
+
         Tooltip tt = new Tooltip(String.format("TICK: %d\nPARTEI: %s\nTYP: %s\n\n%s\n\nAUSWIRKUNG: -%.0f%%", step, event.getAffectedParty().getAbbreviation(), event.getScandal().getType(), event.getScandal().getTitle(), event.getScandal().getStrength() * 50));
         tt.getStyleClass().add("scandal-tooltip"); tt.setShowDelay(Duration.ZERO); Tooltip.install(st, tt);
+
         tickerBox.getChildren().add(box);
         tickerBox.applyCss(); tickerBox.layout(); tickerScroll.layout(); tickerScroll.setHvalue(1.0);
     }

@@ -7,13 +7,16 @@ import de.schulprojekt.duv.model.voter.VoterTransition;
 import de.schulprojekt.duv.model.party.Party;
 import de.schulprojekt.duv.view.components.*;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import java.util.List;
 import java.util.Locale;
 
@@ -27,6 +30,10 @@ public class DashboardController {
     @FXML private TextField voterCountField, partyCountField, budgetField, scandalChanceField;
     @FXML private Slider mediaInfluenceSlider, mobilityRateSlider, loyaltyMeanSlider, randomRangeSlider;
     @FXML private Button startButton, pauseButton, resetButton;
+
+    // Neue Referenzen für die Sidebars
+    @FXML private VBox leftSidebar;
+    @FXML private VBox rightSidebar;
 
     private SimulationController controller;
     private CanvasRenderer canvasRenderer;
@@ -48,6 +55,50 @@ public class DashboardController {
         this.controller = new SimulationController(this);
         handleParameterChange(null);
         canvasRenderer.startVisualTimer();
+
+        // --- RESPONSIVE LOGIK START ---
+        Platform.runLater(() -> {
+            if (animationPane.getScene() != null) {
+                Scene scene = animationPane.getScene();
+
+                // 1. Schriftgrößen-Skalierung
+                scene.widthProperty().addListener((obs, oldVal, newVal) -> adjustScale(newVal.doubleValue()));
+                scene.heightProperty().addListener((obs, oldVal, newVal) -> adjustLayout(newVal.doubleValue()));
+
+                // Initial einmal ausführen
+                adjustScale(scene.getWidth());
+
+                // 2. Sidebar-Breiten dynamisch binden (Min 250px, Max 450px, sonst 22% der Breite)
+                if (leftSidebar != null) {
+                    leftSidebar.prefWidthProperty().bind(
+                            Bindings.max(250, Bindings.min(450, scene.widthProperty().multiply(0.22)))
+                    );
+                }
+                if (rightSidebar != null) {
+                    rightSidebar.prefWidthProperty().bind(
+                            Bindings.max(250, Bindings.min(450, scene.widthProperty().multiply(0.22)))
+                    );
+                }
+            }
+        });
+        // --- RESPONSIVE LOGIK ENDE ---
+    }
+
+    private void adjustScale(double windowWidth) {
+        if (animationPane.getScene() == null) return;
+
+        // Basis: 12px bei 1280px Breite
+        double baseSize = 12.0;
+        double scaleFactor = windowWidth / 1280.0;
+
+        // Sanfte Skalierung mittels Wurzel, geklammert zwischen 11px und 18px
+        double newSize = Math.max(11.0, Math.min(18.0, baseSize * Math.sqrt(scaleFactor)));
+
+        animationPane.getScene().getRoot().setStyle("-fx-font-size: " + String.format(Locale.US, "%.1f", newSize) + "px;");
+    }
+
+    private void adjustLayout(double windowHeight) {
+        // Platzhalter für vertikale Anpassungen (z.B. Paddings reduzieren bei sehr flachen Screens)
     }
 
     public void updateDashboard(List<Party> parties, List<VoterTransition> transitions, ScandalEvent scandal, int step) {

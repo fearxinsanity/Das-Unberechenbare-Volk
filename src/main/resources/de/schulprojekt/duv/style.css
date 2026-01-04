@@ -2,76 +2,72 @@
 .root {
     /* Monospace-Schriften wirken technischer, wie ein Terminal oder geheime Akten */
     -fx-font-family: "Consolas", "Courier New", monospace;
-    -fx-font-size: 12px;
+    /* Basisschriftgröße wird dynamisch im Controller gesetzt (z.B. 12px - 18px) */
     -fx-text-fill: #e0e0e0;
 }
 
 /* === Hintergrund & Atmosphäre === */
 .root-pane {
-    /* Starke Vignette: Helles Zentrum, fast schwarze Ecken.
-       Wirkt wie ein Blick auf einen verborgenen Bildschirm. */
+    /* Starke Vignette: Helles Zentrum, fast schwarze Ecken. */
     -fx-background-color: radial-gradient(center 50% 50%, radius 80%, #2b2b2b 0%, #000000 100%);
 }
 
 /* === Container & Cards (Seitenleisten) === */
 .sidebar, .top-bar {
-    /* Leicht transparent, damit der dunkle Hintergrund durchscheint */
     -fx-background-color: rgba(30, 30, 35, 0.85);
-    -fx-background-radius: 8;
-    -fx-border-radius: 8;
-    /* Ein subtiles, mysteriöses Glühen an den Rändern statt eines harten Schattens */
-    -fx-border-color: rgba(201, 162, 39, 0.3); /* Gold-Glühen, passend zum Akzent */
+    -fx-background-radius: 0.6em;
+    -fx-border-radius: 0.6em;
+    -fx-border-color: rgba(201, 162, 39, 0.3);
     -fx-border-width: 1;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 20, 0, 0, 5);
-    -fx-padding: 20;
+    /* Padding relativ zur Schriftgröße */
+    -fx-padding: 1.5em;
 }
 .top-bar {
-    -fx-padding: 15;
-    -fx-background-radius: 0 0 8 8;
+    -fx-padding: 1.2em;
+    -fx-background-radius: 0 0 0.6em 0.6em;
     -fx-border-width: 0 0 1 0;
 }
-
 
 /* === Typografie & Akzente === */
 .label { -fx-text-fill: #d0d0d0; }
 
 .app-title {
-    -fx-text-fill: #D4AF37; /* Altgold */
-    -fx-font-size: 22px;
+    -fx-text-fill: #D4AF37;
+    -fx-font-size: 1.8em; /* Relativ zur Basis */
     -fx-font-weight: bold;
-    /* Ein stärkeres, unheimliches Glühen */
     -fx-effect: dropshadow(gaussian, rgba(212, 175, 55, 0.6), 15, 0.3, 0, 0);
-    -fx-font-family: "Segoe UI", sans-serif; /* Titel darf etwas cleaner sein */
+    -fx-font-family: "Segoe UI", sans-serif;
 }
 
 .section-title {
     -fx-text-fill: #D4AF37;
-    -fx-font-size: 14px;
+    -fx-font-size: 1.2em;
     -fx-font-weight: bold;
-    -fx-underline: true; /* Wie in einer Geheimakte */
-    -fx-padding: 0 0 10 0;
+    -fx-underline: true;
+    -fx-padding: 0 0 0.8em 0;
 }
 
 .control-label, .status-label {
     -fx-text-fill: #8a8a8a;
-    -fx-font-size: 11px;
+    -fx-font-size: 0.9em;
 }
 .warning-label {
     -fx-text-fill: #ff4444;
     -fx-effect: dropshadow(gaussian, rgba(255, 68, 68, 0.4), 5, 0, 0, 0);
 }
 
-
 /* === Buttons & Interaktion === */
 .button {
     -fx-background-color: #2a2a2e;
     -fx-text-fill: #D4AF37;
-    -fx-background-radius: 4; /* Eckiger wirkt technischer */
-    -fx-border-radius: 4;
+    -fx-background-radius: 0.3em;
+    -fx-border-radius: 0.3em;
     -fx-border-color: #D4AF37;
     -fx-border-width: 1;
     -fx-cursor: hand;
     -fx-font-weight: bold;
+    -fx-padding: 0.4em 0.8em 0.4em 0.8em;
 }
 .button:hover {
     -fx-background-color: rgba(212, 175, 55, 0.2);
@@ -95,42 +91,28 @@
     -fx-background-color: rgba(0,0,0,0.5);
     -fx-text-fill: #D4AF37;
     -fx-border-color: #444;
-    -fx-background-radius: 2;
+    -fx-background-radius: 0.2em;
 }
 .slider .track { -fx-background-color: #333; }
 .slider .thumb {
     -fx-background-color: #D4AF37;
     -fx-border-color: black;
     -fx-border-width: 1;
-
-    /* WICHTIG: Radius für Hintergrund UND Rand identisch setzen */
-    -fx-background-radius: 10px;
-    -fx-border-radius: 10px;
-
-    /* Feste Größe definiert den Kreis (z.B. 14x14px) */
-    -fx-pref-width: 14px;
-    -fx-pref-height: 14px;
-
-    /* Dein Glühen-Effekt */
+    -fx-background-radius: 1em;
+    -fx-border-radius: 1em;
+    /* Slider Daumen skaliert mit em */
+    -fx-pref-width: 1.2em;
+    -fx-pref-height: 1.2em;
     -fx-effect: dropshadow(gaussian, rgba(212, 175, 55, 0.8), 8, 0, 0, 0);
 }
-
-/* Optional: Wenn man mit der Maus drüberfährt, wird er etwas größer */
 .slider .thumb:hover {
     -fx-background-color: #ffd54f;
     -fx-scale-x: 1.2;
     -fx-scale-y: 1.2;
 }
 
-/* === Charts (Stimmenverlauf) Styling === */
-
-/* 1. Der gesamte Chart-Container */
-.chart {
-    -fx-background-color: transparent;
-    -fx-padding: 10px;
-}
-
-/* 2. WICHTIG: Das weiße Rechteck entfernen (Plot-Area) */
+/* === Charts Styling === */
+.chart { -fx-background-color: transparent; -fx-padding: 0.8em; }
 .chart-plot-background {
     -fx-background-color: linear-gradient(
             from 0px 0px to 10px 10px, repeat,
@@ -140,180 +122,78 @@
             transparent 100%
     );
 }
-
-/* 3. Inhalt des Charts */
-.chart-content {
-    -fx-background-color: transparent;
-}
-
-/* 4. Achsen-Beschriftungen (Zahlen) */
+.chart-content { -fx-background-color: transparent; }
 .axis {
-    -fx-tick-label-fill: #D4AF37; /* Goldene Zahlen passend zum Theme */
+    -fx-tick-label-fill: #D4AF37;
     -fx-tick-label-font-family: "Consolas", monospace;
-    -fx-tick-label-font-size: 10px;
+    -fx-tick-label-font-size: 0.85em;
 }
-
-/* 5. Achsen-Titel (z.B. "Zeit", "Stimmen") */
 .axis-label {
-    -fx-text-fill: #8a8a8a; /* Etwas dunkleres Grau */
+    -fx-text-fill: #8a8a8a;
     -fx-font-family: "Segoe UI", sans-serif;
     -fx-font-weight: bold;
+    -fx-font-size: 1em;
 }
-
-/* 6. Gitterlinien (Grid) - Hauchdünn und technisch */
 .chart-vertical-grid-lines, .chart-horizontal-grid-lines {
-    -fx-stroke: rgba(212, 175, 55, 0.15); /* Sehr transparentes Gold */
-    -fx-stroke-dash-array: 1 5; /* Gepunktete Linien wirken technischer */
+    -fx-stroke: rgba(212, 175, 55, 0.15);
+    -fx-stroke-dash-array: 1 5;
     -fx-stroke-width: 0.5;
 }
-
-/* 7. Die Linien der Parteien selbst (optionales Glow) */
 .chart-series-line {
     -fx-stroke-width: 2px;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 5, 0, 0, 0);
 }
+.chart-line-symbol { -fx-background-color: transparent, transparent; -fx-background-size: 0; }
 
-/* Falls Symbole (Punkte) noch an sind, verstecken wir sie hier sicherheitshalber */
-.chart-line-symbol {
-    -fx-background-color: transparent, transparent;
-    -fx-background-size: 0;
-}
+/* === Ereignis-Feed === */
+.event-feed-container { -fx-padding: 0.8em; -fx-background-color: transparent; }
+.event-card { -fx-background-color: transparent; -fx-padding: 0; }
+.event-timeline-col { -fx-alignment: top-center; -fx-padding: 0 0.8em 0 0; }
+.timeline-line { -fx-stroke: #444; -fx-stroke-width: 2; -fx-stroke-dash-array: 2 4; }
 
-/* === Ereignis-Feed Timeline Design === */
-
-.event-feed-container {
-    -fx-padding: 10;
-    -fx-background-color: transparent;
-}
-
-.event-card {
-    -fx-background-color: transparent;
-    -fx-padding: 0;
-}
-
-/* Linke Spalte: Icon und Linie */
-.event-timeline-col {
-    -fx-alignment: top-center;
-    -fx-padding: 0 10 0 0;
-}
-
-.timeline-line {
-    -fx-stroke: #444;
-    -fx-stroke-width: 2;
-    -fx-stroke-dash-array: 2 4; /* Gestrichelte Linie passt gut zum Terminal-Look */
-}
-
-/* Das Icon (Kreis) */
 .event-icon-bg {
-    -fx-radius: 14;
+    -fx-radius: 1.1em;
     -fx-stroke: rgba(0,0,0,0.5);
     -fx-stroke-width: 2;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 5, 0, 0, 1);
 }
-
 .event-icon-symbol {
     -fx-fill: white;
-    -fx-font-family: "Segoe UI Symbol", "Consolas"; /* Für Icons */
-    -fx-font-size: 14px;
+    -fx-font-family: "Segoe UI Symbol", "Consolas";
+    -fx-font-size: 1.1em;
     -fx-font-weight: bold;
 }
-
-/* Rechte Spalte: Text */
-.event-content-col {
-    -fx-padding: 0 0 15 0; /* Abstand nach unten zum nächsten Event */
-}
-
+.event-content-col { -fx-padding: 0 0 1.2em 0; }
 .event-time {
     -fx-text-fill: #8a8a8a;
-    -fx-font-size: 10px;
-    -fx-font-family: "Consolas", monospace;
-}
-
-.event-title {
-    -fx-text-fill: #e0e0e0;
-    -fx-font-size: 12px;
-    -fx-font-weight: bold;
-}
-
-.event-desc {
-    -fx-text-fill: #aaaaaa;
-    -fx-font-size: 11px;
-    -fx-wrap-text: true;
-}
-
-/* === Farb-Definitionen für Ereignis-Typen === */
-.type-corruption { -fx-fill: #dc3545; } /* Rot */
-.type-financial  { -fx-fill: #ffc107; } /* Gelb/Gold */
-.type-political  { -fx-fill: #17a2b8; } /* Cyan */
-.type-personal   { -fx-fill: #d63384; } /* Pink/Lila */
-.type-scandal    { -fx-fill: #fd7e14; } /* Orange */
-.type-default    { -fx-fill: #6c757d; } /* Grau */
-
-/* === EREIGNIS FEED (Links, Vertikal) === */
-.event-feed-container {
-    -fx-padding: 10;
-    -fx-background-color: transparent;
-}
-.event-card {
-    -fx-background-color: transparent;
-    -fx-padding: 0;
-}
-.event-timeline-col {
-    -fx-alignment: top-center;
-    -fx-padding: 0 10 0 0;
-}
-.timeline-line {
-    -fx-stroke: #444;
-    -fx-stroke-width: 2;
-    -fx-stroke-dash-array: 2 4;
-}
-.event-content-col {
-    -fx-padding: 0 0 15 0;
-}
-.event-time {
-    -fx-text-fill: #8a8a8a;
-    -fx-font-size: 10px;
+    -fx-font-size: 0.8em;
     -fx-font-family: "Consolas", monospace;
 }
 .event-title {
     -fx-text-fill: #e0e0e0;
-    -fx-font-size: 12px;
+    -fx-font-size: 1em;
     -fx-font-weight: bold;
 }
 .event-desc {
     -fx-text-fill: #aaaaaa;
-    -fx-font-size: 11px;
+    -fx-font-size: 0.9em;
     -fx-wrap-text: true;
 }
 
-/* === SKANDAL TICKER (Unten, Horizontal) === */
-
-.scroll-pane > .viewport {
-    -fx-background-color: transparent;
-}
-
+/* === SKANDAL TICKER === */
+.scroll-pane > .viewport { -fx-background-color: transparent; }
 .ticker-container {
     -fx-background-color: transparent;
-    -fx-padding: 10;
-    /* spacing auf 0 setzen, da wir jetzt echte Linien dazwischen haben,
-       die den Abstand definieren */
+    -fx-padding: 0.8em;
     -fx-spacing: 0;
     -fx-alignment: top-left;
 }
-
-/* Die neue Verbindungslinie (wird im Code erzeugt) */
-.ticker-connector {
-    -fx-stroke: #555;
-    -fx-stroke-width: 2;
-}
-
+.ticker-connector { -fx-stroke: #555; -fx-stroke-width: 2; }
 .ticker-box {
     -fx-alignment: center;
-    -fx-spacing: 5;
-    /* Kleiner Abstand links/rechts, damit der Text Platz hat */
-    -fx-padding: 0 5 0 5;
+    -fx-spacing: 0.4em;
+    -fx-padding: 0 0.4em 0 0.4em;
 }
-
 .ticker-item {
     -fx-cursor: hand;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 5, 0, 0, 1);
@@ -321,29 +201,52 @@
     -fx-background-color: #2b2b2b;
     -fx-background-radius: 50%;
 }
-
 .ticker-item:hover {
     -fx-scale-x: 1.2;
     -fx-scale-y: 1.2;
     -fx-effect: dropshadow(three-pass-box, #D4AF37, 10, 0, 0, 0);
 }
-
 .ticker-time {
     -fx-text-fill: #8a8a8a;
     -fx-font-family: "Consolas", monospace;
-    -fx-font-size: 10px;
+    -fx-font-size: 0.8em;
     -fx-font-weight: bold;
 }
 
-/* === TOOLTIP DESIGN === */
 .scandal-tooltip {
     -fx-background-color: rgba(30, 30, 35, 0.95);
-    -fx-background-radius: 5;
+    -fx-background-radius: 0.4em;
     -fx-border-color: #D4AF37;
     -fx-border-width: 1;
-    -fx-border-radius: 5;
-    -fx-padding: 10;
+    -fx-border-radius: 0.4em;
+    -fx-padding: 0.8em;
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);
     -fx-font-family: "Consolas";
-    -fx-font-size: 12px;
+    -fx-font-size: 1em;
 }
+
+/* Scrollbar */
+.scroll-bar:horizontal, .scroll-bar:vertical{ -fx-background-color: transparent; }
+.scroll-bar:vertical .track, .scroll-bar:horizontal .track {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-radius: 0em;
+}
+.scroll-bar:vertical .thumb, .scroll-bar:horizontal .thumb {
+    -fx-background-color: #444;
+    -fx-background-radius: 5em;
+}
+.scroll-bar:vertical .thumb:hover, .scroll-bar:horizontal .thumb:hover { -fx-background-color: #D4AF37; }
+.scroll-bar .increment-button, .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+/* Colors */
+.type-corruption { -fx-fill: #dc3545; }
+.type-financial  { -fx-fill: #ffc107; }
+.type-political  { -fx-fill: #17a2b8; }
+.type-personal   { -fx-fill: #d63384; }
+.type-scandal    { -fx-fill: #fd7e14; }
+.type-default    { -fx-fill: #6c757d; }
