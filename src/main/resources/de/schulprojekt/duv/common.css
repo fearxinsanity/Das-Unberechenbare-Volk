@@ -12,6 +12,25 @@
     -fx-background-color: linear-gradient(to bottom, #1a1a1d 0%, #050505 100%);
 }
 
+/* --- NEU: Hintergrund Gitter (Vom Start-Screen übernommen) --- */
+.grid-background {
+    -fx-background-color:
+            linear-gradient(from 0px 0px to 40px 0px, repeat, rgba(212, 175, 55, 0.10) 0%, rgba(212, 175, 55, 0.10) 2%, transparent 2%, transparent 100%),
+            linear-gradient(from 0px 0px to 0px 40px, repeat, rgba(212, 175, 55, 0.10) 0%, rgba(212, 175, 55, 0.10) 2%, transparent 2%, transparent 100%);
+    -fx-opacity: 0.4;
+}
+
+/* --- NEU: HUD Text Stile --- */
+.hud-text {
+    -fx-text-fill: rgba(255, 255, 255, 0.25);
+    -fx-font-size: 0.8em;
+    -fx-font-family: "Consolas", monospace;
+}
+.hud-text-highlight {
+    -fx-text-fill: rgba(212, 175, 55, 0.6);
+    -fx-font-weight: bold;
+}
+
 /* --- Labels & Titel Global --- */
 .label { -fx-text-fill: #d0d0d0; }
 
