@@ -250,3 +250,95 @@
 .type-personal   { -fx-fill: #d63384; }
 .type-scandal    { -fx-fill: #fd7e14; }
 .type-default    { -fx-fill: #6c757d; }
+
+/* =========================================
+   === NEUES START-SCREEN DESIGN ===
+   ========================================= */
+
+/* Verstärkter Hintergrund für den Startscreen */
+.start-screen-bg {
+    /* Dunklerer, dramatischerer Verlauf */
+    -fx-background-color: radial-gradient(center 50% 40%, radius 90%, #22222b 0%, #0a0a0e 90%, black 100%);
+}
+
+/* Die "Glas"-Karte in der Mitte */
+.start-screen-card {
+    /* Sehr dunkler, halb-transparenter Hintergrund */
+    -fx-background-color: rgba(20, 20, 25, 0.75);
+    /* Goldener, kaum sichtbarer Rand */
+    -fx-border-color: rgba(212, 175, 55, 0.15);
+    -fx-border-width: 1px;
+    -fx-background-radius: 1.5em;
+    -fx-border-radius: 1.5em;
+    /* Starker Schatten für 3D-Effekt */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.9), 40, 0.1, 0, 10);
+    /* HINWEIS: Echtes "backdrop-filter: blur()" geht in JavaFX CSS leider nicht einfach,
+       aber die Transparenz + Schatten simulieren es gut. */
+}
+
+/* Der Lichtschein hinter dem Logo */
+.logo-glow-effect {
+    /* Ein weicher, goldener Schein */
+    -fx-background-color: radial-gradient(center 50% 50%, radius 50%, rgba(212, 175, 55, 0.2) 0%, transparent 70%);
+    -fx-opacity: 0.6;
+    /* Unscharf machen */
+    -fx-effect: dropshadow(gaussian, rgba(212, 175, 55, 0.4), 100, 0.5, 0, 0);
+}
+
+/* Der Untertitel */
+.start-subtitle {
+    -fx-text-fill: #D4AF37; /* Gold */
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 1.2em;
+    -fx-font-weight: bold;
+    /* Simuliert "Letter Spacing" (Buchstabenabstand) */
+    -fx-padding: 0.5em 2em 0.5em 2em;
+    -fx-border-color: transparent transparent rgba(212, 175, 55, 0.3) transparent;
+    -fx-border-width: 1;
+}
+
+/* Footer Text */
+.start-footer {
+    -fx-text-fill: rgba(255,255,255,0.3);
+    -fx-font-size: 0.8em;
+}
+
+/* === Spezial-Buttons für den Startscreen === */
+
+/* Der "Helden"-Button (Starten) */
+.start-button-hero {
+    -fx-font-size: 1.5em;
+    -fx-padding: 0.8em 2em;
+    -fx-background-color: linear-gradient(to bottom, rgba(46, 125, 50, 0.5), rgba(27, 75, 30, 0.6));
+    -fx-border-color: #2E7D32;
+    -fx-text-fill: #e0e0e0;
+    -fx-font-weight: bold;
+    /* Leichter Schein nach außen */
+    -fx-effect: dropshadow(gaussian, rgba(46, 125, 50, 0.5), 20, 0, 0, 0);
+    -fx-cursor: hand;
+    transition: all 0.3s ease-in-out;
+}
+
+.start-button-hero:hover {
+    /* Heller und stärkerer Schein beim Drüberfahren */
+    -fx-background-color: linear-gradient(to bottom, rgba(46, 125, 50, 0.8), rgba(27, 75, 30, 0.9));
+    -fx-effect: dropshadow(gaussian, #4CAF50, 30, 0.3, 0, 0);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+/* Der Sekundär-Button (Beenden) */
+.start-button-secondary {
+    -fx-font-size: 1.1em;
+    -fx-background-color: transparent;
+    -fx-border-color: rgba(255,255,255,0.2);
+    -fx-text-fill: rgba(255,255,255,0.6);
+    -fx-opacity: 0.8;
+}
+
+.start-button-secondary:hover {
+    -fx-background-color: rgba(255,255,255,0.1);
+    -fx-border-color: rgba(255,255,255,0.4);
+    -fx-text-fill: white;
+    -fx-opacity: 1.0;
+}

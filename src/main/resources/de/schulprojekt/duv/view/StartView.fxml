@@ -3,36 +3,57 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.effect.Glow?>
 
 <StackPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="de.schulprojekt.duv.view.StartController"
-           styleClass="root-pane" prefHeight="700.0" prefWidth="1200.0">
+           styleClass="root-pane, start-screen-bg" prefHeight="750.0" prefWidth="1200.0">
 
-    <VBox alignment="CENTER" spacing="20" maxWidth="600" style="-fx-background-color: rgba(30, 30, 35, 0.6); -fx-background-radius: 20; -fx-padding: 40;">
+    <Region fx:id="glowRegion" maxHeight="450" maxWidth="650" styleClass="logo-glow-effect" StackPane.alignment="TOP_CENTER">
+        <StackPane.margin>
+            <Insets top="30"/>
+        </StackPane.margin>
+    </Region>
 
-        <VBox alignment="CENTER" spacing="5">
-            <Label text="Das Unberechenbare Volk" styleClass="app-title" style="-fx-font-size: 3.0em;"/>
-            <Label text="Simulation politischer Dynamiken &amp; Wählerwanderungen" styleClass="control-label" style="-fx-font-size: 1.1em; -fx-text-fill: #aaa;"/>
-        </VBox>
+    <VBox fx:id="cardBox" alignment="CENTER" spacing="20" maxWidth="700" styleClass="start-screen-card">
+        <padding>
+            <Insets top="40" right="60" bottom="40" left="60"/>
+        </padding>
+
+        <ImageView fx:id="logoImageView" fitWidth="600" preserveRatio="true">
+            <image>
+                <Image url="@../Pictures/Project_logo.png"/>
+            </image>
+            <effect>
+                <DropShadow color="rgba(0,0,0,0.8)" radius="25" spread="0.15" offsetY="8"/>
+            </effect>
+        </ImageView>
+
+        <Label text="SIMULATION POLITISCHER DYNAMIKEN" styleClass="start-subtitle">
+            <effect>
+                <Glow level="0.4"/>
+            </effect>
+        </Label>
 
         <Region prefHeight="40" />
 
-        <VBox alignment="CENTER" spacing="15" fillWidth="true">
+        <VBox alignment="CENTER" spacing="18" fillWidth="true">
             <Button text="SIMULATION STARTEN" onAction="#handleStartSimulation"
-                    styleClass="action-button" maxWidth="300"
-                    style="-fx-font-size: 1.4em; -fx-padding: 15 30 15 30;"/>
+                    styleClass="action-button, start-button-hero" maxWidth="Infinity"/>
 
             <Button text="BEENDEN" onAction="#handleExitApplication"
-                    styleClass="button" maxWidth="200"
-                    style="-fx-font-size: 1.1em; -fx-opacity: 0.8;"/>
+                    styleClass="button, start-button-secondary" maxWidth="220"/>
         </VBox>
 
         <Region prefHeight="30" />
 
-        <Label text="© 2025 Berufsschulprojekt - Version 1.0" style="-fx-text-fill: #555; -fx-font-size: 0.8em;"/>
+        <Label text="© 2025 Berufsschulprojekt - Version 1.0" styleClass="start-footer"/>
 
     </VBox>
 </StackPane>
