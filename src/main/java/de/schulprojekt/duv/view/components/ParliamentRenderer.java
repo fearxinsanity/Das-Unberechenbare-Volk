@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 /**
  * High-Density "War Room" Parliament Renderer.
- * Korrigiert: Voller 180-Grad-Bogen, keine Lücken, exakte Skalierung.
+ * Version: Clean & Fixed (Voller 180-Grad-Bogen, keine extra Linien).
  */
 public class ParliamentRenderer {
 
@@ -134,15 +134,16 @@ public class ParliamentRenderer {
 
     private void calculateSeatPositions(List<Party> parties) {
         seats.clear();
-        double totalVotes = parties.stream().mapToDouble(Party::getCurrentSupporterCount).sum();
 
-        // 1. Sortieren nach politischer Position
+        // 1. Sortieren nach politischer Position und Filterung
         List<Party> sortedParties = parties.stream()
                 .filter(p -> !p.getName().equals(SimulationConfig.UNDECIDED_NAME))
                 .sorted(Comparator.comparingDouble(Party::getPoliticalPosition))
                 .collect(Collectors.toList());
 
-        // 2. Sitze verteilen (Exakt TOTAL_SEATS füllen)
+        // 2. Sitze verteilen (Basis ist nur die Summe der angezeigten Parteien!)
+        double totalVotes = sortedParties.stream().mapToDouble(Party::getCurrentSupporterCount).sum();
+
         List<Party> seatPartyMap = new ArrayList<>();
         if (totalVotes > 0) {
             for (Party p : sortedParties) {
@@ -157,7 +158,7 @@ public class ParliamentRenderer {
             seatPartyMap.remove(seatPartyMap.size() - 1);
         }
         while (seatPartyMap.size() < TOTAL_SEATS) {
-            seatPartyMap.add(null); // Leere Sitze auffüllen
+            seatPartyMap.add(null); // Auffüllen falls Rundungsdifferenzen
         }
 
         // 3. Geometrie berechnen (Verteilung auf Reihen)
@@ -337,6 +338,7 @@ public class ParliamentRenderer {
     }
 
     private void drawNetwork(GraphicsContext gc, double cx, double cy, double scale, double t) {
+        // Original implementation: Nur subtile Linien zur Mitte
         gc.setStroke(Color.web("#D4AF37", 0.05));
         gc.setLineWidth(1.0);
         int step = 10;
