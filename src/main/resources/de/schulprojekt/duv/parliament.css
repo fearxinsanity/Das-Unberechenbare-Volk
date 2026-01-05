@@ -1,0 +1,34 @@
+/* Düsterer Hintergrund mit Vignette */
+.main-background {
+    -fx-background-color: radial-gradient(center 50% 50%, radius 100%, #1a1a1a, #000000);
+}
+
+/* Cyberpunk/Neon Button Style */
+.neon-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #00ffaa;
+    -fx-border-color: #00ffaa;
+    -fx-border-width: 1px;
+    -fx-font-family: 'Consolas', 'Monospaced';
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+    -fx-padding: 8 15 8 15;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 255, 170, 0.4), 10, 0, 0, 0);
+    -fx-transition: all 0.3s;
+}
+
+.neon-button:hover {
+    -fx-background-color: rgba(0, 255, 170, 0.1);
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 255, 170, 0.8), 15, 0, 0, 0);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.neon-button:pressed {
+    -fx-background-color: rgba(0, 255, 170, 0.2);
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 255, 170, 1.0), 5, 0, 0, 0);
+}
+
+.header-label {
+    -fx-effect: dropshadow(gaussian, rgba(85, 255, 85, 0.6), 10, 0.5, 0, 0);
+}
