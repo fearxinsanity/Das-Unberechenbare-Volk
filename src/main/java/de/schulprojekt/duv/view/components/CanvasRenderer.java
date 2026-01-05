@@ -137,31 +137,36 @@ public class CanvasRenderer {
                         ? Color.web("#666666") : Color.web(p.getColorCode());
 
                 double share = (double) p.getCurrentSupporterCount() / currentTotalVoters;
-                // Quadratische Größe statt Radius
-                double size = (40.0 + (share * 80.0)) * currentScaleFactor;
-                double half = size / 2.0;
+
+                // --- ÄNDERUNG: Dynamischere Skalierung ---
+                // Math.pow(share, 0.7) sorgt dafür, dass Unterschiede stärker betont werden,
+                // aber kleine Parteien nicht komplett verschwinden.
+                double dynamicSize = (30.0 + (Math.pow(share, 0.7) * 120.0)) * currentScaleFactor;
+
+                double half = dynamicSize / 2.0;
 
                 // A. Quadratischer Hintergrund (Tech Look)
                 gc.setFill(pColor.deriveColor(0, 1.0, 1.0, 0.2));
-                gc.fillRect(pt.x - half, pt.y - half, size, size);
+                gc.fillRect(pt.x - half, pt.y - half, dynamicSize, dynamicSize);
 
                 // B. Eckiger Rahmen
                 gc.setStroke(pColor);
-                gc.setLineWidth(1.5);
-                gc.strokeRect(pt.x - half, pt.y - half, size, size);
+                gc.setLineWidth(1.5 * currentScaleFactor);
+                gc.strokeRect(pt.x - half, pt.y - half, dynamicSize, dynamicSize);
 
                 // C. Target Lock (Nur für Leader)
                 if (p == leader) {
-                    drawTargetLock(gc, pt.x, pt.y, size * 1.4, pColor);
+                    drawTargetLock(gc, pt.x, pt.y, dynamicSize * 1.3, pColor);
                 }
 
                 // D. Crosshair Marker (für alle)
-                drawCrosshair(gc, pt.x, pt.y, size * 0.8, pColor);
+                drawCrosshair(gc, pt.x, pt.y, dynamicSize * 0.8, pColor);
 
                 // E. Text
                 gc.setTextAlign(TextAlignment.CENTER);
                 gc.setFont(Font.font("Consolas", FontWeight.BOLD, 12 * currentScaleFactor));
                 gc.setFill(Color.web("#e0e0e0"));
+                // Text etwas unterhalb des Quadrats platzieren
                 gc.fillText(p.getAbbreviation(), pt.x, pt.y + half + 15);
 
                 // Prozent (Gold)
