@@ -14,6 +14,38 @@ import java.util.stream.IntStream;
 
 public class VoterBehavior {
 
+    // --- SIMULATIONS-KONSTANTEN (Tuning) ---
+    // Bestimmen, wie stark Meinungen driften
+    private static final double OPINION_DRIFT_FACTOR = 0.2;
+
+    // Beeinflusst, wie stark Loyalität den Wechsel hemmt (höher = weniger Wechsel)
+    private static final double LOYALTY_DAMPING_FACTOR = 200.0;
+
+    // Wie stark Skandale (Penalty) den Wechseldruck erhöhen (niedriger = empfindlicher)
+    private static final double PENALTY_PRESSURE_DIVISOR = 600.0;
+
+    // Bonus-Wahrscheinlichkeit, wenn man aktuell "Unsicher" ist (schnellerer Wechsel weg von Unsicher)
+    private static final double UNDECIDED_MOBILITY_BONUS = 1.2;
+
+    // Maximale Wechselwahrscheinlichkeit pro Tick (Cap)
+    private static final double MAX_SWITCH_PROBABILITY = 0.60;
+
+    // Ab welchem Druck ("Skandal-Wert") fliehen Wähler panisch (egal wohin)?
+    private static final double DISASTER_FLIGHT_THRESHOLD = 12.0;
+
+    // Chance, frustriert ins Lager der Nichtwähler ("Unsicher") zurückzukehren
+    private static final double RESIGNATION_PROBABILITY = 0.15;
+
+    // Gewichtung der politischen Distanz (Score-Berechnung)
+    private static final double DISTANCE_SCORE_BASE = 40.0;
+    private static final double DISTANCE_SENSITIVITY = 0.04;
+
+    // Gewichtung permanenter Skandalschäden im Vergleich zu akuten
+    private static final double PERMANENT_DAMAGE_WEIGHT = 1.5;
+
+    // Zufallsrauschen bei der Entscheidungsfindung
+    private static final double DECISION_NOISE_FACTOR = 10.0;
+
     /**
      * @param acutePressures Array mit NUR akutem Druck (von ScandalImpactCalculator)
      */
@@ -43,6 +75,7 @@ public class VoterBehavior {
         for(int k=0; k < pSize; k++) {
             Party p = parties.get(k);
             partyPos[k] = p.getPoliticalPosition();
+            // Budget-Faktor 12.0 ist ein Skalierungswert für die GUI/Balance
             partyBudgetScores[k] = (p.getCampaignBudget() / SimulationConfig.CAMPAIGN_BUDGET_FACTOR) * 12.0;
             partyDailyMomentum[k] = 0.95 + (ThreadLocalRandom.current().nextDouble() * 0.1);
         }
@@ -51,70 +84,82 @@ public class VoterBehavior {
         IntStream.range(0, population.size()).parallel().forEach(i -> {
             ThreadLocalRandom rnd = ThreadLocalRandom.current();
 
-            // 1. Meinungsdrift
-            double drift = (rnd.nextDouble() - 0.5) * 0.2;
+            // 1. Meinungsdrift (Zufällige leichte Änderung der politischen Einstellung)
+            double drift = (rnd.nextDouble() - 0.5) * OPINION_DRIFT_FACTOR;
             float newPos = (float) (population.getPosition(i) + drift);
             if (newPos < 0) newPos = 0; if (newPos > 100) newPos = 100;
             population.setPosition(i, newPos);
 
             int currentIdx = population.getPartyIndex(i);
-            // Safety check
             if (currentIdx >= pSize) { currentIdx = 0; population.setPartyIndex(i, (byte)0); }
 
-            // 2. Penalty Berechnung (Original Logik: Summe aus Akut + Perm)
+            // 2. Penalty Berechnung (Druck durch Skandale)
             double totalPenalty = 0;
             if (currentIdx > 0) {
                 totalPenalty = acutePressures[currentIdx] + impactCalculator.getPermanentDamage(currentIdx);
             }
 
-            // 3. Wechselwahrscheinlichkeit
-            double switchProb = baseMobility * (1.0 - population.getLoyalty(i) / 200.0) * population.getMediaInfluence(i);
+            // 3. Wechselwahrscheinlichkeit berechnen
+            // Basis: Mobilität * (1 - Loyalität%) * Medieneinfluss
+            double switchProb = baseMobility * (1.0 - population.getLoyalty(i) / LOYALTY_DAMPING_FACTOR) * population.getMediaInfluence(i);
 
-            // Penalty erhöht Wechseldruck (Faktor 600.0 aus Original)
-            if (totalPenalty > 0) switchProb += (totalPenalty / 600.0);
+            // Skandale erhöhen den Wechseldruck
+            if (totalPenalty > 0) {
+                switchProb += (totalPenalty / PENALTY_PRESSURE_DIVISOR);
+            }
 
-            if (currentIdx == 0) switchProb *= 1.2;
-            if (switchProb > 0.60) switchProb = 0.60; // Cap
+            // Wer unentschlossen ist, wechselt leichter zu einer Partei
+            if (currentIdx == 0) switchProb *= UNDECIDED_MOBILITY_BONUS;
 
-            // 4. Entscheidung
+            // Obergrenze (Cap), damit das System nicht chaotisch explodiert
+            if (switchProb > MAX_SWITCH_PROBABILITY) switchProb = MAX_SWITCH_PROBABILITY;
+
+            // 4. Entscheidung treffen
             if (rnd.nextDouble() < switchProb) {
                 int targetIdx = currentIdx;
 
-                // Flucht bei extremem Skandal (Original Schwelle: 12.0)
-                boolean fleeingFromDisaster = (totalPenalty > 12.0);
+                // Sonderfall: Flucht vor Katastrophe (Panikreaktion)
+                boolean fleeingFromDisaster = (totalPenalty > DISASTER_FLIGHT_THRESHOLD);
 
-                if (!fleeingFromDisaster && currentIdx != 0 && rnd.nextDouble() < 0.15) {
-                    targetIdx = 0; // Zurück zu Unsicher
+                // Chance, frustriert ins "Unsicher"-Lager zu wechseln (Nichtwähler)
+                if (!fleeingFromDisaster && currentIdx != 0 && rnd.nextDouble() < RESIGNATION_PROBABILITY) {
+                    targetIdx = 0;
                 } else {
+                    // Suche nach der besten Alternative
                     double bestScore = -Double.MAX_VALUE;
                     double campaignEffectiveness = rnd.nextDouble() * uniformRange;
 
                     for (int pIdx = 1; pIdx < pSize; pIdx++) {
                         if (pIdx == currentIdx) continue;
 
-                        // Distanz Score
+                        // A: Politische Nähe (Distanz-Score)
                         double dist = Math.abs(population.getPosition(i) - partyPos[pIdx]);
-                        double distScore = 40.0 / (1.0 + (dist * 0.04));
+                        double distScore = DISTANCE_SCORE_BASE / (1.0 + (dist * DISTANCE_SENSITIVITY));
 
-                        // Budget Score
+                        // B: Wahlkampf & Budget
                         double budgetScore = partyBudgetScores[pIdx] * campaignEffectiveness * population.getMediaInfluence(i) * globalMedia;
+
+                        // Gesamt-Score
                         double score = distScore + (budgetScore * partyDailyMomentum[pIdx]);
 
-                        // Penalty Score Abzug (Original Logik: Akut + Perm * 1.5)
-                        double penaltyScore = acutePressures[pIdx] + (impactCalculator.getPermanentDamage(pIdx) * 1.5);
+                        // C: Abzug für Skandale der Zielpartei (Penalty Score)
+                        // Hier wiegen permanente Schäden (Ruf) schwerer als akute!
+                        double penaltyScore = acutePressures[pIdx] + (impactCalculator.getPermanentDamage(pIdx) * PERMANENT_DAMAGE_WEIGHT);
                         score -= penaltyScore;
 
-                        double noise = (rnd.nextDouble() - 0.5) * 10.0 * uniformRange;
+                        // Zufallsrauschen (Irrationalität des Wählers)
+                        double noise = (rnd.nextDouble() - 0.5) * DECISION_NOISE_FACTOR * uniformRange;
 
                         if ((score + noise) > bestScore) {
                             bestScore = score + noise;
                             targetIdx = pIdx;
                         }
                     }
+                    // Wenn selbst die beste Partei einen negativen Score hat, werde Nichtwähler
                     if (bestScore < 0) targetIdx = 0;
                 }
 
-                // 5. Durchführung
+                // 5. Durchführung des Wechsels
                 if (targetIdx != currentIdx) {
                     population.setPartyIndex(i, (byte) targetIdx);
                     partyDeltas[currentIdx].decrementAndGet();
@@ -127,7 +172,7 @@ public class VoterBehavior {
             }
         });
 
-        // 6. Aggregation
+        // 6. Aggregation der Ergebnisse
         for (int i = 0; i < pSize; i++) {
             int delta = partyDeltas[i].get();
             if (delta != 0) {

@@ -13,64 +13,78 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+/**
+ * The controller connects the GUI (View) with the Simulation Engine (Model).
+ * It manages the simulation loop (Start/Stop) and propagates parameter changes.
+ */
 public class SimulationController {
 
+    // --- CONSTANTS & TOOLS ---
+    private static final Logger LOGGER = Logger.getLogger(SimulationController.class.getName());
+
+    private static final int DEFAULT_VOTERS = 2500;
+    private static final double DEFAULT_MEDIA_INFLUENCE = 65.0;
+    private static final double DEFAULT_MOBILITY = 35.0;
+    private static final double DEFAULT_SCANDAL_CHANCE = 5.0;
+    private static final double DEFAULT_LOYALTY = 50.0;
+    private static final int DEFAULT_TPS = 5; // Ticks per Second
+    private static final double DEFAULT_RANDOM_RANGE = 1.0;
+    private static final int DEFAULT_PARTY_COUNT = 4;
+    private static final double DEFAULT_BUDGET_FACTOR = 1.0;
+
+    // --- FIELDS ---
     private final SimulationEngine engine;
     private final DashboardController view;
     private final ScheduledExecutorService executorService;
     private ScheduledFuture<?> simulationTask;
     private boolean isRunning = false;
 
+    // --- CONSTRUCTOR ---
     public SimulationController(DashboardController view) {
         this.view = view;
-        // Parameter Default
-        SimulationParameters params = new SimulationParameters(2500, 65.0, 35.0, 5.0, 50.0, 5, 1.0, 4, 1.0);
+
+        // Set default parameters
+        SimulationParameters params = new SimulationParameters(
+                DEFAULT_VOTERS,
+                DEFAULT_MEDIA_INFLUENCE,
+                DEFAULT_MOBILITY,
+                DEFAULT_SCANDAL_CHANCE,
+                DEFAULT_LOYALTY,
+                DEFAULT_TPS,
+                DEFAULT_RANDOM_RANGE,
+                DEFAULT_PARTY_COUNT,
+                DEFAULT_BUDGET_FACTOR
+        );
+
         this.engine = new SimulationEngine(params);
         this.engine.initializeSimulation();
 
+        // Create thread pool for the simulation clock
         this.executorService = Executors.newSingleThreadScheduledExecutor(r -> {
             Thread t = new Thread(r, "Simulation-Thread");
-            t.setDaemon(true);
+            t.setDaemon(true); // Ensure thread dies when app closes
             return t;
         });
     }
+
+    // --- MAIN LOGIC ---
 
     public void startSimulation() {
         if (isRunning) return;
         isRunning = true;
         scheduleTask();
-    }
-
-    private void scheduleTask() {
-        if (simulationTask != null && !simulationTask.isCancelled()) {
-            simulationTask.cancel(false);
-        }
-
-        int tps = engine.getParameters().getSimulationTicksPerSecond();
-        long period = 1000 / (tps > 0 ? tps : 1);
-
-        simulationTask = executorService.scheduleAtFixedRate(() -> {
-            try {
-                // Berechnung (Logik in Core -> Subsysteme)
-                List<VoterTransition> transitions = engine.runSimulationStep();
-                ScandalEvent scandal = engine.getLastScandal();
-                int step = engine.getCurrentStep();
-                List<Party> parties = engine.getParties();
-
-                Platform.runLater(() -> {
-                    view.updateDashboard(parties, transitions, scandal, step);
-                });
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }, 0, period, TimeUnit.MILLISECONDS);
+        LOGGER.info("Simulation started.");
     }
 
     public void pauseSimulation() {
         isRunning = false;
-        if (simulationTask != null) simulationTask.cancel(false);
+        if (simulationTask != null) {
+            simulationTask.cancel(false);
+        }
+        LOGGER.info("Simulation paused.");
     }
 
     public void resetSimulation() {
@@ -78,20 +92,19 @@ public class SimulationController {
         executorService.execute(() -> {
             engine.resetState();
             List<Party> parties = engine.getParties();
+            // UI Reset must happen on JavaFX Application Thread
             Platform.runLater(() -> view.updateDashboard(parties, List.of(), null, 0));
         });
+        LOGGER.info("Simulation reset.");
     }
 
     public void updateSimulationSpeed(int factor) {
         SimulationParameters p = engine.getParameters();
-        // Das Dashboard liefert oft Faktoren (1x, 2x, 4x), die wir in Ticks pro Sekunde umrechnen
-        int newTps = factor;
-        p.setSimulationTicksPerSecond(newTps);
+        p.setSimulationTicksPerSecond(factor);
 
-        // Wir aktualisieren die Parameter in der Engine
         executorService.execute(() -> {
             engine.updateParameters(p);
-            // Wenn die Simulation läuft, muss der Schedule-Intervall angepasst werden
+            // If running, we need to reschedule to apply new speed
             if (isRunning) {
                 scheduleTask();
             }
@@ -108,8 +121,54 @@ public class SimulationController {
         });
     }
 
-    public SimulationParameters getCurrentParameters() { return engine.getParameters(); }
-    public List<Party> getParties() { return engine.getParties(); }
-    public boolean isRunning() { return isRunning; }
-    public void shutdown() { executorService.shutdownNow(); }
+    public void shutdown() {
+        executorService.shutdownNow();
+        LOGGER.info("Simulation service stopped.");
+    }
+
+    // --- HELPER METHODS ---
+
+    /**
+     * Schedules the periodic simulation task based on current TPS settings.
+     */
+    private void scheduleTask() {
+        if (simulationTask != null && !simulationTask.isCancelled()) {
+            simulationTask.cancel(false);
+        }
+
+        int tps = engine.getParameters().getSimulationTicksPerSecond();
+        long period = 1000 / (tps > 0 ? tps : 1);
+
+        simulationTask = executorService.scheduleAtFixedRate(() -> {
+            try {
+                // 1. Calculation (Core Logic)
+                List<VoterTransition> transitions = engine.runSimulationStep();
+                ScandalEvent scandal = engine.getLastScandal();
+                int step = engine.getCurrentStep();
+                List<Party> parties = engine.getParties();
+
+                // 2. GUI Update (Always on FX Thread)
+                Platform.runLater(() -> {
+                    view.updateDashboard(parties, transitions, scandal, step);
+                });
+
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Critical error in simulation loop", e);
+            }
+        }, 0, period, TimeUnit.MILLISECONDS);
+    }
+
+    // --- GETTERS & SETTERS ---
+
+    public SimulationParameters getCurrentParameters() {
+        return engine.getParameters();
+    }
+
+    public List<Party> getParties() {
+        return engine.getParties();
+    }
+
+    public boolean isRunning() {
+        return isRunning;
+    }
 }

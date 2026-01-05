@@ -6,6 +6,7 @@ import de.schulprojekt.duv.model.core.SimulationParameters;
 import de.schulprojekt.duv.model.voter.VoterTransition;
 import de.schulprojekt.duv.model.party.Party;
 import de.schulprojekt.duv.view.components.*;
+import de.schulprojekt.duv.view.util.VisualFX; // NEU: Import für die visuellen Effekte
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
@@ -66,8 +67,11 @@ public class DashboardController {
         Platform.runLater(() -> {
             if (animationPane.getScene() != null) {
                 Scene scene = animationPane.getScene();
-                scene.widthProperty().addListener((obs, oldVal, newVal) -> adjustScale(newVal.doubleValue()));
-                adjustScale(scene.getWidth());
+
+                scene.widthProperty().addListener((obs, oldVal, newVal) ->
+                        VisualFX.adjustResponsiveScale(scene, newVal.doubleValue())
+                );
+                VisualFX.adjustResponsiveScale(scene, scene.getWidth());
 
                 if (leftSidebar != null) {
                     leftSidebar.prefWidthProperty().bind(Bindings.max(250, Bindings.min(450, scene.widthProperty().multiply(0.22))));
@@ -85,37 +89,6 @@ public class DashboardController {
         String color = isRunning ? "#55ff55" : "#ff5555";
         timeStepLabel.setText(String.format("SYSTEM_STATUS: %s | TICK: %d", statusText, currentTick));
         timeStepLabel.setStyle("-fx-text-fill: " + color + "; -fx-font-family: 'Consolas'; -fx-font-weight: bold;");
-    }
-
-    private void adjustScale(double windowWidth) {
-        if (animationPane.getScene() == null) return;
-        double baseSize = 12.0;
-        double scaleFactor = windowWidth / 1280.0;
-        double newSize = Math.max(11.0, Math.min(18.0, baseSize * Math.sqrt(scaleFactor)));
-        animationPane.getScene().getRoot().setStyle("-fx-font-size: " + String.format(Locale.US, "%.1f", newSize) + "px;");
-    }
-
-    private void triggerGlitchEffect() {
-        if (leftSidebar == null || rightSidebar == null) return;
-        leftSidebar.getStyleClass().add("glitch-active");
-        rightSidebar.getStyleClass().add("glitch-active");
-
-        javafx.animation.TranslateTransition tt = new javafx.animation.TranslateTransition(javafx.util.Duration.millis(50), leftSidebar);
-        tt.setByX(5);
-        tt.setCycleCount(6);
-        tt.setAutoReverse(true);
-
-        javafx.animation.TranslateTransition tt2 = new javafx.animation.TranslateTransition(javafx.util.Duration.millis(50), rightSidebar);
-        tt2.setByX(-5);
-        tt2.setCycleCount(6);
-        tt2.setAutoReverse(true);
-
-        javafx.animation.ParallelTransition pt = new javafx.animation.ParallelTransition(tt, tt2);
-        pt.setOnFinished(e -> {
-            leftSidebar.getStyleClass().remove("glitch-active");
-            rightSidebar.getStyleClass().remove("glitch-active");
-        });
-        pt.play();
     }
 
     public void updateDashboard(List<Party> parties, List<VoterTransition> transitions, ScandalEvent scandal, int step) {
@@ -137,7 +110,8 @@ public class DashboardController {
         canvasRenderer.update(parties, transitions, controller.getCurrentParameters().getTotalVoterCount());
 
         if (scandal != null) {
-            triggerGlitchEffect();
+            // REFRACTORED: Aufruf des Glitch-Effekts über VisualFX
+            VisualFX.triggerSidebarGlitch(leftSidebar, rightSidebar);
         }
     }
 
