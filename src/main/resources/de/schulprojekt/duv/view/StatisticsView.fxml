@@ -9,6 +9,8 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -27,6 +29,12 @@
         <top>
             <VBox styleClass="top-bar">
                 <HBox alignment="CENTER_LEFT" spacing="20">
+                    <ImageView fitHeight="40.0" preserveRatio="true" opacity="0.9">
+                        <image>
+                            <Image url="@../Pictures/DUV_Logo.png" />
+                        </image>
+                    </ImageView>
+
                     <Label styleClass="app-title" text="[ INTEL_HUB: OPERATION 'UNBERECHENBAR' - FINAL REPORT ]" />
                     <Region HBox.hgrow="ALWAYS" />
                     <HBox alignment="CENTER" spacing="5" style="-fx-border-color: #D4AF37; -fx-border-width: 1; -fx-padding: 2 5;">

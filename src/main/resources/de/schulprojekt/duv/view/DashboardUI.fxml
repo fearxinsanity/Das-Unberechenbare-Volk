@@ -9,6 +9,8 @@
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
@@ -34,6 +36,12 @@
                 </HBox>
                 <VBox styleClass="top-bar">
                     <HBox alignment="CENTER_LEFT" spacing="20">
+                        <ImageView fitHeight="40.0" preserveRatio="true" opacity="0.9">
+                            <image>
+                                <Image url="@../Pictures/DUV_Logo.png" />
+                            </image>
+                        </ImageView>
+
                         <Label text="[ SYSTEM: DAS UNBERECHENBARE VOLK ]" styleClass="app-title"/>
                         <Region HBox.hgrow="ALWAYS"/>
                         <Label fx:id="timeStepLabel" text="Status: STANDBY" styleClass="status-label"/>

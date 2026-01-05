@@ -2,6 +2,7 @@ package de.schulprojekt.duv.view;
 
 import de.schulprojekt.duv.model.party.Party;
 import de.schulprojekt.duv.util.SimulationConfig;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -10,6 +11,7 @@ import javafx.scene.Parent;
 import javafx.scene.chart.*;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
+import javafx.scene.layout.Pane;
 import javafx.util.Duration;
 
 import java.util.List;
@@ -43,7 +45,8 @@ public class StatisticsController {
 
             // Style vom Original übernehmen
             if (sourceSeries.getNode() != null) {
-                runOnNode(newSeries, node -> node.setStyle(sourceSeries.getNode().getStyle()));
+                String style = sourceSeries.getNode().getStyle();
+                runOnNode(newSeries, node -> node.setStyle(style));
             }
             // Tooltip für die ganze Linie
             runOnNode(newSeries, node -> installTooltipOnNode(node, "HISTORY_TRACE: " + newSeries.getName()));
@@ -58,17 +61,20 @@ public class StatisticsController {
             distributionChart.getData().add(data);
 
             // Tooltip (Prozentberechnung)
-            double percent = (data.getPieValue() / totalVotes) * 100.0;
+            double percent = (totalVotes > 0) ? (data.getPieValue() / totalVotes) * 100.0 : 0.0;
             String info = String.format("FACTION: %s\nSIZE: %.0f\nQUOTA: %.1f%%",
                     p.getName(), data.getPieValue(), percent);
 
-            // WICHTIG: Node-Zugriff sicherstellen für Tooltip & Farbe
+            // Farbe für das Tortenstück (Slice)
             runOnNode(data, node -> {
                 installTooltipOnNode(node, info);
                 String color = p.getName().equals(SimulationConfig.UNDECIDED_NAME) ? "#666666" : "#" + p.getColorCode();
                 node.setStyle("-fx-pie-color: " + color + ";");
             });
         }
+
+        // NEU: Legenden-Farben korrigieren (muss verzögert passieren, da Legende erst gerendert wird)
+        fixPieLegendColors(parties);
 
         // ---------------------------------------------------------
         // 3. Skandale (Bar - SEC-C3)
@@ -111,13 +117,40 @@ public class StatisticsController {
     }
 
     /**
+     * WICHTIG: Korrigiert die Farben der PieChart-Legende.
+     * Die Legende wird von JavaFX automatisch generiert und ignoriert normalerweise
+     * unsere manuellen Farben. Wir suchen die Legenden-Items und färben sie nachträglich.
+     */
+    private void fixPieLegendColors(List<Party> parties) {
+        Platform.runLater(() -> {
+            // Wir suchen die Legende im Diagramm (CSS Selektor .chart-legend)
+            Node legend = distributionChart.lookup(".chart-legend");
+            if (legend != null && legend instanceof Pane) {
+                // Die Legende enthält Labels für jeden Eintrag
+                for (Node item : ((Pane) legend).getChildren()) {
+                    if (item instanceof Label) {
+                        Label label = (Label) item;
+                        // Der Text des Labels ist das Parteikürzel (z.B. "SPD")
+                        Party p = findPartyByAbbr(parties, label.getText());
+
+                        // Das Symbol (der farbige Punkt) ist das "Graphic"-Objekt des Labels
+                        if (p != null && label.getGraphic() != null) {
+                            String color = p.getName().equals(SimulationConfig.UNDECIDED_NAME) ? "#666666" : "#" + p.getColorCode();
+                            label.getGraphic().setStyle("-fx-background-color: " + color + ";");
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    /**
      * Führt eine Aktion auf dem Node eines Chart-Datenpunkts aus.
      * Prüft SOFORT, ob der Node da ist, UND setzt einen Listener für später.
-     * Löst das Problem, dass Tooltips/Farben manchmal fehlen.
      */
     private void runOnNode(Object chartData, Consumer<Node> action) {
         Node node = null;
-        // KORREKTUR: Typ auf ReadOnlyObjectProperty geändert, damit er für alle Charts passt
+        // HIER WAR DER FEHLER: Wir nutzen jetzt ReadOnlyObjectProperty (der gemeinsame Nenner)
         javafx.beans.property.ReadOnlyObjectProperty<Node> nodeProperty = null;
 
         if (chartData instanceof XYChart.Series) {
@@ -131,7 +164,7 @@ public class StatisticsController {
         } else if (chartData instanceof PieChart.Data) {
             PieChart.Data data = (PieChart.Data) chartData;
             node = data.getNode();
-            nodeProperty = data.nodeProperty(); // Das hier verursachte den Fehler
+            nodeProperty = data.nodeProperty();
         }
 
         // 1. Wenn Node schon da ist -> Sofort ausführen
@@ -139,7 +172,7 @@ public class StatisticsController {
             action.accept(node);
         }
 
-        // 2. Listener anhängen (falls Node später neu erzeugt wird, z.B. bei Animation)
+        // 2. Listener anhängen (falls Node später neu erzeugt wird)
         if (nodeProperty != null) {
             nodeProperty.addListener((obs, oldNode, newNode) -> {
                 if (newNode != null) {

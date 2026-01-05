@@ -46,7 +46,7 @@
 
         <ImageView fx:id="logoImageView" fitWidth="550" preserveRatio="true">
             <image>
-                <Image url="@../Pictures/Project_logo.png"/>
+                <Image url="@../Pictures/DUV_Logo.png"/>
             </image>
             <effect>
                 <DropShadow color="rgba(0,0,0,1.0)" radius="30" spread="0.2" offsetY="10"/>
