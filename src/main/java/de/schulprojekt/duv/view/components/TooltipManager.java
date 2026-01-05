@@ -5,11 +5,11 @@ import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.effect.DropShadow;
-import javafx.scene.layout.*;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
@@ -18,12 +18,17 @@ import javafx.util.Duration;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Verwaltet Tooltips für BEIDE Ansichten:
+ * 1. Dashboard: Dynamisch per Mouse-Hover (handleMouseMove)
+ * 2. Parlament: Statisch per Klick (showStaticTooltip)
+ */
 public class TooltipManager {
     private final VBox tooltipBox;
     private final Label nameLabel, abbrLabel, votersLabel, posLabel, scandalsLabel;
     private final Pane overlayPane;
     private final Line connectionLine;
-    private final Circle anchorPoint; // Kleiner Punkt am Ende der Linie
+    private final Circle anchorPoint;
 
     private Party currentActiveParty = null;
 
@@ -37,38 +42,32 @@ public class TooltipManager {
         overlayPane.prefWidthProperty().bind(animationPane.widthProperty());
         overlayPane.prefHeightProperty().bind(animationPane.heightProperty());
 
-        // 2. Verbindungslinie & Ankerpunkt (Data Link Visuals)
+        // 2. Verbindungslinie
         this.connectionLine = new Line();
         this.connectionLine.setStrokeWidth(1.5);
-        this.connectionLine.getStrokeDashArray().addAll(5d, 5d); // Gestrichelt für Tech-Look
+        this.connectionLine.getStrokeDashArray().addAll(5d, 5d);
         this.connectionLine.setVisible(false);
 
         this.anchorPoint = new Circle(3);
         this.anchorPoint.setVisible(false);
 
         // 3. Tooltip Container
-        this.tooltipBox = new VBox(0); // 0 Spacing, wir regeln das mit Padding
+        this.tooltipBox = new VBox(0);
         this.tooltipBox.setPadding(Insets.EMPTY);
         this.tooltipBox.setVisible(false);
-
-        // Schatten für Tiefe
         this.tooltipBox.setEffect(new DropShadow(15, Color.BLACK));
 
         // 4. Inhalt bauen
-        // Header-Bereich (wird später eingefärbt)
         VBox headerBox = new VBox(2);
         headerBox.setPadding(new Insets(8, 10, 8, 10));
-        headerBox.setId("headerBox"); // Für Zugriff später
+        headerBox.setId("headerBox"); // Für CSS-Zugriff
 
         nameLabel = new Label();
         nameLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-font-family: 'Consolas';");
-
         abbrLabel = new Label();
         abbrLabel.setStyle("-fx-text-fill: rgba(255,255,255,0.8); -fx-font-size: 11px; -fx-font-family: 'Consolas';");
-
         headerBox.getChildren().addAll(nameLabel, abbrLabel);
 
-        // Content-Bereich (Dunkel)
         VBox contentBox = new VBox(4);
         contentBox.setPadding(new Insets(10));
         contentBox.setStyle("-fx-background-color: rgba(20, 20, 25, 0.95);");
@@ -76,31 +75,32 @@ public class TooltipManager {
         String infoStyle = "-fx-text-fill: #e0e0e0; -fx-font-size: 12px; -fx-font-family: 'Consolas';";
         votersLabel = new Label(); votersLabel.setStyle(infoStyle);
         posLabel = new Label(); posLabel.setStyle(infoStyle);
-
-        Separator sep = new Separator();
-        sep.setOpacity(0.3);
-
+        Separator sep = new Separator(); sep.setOpacity(0.3);
         scandalsLabel = new Label();
         scandalsLabel.setStyle("-fx-text-fill: #ff5555; -fx-font-size: 12px; -fx-font-family: 'Consolas'; -fx-font-weight: bold;");
 
         contentBox.getChildren().addAll(votersLabel, posLabel, sep, scandalsLabel);
-
-        // Zusammenfügen
         tooltipBox.getChildren().addAll(headerBox, contentBox);
 
-        // Alles zum Overlay hinzufügen (Reihenfolge wichtig: Linie unter Box)
         overlayPane.getChildren().addAll(connectionLine, anchorPoint, tooltipBox);
     }
 
+    // ============================================================================================
+    // MODUS 1: Dashboard (Dynamischer Mouse-Hover)
+    // ============================================================================================
+
+    /**
+     * Prüft, ob die Maus über einem Parteikreis ist (für Dashboard).
+     */
     public void handleMouseMove(double mx, double my, List<Party> parties, Map<String, CanvasRenderer.Point> positions, int total) {
-        if (parties == null) return;
+        if (parties == null || positions == null) return;
 
         boolean foundAny = false;
 
         for (Party p : parties) {
             CanvasRenderer.Point pt = positions.get(p.getName());
             if (pt != null) {
-                // Radius etwas großzügiger
+                // Radius-Check (etwas größer als der gezeichnete Kreis)
                 double share = (double) p.getCurrentSupporterCount() / Math.max(1, total);
                 double r = 40.0 + (share * 60.0);
 
@@ -108,12 +108,18 @@ public class TooltipManager {
                 if (Math.sqrt(Math.pow(mx - pt.x, 2) + Math.pow(my - pt.y, 2)) <= r) {
                     foundAny = true;
 
-                    // Neue Partei oder Update?
+                    // Zielposition für die Box berechnen (leicht versetzt zur Maus)
+                    double targetBoxX = mx + 30;
+                    double targetBoxY = my - 20;
+
+                    // Neue Partei oder nur Bewegung?
                     if (!tooltipBox.isVisible() || currentActiveParty != p) {
                         currentActiveParty = p;
-                        showCallout(p, pt.x, pt.y, mx, my);
+                        // Animation starten
+                        showCallout(p, pt.x, pt.y, targetBoxX, targetBoxY);
                     } else {
-                        updateCalloutPosition(pt.x, pt.y, mx, my);
+                        // Nur Position updaten (ohne Animation)
+                        updateCalloutPosition(pt.x, pt.y, targetBoxX, targetBoxY);
                     }
                     break;
                 }
@@ -125,53 +131,39 @@ public class TooltipManager {
         }
     }
 
-    private void updateCalloutPosition(double targetX, double targetY, double mouseX, double mouseY) {
-        // Zielposition für die Box (leicht versetzt zur Maus)
-        double boxX = mouseX + 30;
-        double boxY = mouseY - 20;
+    // ============================================================================================
+    // MODUS 2: Parlament (Statischer Klick)
+    // ============================================================================================
 
-        // Bildschirm-Grenzen Check
-        if (boxX + 200 > overlayPane.getWidth()) boxX = mouseX - 210; // Links anzeigen
-        if (boxY + 120 > overlayPane.getHeight()) boxY = mouseY - 130; // Oben anzeigen
+    /**
+     * Zeigt den Tooltip statisch an einer festen Position (für Parlament).
+     */
+    public void showStaticTooltip(Party p, double anchorX, double anchorY) {
+        currentActiveParty = p;
 
-        tooltipBox.setLayoutX(boxX);
-        tooltipBox.setLayoutY(boxY);
+        // Simuliere eine "Box-Position" relativ zum Ankerpunkt
+        double targetBoxX = anchorX + 40;
+        double targetBoxY = anchorY - 60;
 
-        // Linie updaten: Von Partei-Zentrum -> Zur Box
-        connectionLine.setStartX(targetX);
-        connectionLine.setStartY(targetY);
-
-        // Das Ende der Linie soll sich dynamisch an die Box-Ecke heften
-        // Einfache Variante: Zur Box-Ecke, die dem Ziel am nächsten ist
-        connectionLine.setEndX(boxX > targetX ? boxX : boxX + tooltipBox.getWidth());
-        connectionLine.setEndY(boxY > targetY ? boxY : boxY + tooltipBox.getHeight());
-
-        // Ankerpunkt auf Parteimitte
-        anchorPoint.setCenterX(targetX);
-        anchorPoint.setCenterY(targetY);
+        showCallout(p, anchorX, anchorY, targetBoxX, targetBoxY);
     }
 
-    private void showCallout(Party p, double targetX, double targetY, double mouseX, double mouseY) {
-        // 1. Styling basierend auf Partei-Farbe
+    // ============================================================================================
+    // Gemeinsame Logik (Anzeige & Rendering)
+    // ============================================================================================
+
+    private void showCallout(Party p, double anchorX, double anchorY, double boxX, double boxY) {
+        // 1. Styling
         Color pColor;
-        try {
-            pColor = Color.web(p.getColorCode());
-        } catch (Exception e) {
-            pColor = Color.WHITE;
-        }
-
-        // Header Hintergrund in Parteifarbe
+        try { pColor = Color.web(p.getColorCode()); } catch (Exception e) { pColor = Color.WHITE; }
         String hexColor = toHexString(pColor);
+
         tooltipBox.lookup("#headerBox").setStyle("-fx-background-color: " + hexColor + ";");
-
-        // Box Border in Parteifarbe
         tooltipBox.setStyle("-fx-border-color: " + hexColor + "; -fx-border-width: 1; -fx-background-radius: 3; -fx-border-radius: 3;");
-
-        // Linie und Punkt einfärben
         connectionLine.setStroke(pColor);
         anchorPoint.setFill(pColor);
 
-        // 2. Texte setzen
+        // 2. Inhalte
         nameLabel.setText(p.getName().toUpperCase());
         abbrLabel.setText(">> " + p.getAbbreviation());
         votersLabel.setText(String.format("STIMMEN: %,d", p.getCurrentSupporterCount()));
@@ -179,37 +171,55 @@ public class TooltipManager {
 
         int sCount = p.getScandalCount();
         if (sCount > 0) {
-            scandalsLabel.setText("⚠ SKANDAL-LOG: " + sCount + " VERZEICHNET");
+            scandalsLabel.setText("⚠ SKANDAL-LOG: " + sCount);
             scandalsLabel.setTextFill(Color.web("#ff5555"));
         } else {
             scandalsLabel.setText("✔ KEINE VORFÄLLE");
             scandalsLabel.setTextFill(Color.web("#55ff55"));
         }
 
-        // 3. Sichtbar machen & Positionieren
+        // 3. Sichtbar machen & Layout
         tooltipBox.setVisible(true);
         connectionLine.setVisible(true);
         anchorPoint.setVisible(true);
-
-        // Layout erzwingen für korrekte Linien-Berechnung im ersten Frame
         tooltipBox.applyCss();
         tooltipBox.layout();
 
-        updateCalloutPosition(targetX, targetY, mouseX, mouseY);
+        // Position initial setzen
+        updateCalloutPosition(anchorX, anchorY, boxX, boxY);
 
         // 4. "Tech Unfold" Animation
-        // Box klappt vertikal auf
         ScaleTransition st = new ScaleTransition(Duration.millis(200), tooltipBox);
-        st.setFromY(0);
-        st.setToY(1);
-
-        // Box blendet ein
+        st.setFromY(0); st.setToY(1);
         FadeTransition ft = new FadeTransition(Duration.millis(200), tooltipBox);
-        ft.setFromValue(0);
-        ft.setToValue(1);
-
+        ft.setFromValue(0); ft.setToValue(1);
         ParallelTransition pt = new ParallelTransition(st, ft);
         pt.play();
+    }
+
+    private void updateCalloutPosition(double anchorX, double anchorY, double desiredBoxX, double desiredBoxY) {
+        // Bildschirmgrenzen prüfen
+        double finalBoxX = desiredBoxX;
+        double finalBoxY = desiredBoxY;
+
+        if (finalBoxX + 220 > overlayPane.getWidth()) finalBoxX = anchorX - 230;
+        if (finalBoxY + 150 > overlayPane.getHeight()) finalBoxY = anchorY - 160;
+
+        // Box setzen
+        tooltipBox.setLayoutX(finalBoxX);
+        tooltipBox.setLayoutY(finalBoxY);
+
+        // Linie von Anker zur Box ziehen
+        connectionLine.setStartX(anchorX);
+        connectionLine.setStartY(anchorY);
+
+        // Linie soll an der nächstgelegenen Ecke/Kante der Box enden
+        connectionLine.setEndX(finalBoxX > anchorX ? finalBoxX : finalBoxX + tooltipBox.getWidth());
+        connectionLine.setEndY(finalBoxY > anchorY ? finalBoxY : finalBoxY + tooltipBox.getHeight());
+
+        // Punkt setzen
+        anchorPoint.setCenterX(anchorX);
+        anchorPoint.setCenterY(anchorY);
     }
 
     public void hideTooltip() {
@@ -221,7 +231,6 @@ public class TooltipManager {
         }
     }
 
-    // Hilfsmethode für CSS Hex String
     private String toHexString(Color c) {
         return String.format("#%02X%02X%02X",
                 (int) (c.getRed() * 255),

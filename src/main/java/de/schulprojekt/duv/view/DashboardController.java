@@ -234,6 +234,42 @@ public class DashboardController {
         }
     }
 
+    @FXML
+    public void handleShowParliament(ActionEvent event) {
+        if (controller == null) return;
+
+        // Simulation pausieren
+        if (controller.isRunning()) {
+            handlePauseSimulation(null);
+        }
+
+        try {
+            // Lade die FXML für die Parlamentsansicht
+            var resource = getClass().getResource("/de/schulprojekt/duv/view/ParliamentView.fxml");
+            if (resource == null) {
+                System.err.println("FEHLER: ParliamentView.fxml nicht gefunden!");
+                return;
+            }
+
+            FXMLLoader loader = new FXMLLoader(resource);
+            Parent parliamentRoot = loader.load();
+            ParliamentController parlCtrl = loader.getController();
+
+            // Aktuelle View merken (für den Zurück-Button)
+            Parent dashboardView = startButton.getScene().getRoot();
+
+            // Daten übergeben
+            parlCtrl.initData(controller.getParties(), dashboardView);
+
+            // Ansicht wechseln
+            startButton.getScene().setRoot(parliamentRoot);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR, "Fehler beim Laden: " + e.getMessage()).show();
+        }
+    }
+
     @FXML public void handleVoterCountIncrement(ActionEvent e) { adjustIntField(voterCountField, 10000, 1000, 2000000); }
     @FXML public void handleVoterCountDecrement(ActionEvent e) { adjustIntField(voterCountField, -10000, 1000, 2000000); }
     @FXML public void handlePartyCountIncrement(ActionEvent e) { adjustIntField(partyCountField, 1, 2, 8); }
