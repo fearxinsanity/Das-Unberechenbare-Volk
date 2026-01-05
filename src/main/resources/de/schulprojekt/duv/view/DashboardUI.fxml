@@ -22,33 +22,27 @@
 
     <Region styleClass="grid-background" opacity="0.6" />
 
+    <Label text="CLASSIFIED // TOP SECRET" styleClass="classified-watermark" mouseTransparent="true" opacity="0.1"/>
+
     <BorderPane pickOnBounds="false">
         <top>
-            <HBox alignment="CENTER_RIGHT" spacing="20" style="-fx-padding: 10 20 0 0;">
-                <Label text="SIM.CORE: ACTIVE" styleClass="hud-text, hud-text-highlight"/>
-                <Label text="ENCRYPTION: ENABLED" styleClass="hud-text"/>
-            </HBox>
-        </top>
-        <bottom>
-            <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-padding: 0 0 10 20;">
-                <Label text="SYS.ID: DUV-2026-X" styleClass="hud-text"/>
-                <Label text="MODE: LIVE_RENDER" styleClass="hud-text, hud-text-highlight"/>
-            </HBox>
-        </bottom>
-    </BorderPane>
-
-    <BorderPane>
-        <top>
-            <VBox styleClass="top-bar">
-                <HBox alignment="CENTER_LEFT" spacing="20">
-                    <Label text="Das Unberechenbare Volk" styleClass="app-title"/>
-                    <Region HBox.hgrow="ALWAYS"/>
-                    <Label fx:id="timeStepLabel" text="Status: Bereit" styleClass="status-label"/>
-                    <Separator orientation="VERTICAL" />
-                    <Button fx:id="startButton" text="▶ Starten" onAction="#handleStartSimulation" styleClass="action-button"/>
-                    <Button fx:id="pauseButton" text="⏸ Pausieren" onAction="#handlePauseSimulation" disable="true"/>
-                    <Button fx:id="resetButton" text="↺ Reset" onAction="#handleResetSimulation" disable="true"/>
+            <VBox>
+                <HBox alignment="CENTER_RIGHT" spacing="20" style="-fx-padding: 5 20 0 0; -fx-background-color: rgba(0,0,0,0.5);">
+                    <Label text="SIM.CORE: ONLINE" styleClass="hud-text, hud-text-highlight"/>
+                    <Label text="ENCRYPTION: AES-256" styleClass="hud-text"/>
+                    <Label text="SECURE_CONN_ESTABLISHED" styleClass="hud-text"/>
                 </HBox>
+                <VBox styleClass="top-bar">
+                    <HBox alignment="CENTER_LEFT" spacing="20">
+                        <Label text="[ SYSTEM: DAS UNBERECHENBARE VOLK ]" styleClass="app-title"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="timeStepLabel" text="Status: STANDBY" styleClass="status-label"/>
+                        <Separator orientation="VERTICAL" />
+                        <Button fx:id="startButton" text="▶ EXECUTE" onAction="#handleStartSimulation"/>
+                        <Button fx:id="pauseButton" text="⏸ FREEZE" onAction="#handlePauseSimulation" disable="true"/>
+                        <Button fx:id="resetButton" text="↺ REBOOT" onAction="#handleResetSimulation" disable="true"/>
+                    </HBox>
+                </VBox>
             </VBox>
         </top>
 
@@ -64,11 +58,11 @@
                             <Insets top="20" right="20" bottom="20" left="20"/>
                         </padding>
 
-                        <Label text="Simulation Konfiguration" styleClass="section-title"/>
+                        <Label text=">> MISSION PARAMETERS" styleClass="section-title"/>
                         <Separator style="-fx-opacity: 0.3;"/>
 
                         <VBox spacing="5">
-                            <Label text="Wähleranzahl" styleClass="control-label"/>
+                            <Label text="POPULATION SIZE" styleClass="control-label"/>
                             <HBox spacing="5" alignment="CENTER_LEFT">
                                 <Button text="-" onAction="#handleVoterCountDecrement" prefWidth="35"/>
                                 <TextField fx:id="voterCountField" text="100000" HBox.hgrow="ALWAYS" onAction="#handleParameterChange" alignment="CENTER"/>
@@ -77,7 +71,7 @@
                         </VBox>
 
                         <VBox spacing="5">
-                            <Label text="Anzahl Parteien (2-8)" styleClass="control-label"/>
+                            <Label text="FACTIONS (2-8)" styleClass="control-label"/>
                             <HBox spacing="5" alignment="CENTER_LEFT">
                                 <Button text="-" onAction="#handlePartyCountDecrement" prefWidth="35"/>
                                 <TextField fx:id="partyCountField" text="5" HBox.hgrow="ALWAYS" alignment="CENTER" editable="false"/>
@@ -89,23 +83,23 @@
 
                         <VBox spacing="12">
                             <VBox spacing="2">
-                                <Label text="Medien-Einfluss (%)" styleClass="control-label"/>
+                                <Label text="MEDIA_INFLUENCE (%)" styleClass="control-label"/>
                                 <Slider fx:id="mediaInfluenceSlider" min="0" max="100" value="65" onMouseReleased="#handleParameterChange"/>
                             </VBox>
                             <VBox spacing="2">
-                                <Label text="Basis Mobilität (Wechselwille %)" styleClass="control-label"/>
+                                <Label text="MOBILITY_RATE (%)" styleClass="control-label"/>
                                 <Slider fx:id="mobilityRateSlider" min="0" max="100" value="35" onMouseReleased="#handleParameterChange"/>
                             </VBox>
                             <VBox spacing="2">
-                                <Label text="Loyalität (Mittelwert)" styleClass="control-label"/>
+                                <Label text="LOYALTY_INDEX" styleClass="control-label"/>
                                 <Slider fx:id="loyaltyMeanSlider" min="0" max="100" value="50" onMouseReleased="#handleParameterChange"/>
                             </VBox>
                             <VBox spacing="2">
-                                <Label text="Ø Wahlkampf-Budget (€)" styleClass="control-label"/>
+                                <Label text="CAMPAIGN_BUDGET (€)" styleClass="control-label"/>
                                 <TextField fx:id="budgetField" text="500000" onAction="#handleParameterChange"/>
                             </VBox>
                             <VBox spacing="2">
-                                <Label text="Skandal-Chance (%)" styleClass="warning-label"/>
+                                <Label text="SCANDAL_PROBABILITY (%)" styleClass="terminal-value-alert"/>
                                 <HBox spacing="5" alignment="CENTER_LEFT">
                                     <Button text="-" onAction="#handleScandalChanceDecrement" prefWidth="35"/>
                                     <TextField fx:id="scandalChanceField" text="5.0" HBox.hgrow="ALWAYS" alignment="CENTER" onAction="#handleParameterChange"/>
@@ -113,7 +107,7 @@
                                 </HBox>
                             </VBox>
                             <VBox spacing="2">
-                                <Label text="Wahlkampf Varianz (Zufall)" styleClass="control-label"/>
+                                <Label text="CHAOS_FACTOR (Variance)" styleClass="control-label"/>
                                 <Slider fx:id="randomRangeSlider" min="0.1" max="5.0" value="1.0" onMouseReleased="#handleParameterChange"/>
                             </VBox>
                         </VBox>
@@ -121,7 +115,7 @@
                         <Separator style="-fx-opacity: 0.2;"/>
 
                         <VBox spacing="5">
-                            <Label text="Simulations-Geschwindigkeit" styleClass="control-label"/>
+                            <Label text="RENDER_SPEED" styleClass="control-label"/>
                             <HBox spacing="5" alignment="CENTER">
                                 <Button text="1x" onAction="#handleSpeed1x" prefWidth="50"/>
                                 <Button text="2x" onAction="#handleSpeed2x" prefWidth="50"/>
@@ -130,7 +124,7 @@
                         </VBox>
 
                         <Region VBox.vgrow="ALWAYS"/>
-                        <Button text="Parameter jetzt anwenden" onAction="#handleParameterChange" maxWidth="Infinity" style="-fx-base: #444;"/>
+                        <Button text="[ UPDATE_SYSTEM ]" onAction="#handleParameterChange" maxWidth="Infinity" style="-fx-base: #222;"/>
                     </VBox>
                 </content>
             </ScrollPane>
@@ -150,7 +144,7 @@
                         <BorderPane.margin>
                             <Insets top="15" left="15" right="15" bottom="15"/>
                         </BorderPane.margin>
-                        <Label text="Skandal-Ticker (Live)" styleClass="control-label" style="-fx-padding: 0 0 5 10;"/>
+                        <Label text="LIVE_INTEL // SCANDAL_TICKER" styleClass="control-label" style="-fx-padding: 0 0 5 10;"/>
                         <ScrollPane fx:id="scandalTickerScroll" fitToHeight="true" vbarPolicy="NEVER" hbarPolicy="AS_NEEDED"
                                     style="-fx-background-color: transparent; -fx-background: transparent;"
                                     minHeight="80.0" prefHeight="100.0">
@@ -171,26 +165,37 @@
                 </BorderPane.margin>
 
                 <VBox spacing="5" VBox.vgrow="NEVER">
-                    <Label text="Letzte Meldungen" styleClass="section-title"/>
-                    <Pane fx:id="eventFeedPane" prefHeight="180" style="-fx-background-color: rgba(0,0,0,0.2); -fx-background-radius: 5;"/>
+                    <Label text=">> INTEL_LOG" styleClass="section-title"/>
+                    <Pane fx:id="eventFeedPane" prefHeight="180" style="-fx-background-color: rgba(0,0,0,0.2);"/>
                 </VBox>
 
                 <Separator style="-fx-opacity: 0.3;"/>
 
                 <VBox VBox.vgrow="ALWAYS" spacing="5">
-                    <Label text="Stimmenverlauf (Historie)" styleClass="section-title"/>
+                    <Label text=">> TREND_ANALYSIS" styleClass="section-title"/>
                     <LineChart fx:id="historyChart" createSymbols="false" animated="false" VBox.vgrow="ALWAYS" legendVisible="false">
-                        <xAxis><NumberAxis label="Zeit (Ticks)" tickLabelFill="white"/></xAxis>
-                        <yAxis><NumberAxis label="Stimmen" tickLabelFill="white"/></yAxis>
+                        <xAxis><NumberAxis label="TICKS" tickLabelFill="white"/></xAxis>
+                        <yAxis><NumberAxis label="VOTES" tickLabelFill="white"/></yAxis>
                     </LineChart>
                 </VBox>
 
                 <VBox spacing="2" style="-fx-opacity: 0.6;">
-                    <Label text="Legende:" style="-fx-font-size: 10px; -fx-font-weight: bold;"/>
-                    <Label text="• Zentrale = Unsichere Wähler" style="-fx-font-size: 10px;"/>
-                    <Label text="• Partikel = Wählerwanderung" style="-fx-font-size: 10px;"/>
+                    <Label text="KEY:" style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: #D4AF37;"/>
+                    <Label text="[■] FACTION_CORE" style="-fx-font-size: 10px; -fx-text-fill: #888;"/>
+                    <Label text="[+] CROSSHAIR: ACTIVE" style="-fx-font-size: 10px; -fx-text-fill: #888;"/>
+                    <Label text="--> DATA_PACKET: TRANSFER" style="-fx-font-size: 10px; -fx-text-fill: #888;"/>
                 </VBox>
             </VBox>
         </right>
+
+        <bottom>
+            <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-padding: 0 0 10 20;">
+                <Label text="SYS.ID: DUV-2026-X" styleClass="hud-text"/>
+                <Label text="MODE: TACTICAL_VIEW" styleClass="hud-text, hud-text-highlight"/>
+            </HBox>
+        </bottom>
     </BorderPane>
+
+    <Region styleClass="crt-overlay" mouseTransparent="true" />
+
 </StackPane>

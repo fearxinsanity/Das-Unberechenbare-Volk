@@ -4,17 +4,14 @@ import de.schulprojekt.duv.model.scandal.ScandalEvent;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Tooltip;
 import javafx.scene.layout.*;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Line;
-import javafx.scene.text.Text;
-import javafx.util.Duration;
+import java.util.Random;
 
 public class FeedManager {
     private final HBox tickerBox;
     private final ScrollPane tickerScroll;
     private final Pane eventFeedPane;
+    private final Random rng = new Random();
 
     public FeedManager(HBox tickerBox, ScrollPane tickerScroll, Pane eventFeedPane) {
         this.tickerBox = tickerBox; this.tickerScroll = tickerScroll; this.eventFeedPane = eventFeedPane;
@@ -28,7 +25,7 @@ public class FeedManager {
     public void processScandal(ScandalEvent scandal, int step) {
         if (scandal == null) return;
         if (eventFeedPane != null) addToVerticalFeed(scandal, step);
-        if (tickerBox != null) addScandalToTicker(scandal, step);
+        // Ticker kann ähnlich angepasst oder weggelassen werden, hier Fokus auf Log
     }
 
     private void addToVerticalFeed(ScandalEvent event, int step) {
@@ -38,66 +35,40 @@ public class FeedManager {
             fb.prefWidthProperty().bind(eventFeedPane.widthProperty());
             eventFeedPane.getChildren().add(fb);
         } else fb = (VBox) eventFeedPane.getChildren().get(0);
-        fb.getChildren().clear();
-        fb.getChildren().add(createVerticalEventCard(event, step));
+
+        // Limit auf 3 Einträge für Terminal-Look
+        if (fb.getChildren().size() > 2) fb.getChildren().remove(2);
+        fb.getChildren().add(0, createLogEntry(event, step));
     }
 
-    private HBox createVerticalEventCard(ScandalEvent event, int step) {
-        VBox lc = new VBox(); lc.getStyleClass().add("event-timeline-col"); lc.setAlignment(Pos.TOP_CENTER); lc.setMinWidth(40);
-        Circle bg = new Circle(14); bg.getStyleClass().addAll("event-icon-bg", getStyle(event));
-        Text sym = new Text(getSymbol(event)); sym.getStyleClass().add("event-icon-symbol");
-        lc.getChildren().add(new StackPane(bg, sym));
-        VBox rc = new VBox(2); rc.getStyleClass().add("event-content-col"); HBox.setHgrow(rc, Priority.ALWAYS);
-        Label t = new Label("Tick: " + step); t.getStyleClass().add("event-time");
-        Label ti = new Label(event.getScandal().getTitle() + " (" + event.getAffectedParty().getAbbreviation() + ")"); ti.getStyleClass().add("event-title");
-        Label d = new Label("Prognose: -" + (int)(event.getScandal().getStrength() * 50) + "% Beliebtheit."); d.getStyleClass().add("event-desc");
-        rc.getChildren().addAll(t, ti, d);
-        HBox card = new HBox(0); card.getStyleClass().add("event-card"); card.getChildren().addAll(lc, rc);
-        return card;
-    }
+    private VBox createLogEntry(ScandalEvent event, int step) {
+        VBox entry = new VBox(2);
+        entry.setStyle("-fx-padding: 0 0 10 0; -fx-border-color: #444; -fx-border-width: 0 0 1 0; -fx-border-style: dashed;");
 
-    private void addScandalToTicker(ScandalEvent event, int step) {
-        tickerBox.setAlignment(Pos.TOP_LEFT);
-        if (!tickerBox.getChildren().isEmpty()) {
-            Line conn = new Line(0, 0, 50, 0); conn.getStyleClass().add("ticker-connector"); conn.setTranslateY(16);
-            tickerBox.getChildren().add(conn);
-        }
+        // 1. Header Zeile (ID + Time)
+        HBox header = new HBox(10);
+        String id = String.format("ID: %04d-%c", rng.nextInt(9999), (char)('A' + rng.nextInt(26)));
+        Label idLbl = new Label("[" + id + "]"); idLbl.getStyleClass().add("terminal-label");
+        Label timeLbl = new Label("TICK: " + step); timeLbl.setStyle("-fx-text-fill: #888; -fx-font-family: Consolas;");
+        header.getChildren().addAll(idLbl, timeLbl);
 
-        Circle bg = new Circle(16);
-        bg.getStyleClass().addAll("event-icon-bg", getStyle(event));
+        // 2. Info Zeile
+        HBox info = new HBox(10);
+        Label typeLbl = new Label("TYPE: " + event.getScandal().getType());
+        typeLbl.getStyleClass().add("terminal-value-alert");
 
-        Text sym = new Text(getSymbol(event));
-        sym.getStyleClass().add("event-icon-symbol");
+        Label locLbl = new Label(String.format("LOC: %03d.%02d", rng.nextInt(999), rng.nextInt(99)));
+        locLbl.setStyle("-fx-text-fill: #888; -fx-font-family: Consolas;");
+        info.getChildren().addAll(typeLbl, locLbl);
 
-        StackPane st = new StackPane(bg, sym);
-        st.getStyleClass().add("ticker-item");
+        // 3. Inhalt
+        Label msg = new Label(">> " + event.getScandal().getTitle() + " // TARGET: " + event.getAffectedParty().getAbbreviation());
+        msg.setStyle("-fx-text-fill: #e0e0e0; -fx-font-family: Consolas;");
 
-        // FIX: Erzwingen einer quadratischen Form, damit der Kreis rund bleibt!
-        st.setMinWidth(32);
-        st.setMinHeight(32);
-        st.setPrefSize(32, 32);
-        st.setMaxSize(32, 32);
+        Label impact = new Label("IMPACT: -" + (int)(event.getScandal().getStrength() * 100) + "% STABILITY");
+        impact.setStyle("-fx-text-fill: #ff3333; -fx-font-family: Consolas; -fx-font-weight: bold;");
 
-        Label l = new Label("Tick " + step);
-        l.getStyleClass().add("ticker-time");
-
-        VBox box = new VBox(st, l);
-        box.getStyleClass().add("ticker-box");
-
-        Tooltip tt = new Tooltip(String.format("TICK: %d\nPARTEI: %s\nTYP: %s\n\n%s\n\nAUSWIRKUNG: -%.0f%%", step, event.getAffectedParty().getAbbreviation(), event.getScandal().getType(), event.getScandal().getTitle(), event.getScandal().getStrength() * 50));
-        tt.getStyleClass().add("scandal-tooltip"); tt.setShowDelay(Duration.ZERO); Tooltip.install(st, tt);
-
-        tickerBox.getChildren().add(box);
-        tickerBox.applyCss(); tickerBox.layout(); tickerScroll.layout(); tickerScroll.setHvalue(1.0);
-    }
-
-    private String getStyle(ScandalEvent e) {
-        String t = e.getScandal().getType();
-        return t.equals("CORRUPTION") ? "type-corruption" : t.equals("FINANCIAL") ? "type-financial" : t.equals("POLITICAL") ? "type-political" : t.equals("PERSONAL") ? "type-personal" : "type-scandal";
-    }
-
-    private String getSymbol(ScandalEvent e) {
-        String t = e.getScandal().getType();
-        return t.equals("CORRUPTION") ? "⚖" : t.equals("FINANCIAL") ? "$" : t.equals("POLITICAL") ? "♟" : t.equals("PERSONAL") ? "☹" : "⚠";
+        entry.getChildren().addAll(header, info, msg, impact);
+        return entry;
     }
 }

@@ -31,7 +31,7 @@ public class DashboardController {
     @FXML private Slider mediaInfluenceSlider, mobilityRateSlider, loyaltyMeanSlider, randomRangeSlider;
     @FXML private Button startButton, pauseButton, resetButton;
 
-    // Neue Referenzen für die Sidebars
+    // Neue Referenzen für die Sidebars (Glitch-Target)
     @FXML private VBox leftSidebar;
     @FXML private VBox rightSidebar;
 
@@ -56,49 +56,57 @@ public class DashboardController {
         handleParameterChange(null);
         canvasRenderer.startVisualTimer();
 
-        // --- RESPONSIVE LOGIK START ---
+        // --- RESPONSIVE LOGIK ---
         Platform.runLater(() -> {
             if (animationPane.getScene() != null) {
                 Scene scene = animationPane.getScene();
-
-                // 1. Schriftgrößen-Skalierung
                 scene.widthProperty().addListener((obs, oldVal, newVal) -> adjustScale(newVal.doubleValue()));
-                scene.heightProperty().addListener((obs, oldVal, newVal) -> adjustLayout(newVal.doubleValue()));
-
-                // Initial einmal ausführen
                 adjustScale(scene.getWidth());
 
-                // 2. Sidebar-Breiten dynamisch binden (Min 250px, Max 450px, sonst 22% der Breite)
                 if (leftSidebar != null) {
-                    leftSidebar.prefWidthProperty().bind(
-                            Bindings.max(250, Bindings.min(450, scene.widthProperty().multiply(0.22)))
-                    );
+                    leftSidebar.prefWidthProperty().bind(Bindings.max(250, Bindings.min(450, scene.widthProperty().multiply(0.22))));
                 }
                 if (rightSidebar != null) {
-                    rightSidebar.prefWidthProperty().bind(
-                            Bindings.max(250, Bindings.min(450, scene.widthProperty().multiply(0.22)))
-                    );
+                    rightSidebar.prefWidthProperty().bind(Bindings.max(250, Bindings.min(450, scene.widthProperty().multiply(0.22))));
                 }
             }
         });
-        // --- RESPONSIVE LOGIK ENDE ---
     }
 
     private void adjustScale(double windowWidth) {
         if (animationPane.getScene() == null) return;
-
-        // Basis: 12px bei 1280px Breite
         double baseSize = 12.0;
         double scaleFactor = windowWidth / 1280.0;
-
-        // Sanfte Skalierung mittels Wurzel, geklammert zwischen 11px und 18px
         double newSize = Math.max(11.0, Math.min(18.0, baseSize * Math.sqrt(scaleFactor)));
-
         animationPane.getScene().getRoot().setStyle("-fx-font-size: " + String.format(Locale.US, "%.1f", newSize) + "px;");
     }
 
-    private void adjustLayout(double windowHeight) {
-        // Platzhalter für vertikale Anpassungen (z.B. Paddings reduzieren bei sehr flachen Screens)
+    // --- SYSTEM GLITCH EFFECT ---
+    private void triggerGlitchEffect() {
+        if (leftSidebar == null || rightSidebar == null) return;
+
+        // 1. CSS Klasse hinzufügen (Roter Rand)
+        leftSidebar.getStyleClass().add("glitch-active");
+        rightSidebar.getStyleClass().add("glitch-active");
+
+        // 2. Shake Animation (manuell via Translate)
+        javafx.animation.TranslateTransition tt = new javafx.animation.TranslateTransition(javafx.util.Duration.millis(50), leftSidebar);
+        tt.setByX(5);
+        tt.setCycleCount(6);
+        tt.setAutoReverse(true);
+
+        javafx.animation.TranslateTransition tt2 = new javafx.animation.TranslateTransition(javafx.util.Duration.millis(50), rightSidebar);
+        tt2.setByX(-5);
+        tt2.setCycleCount(6);
+        tt2.setAutoReverse(true);
+
+        javafx.animation.ParallelTransition pt = new javafx.animation.ParallelTransition(tt, tt2);
+        pt.setOnFinished(e -> {
+            // CSS Klasse entfernen
+            leftSidebar.getStyleClass().remove("glitch-active");
+            rightSidebar.getStyleClass().remove("glitch-active");
+        });
+        pt.play();
     }
 
     public void updateDashboard(List<Party> parties, List<VoterTransition> transitions, ScandalEvent scandal, int step) {
@@ -114,12 +122,17 @@ public class DashboardController {
         }
 
         if (timeStepLabel != null) {
-            timeStepLabel.setText(String.format("Status: %s | Tick: %d", controller.isRunning() ? "Läuft" : "Pausiert", step));
+            timeStepLabel.setText(String.format("SYSTEM_STATUS: %s | TICK: %d", controller.isRunning() ? "RUNNING" : "HALTED", step));
         }
 
         feedManager.processScandal(scandal, step);
         chartManager.update(parties, step);
         canvasRenderer.update(parties, transitions, controller.getCurrentParameters().getTotalVoterCount());
+
+        // Bei Skandal Glitch auslösen
+        if (scandal != null) {
+            triggerGlitchEffect();
+        }
     }
 
     @FXML
