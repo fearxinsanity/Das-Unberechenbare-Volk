@@ -11,12 +11,16 @@ import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+
+import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
@@ -29,7 +33,7 @@ public class DashboardController {
     @FXML private Label timeStepLabel;
     @FXML private TextField voterCountField, partyCountField, budgetField, scandalChanceField;
     @FXML private Slider mediaInfluenceSlider, mobilityRateSlider, loyaltyMeanSlider, randomRangeSlider;
-    @FXML private Button startButton, pauseButton, resetButton;
+    @FXML private Button startButton, pauseButton, resetButton, statsButton;
 
     @FXML private VBox leftSidebar;
     @FXML private VBox rightSidebar;
@@ -40,7 +44,6 @@ public class DashboardController {
     private FeedManager feedManager;
     private TooltipManager tooltipManager;
 
-    // Speichert den letzten Tick, damit wir ihn auch im Pause-Modus anzeigen können
     private int currentTick = 0;
 
     @FXML
@@ -58,10 +61,8 @@ public class DashboardController {
         handleParameterChange(null);
         canvasRenderer.startVisualTimer();
 
-        // Initialer Status: Halted (Rot)
         updateStatusDisplay(false);
 
-        // --- RESPONSIVE LOGIK ---
         Platform.runLater(() -> {
             if (animationPane.getScene() != null) {
                 Scene scene = animationPane.getScene();
@@ -78,14 +79,10 @@ public class DashboardController {
         });
     }
 
-    // --- NEUE METHODE FÜR STATUS & FARBE ---
     private void updateStatusDisplay(boolean isRunning) {
         if (timeStepLabel == null) return;
-
         String statusText = isRunning ? "RUNNING" : "HALTED";
-        // Grün (#55ff55) für Running, Rot (#ff5555) für Halted
         String color = isRunning ? "#55ff55" : "#ff5555";
-
         timeStepLabel.setText(String.format("SYSTEM_STATUS: %s | TICK: %d", statusText, currentTick));
         timeStepLabel.setStyle("-fx-text-fill: " + color + "; -fx-font-family: 'Consolas'; -fx-font-weight: bold;");
     }
@@ -127,17 +124,14 @@ public class DashboardController {
             return;
         }
 
-        this.currentTick = step; // Tick speichern
-
+        this.currentTick = step;
         if (step == 0) {
             chartManager.clear();
             canvasRenderer.clear(parties);
             feedManager.clear();
         }
 
-        // Status hier im Loop aktualisieren (vor allem für Tick-Zähler)
         updateStatusDisplay(controller.isRunning());
-
         feedManager.processScandal(scandal, step);
         chartManager.update(parties, step);
         canvasRenderer.update(parties, transitions, controller.getCurrentParameters().getTotalVoterCount());
@@ -168,12 +162,56 @@ public class DashboardController {
         } catch (Exception e) { e.printStackTrace(); }
     }
 
-    // --- Buttons mit sofortigem Status-Update ---
+    // --- Statistik Ansicht aufrufen ---
+    @FXML
+    public void handleShowStatistics(ActionEvent event) {
+        if (controller == null) return;
+
+        // 1. Simulation pausieren
+        if (controller.isRunning()) {
+            handlePauseSimulation(null);
+        }
+
+        try {
+            // 2. FXML laden (mit Fehlerprüfung)
+            var resource = getClass().getResource("/de/schulprojekt/duv/view/StatisticsView.fxml");
+            if (resource == null) {
+                System.err.println("FEHLER: StatisticsView.fxml wurde nicht gefunden! Pfad prüfen.");
+                new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR, "StatisticsView.fxml nicht gefunden!").show();
+                return;
+            }
+
+            FXMLLoader loader = new FXMLLoader(resource);
+            Parent statsRoot = loader.load();
+
+            StatisticsController statsCtrl = loader.getController();
+
+            // 3. WICHTIG: Wir holen uns die aktuelle Ansicht (das Dashboard selbst)
+            // damit wir später genau hierhin zurück können.
+            Parent dashboardRoot = startButton.getScene().getRoot();
+
+            // 4. Daten übergeben
+            statsCtrl.initData(
+                    controller.getParties(),
+                    historyChart.getData(),
+                    this.currentTick,
+                    dashboardRoot // Wir übergeben die View, nicht die Szene!
+            );
+
+            // 5. Ansicht tauschen
+            startButton.getScene().setRoot(statsRoot);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR, "Fehler beim Laden der Statistik: " + e.getMessage()).show();
+        }
+    }
+
     @FXML public void handleStartSimulation(ActionEvent e) {
         if (controller != null) {
             controller.startSimulation();
             updateButtonState(true);
-            updateStatusDisplay(true); // Sofort Grün
+            updateStatusDisplay(true);
         }
     }
 
@@ -181,7 +219,7 @@ public class DashboardController {
         if (controller != null) {
             controller.pauseSimulation();
             updateButtonState(false);
-            updateStatusDisplay(false); // Sofort Rot
+            updateStatusDisplay(false);
         }
     }
 
@@ -191,9 +229,8 @@ public class DashboardController {
             controller.resetSimulation();
             updateButtonState(false);
             if (resetButton != null) resetButton.setDisable(true);
-
             this.currentTick = 0;
-            updateStatusDisplay(false); // Rot und Tick 0
+            updateStatusDisplay(false);
         }
     }
 
