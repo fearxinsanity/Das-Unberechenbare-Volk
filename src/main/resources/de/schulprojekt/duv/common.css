@@ -15,8 +15,8 @@
 /* --- NEU: Hintergrund Gitter (Vom Start-Screen übernommen) --- */
 .grid-background {
     -fx-background-color:
-            linear-gradient(from 0px 0px to 40px 0px, repeat, rgba(212, 175, 55, 0.10) 0%, rgba(212, 175, 55, 0.10) 2%, transparent 2%, transparent 100%),
-            linear-gradient(from 0px 0px to 0px 40px, repeat, rgba(212, 175, 55, 0.10) 0%, rgba(212, 175, 55, 0.10) 2%, transparent 2%, transparent 100%);
+            linear-gradient(from 0px 0px to 40px 0px, repeat, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.15) 2%, transparent 2%, transparent 100%),
+            linear-gradient(from 0px 0px to 0px 40px, repeat, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.15) 2%, transparent 2%, transparent 100%);
     -fx-opacity: 0.4;
 }
 
@@ -26,6 +26,7 @@
     -fx-font-size: 0.8em;
     -fx-font-family: "Consolas", monospace;
 }
+
 .hud-text-highlight {
     -fx-text-fill: rgba(212, 175, 55, 0.6);
     -fx-font-weight: bold;
@@ -79,13 +80,18 @@
 .button:disabled { -fx-opacity: 0.4; -fx-border-color: #555; -fx-text-fill: #777;}
 
 .action-button {
-    -fx-background-color: rgba(46, 125, 50, 0.3);
+    -fx-font-size: 1.1em;
+    -fx-font-family: "Consolas", monospace;
+    -fx-background-color: linear-gradient(to bottom, rgba(46, 125, 50, 0.25) 0%, rgba(27, 75, 30, 0.4) 100%);
     -fx-border-color: #2E7D32;
-    -fx-text-fill: #4CAF50;
+    -fx-text-fill: #81c784;
+    -fx-cursor: hand;
+    -fx-border-width: 1px;
 }
+
 .action-button:hover {
-    -fx-background-color: rgba(46, 125, 50, 0.6);
-    -fx-effect: dropshadow(gaussian, #2E7D32, 15, 0, 0, 0);
+    -fx-background-color: linear-gradient(to bottom, rgba(46, 125, 50, 0.5) 0%, rgba(27, 75, 30, 0.6) 100%);
+    -fx-effect: dropshadow(gaussian, #2E7D32, 20, 0.2, 0, 0);
 }
 
 /* --- Inputs (TextField) --- */

@@ -1,166 +1,207 @@
 /* =========================================================================
-   === DASHBOARD.CSS - Simulation Interface ===
+   === DASHBOARD.CSS - SECRET SERVICE / MILITARY EDITION ===
    ========================================================================= */
 
-/* --- Container & Layout (Angepasst an Start-Screen Design) --- */
+/* --- Globale Einstellungen --- */
+.root-pane {
+    -fx-font-family: "Consolas", "Courier New", monospace;
+    -fx-background-color: #050508; /* Deep Black */
+}
+
+/* --- Hintergrund: Taktisches Gitter --- */
+.grid-background {
+    -fx-background-color:
+            linear-gradient(from 0px 0px to 40px 0px, repeat, rgba(212, 175, 55, 0.05) 0%, rgba(212, 175, 55, 0.05) 1px, transparent 1px, transparent 100%),
+            linear-gradient(from 0px 0px to 0px 40px, repeat, rgba(212, 175, 55, 0.05) 0%, rgba(212, 175, 55, 0.05) 1px, transparent 1px, transparent 100%);
+}
+
+/* --- Wasserzeichen --- */
+.classified-watermark {
+    -fx-text-fill: rgba(255, 255, 255, 0.03);
+    -fx-font-family: "Impact", sans-serif;
+    -fx-font-size: 120px;
+    -fx-font-weight: bold;
+    -fx-rotate: -30;
+}
+
+/* --- CRT Scanlines Overlay --- */
+.crt-overlay {
+    /* Simuliert feine horizontale Scanlines */
+    -fx-background-color: linear-gradient(from 0px 0px to 0px 4px, repeat, transparent 0%, transparent 50%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0.4) 100%);
+    -fx-opacity: 0.3;
+    -fx-mouse-transparent: true; /* Klicks gehen durch */
+}
+
+/* --- Container: Hologramm-Look --- */
 .sidebar, .top-bar {
-    /* Dunkler Hintergrund wie die Card im Start-Screen */
-    -fx-background-color: rgba(10, 10, 12, 0.85);
-    /* Goldener Rahmen */
-    -fx-border-color: rgba(212, 175, 55, 0.3);
-    -fx-border-width: 1;
-    -fx-background-radius: 2px;
-    -fx-border-radius: 2px;
-    /* Glow Effekt */
-    -fx-effect: dropshadow(gaussian, rgba(212, 175, 55, 0.15), 20, 0.1, 0, 0);
+    -fx-background-color: rgba(5, 5, 8, 0.90);
+    -fx-border-color: #D4AF37;
+    -fx-border-width: 1px;
+    /* Scharfe Ecken für Military-Look */
+    -fx-background-radius: 0px;
+    -fx-border-radius: 0px;
+    /* Inner Glow (Hologramm-Effekt) */
+    -fx-effect: innershadow(gaussian, rgba(212, 175, 55, 0.25), 20, 0, 0, 0);
     -fx-padding: 1.5em;
 }
 
 .top-bar {
-    -fx-padding: 1.2em;
-    -fx-background-radius: 0 0 2px 2px;
+    -fx-padding: 0.8em 1.2em;
     -fx-border-width: 0 0 1 0;
-    /* Etwas stärkerer Schatten für die Top-Bar */
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 20, 0, 0, 5);
 }
 
-/* --- Sliders --- */
-.slider .track { -fx-background-color: #333; }
-.slider .thumb {
-    -fx-background-color: #D4AF37;
-    -fx-border-color: black;
-    -fx-border-width: 1;
-    -fx-background-radius: 1em;
-    -fx-border-radius: 1em;
-    -fx-pref-width: 1.2em;
-    -fx-pref-height: 1.2em;
-    -fx-effect: dropshadow(gaussian, rgba(212, 175, 55, 0.8), 8, 0, 0, 0);
-}
-.slider .thumb:hover {
-    -fx-background-color: #ffd54f;
-    -fx-scale-x: 1.2;
-    -fx-scale-y: 1.2;
+/* --- Glitch-Klasse (wird per Java getoggled) --- */
+.glitch-active {
+    -fx-border-color: #ff3333;
+    -fx-effect: innershadow(gaussian, rgba(255, 50, 50, 0.6), 30, 0.5, 0, 0);
+    -fx-background-color: rgba(20, 0, 0, 0.9);
 }
 
-/* --- Charts Styling --- */
-.chart { -fx-background-color: transparent; -fx-padding: 0.8em; }
-.chart-plot-background {
-    /* Leichtes Gitter für den Chart-Hintergrund passend zum Tech-Look */
-    -fx-background-color: linear-gradient(
-            from 0px 0px to 20px 20px, repeat,
-            rgba(255, 255, 255, 0.03) 0%,
-            rgba(255, 255, 255, 0.03) 1%,
-            transparent 1%,
-            transparent 100%
-    );
-}
-.chart-content { -fx-background-color: transparent; }
-.axis {
-    -fx-tick-label-fill: #D4AF37;
-    -fx-tick-label-font-family: "Consolas", monospace;
-    -fx-tick-label-font-size: 0.85em;
-}
-.axis-label {
-    -fx-text-fill: #8a8a8a;
-    -fx-font-family: "Consolas", monospace; /* Konsistentere Schriftart */
+/* --- Texte & Labels --- */
+.app-title {
+    -fx-font-size: 1.4em;
     -fx-font-weight: bold;
-    -fx-font-size: 1em;
+    -fx-text-fill: #D4AF37;
+    -fx-effect: dropshadow(gaussian, rgba(212, 175, 55, 0.4), 10, 0, 0, 0);
 }
-.chart-vertical-grid-lines, .chart-horizontal-grid-lines {
-    -fx-stroke: rgba(212, 175, 55, 0.15);
-    -fx-stroke-dash-array: 2 5; /* Tech-Look: Gepunktete Linien */
-    -fx-stroke-width: 0.5;
-}
-.chart-series-line {
-    -fx-stroke-width: 2px;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 5, 0, 0, 0);
-}
-.chart-line-symbol { -fx-background-color: transparent, transparent; -fx-background-size: 0; }
 
-/* --- Ereignis-Feed --- */
-.event-feed-container { -fx-padding: 0.8em; -fx-background-color: transparent; }
-.event-card { -fx-background-color: transparent; -fx-padding: 0; }
-.event-timeline-col { -fx-alignment: top-center; -fx-padding: 0 0.8em 0 0; }
-.timeline-line { -fx-stroke: #444; -fx-stroke-width: 2; -fx-stroke-dash-array: 2 4; }
-
-.event-icon-bg {
-    -fx-radius: 1.1em;
-    -fx-stroke: rgba(212, 175, 55, 0.5); /* Goldener Rand */
-    -fx-stroke-width: 1;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 5, 0, 0, 1);
-}
-.event-icon-symbol {
-    -fx-fill: white;
-    -fx-font-family: "Segoe UI Symbol", "Consolas";
+.section-title {
     -fx-font-size: 1.1em;
     -fx-font-weight: bold;
-}
-.event-content-col { -fx-padding: 0 0 1.2em 0; }
-.event-time {
     -fx-text-fill: #8a8a8a;
-    -fx-font-size: 0.8em;
-    -fx-font-family: "Consolas", monospace;
+    -fx-underline: false;
+    -fx-border-color: transparent transparent #D4AF37 transparent;
+    -fx-border-width: 0 0 2 0;
+    -fx-padding: 0 0 5 0;
 }
-.event-title {
+
+.control-label {
     -fx-text-fill: #e0e0e0;
-    -fx-font-size: 1em;
-    -fx-font-weight: bold;
-}
-.event-desc {
-    -fx-text-fill: #aaaaaa;
     -fx-font-size: 0.9em;
-    -fx-wrap-text: true;
 }
 
-/* --- SKANDAL TICKER --- */
-.scroll-pane > .viewport { -fx-background-color: transparent; }
-.ticker-container {
-    -fx-background-color: transparent;
-    -fx-padding: 0.8em;
-    -fx-spacing: 0;
-    -fx-alignment: top-left;
+.status-label {
+    -fx-text-fill: #00ff41; /* Matrix Grün */
+    -fx-font-weight: bold;
 }
-.ticker-connector { -fx-stroke: #555; -fx-stroke-width: 2; }
-.ticker-box {
-    -fx-alignment: center;
-    -fx-spacing: 0.4em;
-    -fx-padding: 0 0.4em 0 0.4em;
-}
-.ticker-item {
-    -fx-cursor: hand;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 5, 0, 0, 1);
-    -fx-transition: all 0.2s;
-    -fx-background-color: #2b2b2b;
-    -fx-background-radius: 50%;
-}
-.ticker-item:hover {
-    -fx-scale-x: 1.2;
-    -fx-scale-y: 1.2;
-    -fx-effect: dropshadow(three-pass-box, #D4AF37, 10, 0, 0, 0);
-}
-.ticker-time {
-    -fx-text-fill: #8a8a8a;
+
+.hud-text {
     -fx-font-family: "Consolas", monospace;
     -fx-font-size: 0.8em;
+    -fx-text-fill: #555;
+}
+.hud-text-highlight {
+    -fx-text-fill: #D4AF37;
     -fx-font-weight: bold;
 }
 
-.scandal-tooltip {
-    -fx-background-color: rgba(30, 30, 35, 0.95);
-    -fx-background-radius: 0.4em;
+/* --- Controls (Buttons, TextFields) --- */
+.button {
+    -fx-background-color: rgba(212, 175, 55, 0.1);
+    -fx-text-fill: #D4AF37;
     -fx-border-color: #D4AF37;
     -fx-border-width: 1;
-    -fx-border-radius: 0.4em;
-    -fx-padding: 0.8em;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);
-    -fx-font-family: "Consolas";
-    -fx-font-size: 1em;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+    -fx-font-family: "Consolas", monospace;
+    -fx-cursor: hand;
+    -fx-transition: all 0.2s;
+}
+.button:hover {
+    -fx-background-color: rgba(212, 175, 55, 0.3);
+    -fx-effect: dropshadow(gaussian, #D4AF37, 5, 0, 0, 0);
+}
+.button:disabled {
+    -fx-opacity: 0.5;
+    -fx-border-color: #555;
+    -fx-text-fill: #555;
 }
 
-/* --- Colors (Parties & Types) --- */
-.type-corruption { -fx-fill: #dc3545; }
-.type-financial  { -fx-fill: #ffc107; }
-.type-political  { -fx-fill: #17a2b8; }
-.type-personal   { -fx-fill: #d63384; }
-.type-scandal    { -fx-fill: #fd7e14; }
-.type-default    { -fx-fill: #6c757d; }
+.text-field {
+    -fx-background-color: rgba(0, 0, 0, 0.5);
+    -fx-text-fill: #00ff41;
+    -fx-border-color: #444;
+    -fx-border-width: 0 0 1 0; /* Nur Unterstrich */
+    -fx-background-radius: 0;
+    -fx-font-family: "Consolas", monospace;
+}
+.text-field:focused {
+    -fx-border-color: #D4AF37;
+}
+
+/* --- Sliders (Taktisch) --- */
+.slider .track {
+    -fx-background-color: #222;
+    -fx-border-color: #444;
+    -fx-background-radius: 0;
+}
+.slider .thumb {
+    -fx-background-color: #1a1a1d;
+    -fx-border-color: #D4AF37;
+    -fx-border-width: 2;
+    -fx-background-radius: 0; /* Eckig */
+    -fx-border-radius: 0;
+    -fx-pref-width: 0.8em;
+    -fx-pref-height: 1.2em;
+}
+.slider .thumb:hover {
+    -fx-background-color: #D4AF37;
+    -fx-effect: dropshadow(gaussian, #D4AF37, 5, 0, 0, 0);
+}
+
+/* --- Charts (Radar Style) --- */
+.chart { -fx-padding: 0.8em; }
+.chart-plot-background {
+    /* Radar-Grid Look */
+    -fx-background-color:
+            linear-gradient(from 0px 0px to 40px 0px, repeat, rgba(212, 175, 55, 0.05) 0%, rgba(212, 175, 55, 0.05) 1px, transparent 1px, transparent 100%),
+            linear-gradient(from 0px 0px to 0px 40px, repeat, rgba(212, 175, 55, 0.05) 0%, rgba(212, 175, 55, 0.05) 1px, transparent 1px, transparent 100%);
+}
+.axis { -fx-tick-label-fill: #888; }
+.axis-label { -fx-text-fill: #D4AF37; }
+.chart-series-line { -fx-stroke-width: 1.5px; -fx-effect: none; }
+.chart-line-symbol { -fx-background-radius: 0; -fx-background-color: #D4AF37; -fx-padding: 3px; }
+
+/* --- Ereignis-Feed (Terminal Style) --- */
+.event-feed-container {
+    -fx-padding: 0.8em;
+    -fx-background-color: transparent;
+    -fx-border-color: rgba(212, 175, 55, 0.1);
+    -fx-border-width: 0 0 0 1; /* Linie links */
+}
+
+/* Terminal Labels */
+.terminal-label {
+    -fx-font-family: "Consolas", monospace;
+    -fx-text-fill: #D4AF37;
+    -fx-font-weight: bold;
+}
+.terminal-value {
+    -fx-font-family: "Consolas", monospace;
+    -fx-text-fill: #00ff41; /* Matrix Grün */
+}
+.terminal-value-alert {
+    -fx-font-family: "Consolas", monospace;
+    -fx-text-fill: #ff3333; /* Alarm Rot */
+}
+
+/* --- Ticker (unten) --- */
+.ticker-item {
+    -fx-background-color: #111;
+    -fx-border-color: #333;
+    -fx-border-width: 1;
+    -fx-cursor: hand;
+}
+.ticker-item:hover {
+    -fx-border-color: #D4AF37;
+    -fx-background-color: #222;
+}
+
+/* --- Scrollbars (Versteckt / Minimal) --- */
+.scroll-bar:vertical, .scroll-bar:horizontal {
+    -fx-background-color: transparent;
+}
+.scroll-bar .thumb {
+    -fx-background-color: #444;
+    -fx-background-radius: 0;
+}

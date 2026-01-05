@@ -31,7 +31,6 @@ public class DashboardController {
     @FXML private Slider mediaInfluenceSlider, mobilityRateSlider, loyaltyMeanSlider, randomRangeSlider;
     @FXML private Button startButton, pauseButton, resetButton;
 
-    // Neue Referenzen für die Sidebars
     @FXML private VBox leftSidebar;
     @FXML private VBox rightSidebar;
 
@@ -40,6 +39,9 @@ public class DashboardController {
     private ChartManager chartManager;
     private FeedManager feedManager;
     private TooltipManager tooltipManager;
+
+    // Speichert den letzten Tick, damit wir ihn auch im Pause-Modus anzeigen können
+    private int currentTick = 0;
 
     @FXML
     public void initialize() {
@@ -56,49 +58,67 @@ public class DashboardController {
         handleParameterChange(null);
         canvasRenderer.startVisualTimer();
 
-        // --- RESPONSIVE LOGIK START ---
+        // Initialer Status: Halted (Rot)
+        updateStatusDisplay(false);
+
+        // --- RESPONSIVE LOGIK ---
         Platform.runLater(() -> {
             if (animationPane.getScene() != null) {
                 Scene scene = animationPane.getScene();
-
-                // 1. Schriftgrößen-Skalierung
                 scene.widthProperty().addListener((obs, oldVal, newVal) -> adjustScale(newVal.doubleValue()));
-                scene.heightProperty().addListener((obs, oldVal, newVal) -> adjustLayout(newVal.doubleValue()));
-
-                // Initial einmal ausführen
                 adjustScale(scene.getWidth());
 
-                // 2. Sidebar-Breiten dynamisch binden (Min 250px, Max 450px, sonst 22% der Breite)
                 if (leftSidebar != null) {
-                    leftSidebar.prefWidthProperty().bind(
-                            Bindings.max(250, Bindings.min(450, scene.widthProperty().multiply(0.22)))
-                    );
+                    leftSidebar.prefWidthProperty().bind(Bindings.max(250, Bindings.min(450, scene.widthProperty().multiply(0.22))));
                 }
                 if (rightSidebar != null) {
-                    rightSidebar.prefWidthProperty().bind(
-                            Bindings.max(250, Bindings.min(450, scene.widthProperty().multiply(0.22)))
-                    );
+                    rightSidebar.prefWidthProperty().bind(Bindings.max(250, Bindings.min(450, scene.widthProperty().multiply(0.22))));
                 }
             }
         });
-        // --- RESPONSIVE LOGIK ENDE ---
+    }
+
+    // --- NEUE METHODE FÜR STATUS & FARBE ---
+    private void updateStatusDisplay(boolean isRunning) {
+        if (timeStepLabel == null) return;
+
+        String statusText = isRunning ? "RUNNING" : "HALTED";
+        // Grün (#55ff55) für Running, Rot (#ff5555) für Halted
+        String color = isRunning ? "#55ff55" : "#ff5555";
+
+        timeStepLabel.setText(String.format("SYSTEM_STATUS: %s | TICK: %d", statusText, currentTick));
+        timeStepLabel.setStyle("-fx-text-fill: " + color + "; -fx-font-family: 'Consolas'; -fx-font-weight: bold;");
     }
 
     private void adjustScale(double windowWidth) {
         if (animationPane.getScene() == null) return;
-
-        // Basis: 12px bei 1280px Breite
         double baseSize = 12.0;
         double scaleFactor = windowWidth / 1280.0;
-
-        // Sanfte Skalierung mittels Wurzel, geklammert zwischen 11px und 18px
         double newSize = Math.max(11.0, Math.min(18.0, baseSize * Math.sqrt(scaleFactor)));
-
         animationPane.getScene().getRoot().setStyle("-fx-font-size: " + String.format(Locale.US, "%.1f", newSize) + "px;");
     }
 
-    private void adjustLayout(double windowHeight) {
-        // Platzhalter für vertikale Anpassungen (z.B. Paddings reduzieren bei sehr flachen Screens)
+    private void triggerGlitchEffect() {
+        if (leftSidebar == null || rightSidebar == null) return;
+        leftSidebar.getStyleClass().add("glitch-active");
+        rightSidebar.getStyleClass().add("glitch-active");
+
+        javafx.animation.TranslateTransition tt = new javafx.animation.TranslateTransition(javafx.util.Duration.millis(50), leftSidebar);
+        tt.setByX(5);
+        tt.setCycleCount(6);
+        tt.setAutoReverse(true);
+
+        javafx.animation.TranslateTransition tt2 = new javafx.animation.TranslateTransition(javafx.util.Duration.millis(50), rightSidebar);
+        tt2.setByX(-5);
+        tt2.setCycleCount(6);
+        tt2.setAutoReverse(true);
+
+        javafx.animation.ParallelTransition pt = new javafx.animation.ParallelTransition(tt, tt2);
+        pt.setOnFinished(e -> {
+            leftSidebar.getStyleClass().remove("glitch-active");
+            rightSidebar.getStyleClass().remove("glitch-active");
+        });
+        pt.play();
     }
 
     public void updateDashboard(List<Party> parties, List<VoterTransition> transitions, ScandalEvent scandal, int step) {
@@ -107,19 +127,24 @@ public class DashboardController {
             return;
         }
 
+        this.currentTick = step; // Tick speichern
+
         if (step == 0) {
             chartManager.clear();
             canvasRenderer.clear(parties);
             feedManager.clear();
         }
 
-        if (timeStepLabel != null) {
-            timeStepLabel.setText(String.format("Status: %s | Tick: %d", controller.isRunning() ? "Läuft" : "Pausiert", step));
-        }
+        // Status hier im Loop aktualisieren (vor allem für Tick-Zähler)
+        updateStatusDisplay(controller.isRunning());
 
         feedManager.processScandal(scandal, step);
         chartManager.update(parties, step);
         canvasRenderer.update(parties, transitions, controller.getCurrentParameters().getTotalVoterCount());
+
+        if (scandal != null) {
+            triggerGlitchEffect();
+        }
     }
 
     @FXML
@@ -143,9 +168,34 @@ public class DashboardController {
         } catch (Exception e) { e.printStackTrace(); }
     }
 
-    @FXML public void handleStartSimulation(ActionEvent e) { if (controller != null) { controller.startSimulation(); updateButtonState(true); } }
-    @FXML public void handlePauseSimulation(ActionEvent e) { if (controller != null) { controller.pauseSimulation(); updateButtonState(false); } }
-    @FXML public void handleResetSimulation(ActionEvent e) { if (controller != null) { handleParameterChange(null); controller.resetSimulation(); updateButtonState(false); if (resetButton != null) resetButton.setDisable(true); } }
+    // --- Buttons mit sofortigem Status-Update ---
+    @FXML public void handleStartSimulation(ActionEvent e) {
+        if (controller != null) {
+            controller.startSimulation();
+            updateButtonState(true);
+            updateStatusDisplay(true); // Sofort Grün
+        }
+    }
+
+    @FXML public void handlePauseSimulation(ActionEvent e) {
+        if (controller != null) {
+            controller.pauseSimulation();
+            updateButtonState(false);
+            updateStatusDisplay(false); // Sofort Rot
+        }
+    }
+
+    @FXML public void handleResetSimulation(ActionEvent e) {
+        if (controller != null) {
+            handleParameterChange(null);
+            controller.resetSimulation();
+            updateButtonState(false);
+            if (resetButton != null) resetButton.setDisable(true);
+
+            this.currentTick = 0;
+            updateStatusDisplay(false); // Rot und Tick 0
+        }
+    }
 
     @FXML public void handleVoterCountIncrement(ActionEvent e) { adjustIntField(voterCountField, 10000, 1000, 2000000); }
     @FXML public void handleVoterCountDecrement(ActionEvent e) { adjustIntField(voterCountField, -10000, 1000, 2000000); }
