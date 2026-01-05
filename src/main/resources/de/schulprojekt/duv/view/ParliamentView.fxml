@@ -4,33 +4,38 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="de.schulprojekt.duv.view.ParliamentController"
-            stylesheets="@../parliament.css"
-            styleClass="main-background">
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="de.schulprojekt.duv.view.ParliamentController"
+           stylesheets="@../parliament.css">
 
-    <top>
-        <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-padding: 20;">
-            <Button text="&lt; SYSTEM_RETURN" onAction="#handleBack" styleClass="neon-button"/>
+    <BorderPane styleClass="main-background">
+        <top>
+            <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-padding: 20;">
+                <Button text="&lt; SYSTEM_RETURN" onAction="#handleBack" styleClass="nav-button"/>
 
-            <VBox>
-                <Label text="SEAT_DISTRIBUTION // HEMICYCLE_VIEW" textFill="#55ff55" styleClass="header-label">
-                    <font><Font name="Consolas Bold" size="24"/></font>
-                </Label>
-                <Label text="LIVE_SIMULATION_FEED::VOTER_MAPPING" textFill="#00aa88" style="-fx-font-family: 'Consolas'; -fx-font-size: 10px;"/>
-            </VBox>
-        </HBox>
-    </top>
+                <VBox>
+                    <Label text="SEAT_DISTRIBUTION // HEMICYCLE_VIEW" styleClass="header-label">
+                        <font><Font name="Consolas Bold" size="24"/></font>
+                    </Label>
+                    <Label text="LIVE_SIMULATION_FEED::VOTER_MAPPING" styleClass="sub-header-label"/>
+                </VBox>
+            </HBox>
+        </top>
 
-    <center>
-        <Pane fx:id="canvasContainer" style="-fx-background-color: transparent;" />
-    </center>
+        <center>
+            <Pane fx:id="canvasContainer" styleClass="grid-overlay"/>
+        </center>
 
-    <bottom>
-        <HBox alignment="CENTER" style="-fx-padding: 10;">
-            <Label text="[SECURE CONNECTION ESTABLISHED]" textFill="#444444" style="-fx-font-family: 'Consolas';"/>
-        </HBox>
-    </bottom>
+        <bottom>
+            <HBox alignment="CENTER" style="-fx-padding: 10;">
+                <Label text="[SECURE CONNECTION ESTABLISHED]" styleClass="footer-status"/>
+            </HBox>
+        </bottom>
+    </BorderPane>
 
-</BorderPane>
+    <Pane styleClass="crt-overlay" mouseTransparent="true"/>
+
+    <Pane styleClass="vignette-overlay" mouseTransparent="true"/>
+
+</StackPane>
