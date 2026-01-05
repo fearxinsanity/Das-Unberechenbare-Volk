@@ -4,15 +4,12 @@
 
 /* --- Container & Layout (Angepasst an Start-Screen Design) --- */
 .sidebar, .top-bar {
-    /* Dunkler Hintergrund wie die Card im Start-Screen */
     -fx-background-color: rgba(10, 10, 12, 0.85);
-    /* Goldener Rahmen */
     -fx-border-color: rgba(212, 175, 55, 0.3);
-    -fx-border-width: 1;
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(gaussian, rgba(212, 175, 55, 0.15), 50, 0.1, 0, 0);
     -fx-background-radius: 2px;
     -fx-border-radius: 2px;
-    /* Glow Effekt */
-    -fx-effect: dropshadow(gaussian, rgba(212, 175, 55, 0.15), 20, 0.1, 0, 0);
     -fx-padding: 1.5em;
 }
 
@@ -68,7 +65,7 @@
 }
 .chart-vertical-grid-lines, .chart-horizontal-grid-lines {
     -fx-stroke: rgba(212, 175, 55, 0.15);
-    -fx-stroke-dash-array: 2 5; /* Tech-Look: Gepunktete Linien */
+    -fx-stroke-dash-array: 2 10;
     -fx-stroke-width: 0.5;
 }
 .chart-series-line {
