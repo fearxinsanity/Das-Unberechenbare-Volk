@@ -1,49 +1,73 @@
 package de.schulprojekt.duv.model.core;
 
 /**
- * Hält alle konfigurierbaren Parameter der Simulation.
- * Diese Klasse dient als "Single Source of Truth" für Einstellungen,
- * die vom Nutzer über die GUI geändert werden können.
+ * Holds all configurable parameters of the simulation.
+ * Serves as the "Single Source of Truth" for settings that can be modified via the GUI.
  */
 public class SimulationParameters {
 
-    // --- Grundeinstellungen ---
-    private int totalVoterCount;
-    private int numberOfParties;
+    // --- CONSTANTS (Defaults) ---
+    private static final int DEFAULT_VOTER_COUNT = 250000;
+    private static final double DEFAULT_MEDIA_INFLUENCE = 65.0;
+    private static final double DEFAULT_MOBILITY_RATE = 35.0;
+    private static final double DEFAULT_SCANDAL_CHANCE = 5.0;
+    private static final double DEFAULT_INITIAL_LOYALTY = 50.0;
+    private static final int DEFAULT_TICKS_PER_SECOND = 60;
+    private static final double DEFAULT_RANDOM_RANGE = 1.0;
+    private static final int DEFAULT_PARTY_COUNT = 6;
+    private static final double DEFAULT_BUDGET_FACTOR = 1.0;
 
-    // --- Dynamik-Einstellungen ---
-    private double globalMediaInfluence;   // 0-100
-    private double baseMobilityRate;       // 0-100 (Wechselwille)
-    private double scandalChance;          // Wahrscheinlichkeit (0-60)
+    // --- FIELDS ---
 
-    // --- Statistik-Initialisierung ---
-    private double initialLoyaltyMean;     // 0-100
-    private double uniformRandomRange;     // Zufallsfaktor (Varianz)
-    private double campaignBudgetFactor;   // Multiplikator für Budget-Einfluss
+    // General Settings
+    private final int totalVoterCount;
+    private final int numberOfParties;
 
-    // --- System-Einstellungen ---
-    private int simulationTicksPerSecond;  // Geschwindigkeit (TPS)
+    // Dynamic Settings
+    private final double globalMediaInfluence;   // 0-100
+    private final double baseMobilityRate;       // 0-100 (Willingness to change)
+    private final double scandalChance;          // Probability (0-60)
+
+    // Statistical Initialization
+    private final double initialLoyaltyMean;     // 0-100
+    private final double uniformRandomRange;     // Random factor (Variance)
+    private final double campaignBudgetFactor;   // Multiplier for budget influence
+
+    // System Settings
+    private final int simulationTicksPerSecond;  // Speed (TPS)
+
+    // --- CONSTRUCTORS ---
 
     /**
-     * Standard-Konstruktor mit sinnvollen Default-Werten.
+     * Default constructor with reasonable default values.
      */
     public SimulationParameters() {
-        this(250000, 65.0, 35.0, 5.0, 50.0, 60, 1.0, 6, 1.0);
+        this(
+                DEFAULT_VOTER_COUNT,
+                DEFAULT_MEDIA_INFLUENCE,
+                DEFAULT_MOBILITY_RATE,
+                DEFAULT_SCANDAL_CHANCE,
+                DEFAULT_INITIAL_LOYALTY,
+                DEFAULT_TICKS_PER_SECOND,
+                DEFAULT_RANDOM_RANGE,
+                DEFAULT_PARTY_COUNT,
+                DEFAULT_BUDGET_FACTOR
+        );
     }
 
     /**
-     * Vollständiger Konstruktor für alle Parameter.
-     * Die Reihenfolge entspricht exakt der Nutzung im DashboardController.
+     * Full constructor for all parameters.
+     * The order corresponds exactly to the usage in DashboardController.
      *
-     * @param totalVoterCount          Anzahl der Wähler (Simulierte Agenten)
-     * @param globalMediaInfluence     Einfluss der Medien (0-100)
-     * @param baseMobilityRate         Grundwahrscheinlichkeit für Parteiwechsel (0-100)
-     * @param scandalChance            Wahrscheinlichkeit für Skandale
-     * @param initialLoyaltyMean       Durchschnittliche Parteitreue zu Beginn
-     * @param simulationTicksPerSecond Geschwindigkeit der Simulation (Ticks pro Sekunde)
-     * @param uniformRandomRange       Zufallsstreuung bei Entscheidungen
-     * @param numberOfParties          Anzahl der Parteien (exkl. Unsicher)
-     * @param campaignBudgetFactor     Gewichtung des Budgets
+     * @param totalVoterCount          Number of voters (Simulated Agents)
+     * @param globalMediaInfluence     Influence of media (0-100)
+     * @param baseMobilityRate         Base probability for party switching (0-100)
+     * @param scandalChance            Probability for scandals
+     * @param initialLoyaltyMean       Average party loyalty at start
+     * @param simulationTicksPerSecond Speed of simulation (Ticks per second)
+     * @param uniformRandomRange       Random deviation in decisions
+     * @param numberOfParties          Number of parties (excl. Undecided)
+     * @param campaignBudgetFactor     Weighting of the budget
      */
     public SimulationParameters(int totalVoterCount,
                                 double globalMediaInfluence,
@@ -64,78 +88,61 @@ public class SimulationParameters {
         this.numberOfParties = numberOfParties;
         this.campaignBudgetFactor = campaignBudgetFactor;
     }
+    // --- HELPER METHODS ---
 
-    // --- Getter und Setter ---
+    /**
+     * Creates a COPY of these parameters with a new speed (TPS).
+     * Necessary because fields are final (Immutable pattern).
+     */
+    public SimulationParameters withSimulationTicksPerSecond(int newTps) {
+        return new SimulationParameters(
+                this.totalVoterCount,
+                this.globalMediaInfluence,
+                this.baseMobilityRate,
+                this.scandalChance,
+                this.initialLoyaltyMean,
+                newTps,
+                this.uniformRandomRange,
+                this.numberOfParties,
+                this.campaignBudgetFactor
+        );
+    }
+
+    // --- GETTERS ---
 
     public int getTotalVoterCount() {
         return totalVoterCount;
-    }
-
-    public void setTotalVoterCount(int totalVoterCount) {
-        this.totalVoterCount = totalVoterCount;
     }
 
     public int getNumberOfParties() {
         return numberOfParties;
     }
 
-    public void setNumberOfParties(int numberOfParties) {
-        this.numberOfParties = numberOfParties;
-    }
-
     public double getGlobalMediaInfluence() {
         return globalMediaInfluence;
-    }
-
-    public void setGlobalMediaInfluence(double globalMediaInfluence) {
-        this.globalMediaInfluence = globalMediaInfluence;
     }
 
     public double getBaseMobilityRate() {
         return baseMobilityRate;
     }
 
-    public void setBaseMobilityRate(double baseMobilityRate) {
-        this.baseMobilityRate = baseMobilityRate;
-    }
-
     public double getScandalChance() {
         return scandalChance;
-    }
-
-    public void setScandalChance(double scandalChance) {
-        this.scandalChance = scandalChance;
     }
 
     public double getInitialLoyaltyMean() {
         return initialLoyaltyMean;
     }
 
-    public void setInitialLoyaltyMean(double initialLoyaltyMean) {
-        this.initialLoyaltyMean = initialLoyaltyMean;
-    }
-
     public double getUniformRandomRange() {
         return uniformRandomRange;
-    }
-
-    public void setUniformRandomRange(double uniformRandomRange) {
-        this.uniformRandomRange = uniformRandomRange;
     }
 
     public double getCampaignBudgetFactor() {
         return campaignBudgetFactor;
     }
 
-    public void setCampaignBudgetFactor(double campaignBudgetFactor) {
-        this.campaignBudgetFactor = campaignBudgetFactor;
-    }
-
     public int getSimulationTicksPerSecond() {
         return simulationTicksPerSecond;
-    }
-
-    public void setSimulationTicksPerSecond(int simulationTicksPerSecond) {
-        this.simulationTicksPerSecond = simulationTicksPerSecond;
     }
 }

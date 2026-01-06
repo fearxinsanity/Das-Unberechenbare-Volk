@@ -1,12 +1,15 @@
 package de.schulprojekt.duv.view;
 
 import de.schulprojekt.duv.controller.SimulationController;
-import de.schulprojekt.duv.model.scandal.ScandalEvent;
 import de.schulprojekt.duv.model.core.SimulationParameters;
-import de.schulprojekt.duv.model.voter.VoterTransition;
 import de.schulprojekt.duv.model.party.Party;
-import de.schulprojekt.duv.view.components.*;
-import de.schulprojekt.duv.view.util.VisualFX; // NEU: Import für die visuellen Effekte
+import de.schulprojekt.duv.model.scandal.ScandalEvent;
+import de.schulprojekt.duv.model.voter.VoterTransition;
+import de.schulprojekt.duv.view.components.CanvasRenderer;
+import de.schulprojekt.duv.view.components.ChartManager;
+import de.schulprojekt.duv.view.components.FeedManager;
+import de.schulprojekt.duv.view.components.TooltipManager;
+import de.schulprojekt.duv.view.util.VisualFX;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
@@ -24,55 +27,110 @@ import javafx.scene.layout.VBox;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+/**
+ * Main controller for the simulation dashboard.
+ * Coordinates the interaction between the SimulationController (Logic) and the View Components.
+ */
 public class DashboardController {
 
+    private static final Logger LOGGER = Logger.getLogger(DashboardController.class.getName());
+
+    // --- Constants: Limits ---
+    private static final double MIN_SCANDAL_CHANCE = 0.0;
+    private static final double MAX_SCANDAL_CHANCE = 60.0;
+
+    // --- FXML: Layout & Containers ---
     @FXML private ScrollPane scandalTickerScroll;
     @FXML private HBox scandalTickerBox;
-    @FXML private LineChart<Number, Number> historyChart;
-    @FXML private Pane animationPane, eventFeedPane;
-    @FXML private Label timeStepLabel;
-    @FXML private TextField voterCountField, partyCountField, budgetField, scandalChanceField;
-    @FXML private Slider mediaInfluenceSlider, mobilityRateSlider, loyaltyMeanSlider, randomRangeSlider;
-    @FXML private Button startButton, pauseButton, resetButton, statsButton;
-
+    @FXML private Pane animationPane;
+    @FXML private Pane eventFeedPane;
     @FXML private VBox leftSidebar;
     @FXML private VBox rightSidebar;
 
+    // --- FXML: Visualization ---
+    @FXML private LineChart<Number, Number> historyChart;
+    @FXML private Label timeStepLabel;
+
+    // --- FXML: Controls & Inputs ---
+    @FXML private TextField voterCountField;
+    @FXML private TextField partyCountField;
+    @FXML private TextField budgetField;
+    @FXML private TextField scandalChanceField;
+
+    @FXML private Slider mediaInfluenceSlider;
+    @FXML private Slider mobilityRateSlider;
+    @FXML private Slider loyaltyMeanSlider;
+    @FXML private Slider randomRangeSlider;
+
+    // --- FXML: Buttons ---
+    @FXML private Button startButton;
+    @FXML private Button pauseButton;
+    @FXML private Button resetButton;
+
+    @FXML
+    @SuppressWarnings("unused") // Injected by FXML, kept for potential CSS styling
+    private Button statsButton;
+
+    // --- Managers & Sub-Controllers ---
     private SimulationController controller;
     private CanvasRenderer canvasRenderer;
     private ChartManager chartManager;
     private FeedManager feedManager;
     private TooltipManager tooltipManager;
 
+    // --- State ---
     private int currentTick = 0;
+
+    // --- Initialization ---
 
     @FXML
     public void initialize() {
+        // 1. Initialize View Components
         this.canvasRenderer = new CanvasRenderer(animationPane);
         this.chartManager = new ChartManager(historyChart);
         this.feedManager = new FeedManager(scandalTickerBox, scandalTickerScroll, eventFeedPane);
         this.tooltipManager = new TooltipManager(animationPane);
 
+        // 2. Setup Interactions (Tooltips)
+        // Ensure CanvasRenderer has 'public Map<String, Point> getPartyPositions()'
         canvasRenderer.getCanvas().setOnMouseMoved(e ->
-                tooltipManager.handleMouseMove(e.getX(), e.getY(), controller.getParties(), canvasRenderer.getPartyPositions(), controller.getCurrentParameters().getTotalVoterCount()));
-        canvasRenderer.getCanvas().setOnMouseExited(e -> tooltipManager.hideTooltip());
+                tooltipManager.handleMouseMove(
+                        e.getX(),
+                        e.getY(),
+                        controller.getParties(),
+                        canvasRenderer.getPartyPositions(),
+                        controller.getCurrentParameters().getTotalVoterCount()
+                )
+        );
+        canvasRenderer.getCanvas().setOnMouseExited(ignored -> tooltipManager.hideTooltip());
 
+        // 3. Initialize Logic Controller
         this.controller = new SimulationController(this);
+
+        // 4. Initial Setup
         handleParameterChange(null);
         canvasRenderer.startVisualTimer();
-
         updateStatusDisplay(false);
 
+        // 5. Layout Bindings (Responsive)
+        setupResponsiveLayout();
+    }
+
+    private void setupResponsiveLayout() {
         Platform.runLater(() -> {
             if (animationPane.getScene() != null) {
                 Scene scene = animationPane.getScene();
 
-                scene.widthProperty().addListener((obs, oldVal, newVal) ->
+                // Dynamic Font Scaling
+                scene.widthProperty().addListener((ignored, ignored2, newVal) ->
                         VisualFX.adjustResponsiveScale(scene, newVal.doubleValue())
                 );
                 VisualFX.adjustResponsiveScale(scene, scene.getWidth());
 
+                // Sidebar Width Constraint
                 if (leftSidebar != null) {
                     leftSidebar.prefWidthProperty().bind(Bindings.max(250, Bindings.min(450, scene.widthProperty().multiply(0.22))));
                 }
@@ -83,13 +141,7 @@ public class DashboardController {
         });
     }
 
-    private void updateStatusDisplay(boolean isRunning) {
-        if (timeStepLabel == null) return;
-        String statusText = isRunning ? "RUNNING" : "HALTED";
-        String color = isRunning ? "#55ff55" : "#ff5555";
-        timeStepLabel.setText(String.format("SYSTEM_STATUS: %s | TICK: %d", statusText, currentTick));
-        timeStepLabel.setStyle("-fx-text-fill: " + color + "; -fx-font-family: 'Consolas'; -fx-font-weight: bold;");
-    }
+    // --- Core Update Loop ---
 
     public void updateDashboard(List<Party> parties, List<VoterTransition> transitions, ScandalEvent scandal, int step) {
         if (!Platform.isFxApplicationThread()) {
@@ -98,6 +150,8 @@ public class DashboardController {
         }
 
         this.currentTick = step;
+
+        // Reset views on first tick
         if (step == 0) {
             chartManager.clear();
             canvasRenderer.clear(parties);
@@ -105,83 +159,32 @@ public class DashboardController {
         }
 
         updateStatusDisplay(controller.isRunning());
+
+        // Delegate updates to sub-managers
         feedManager.processScandal(scandal, step);
         chartManager.update(parties, step);
         canvasRenderer.update(parties, transitions, controller.getCurrentParameters().getTotalVoterCount());
 
+        // Trigger visual effects
         if (scandal != null) {
-            // REFRACTORED: Aufruf des Glitch-Effekts über VisualFX
             VisualFX.triggerSidebarGlitch(leftSidebar, rightSidebar);
         }
     }
 
-    @FXML
-    public void handleParameterChange(Event event) {
-        if (controller == null) return;
-        try {
-            int voters = parseIntSafe(voterCountField.getText(), 100000);
-            int parties = parseIntSafe(partyCountField.getText(), 5);
-            parties = Math.max(2, Math.min(8, parties));
-            double scandalChance = Math.max(0.0, Math.min(60.0, parseDoubleSafe(scandalChanceField.getText(), 5.0)));
-            double budgetInput = parseDoubleSafe(budgetField.getText(), 500000.0);
-            double budgetFactor = Math.max(0.1, Math.min(10.0, budgetInput / 500000.0));
+    private void updateStatusDisplay(boolean isRunning) {
+        if (timeStepLabel == null) return;
 
-            SimulationParameters params = new SimulationParameters(
-                    voters, mediaInfluenceSlider.getValue(), mobilityRateSlider.getValue(),
-                    scandalChance, loyaltyMeanSlider.getValue(),
-                    controller.getCurrentParameters().getSimulationTicksPerSecond(),
-                    randomRangeSlider.getValue(), parties, budgetFactor
-            );
-            controller.updateAllParameters(params);
-        } catch (Exception e) { e.printStackTrace(); }
+        String statusText = isRunning ? "RUNNING" : "HALTED";
+        String color = isRunning ? "#55ff55" : "#ff5555";
+
+        timeStepLabel.setText(String.format("SYSTEM_STATUS: %s | TICK: %d", statusText, currentTick));
+        timeStepLabel.setStyle("-fx-text-fill: " + color + "; -fx-font-family: 'Consolas'; -fx-font-weight: bold;");
     }
 
-    // --- Statistik Ansicht aufrufen ---
+    // --- Event Handlers: Simulation Control ---
+
     @FXML
-    public void handleShowStatistics(ActionEvent event) {
-        if (controller == null) return;
-
-        // 1. Simulation pausieren
-        if (controller.isRunning()) {
-            handlePauseSimulation(null);
-        }
-
-        try {
-            // 2. FXML laden (mit Fehlerprüfung)
-            var resource = getClass().getResource("/de/schulprojekt/duv/view/StatisticsView.fxml");
-            if (resource == null) {
-                System.err.println("FEHLER: StatisticsView.fxml wurde nicht gefunden! Pfad prüfen.");
-                new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR, "StatisticsView.fxml nicht gefunden!").show();
-                return;
-            }
-
-            FXMLLoader loader = new FXMLLoader(resource);
-            Parent statsRoot = loader.load();
-
-            StatisticsController statsCtrl = loader.getController();
-
-            // 3. WICHTIG: Wir holen uns die aktuelle Ansicht (das Dashboard selbst)
-            // damit wir später genau hierhin zurück können.
-            Parent dashboardRoot = startButton.getScene().getRoot();
-
-            // 4. Daten übergeben
-            statsCtrl.initData(
-                    controller.getParties(),
-                    historyChart.getData(),
-                    this.currentTick,
-                    dashboardRoot // Wir übergeben die View, nicht die Szene!
-            );
-
-            // 5. Ansicht tauschen
-            startButton.getScene().setRoot(statsRoot);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR, "Fehler beim Laden der Statistik: " + e.getMessage()).show();
-        }
-    }
-
-    @FXML public void handleStartSimulation(ActionEvent e) {
+    public void handleStartSimulation(ActionEvent ignored) {
         if (controller != null) {
             controller.startSimulation();
             updateButtonState(true);
@@ -189,7 +192,8 @@ public class DashboardController {
         }
     }
 
-    @FXML public void handlePauseSimulation(ActionEvent e) {
+    @FXML
+    public void handlePauseSimulation(ActionEvent ignored) {
         if (controller != null) {
             controller.pauseSimulation();
             updateButtonState(false);
@@ -197,67 +201,160 @@ public class DashboardController {
         }
     }
 
-    @FXML public void handleResetSimulation(ActionEvent e) {
+    @FXML
+    public void handleResetSimulation(ActionEvent ignored) {
         if (controller != null) {
             handleParameterChange(null);
             controller.resetSimulation();
+
             updateButtonState(false);
             if (resetButton != null) resetButton.setDisable(true);
+
             this.currentTick = 0;
             updateStatusDisplay(false);
         }
     }
 
     @FXML
-    public void handleShowParliament(ActionEvent event) {
+    public void handleParameterChange(Event ignored) {
         if (controller == null) return;
+        try {
+            int voters = parseIntSafe(voterCountField.getText(), 100000);
+            int parties = parseIntSafe(partyCountField.getText(), 5);
 
-        // Simulation pausieren
-        if (controller.isRunning()) {
-            handlePauseSimulation(null);
+            // Constrain Inputs
+            parties = Math.clamp(parties, 2, 8);
+            double scandalChance = Math.clamp(parseDoubleSafe(scandalChanceField.getText(), 5.0), MIN_SCANDAL_CHANCE, MAX_SCANDAL_CHANCE);
+
+            double budgetInput = parseDoubleSafe(budgetField.getText(), 500000.0);
+            double budgetFactor = Math.clamp(budgetInput / 500000.0, 0.1, 10.0);
+
+            SimulationParameters params = new SimulationParameters(
+                    voters,
+                    mediaInfluenceSlider.getValue(),
+                    mobilityRateSlider.getValue(),
+                    scandalChance,
+                    loyaltyMeanSlider.getValue(),
+                    controller.getCurrentParameters().getSimulationTicksPerSecond(),
+                    randomRangeSlider.getValue(),
+                    parties,
+                    budgetFactor
+            );
+            controller.updateAllParameters(params);
+
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Invalid parameter input", e);
         }
+    }
+
+    // --- Event Handlers: Navigation ---
+
+    @FXML
+    public void handleShowStatistics(ActionEvent ignored) {
+        navigate(
+                "/de/schulprojekt/duv/view/StatisticsView.fxml",
+                (loader, ignoredRoot) -> {
+                    StatisticsController statsCtrl = loader.getController();
+                    Parent dashboardRoot = startButton.getScene().getRoot();
+                    statsCtrl.initData(
+                            controller.getParties(),
+                            historyChart.getData(),
+                            this.currentTick,
+                            dashboardRoot
+                    );
+                }
+        );
+    }
+
+    @FXML
+    public void handleShowParliament(ActionEvent ignored) {
+        navigate(
+                "/de/schulprojekt/duv/view/ParliamentView.fxml",
+                (loader, ignoredRoot) -> {
+                    ParliamentController parliamentController = loader.getController();
+                    Parent dashboardView = startButton.getScene().getRoot();
+                    parliamentController.initData(controller.getParties(), dashboardView);
+                }
+        );
+    }
+
+    // --- Helper: Navigation ---
+
+    private void navigate(String fxmlPath, java.util.function.BiConsumer<FXMLLoader, Parent> initAction) {
+        if (controller == null) return;
+        if (controller.isRunning()) handlePauseSimulation(null);
 
         try {
-            // Lade die FXML für die Parlamentsansicht
-            var resource = getClass().getResource("/de/schulprojekt/duv/view/ParliamentView.fxml");
+            var resource = getClass().getResource(fxmlPath);
             if (resource == null) {
-                System.err.println("FEHLER: ParliamentView.fxml nicht gefunden!");
+                String errorMsg = "View not found: " + fxmlPath;
+                System.err.println(errorMsg);
+                new Alert(Alert.AlertType.ERROR, errorMsg).show();
                 return;
             }
 
             FXMLLoader loader = new FXMLLoader(resource);
-            Parent parliamentRoot = loader.load();
-            ParliamentController parlCtrl = loader.getController();
+            Parent root = loader.load();
 
-            // Aktuelle View merken (für den Zurück-Button)
-            Parent dashboardView = startButton.getScene().getRoot();
-
-            // Daten übergeben
-            parlCtrl.initData(controller.getParties(), dashboardView);
-
-            // Ansicht wechseln
-            startButton.getScene().setRoot(parliamentRoot);
+            initAction.accept(loader, root);
+            startButton.getScene().setRoot(root);
 
         } catch (IOException e) {
-            e.printStackTrace();
-            new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR, "Fehler beim Laden: " + e.getMessage()).show();
+            LOGGER.log(Level.SEVERE, "Navigation failed for: " + fxmlPath, e);
+            new Alert(Alert.AlertType.ERROR, "Error loading view: " + e.getMessage()).show();
         }
     }
 
-    @FXML public void handleVoterCountIncrement(ActionEvent e) { adjustIntField(voterCountField, 10000, 1000, 2000000); }
-    @FXML public void handleVoterCountDecrement(ActionEvent e) { adjustIntField(voterCountField, -10000, 1000, 2000000); }
-    @FXML public void handlePartyCountIncrement(ActionEvent e) { adjustIntField(partyCountField, 1, 2, 8); }
-    @FXML public void handlePartyCountDecrement(ActionEvent e) { adjustIntField(partyCountField, -1, 2, 8); }
-    @FXML public void handleScandalChanceIncrement(ActionEvent e) { adjustDoubleField(scandalChanceField, 0.5, 0.0, 60.0); }
-    @FXML public void handleScandalChanceDecrement(ActionEvent e) { adjustDoubleField(scandalChanceField, -0.5, 0.0, 60.0); }
-    @FXML public void handleSpeed1x(ActionEvent e) { controller.updateSimulationSpeed(1); }
-    @FXML public void handleSpeed2x(ActionEvent e) { controller.updateSimulationSpeed(2); }
-    @FXML public void handleSpeed4x(ActionEvent e) { controller.updateSimulationSpeed(4); }
+    // --- Event Handlers: Adjustments ---
 
-    private void adjustIntField(TextField f, int d, int min, int max) { f.setText(String.valueOf(Math.max(min, Math.min(max, parseIntSafe(f.getText(), min) + d)))); handleParameterChange(null); }
-    private void adjustDoubleField(TextField f, double d, double min, double max) { f.setText(String.format(Locale.US, "%.1f", Math.max(min, Math.min(max, parseDoubleSafe(f.getText(), min) + d)))); handleParameterChange(null); }
-    private int parseIntSafe(String t, int d) { try { return Integer.parseInt(t.replaceAll("[^0-9]", "")); } catch (Exception e) { return d; } }
-    private double parseDoubleSafe(String t, double d) { try { return Double.parseDouble(t.replace(",", ".")); } catch (Exception e) { return d; } }
-    private void updateButtonState(boolean r) { if (startButton != null) startButton.setDisable(r); if (pauseButton != null) pauseButton.setDisable(!r); if (resetButton != null) resetButton.setDisable(r); }
-    public void shutdown() { if (controller != null) controller.shutdown(); canvasRenderer.stop(); }
+    @FXML public void handleVoterCountIncrement(ActionEvent ignored) { adjustIntField(voterCountField, 10000, 1000, 2000000); }
+    @FXML public void handleVoterCountDecrement(ActionEvent ignored) { adjustIntField(voterCountField, -10000, 1000, 2000000); }
+    @FXML public void handlePartyCountIncrement(ActionEvent ignored) { adjustIntField(partyCountField, 1, 2, 8); }
+    @FXML public void handlePartyCountDecrement(ActionEvent ignored) { adjustIntField(partyCountField, -1, 2, 8); }
+
+    @FXML public void handleScandalChanceIncrement(ActionEvent ignored) { adjustDoubleField(scandalChanceField, 0.5); }
+    @FXML public void handleScandalChanceDecrement(ActionEvent ignored) { adjustDoubleField(scandalChanceField, -0.5); }
+
+    @FXML public void handleSpeed1x(ActionEvent ignored) { controller.updateSimulationSpeed(1); }
+    @FXML public void handleSpeed2x(ActionEvent ignored) { controller.updateSimulationSpeed(2); }
+    @FXML public void handleSpeed4x(ActionEvent ignored) { controller.updateSimulationSpeed(4); }
+
+    // --- Helper Methods ---
+
+    private void adjustIntField(TextField f, int delta, int min, int max) {
+        int val = parseIntSafe(f.getText(), min);
+        f.setText(String.valueOf(Math.clamp(val + delta, min, max)));
+        handleParameterChange(null);
+    }
+
+    private void adjustDoubleField(TextField f, double delta) {
+        double val = parseDoubleSafe(f.getText(), DashboardController.MIN_SCANDAL_CHANCE);
+        f.setText(String.format(Locale.US, "%.1f", Math.clamp(val + delta, DashboardController.MIN_SCANDAL_CHANCE, DashboardController.MAX_SCANDAL_CHANCE)));
+        handleParameterChange(null);
+    }
+
+    private int parseIntSafe(String t, int def) {
+        try { return Integer.parseInt(t.replaceAll("[^0-9]", "")); }
+        catch (Exception e) { return def; }
+    }
+
+    private double parseDoubleSafe(String t, double def) {
+        try { return Double.parseDouble(t.replace(",", ".")); }
+        catch (Exception e) { return def; }
+    }
+
+    private void updateButtonState(boolean isRunning) {
+        if (startButton != null) startButton.setDisable(isRunning);
+        if (pauseButton != null) pauseButton.setDisable(!isRunning);
+        if (resetButton != null) resetButton.setDisable(isRunning);
+    }
+
+    /**
+     * Called by the application main class when closing.
+     */
+    @SuppressWarnings("unused") // Entry point for external application shutdown
+    public void shutdown() {
+        if (controller != null) controller.shutdown();
+        if (canvasRenderer != null) canvasRenderer.stop();
+    }
 }

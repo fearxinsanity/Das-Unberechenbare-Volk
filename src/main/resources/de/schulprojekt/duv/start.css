@@ -1,93 +1,126 @@
 /* =========================================================================
-   === START.CSS - Start Screen Design ===
+   === START.CSS - START SCREEN DESIGN ===
+   =========================================================================
+   TOC:
+   1. BACKGROUNDS & LAYOUT (Grid, Card, Glow)
+   2. TYPOGRAPHY (Subtitle, HUD, Footer)
+   3. CONTROLS (Hero Button, Secondary Button)
+   4. DECORATION (Lines)
    ========================================================================= */
 
-/* --- Hintergrund Gitter --- */
+/* =========================================================================
+   1. BACKGROUNDS & LAYOUT
+   ========================================================================= */
+
+/* --- Hintergrund Gitter (Wiederholung aus Common/Dashboard für Standalone) --- */
 .grid-background {
+    -fx-opacity: 0.4;
     -fx-background-color:
             linear-gradient(from 0px 0px to 40px 0px, repeat, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.15) 2%, transparent 2%, transparent 100%),
             linear-gradient(from 0px 0px to 0px 40px, repeat, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.15) 2%, transparent 2%, transparent 100%);
-    -fx-opacity: 0.4;
 }
 
-/* --- Zentrale Karte (Responsive Padding via EM) --- */
+/* --- Zentrale Karte (Main Container) --- */
 .start-screen-card {
     -fx-background-color: rgba(10, 10, 12, 0.85);
-    -fx-border-color: rgba(212, 175, 55, 0.3);
-    -fx-border-width: 1px;
-    -fx-effect: dropshadow(gaussian, rgba(212, 175, 55, 0.15), 50, 0.1, 0, 0);
+
+    /* Goldener Rahmen mit Glow */
+    -fx-border-color:     rgba(212, 175, 55, 0.3);
+    -fx-border-width:     1px;
     -fx-background-radius: 2px;
-    -fx-border-radius: 2px;
+    -fx-border-radius:     2px;
+
+    -fx-effect:  dropshadow(gaussian, rgba(212, 175, 55, 0.15), 50, 0.1, 0, 0);
+
+    /* Responsive Padding via EM */
     -fx-padding: 3em 4em;
     -fx-spacing: 1.5em;
 }
 
-/* --- Glow Effekt hinter Logo --- */
+/* --- Glow Effekt hinter dem Logo --- */
 .logo-glow-effect {
     -fx-background-color: radial-gradient(center 50% 50%, radius 50%, rgba(212, 175, 55, 0.15) 0%, transparent 60%);
-    -fx-effect: dropshadow(gaussian, rgba(212, 175, 55, 0.3), 120, 0.6, 0, 0);
+    -fx-effect:           dropshadow(gaussian, rgba(212, 175, 55, 0.3), 120, 0.6, 0, 0);
 }
 
-/* --- Typografie Start --- */
+/* =========================================================================
+   2. TYPOGRAPHY
+   ========================================================================= */
+
 .start-subtitle {
-    -fx-text-fill: #D4AF37;
     -fx-font-family: "Segoe UI", sans-serif;
-    -fx-font-size: 1.1em;
+    -fx-font-size:   1.1em;
     -fx-font-weight: bold;
-    -fx-effect: dropshadow(gaussian, rgba(212, 175, 55, 0.4), 10, 0, 0, 0);
+    -fx-text-fill:   #D4AF37;
+    -fx-effect:      dropshadow(gaussian, rgba(212, 175, 55, 0.4), 10, 0, 0, 0);
 }
 
+/* HUD Text (Technischer Look) */
 .hud-text {
-    -fx-text-fill: rgba(255, 255, 255, 0.15);
-    -fx-font-size: 0.7em;
     -fx-font-family: "Consolas", monospace;
+    -fx-font-size:   0.7em;
+    -fx-text-fill:   rgba(255, 255, 255, 0.15);
 }
+
 .hud-text-highlight {
-    -fx-text-fill: rgba(212, 175, 55, 0.4);
     -fx-font-weight: bold;
+    -fx-text-fill:   rgba(212, 175, 55, 0.4);
 }
 
+/* Footer (Copyright / Version) */
 .start-footer {
-    -fx-text-fill: rgba(255, 255, 255, 0.2);
     -fx-font-size: 0.75em;
+    -fx-text-fill: rgba(255, 255, 255, 0.2);
 }
 
-/* --- Spezial-Buttons Start --- */
+/* =========================================================================
+   3. CONTROLS
+   ========================================================================= */
+
+/* --- Hero Button (Hauptaktion: Start) --- */
 .start-button-hero {
-    -fx-font-size: 1.3em;
-    -fx-padding: 0.6em 2em;
-    -fx-background-color: linear-gradient(to bottom, rgba(46, 125, 50, 0.25) 0%, rgba(27, 75, 30, 0.4) 100%);
-    -fx-border-color: #2E7D32;
-    -fx-text-fill: #81c784;
     -fx-font-family: "Consolas", monospace;
-    -fx-cursor: hand;
-    -fx-border-width: 1px;
+    -fx-font-size:   1.3em;
+    -fx-cursor:      hand;
+    -fx-padding:     0.6em 2em;
+
+    /* Military Green Gradient */
+    -fx-background-color: linear-gradient(to bottom, rgba(46, 125, 50, 0.25) 0%, rgba(27, 75, 30, 0.4) 100%);
+    -fx-border-color:     #2E7D32;
+    -fx-border-width:     1px;
+    -fx-text-fill:        #81c784;
+
     -fx-background-radius: 2px;
-    -fx-border-radius: 2px;
-    transition: all 0.3s;
+    -fx-border-radius:     2px;
 }
 
 .start-button-hero:hover {
     -fx-background-color: linear-gradient(to bottom, rgba(46, 125, 50, 0.5) 0%, rgba(27, 75, 30, 0.6) 100%);
-    -fx-effect: dropshadow(gaussian, #2E7D32, 20, 0.2, 0, 0);
-    -fx-text-fill: #a5d6a7;
-    -fx-border-color: #4CAF50;
+    -fx-border-color:     #4CAF50;
+    -fx-text-fill:        #a5d6a7;
+    -fx-effect:           dropshadow(gaussian, #2E7D32, 20, 0.2, 0, 0);
 }
 
+/* --- Secondary Button (z.B. Exit) --- */
 .start-button-secondary {
-    -fx-font-size: 0.9em;
+    -fx-font-size:        0.9em;
+    -fx-cursor:           hand;
     -fx-background-color: transparent;
-    -fx-text-fill: rgba(255,255,255,0.4);
-    -fx-border-color: transparent;
-    -fx-cursor: hand;
+    -fx-border-color:     transparent;
+    -fx-text-fill:        rgba(255, 255, 255, 0.4);
 }
+
 .start-button-secondary:hover {
     -fx-text-fill: #D4AF37;
-    -fx-effect: dropshadow(gaussian, rgba(212, 175, 55, 0.3), 5, 0, 0, 0);
+    -fx-effect:    dropshadow(gaussian, rgba(212, 175, 55, 0.3), 5, 0, 0, 0);
 }
 
+/* =========================================================================
+   4. DECORATION
+   ========================================================================= */
+
 .deco-line {
-    -fx-stroke: rgba(212, 175, 55, 0.2);
-    -fx-stroke-width: 1;
+    -fx-stroke:            rgba(212, 175, 55, 0.2);
+    -fx-stroke-width:      1;
     -fx-stroke-dash-array: 2 10;
 }

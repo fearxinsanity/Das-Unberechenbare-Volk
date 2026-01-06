@@ -1,6 +1,7 @@
 package de.schulprojekt.duv.model.scandal;
 
 import de.schulprojekt.duv.model.party.Party;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -10,71 +11,106 @@ import java.util.List;
  */
 public class ScandalImpactCalculator {
 
-    private final double[] partyPermanentDamage;
+    // --- Konstanten (Konfiguration) ---
     private static final int SCANDAL_DURATION = 200;
+    private static final int FADE_IN_TICKS = 20;
 
+    // Gewichtungsfaktoren (Original-Werte)
+    private static final double ACUTE_PRESSURE_FACTOR = 8.0;
+    private static final double PERMANENT_DAMAGE_FACTOR = 2.5;
+
+    // Recovery-Werte
+    private static final double BASE_RECOVERY_RATE = 0.008;
+    private static final double VOTER_SHARE_RECOVERY_FACTOR = 0.05;
+
+    // --- Felder ---
+    private final double[] partyPermanentDamage;
+
+    // --- Konstruktor ---
     public ScandalImpactCalculator(int maxParties) {
         // Puffer für Sicherheit bei Index-Zugriffen
         this.partyPermanentDamage = new double[maxParties + 10];
     }
 
+    // --- Business Logik ---
+
     /**
      * Berechnet NUR den akuten Druck durch laufende Skandale.
-     * Der permanente Schaden wird hier NICHT addiert (passiert im VoterBehavior).
+     * Der permanente Schaden wird hier als Nebeneffekt berechnet, aber nicht zurückgegeben.
      */
     public double[] calculateAcutePressure(List<ScandalEvent> activeScandals, List<Party> parties, int currentStep) {
         double[] acutePressure = new double[parties.size()];
 
         for (ScandalEvent event : activeScandals) {
-            Party affected = event.getAffectedParty();
+            Party affected = event.affectedParty();
             int pIndex = parties.indexOf(affected);
 
-            if (pIndex != -1) {
-                int age = currentStep - event.getOccurredAtStep();
-                if (age > SCANDAL_DURATION) continue;
+            if (pIndex == -1) continue;
 
-                double strength = event.getScandal().getStrength();
+            int age = currentStep - event.occurredAtStep();
+            if (age > SCANDAL_DURATION) continue;
 
-                // Original Fade-In / Fade-Out Logik
-                // 0-20 Ticks: Anstieg, danach langsames Abklingen
-                double timeFactor = (age < 20) ? (double) age / 20.0 : 1.0 - ((double) (age - 20) / (SCANDAL_DURATION - 20));
+            // 1. Akuten Druck berechnen
+            double strength = event.scandal().strength();
+            double timeFactor = calculateTimeFactor(age);
 
-                // Faktor 8.0 für akuten Druck (Original-Wert)
-                acutePressure[pIndex] += strength * 8.0 * timeFactor;
+            acutePressure[pIndex] += strength * ACUTE_PRESSURE_FACTOR * timeFactor;
 
-                // Langzeitschaden aufbauen (Faktor 2.5 / Duration)
-                double damageBuildUp = (strength * 2.5) / (double) SCANDAL_DURATION;
-                if (pIndex < partyPermanentDamage.length) {
-                    partyPermanentDamage[pIndex] += damageBuildUp;
-                }
-            }
+            // 2. Langzeitschaden aufbauen
+            accumulatePermanentDamage(pIndex, strength);
         }
         return acutePressure;
     }
 
     public void processRecovery(List<Party> parties, int totalVoters) {
-        for (int i = 1; i < parties.size(); i++) { // Index 0 (Unsicher) ignoriert
-            if (i < partyPermanentDamage.length && partyPermanentDamage[i] > 0) {
+        for (int i = 1; i < parties.size(); i++) { // Index 0 (Unsicher) wird ignoriert
+            if (isValidIndex(i) && partyPermanentDamage[i] > 0) {
                 Party p = parties.get(i);
                 double voterShare = (double) p.getCurrentSupporterCount() / Math.max(1, totalVoters);
 
                 // Original Recovery Formel
-                double recoveryRate = 0.008 + (voterShare * 0.05);
+                double recoveryRate = BASE_RECOVERY_RATE + (voterShare * VOTER_SHARE_RECOVERY_FACTOR);
 
                 partyPermanentDamage[i] -= recoveryRate;
-                if (partyPermanentDamage[i] < 0) partyPermanentDamage[i] = 0;
+                if (partyPermanentDamage[i] < 0) {
+                    partyPermanentDamage[i] = 0;
+                }
             }
         }
     }
 
+    // --- Getter & Setter ---
+
     public double getPermanentDamage(int partyIndex) {
-        if (partyIndex >= 0 && partyIndex < partyPermanentDamage.length) {
+        if (isValidIndex(partyIndex)) {
             return partyPermanentDamage[partyIndex];
         }
         return 0.0;
     }
 
     public void reset() {
-        for(int i=0; i<partyPermanentDamage.length; i++) partyPermanentDamage[i] = 0;
+        Arrays.fill(partyPermanentDamage, 0.0);
+    }
+
+    // --- Private Hilfsmethoden ---
+
+    private double calculateTimeFactor(int age) {
+        // 0-20 Ticks: Anstieg (Fade-In)
+        if (age < FADE_IN_TICKS) {
+            return (double) age / FADE_IN_TICKS;
+        }
+        // Danach: Langsames Abklingen (Fade-Out)
+        return 1.0 - ((double) (age - FADE_IN_TICKS) / (SCANDAL_DURATION - FADE_IN_TICKS));
+    }
+
+    private void accumulatePermanentDamage(int index, double strength) {
+        if (isValidIndex(index)) {
+            double damageBuildUp = (strength * PERMANENT_DAMAGE_FACTOR) / (double) SCANDAL_DURATION;
+            partyPermanentDamage[index] += damageBuildUp;
+        }
+    }
+
+    private boolean isValidIndex(int index) {
+        return index >= 0 && index < partyPermanentDamage.length;
     }
 }

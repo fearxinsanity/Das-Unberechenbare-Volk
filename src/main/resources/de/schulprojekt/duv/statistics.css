@@ -1,115 +1,178 @@
 /* =========================================================================
-   === STATISTICS.CSS - Spezifische Styles für Analyse-Graphen & Panels ===
+   === STATISTICS.CSS - INTEL & ANALYSIS STYLES ===
+   =========================================================================
+   TOC:
+   1. INTEL PANELS (Containers)
+   2. HEADERS & FOOTERS
+   3. TYPOGRAPHY & INDICATORS
+   4. CHARTS (Pie, Bar, Axis, Grid)
+   5. TOOLTIPS (Tactical Popup)
    ========================================================================= */
 
-/* --- INTEL PANELS (Die Container für die Graphen) --- */
+/* =========================================================================
+   1. INTEL PANELS
+   ========================================================================= */
+
+/* Container für die Graphen */
 .intel-panel {
     -fx-background-color: rgba(20, 20, 20, 0.7);
-    -fx-border-color: rgba(212, 175, 55, 0.5); /* Goldener Rand */
-    -fx-border-width: 2px;
-    /* KORREKTUR: dropshadow kleingeschrieben */
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);
+
+    /* Goldener Rahmen */
+    -fx-border-color:     rgba(212, 175, 55, 0.5);
+    -fx-border-width:     2px;
+
+    /* Tiefe durch Schatten */
+    -fx-effect:           dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);
 }
+
+/* =========================================================================
+   2. HEADERS & FOOTERS
+   ========================================================================= */
 
 .panel-header {
     -fx-background-color: rgba(212, 175, 55, 0.15);
-    -fx-border-color: transparent transparent rgba(212, 175, 55, 0.3) transparent;
-    -fx-padding: 5 10;
-    -fx-alignment: CENTER_LEFT;
+    -fx-border-color:     transparent transparent rgba(212, 175, 55, 0.3) transparent;
+    -fx-padding:          5 10;
+    -fx-alignment:        CENTER_LEFT;
 }
 
 .panel-footer {
     -fx-background-color: rgba(0, 0, 0, 0.3);
-    -fx-border-color: rgba(212, 175, 55, 0.2) transparent transparent transparent;
-    -fx-padding: 3 10;
-    -fx-alignment: CENTER_LEFT;
+    -fx-border-color:     rgba(212, 175, 55, 0.2) transparent transparent transparent;
+    -fx-padding:          3 10;
+    -fx-alignment:        CENTER_LEFT;
 }
 
 .panel-footer .label {
     -fx-font-family: "Consolas", monospace;
-    -fx-font-size: 10px;
-    -fx-text-fill: #888;
+    -fx-font-size:   10px;
+    -fx-text-fill:   #888;
 }
 
+/* =========================================================================
+   3. TYPOGRAPHY & INDICATORS
+   ========================================================================= */
+
+/* --- Panel Titel --- */
 .panel-title {
     -fx-font-family: "Consolas", monospace;
     -fx-font-weight: bold;
-    -fx-font-size: 14px;
-    -fx-text-fill: #D4AF37; /* Gold */
+    -fx-font-size:   14px;
+    -fx-text-fill:   #D4AF37; /* Gold */
 }
 
 .panel-title-alert {
     -fx-font-family: "Consolas", monospace;
     -fx-font-weight: bold;
-    -fx-font-size: 14px;
-    -fx-text-fill: #ff5555; /* Rot für Alarm */
+    -fx-font-size:   14px;
+    -fx-text-fill:   #ff5555; /* Alarm Rot */
 }
 
-/* --- Status Indikatoren (Blinkend) --- */
+/* --- Status Indikatoren (Blinkend/Statisch) --- */
 .blink-indicator-ok {
     -fx-font-family: "Consolas", monospace;
-    -fx-font-size: 10px;
-    -fx-text-fill: #55ff55;
+    -fx-font-size:   10px;
+    -fx-text-fill:   #55ff55;
 }
 
 .blink-indicator-alert {
     -fx-font-family: "Consolas", monospace;
-    -fx-font-size: 10px;
-    -fx-text-fill: #ff5555;
+    -fx-font-size:   10px;
+    -fx-text-fill:   #ff5555;
 }
 
 .status-label-ok {
-    -fx-font-family: "Consolas";
-    -fx-font-weight: bold;
-    -fx-text-fill: #55ff55;
-}
-
-/* --- Chart spezifische Anpassungen für den Look --- */
-
-/* PieChart Labels und Legende */
-.chart-pie-label {
-    -fx-fill: #e0e0e0;
     -fx-font-family: "Consolas", monospace;
-    -fx-font-size: 0.9em;
+    -fx-font-weight: bold;
+    -fx-text-fill:   #55ff55;
 }
-.chart-pie-label-line { -fx-stroke: #D4AF37; }
-.chart-legend { -fx-background-color: transparent; -fx-padding: 10px; }
-.chart-legend-item { -fx-text-fill: #e0e0e0; -fx-font-family: "Consolas", monospace; }
-.chart-legend-item-symbol { -fx-background-radius: 0; }
 
-/* BarChart Balken */
+/* =========================================================================
+   4. CHARTS (PIE, BAR, AXIS)
+   ========================================================================= */
+
+.chart-content {
+    -fx-padding: 10px;
+}
+
+/* --- Pie Chart (Kuchendiagramm) --- */
+.chart-pie-label {
+    -fx-fill:        #e0e0e0;
+    -fx-font-family: "Consolas", monospace;
+    -fx-font-size:   0.9em;
+}
+
+.chart-pie-label-line {
+    -fx-stroke: #D4AF37;
+}
+
+.chart-legend {
+    -fx-background-color: transparent;
+    -fx-padding:          10px;
+}
+
+.chart-legend-item {
+    -fx-text-fill:   #e0e0e0;
+    -fx-font-family: "Consolas", monospace;
+}
+
+.chart-legend-item-symbol {
+    -fx-background-radius: 0;
+}
+
+/* --- Bar Chart (Balkendiagramm) --- */
 .bar-chart .chart-bar {
     -fx-background-radius: 0;
-    -fx-border-width: 1px;
-    -fx-border-color: rgba(0,0,0,0.8);
-    /* KORREKTUR: innershadow kleingeschrieben */
-    -fx-effect: innershadow(three-pass-box, rgba(0,0,0,0.5), 5, 0, 0, 0);
+    -fx-border-width:      1px;
+    -fx-border-color:      rgba(0,0,0,0.8);
+    /* Inner Shadow für "Solidität" */
+    -fx-effect:            innershadow(three-pass-box, rgba(0,0,0,0.5), 5, 0, 0, 0);
 }
 
-/* Achsen und Grid */
-.axis { -fx-tick-label-fill: #aaa; -fx-tick-label-font-family: "Consolas"; }
-.axis-label { -fx-text-fill: #D4AF37; -fx-font-family: "Consolas"; -fx-font-weight: bold; }
-.axis:top, .axis:bottom { -fx-border-color: transparent transparent rgba(212, 175, 55, 0.2) transparent; }
-.axis:left, .axis:right { -fx-border-color: transparent rgba(212, 175, 55, 0.2) transparent transparent; }
-.chart-vertical-grid-lines, .chart-horizontal-grid-lines {
-    -fx-stroke: rgba(212, 175, 55, 0.08);
-    -fx-stroke-dash-array: 2 2;
+/* --- Achsen & Grid (Tech Look) --- */
+.axis {
+    -fx-tick-label-fill:        #aaa;
+    -fx-tick-label-font-family: "Consolas";
 }
-.chart-content { -fx-padding: 10px; }
 
-/* --- CUSTOM TOOLTIPS (Intel Popup Style) --- */
+.axis-label {
+    -fx-text-fill:   #D4AF37;
+    -fx-font-family: "Consolas";
+    -fx-font-weight: bold;
+}
+
+.axis:top,
+.axis:bottom {
+    -fx-border-color: transparent transparent rgba(212, 175, 55, 0.2) transparent;
+}
+
+.axis:left,
+.axis:right {
+    -fx-border-color: transparent rgba(212, 175, 55, 0.2) transparent transparent;
+}
+
+.chart-vertical-grid-lines,
+.chart-horizontal-grid-lines {
+    -fx-stroke:            rgba(212, 175, 55, 0.08);
+    -fx-stroke-dash-array: 2 2; /* Gestrichelte Linien */
+}
+
+/* =========================================================================
+   5. TOOLTIPS (TACTICAL POPUP)
+   ========================================================================= */
+
 .tooltip {
     /* Dunkler Hintergrund, leicht transparent */
     -fx-background-color: rgba(15, 15, 20, 0.95);
 
     /* Goldener Rahmen und Text */
-    -fx-text-fill: #D4AF37;
+    -fx-text-fill:    #D4AF37;
     -fx-border-color: #D4AF37;
     -fx-border-width: 1px;
 
     /* Technische Schriftart */
     -fx-font-family: "Consolas", monospace;
-    -fx-font-size: 11px;
+    -fx-font-size:   11px;
     -fx-font-weight: bold;
 
     /* Schatten für den "Schwebe"-Effekt */
@@ -117,7 +180,7 @@
 
     /* Eckige Kanten (Military Style) */
     -fx-background-radius: 0;
-    -fx-border-radius: 0;
+    -fx-border-radius:     0;
 
     -fx-padding: 5px 8px;
 }

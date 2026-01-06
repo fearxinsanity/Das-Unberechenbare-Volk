@@ -1,82 +1,105 @@
 /* =========================================================================
    === PARLIAMENT.CSS - SECRET SERVICE EDITION ===
+   =========================================================================
+   TOC:
+   1. ROOT & BACKGROUNDS (Deep Black, Tactical Grid)
+   2. TYPOGRAPHY (Headers, Status Info)
+   3. CONTROLS (Navigation Buttons)
+   4. VISUAL EFFECTS (CRT Scanlines, Vignette)
    ========================================================================= */
 
-/* Nutzt die Basis aus common.css, hier spezifische Anpassungen */
+/* =========================================================================
+   1. ROOT & BACKGROUNDS
+   ========================================================================= */
 
-/* Hintergrund: Tiefschwarz mit taktischem Overlay (passend zum Dashboard) */
+/* Basis-Hintergrund (Tiefschwarz) */
 .main-background {
     -fx-background-color: #050508;
 }
 
-/* Optional: Fügt das Gitter hinzu, falls du ein Pane mit dieser Klasse im FXML hast
-   (Empfehlung: Füge 'grid-background' im FXML zum Root oder Center hinzu) */
+/* Taktisches Gitter-Overlay */
 .grid-overlay {
     -fx-background-color:
             linear-gradient(from 0px 0px to 40px 0px, repeat, rgba(212, 175, 55, 0.05) 0%, rgba(212, 175, 55, 0.05) 1px, transparent 1px, transparent 100%),
             linear-gradient(from 0px 0px to 0px 40px, repeat, rgba(212, 175, 55, 0.05) 0%, rgba(212, 175, 55, 0.05) 1px, transparent 1px, transparent 100%);
 }
 
-/* Der Zurück-Button im Military-Style (Gold statt Neon-Cyan) */
-.nav-button {
-    -fx-background-color: rgba(212, 175, 55, 0.1);
-    -fx-text-fill: #D4AF37;
-    -fx-border-color: #D4AF37;
-    -fx-border-width: 1px;
-    -fx-font-family: 'Consolas', 'Monospaced';
+/* =========================================================================
+   2. TYPOGRAPHY
+   ========================================================================= */
+
+/* Haupttitel: Gold mit Glow */
+.header-label {
+    -fx-text-fill:   #D4AF37;
+    -fx-font-family: "Consolas", monospace;
     -fx-font-weight: bold;
-    -fx-cursor: hand;
-    -fx-padding: 8 15 8 15;
-    /* Leichter Gold-Glow */
-    -fx-effect: dropshadow(three-pass-box, rgba(212, 175, 55, 0.2), 10, 0, 0, 0);
+    -fx-effect:      dropshadow(gaussian, rgba(212, 175, 55, 0.4), 10, 0.3, 0, 0);
+}
+
+/* Untertitel: Matrix-Grün (Technische Daten) */
+.sub-header-label {
+    -fx-text-fill:   #00ff41;
+    -fx-font-family: "Consolas", monospace;
+    -fx-font-size:   10px;
+    -fx-opacity:     0.8;
+}
+
+/* Footer Status: Dezent Grau */
+.footer-status {
+    -fx-text-fill:   #444444;
+    -fx-font-family: "Consolas", monospace;
+}
+
+/* =========================================================================
+   3. CONTROLS (NAVIGATION)
+   ========================================================================= */
+
+.nav-button {
+    /* Basis-Style */
+    -fx-background-color: rgba(212, 175, 55, 0.1);
+    -fx-text-fill:        #D4AF37;
+
+    -fx-border-color:     #D4AF37;
+    -fx-border-width:     1px;
+
+    -fx-font-family:      "Consolas", "Monospaced";
+    -fx-font-weight:      bold;
+    -fx-cursor:           hand;
+    -fx-padding:          8 15 8 15;
+
+    /* Animation & Glow */
+    -fx-effect:     dropshadow(three-pass-box, rgba(212, 175, 55, 0.2), 10, 0, 0, 0);
     -fx-transition: all 0.3s;
 }
 
 .nav-button:hover {
     -fx-background-color: rgba(212, 175, 55, 0.25);
-    -fx-effect: dropshadow(three-pass-box, rgba(212, 175, 55, 0.6), 15, 0, 0, 0);
-    -fx-scale-x: 1.02;
-    -fx-scale-y: 1.02;
+    -fx-effect:           dropshadow(three-pass-box, rgba(212, 175, 55, 0.6), 15, 0, 0, 0);
+    -fx-scale-x:          1.02;
+    -fx-scale-y:          1.02;
 }
 
 .nav-button:pressed {
     -fx-background-color: #D4AF37;
-    -fx-text-fill: #050508;
-    -fx-effect: dropshadow(three-pass-box, rgba(212, 175, 55, 0.8), 5, 0, 0, 0);
+    -fx-text-fill:        #050508; /* Text wird Schwarz */
+    -fx-effect:           dropshadow(three-pass-box, rgba(212, 175, 55, 0.8), 5, 0, 0, 0);
 }
 
-/* Titel-Label: Gold mit Glow (statt Grün) */
-.header-label {
-    -fx-text-fill: #D4AF37;
-    -fx-font-family: "Consolas", monospace;
-    -fx-font-weight: bold;
-    -fx-effect: dropshadow(gaussian, rgba(212, 175, 55, 0.4), 10, 0.3, 0, 0);
-}
+/* =========================================================================
+   4. VISUAL EFFECTS
+   ========================================================================= */
 
-/* Untertitel: Matrix-Grün (für technische Daten/Status) */
-.sub-header-label {
-    -fx-text-fill: #00ff41;
-    -fx-font-family: "Consolas", monospace;
-    -fx-font-size: 10px;
-    -fx-opacity: 0.8;
-}
-
-/* Footer Status: Dezent Grau/Grün */
-.footer-status {
-    -fx-text-fill: #444444;
-    -fx-font-family: 'Consolas', monospace;
-}
-
-/* --- CRT Scanlines Overlay (Alter Monitor Effekt) --- */
+/* CRT Scanlines Overlay (Alter Monitor Effekt) */
 .crt-overlay {
-    /* Simuliert feine horizontale Scanlines */
-    -fx-background-color: linear-gradient(from 0px 0px to 0px 4px, repeat, transparent 0%, transparent 50%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0.4) 100%);
     -fx-opacity: 0.3;
-    -fx-mouse-transparent: true; /* WICHTIG: Klicks gehen durch den Effekt hindurch */
+    -fx-mouse-transparent: true; /* Klicks gehen durch */
+    -fx-background-color:
+            linear-gradient(from 0px 0px to 0px 4px, repeat, transparent 0%, transparent 50%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0.4) 100%);
 }
 
-/* Optional: Leichte Vignette für den Röhren-Look (abgedunkelte Ecken) */
+/* Vignette (Abgedunkelte Ecken für Röhren-Look) */
 .vignette-overlay {
-    -fx-background-color: radial-gradient(center 50% 50%, radius 100%, transparent 60%, rgba(0, 0, 0, 0.6) 100%);
     -fx-mouse-transparent: true;
+    -fx-background-color:
+            radial-gradient(center 50% 50%, radius 100%, transparent 60%, rgba(0, 0, 0, 0.6) 100%);
 }

@@ -7,58 +7,94 @@ import javafx.scene.Scene;
 import javafx.util.Duration;
 import java.util.Locale;
 
-public class VisualFX {
+/**
+ * Utility class for global visual effects and responsive UI scaling.
+ * Cannot be instantiated.
+ */
+public final class VisualFX {
+
+    // --- Constants: Glitch Effect ---
+    private static final String CSS_GLITCH_CLASS = "glitch-active";
+    private static final int GLITCH_DURATION_MS = 50;
+    private static final int GLITCH_OFFSET_X = 5;
+    private static final int GLITCH_CYCLES = 6;
+
+    // --- Constants: Responsive Scaling ---
+    private static final double FONT_BASE_SIZE = 12.0;
+    private static final double FONT_REF_WIDTH = 1280.0;
+    private static final double FONT_MIN_SIZE = 11.0;
+    private static final double FONT_MAX_SIZE = 18.0;
+
+    // --- Constructor ---
+
+    private VisualFX() {
+        // Prevent instantiation
+    }
+
+    // --- Public API ---
 
     /**
-     * Führt einen kurzen "Glitch"-Effekt auf zwei seitlichen Elementen aus.
-     * Wird typischerweise bei Skandalen ausgelöst.
+     * Triggers a short "glitch" shaking effect on two sidebar elements.
+     * Typically used when a scandal occurs.
+     *
+     * @param leftNode  The left UI element to shake.
+     * @param rightNode The right UI element to shake.
      */
     public static void triggerSidebarGlitch(Node leftNode, Node rightNode) {
         if (leftNode == null || rightNode == null) return;
 
-        // CSS-Klasse für visuelle Verzerrung (falls definiert)
-        leftNode.getStyleClass().add("glitch-active");
-        rightNode.getStyleClass().add("glitch-active");
+        // Apply CSS class for visual distortion (if defined in CSS)
+        leftNode.getStyleClass().add(CSS_GLITCH_CLASS);
+        rightNode.getStyleClass().add(CSS_GLITCH_CLASS);
 
-        // Wackeln links
-        TranslateTransition ttLeft = new TranslateTransition(Duration.millis(50), leftNode);
-        ttLeft.setByX(5);
-        ttLeft.setCycleCount(6);
-        ttLeft.setAutoReverse(true);
+        // Shake Left
+        TranslateTransition ttLeft = createShakeTransition(leftNode, GLITCH_OFFSET_X);
 
-        // Wackeln rechts (gegenläufig)
-        TranslateTransition ttRight = new TranslateTransition(Duration.millis(50), rightNode);
-        ttRight.setByX(-5);
-        ttRight.setCycleCount(6);
-        ttRight.setAutoReverse(true);
+        // Shake Right (Counter-movement)
+        TranslateTransition ttRight = createShakeTransition(rightNode, -GLITCH_OFFSET_X);
 
-        // Parallel abspielen
+        // Play in parallel
         ParallelTransition pt = new ParallelTransition(ttLeft, ttRight);
-        pt.setOnFinished(e -> {
-            leftNode.getStyleClass().remove("glitch-active");
-            rightNode.getStyleClass().remove("glitch-active");
+
+        pt.setOnFinished(ignored -> {
+            leftNode.getStyleClass().remove(CSS_GLITCH_CLASS);
+            rightNode.getStyleClass().remove(CSS_GLITCH_CLASS);
         });
         pt.play();
     }
 
     /**
-     * Passt die Schriftgröße der Root-Szene dynamisch an die Fensterbreite an,
-     * um Responsive-Verhalten zu simulieren (Scaling).
+     * Dynamically adjusts the root font size based on window width
+     * to simulate responsive scaling across the application.
+     *
+     * @param scene       The scene to adjust.
+     * @param windowWidth The current width of the window.
      */
     public static void adjustResponsiveScale(Scene scene, double windowWidth) {
-        if (scene == null) return;
+        if (scene == null || scene.getRoot() == null) return;
 
-        double baseSize = 12.0;
-        double referenceWidth = 1280.0;
+        // Calculate scaling factor based on reference width
+        double scaleFactor = windowWidth / FONT_REF_WIDTH;
 
-        // Berechnung des Skalierungsfaktors
-        double scaleFactor = windowWidth / referenceWidth;
-        // Begrenzung (Clamping) zwischen 11px und 18px
-        double newSize = Math.max(11.0, Math.min(18.0, baseSize * Math.sqrt(scaleFactor)));
+        // Calculate raw size
+        double rawSize = FONT_BASE_SIZE * Math.sqrt(scaleFactor);
 
-        // Setzen der Schriftgröße auf dem Root-Knoten
-        if (scene.getRoot() != null) {
-            scene.getRoot().setStyle("-fx-font-size: " + String.format(Locale.US, "%.1f", newSize) + "px;");
-        }
+        // Clamp value to defined limits (Java 21+)
+        double newSize = Math.clamp(rawSize, FONT_MIN_SIZE, FONT_MAX_SIZE);
+
+        // Apply font size to root node
+        scene.getRoot().setStyle(
+                "-fx-font-size: " + String.format(Locale.US, "%.1f", newSize) + "px;"
+        );
+    }
+
+    // --- Private Helpers ---
+
+    private static TranslateTransition createShakeTransition(Node node, double byX) {
+        TranslateTransition tt = new TranslateTransition(Duration.millis(GLITCH_DURATION_MS), node);
+        tt.setByX(byX);
+        tt.setCycleCount(GLITCH_CYCLES);
+        tt.setAutoReverse(true);
+        return tt;
     }
 }

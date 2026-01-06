@@ -99,14 +99,13 @@ public class SimulationController {
     }
 
     public void updateSimulationSpeed(int factor) {
-        SimulationParameters p = engine.getParameters();
-        p.setSimulationTicksPerSecond(factor);
+        SimulationParameters current = engine.getParameters();
+        SimulationParameters updated = current.withSimulationTicksPerSecond(factor);
 
         executorService.execute(() -> {
-            engine.updateParameters(p);
-            // If running, we need to reschedule to apply new speed
+            engine.updateParameters(updated);
             if (isRunning) {
-                scheduleTask();
+                scheduleTask(); // Reschedule with new TPS
             }
         });
     }

@@ -1,121 +1,180 @@
 /* =========================================================================
-   === COMMON.CSS - Globale Stile ===
+   === COMMON.CSS - GLOBALE STILE ===
+   =========================================================================
+   TOC:
+   1. ROOT & LAYOUT
+   2. TYPOGRAPHY (Labels, Titles, HUD)
+   3. CONTROLS (Buttons, Inputs)
+   4. SCROLLBARS (Custom Design)
+   ========================================================================= */
+
+/* =========================================================================
+   1. ROOT & LAYOUT
    ========================================================================= */
 
 .root {
     -fx-font-family: "Consolas", "Courier New", monospace;
-    -fx-text-fill: #e0e0e0;
+    -fx-text-fill:   #e0e0e0;
 }
 
-/* Basis-Hintergrund für die gesamte App */
+/* Basis-Hintergrund (Dunkler Verlauf) */
 .root-pane {
     -fx-background-color: linear-gradient(to bottom, #1a1a1d 0%, #050505 100%);
 }
 
-/* --- NEU: Hintergrund Gitter (Vom Start-Screen übernommen) --- */
+/* Hintergrund Gitter (Tech-Look) */
 .grid-background {
-    -fx-background-color:
-            linear-gradient(from 0px 0px to 40px 0px, repeat, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.15) 2%, transparent 2%, transparent 100%),
-            linear-gradient(from 0px 0px to 0px 40px, repeat, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.15) 2%, transparent 2%, transparent 100%);
     -fx-opacity: 0.4;
+    -fx-background-color:
+        /* Vertikale Linien */
+            linear-gradient(from 0px 0px to 40px 0px, repeat, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.15) 2%, transparent 2%, transparent 100%),
+                /* Horizontale Linien */
+            linear-gradient(from 0px 0px to 0px 40px, repeat, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.15) 2%, transparent 2%, transparent 100%);
 }
 
-/* --- NEU: HUD Text Stile --- */
+/* =========================================================================
+   2. TYPOGRAPHY
+   ========================================================================= */
+
+/* Standard Label Farbe */
+.label {
+    -fx-text-fill: #d0d0d0;
+}
+
+/* Haupttitel der Anwendung */
+.app-title {
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size:   1.8em;
+    -fx-font-weight: bold;
+    -fx-text-fill:   #D4AF37;
+    -fx-effect:      dropshadow(gaussian, rgba(212, 175, 55, 0.6), 15, 0.3, 0, 0);
+}
+
+/* Unterüberschriften */
+.section-title {
+    -fx-font-size:   1.2em;
+    -fx-font-weight: bold;
+    -fx-text-fill:   #D4AF37;
+    -fx-underline:   true;
+    -fx-padding:     0 0 0.8em 0;
+}
+
+/* Kleinere Labels für Status/Infos */
+.control-label,
+.status-label {
+    -fx-font-size: 0.9em;
+    -fx-text-fill: #8a8a8a;
+}
+
+/* Warnmeldungen */
+.warning-label {
+    -fx-text-fill: #ff4444;
+    -fx-effect:    dropshadow(gaussian, rgba(255, 68, 68, 0.4), 5, 0, 0, 0);
+}
+
+/* --- HUD Text Stile (Head-Up Display) --- */
+
 .hud-text {
-    -fx-text-fill: rgba(255, 255, 255, 0.25);
-    -fx-font-size: 0.8em;
     -fx-font-family: "Consolas", monospace;
+    -fx-font-size:   0.8em;
+    -fx-text-fill:   rgba(255, 255, 255, 0.25);
 }
 
 .hud-text-highlight {
-    -fx-text-fill: rgba(212, 175, 55, 0.6);
     -fx-font-weight: bold;
+    -fx-text-fill:   rgba(212, 175, 55, 0.6);
 }
 
-/* --- Labels & Titel Global --- */
-.label { -fx-text-fill: #d0d0d0; }
+/* =========================================================================
+   3. CONTROLS
+   ========================================================================= */
 
-.app-title {
-    -fx-text-fill: #D4AF37;
-    -fx-font-size: 1.8em;
-    -fx-font-weight: bold;
-    -fx-effect: dropshadow(gaussian, rgba(212, 175, 55, 0.6), 15, 0.3, 0, 0);
-    -fx-font-family: "Segoe UI", sans-serif;
-}
-
-.section-title {
-    -fx-text-fill: #D4AF37;
-    -fx-font-size: 1.2em;
-    -fx-font-weight: bold;
-    -fx-underline: true;
-    -fx-padding: 0 0 0.8em 0;
-}
-
-.control-label, .status-label {
-    -fx-text-fill: #8a8a8a;
-    -fx-font-size: 0.9em;
-}
-.warning-label {
-    -fx-text-fill: #ff4444;
-    -fx-effect: dropshadow(gaussian, rgba(255, 68, 68, 0.4), 5, 0, 0, 0);
-}
-
-/* --- Buttons (Basis) --- */
+/* --- Standard Button --- */
 .button {
     -fx-background-color: #2a2a2e;
-    -fx-text-fill: #D4AF37;
     -fx-background-radius: 0.3em;
-    -fx-border-radius: 0.3em;
+    -fx-border-radius:     0.3em;
+
     -fx-border-color: #D4AF37;
     -fx-border-width: 1;
-    -fx-cursor: hand;
+    -fx-text-fill:    #D4AF37;
+
     -fx-font-weight: bold;
-    -fx-padding: 0.4em 0.8em 0.4em 0.8em;
+    -fx-cursor:      hand;
+    -fx-padding:     0.4em 0.8em 0.4em 0.8em;
 }
+
 .button:hover {
     -fx-background-color: rgba(212, 175, 55, 0.2);
-    -fx-effect: dropshadow(gaussian, #D4AF37, 10, 0, 0, 0);
+    -fx-effect:           dropshadow(gaussian, #D4AF37, 10, 0, 0, 0);
 }
-.button:pressed { -fx-background-color: #D4AF37; -fx-text-fill: black; }
-.button:disabled { -fx-opacity: 0.4; -fx-border-color: #555; -fx-text-fill: #777;}
 
+.button:pressed {
+    -fx-background-color: #D4AF37;
+    -fx-text-fill:        black;
+}
+
+.button:disabled {
+    -fx-opacity:      0.4;
+    -fx-border-color: #555;
+    -fx-text-fill:    #777;
+}
+
+/* --- Action Button (Grün, z.B. Start) --- */
 .action-button {
-    -fx-font-size: 1.1em;
     -fx-font-family: "Consolas", monospace;
+    -fx-font-size:   1.1em;
+    -fx-cursor:      hand;
+
     -fx-background-color: linear-gradient(to bottom, rgba(46, 125, 50, 0.25) 0%, rgba(27, 75, 30, 0.4) 100%);
-    -fx-border-color: #2E7D32;
-    -fx-text-fill: #81c784;
-    -fx-cursor: hand;
-    -fx-border-width: 1px;
+    -fx-border-color:     #2E7D32;
+    -fx-border-width:     1px;
+    -fx-text-fill:        #81c784;
 }
 
 .action-button:hover {
     -fx-background-color: linear-gradient(to bottom, rgba(46, 125, 50, 0.5) 0%, rgba(27, 75, 30, 0.6) 100%);
-    -fx-effect: dropshadow(gaussian, #2E7D32, 20, 0.2, 0, 0);
+    -fx-effect:           dropshadow(gaussian, #2E7D32, 20, 0.2, 0, 0);
 }
 
-/* --- Inputs (TextField) --- */
+/* --- Text Input --- */
 .text-field {
-    -fx-background-color: rgba(0,0,0,0.5);
-    -fx-text-fill: #D4AF37;
-    -fx-border-color: #444;
+    -fx-background-color:  rgba(0,0,0,0.5);
     -fx-background-radius: 0.2em;
+    -fx-border-color:      #444;
+    -fx-text-fill:         #D4AF37;
 }
 
-/* --- Scrollbar (Global Custom) --- */
-.scroll-bar:horizontal, .scroll-bar:vertical{ -fx-background-color: transparent; }
-.scroll-bar:vertical .track, .scroll-bar:horizontal .track {
+/* =========================================================================
+   4. SCROLLBARS (Custom Tech Design)
+   ========================================================================= */
+
+.scroll-bar:horizontal,
+.scroll-bar:vertical {
     -fx-background-color: transparent;
-    -fx-border-color: transparent;
+}
+
+.scroll-bar:vertical .track,
+.scroll-bar:horizontal .track {
+    -fx-background-color: transparent;
+    -fx-border-color:     transparent;
     -fx-background-radius: 0em;
 }
-.scroll-bar:vertical .thumb, .scroll-bar:horizontal .thumb {
-    -fx-background-color: #444;
+
+.scroll-bar:vertical .thumb,
+.scroll-bar:horizontal .thumb {
+    -fx-background-color:  #444;
     -fx-background-radius: 5em;
 }
-.scroll-bar:vertical .thumb:hover, .scroll-bar:horizontal .thumb:hover { -fx-background-color: #D4AF37; }
-.scroll-bar .increment-button, .scroll-bar .decrement-button {
+
+.scroll-bar:vertical .thumb:hover,
+.scroll-bar:horizontal .thumb:hover {
+    -fx-background-color: #D4AF37;
+}
+
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
     -fx-background-color: transparent;
-    -fx-border-color: transparent;
-    -fx-padding: 0;
+    -fx-border-color:     transparent;
+    -fx-padding:          0;
 }

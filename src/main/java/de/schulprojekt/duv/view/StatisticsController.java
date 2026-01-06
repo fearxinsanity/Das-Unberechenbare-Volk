@@ -17,23 +17,45 @@ import javafx.util.Duration;
 import java.util.List;
 import java.util.function.Consumer;
 
+/**
+ * Controller for the detailed post-simulation statistics view.
+ * Displays history, vote distribution, scandals, and budget usage.
+ */
 public class StatisticsController {
 
+    // --- Constants: Styling & Formatting ---
+    private static final String STYLE_PIE_COLOR = "-fx-pie-color: %s;";
+    private static final String STYLE_BAR_FILL = "-fx-bar-fill: %s;";
+    private static final String STYLE_LEGEND_SYMBOL = "-fx-background-color: %s;";
+    private static final String FORMAT_TOOLTIP_PIE = "FACTION: %s\nSIZE: %.0f\nQUOTA: %.1f%%";
+    private static final String FORMAT_TOOLTIP_SCANDAL = "TARGET: %s\nINCIDENTS: %s";
+    private static final String FORMAT_TOOLTIP_BUDGET = "TARGET: %s\nBUDGET: %.2f M€";
+
+    // --- FXML Components ---
     @FXML private LineChart<Number, Number> historyChart;
     @FXML private PieChart distributionChart;
     @FXML private BarChart<String, Number> scandalChart;
     @FXML private BarChart<String, Number> budgetChart;
     @FXML private Label totalTicksLabel;
 
+    // --- State ---
     private Parent dashboardRoot;
+
+    // --- Initialization ---
 
     public void initData(List<Party> parties, ObservableList<XYChart.Series<Number, Number>> historyData, int currentTick, Parent dashboardRoot) {
         this.dashboardRoot = dashboardRoot;
         this.totalTicksLabel.setText("ANALYSIS COMPLETE (TICKS: " + currentTick + ")");
 
-        // ---------------------------------------------------------
-        // 1. Verlauf (History)
-        // ---------------------------------------------------------
+        setupHistoryChart(historyData);
+        setupDistributionChart(parties);
+        setupScandalChart(parties);
+        setupBudgetChart(parties);
+    }
+
+    // --- Chart Setup Logic ---
+
+    private void setupHistoryChart(ObservableList<XYChart.Series<Number, Number>> historyData) {
         for (XYChart.Series<Number, Number> sourceSeries : historyData) {
             XYChart.Series<Number, Number> newSeries = new XYChart.Series<>();
             newSeries.setName(sourceSeries.getName());
@@ -43,100 +65,98 @@ public class StatisticsController {
             }
             historyChart.getData().add(newSeries);
 
-            // Style vom Original übernehmen
+            // Copy style from original node if available
             if (sourceSeries.getNode() != null) {
                 String style = sourceSeries.getNode().getStyle();
                 runOnNode(newSeries, node -> node.setStyle(style));
             }
-            // Tooltip für die ganze Linie
+
+            // Tooltip for the whole series line
             runOnNode(newSeries, node -> installTooltipOnNode(node, "HISTORY_TRACE: " + newSeries.getName()));
         }
+    }
 
-        // ---------------------------------------------------------
-        // 2. Endverteilung (Pie)
-        // ---------------------------------------------------------
+    private void setupDistributionChart(List<Party> parties) {
         double totalVotes = parties.stream().mapToDouble(Party::getCurrentSupporterCount).sum();
+
         for (Party p : parties) {
             PieChart.Data data = new PieChart.Data(p.getAbbreviation(), p.getCurrentSupporterCount());
             distributionChart.getData().add(data);
 
-            // Tooltip (Prozentberechnung)
+            // Calculate percentage
             double percent = (totalVotes > 0) ? (data.getPieValue() / totalVotes) * 100.0 : 0.0;
-            String info = String.format("FACTION: %s\nSIZE: %.0f\nQUOTA: %.1f%%",
-                    p.getName(), data.getPieValue(), percent);
+            String info = String.format(FORMAT_TOOLTIP_PIE, p.getName(), data.getPieValue(), percent);
 
-            // Farbe für das Tortenstück (Slice)
+            // Apply color and tooltip
             runOnNode(data, node -> {
                 installTooltipOnNode(node, info);
-                String color = p.getName().equals(SimulationConfig.UNDECIDED_NAME) ? "#666666" : "#" + p.getColorCode();
-                node.setStyle("-fx-pie-color: " + color + ";");
+                String color = getPartyColorString(p);
+                node.setStyle(String.format(STYLE_PIE_COLOR, color));
             });
         }
 
-        // NEU: Legenden-Farben korrigieren (muss verzögert passieren, da Legende erst gerendert wird)
+        // Fix legend colors (must happen after layout pass)
         fixPieLegendColors(parties);
+    }
 
-        // ---------------------------------------------------------
-        // 3. Skandale (Bar - SEC-C3)
-        // ---------------------------------------------------------
-        XYChart.Series<String, Number> scandalSeries = new XYChart.Series<>();
+    private void setupScandalChart(List<Party> parties) {
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+
         for (Party p : parties) {
             if (p.getName().equals(SimulationConfig.UNDECIDED_NAME)) continue;
 
             XYChart.Data<String, Number> data = new XYChart.Data<>(p.getAbbreviation(), p.getScandalCount());
-            scandalSeries.getData().add(data);
+            series.getData().add(data);
 
-            // Farbe & Tooltip
             String color = "#" + p.getColorCode();
             runOnNode(data, node -> {
-                node.setStyle("-fx-bar-fill: " + color + ";");
-                installTooltipOnNode(node, String.format("TARGET: %s\nINCIDENTS: %s", p.getName(), data.getYValue()));
+                node.setStyle(String.format(STYLE_BAR_FILL, color));
+                installTooltipOnNode(node, String.format(FORMAT_TOOLTIP_SCANDAL, p.getName(), data.getYValue()));
             });
         }
-        scandalChart.getData().add(scandalSeries);
+        scandalChart.getData().add(series);
+    }
 
-        // ---------------------------------------------------------
-        // 4. Budget (Bar - SEC-D4)
-        // ---------------------------------------------------------
-        XYChart.Series<String, Number> budgetSeries = new XYChart.Series<>();
+    private void setupBudgetChart(List<Party> parties) {
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+
         for (Party p : parties) {
             if (p.getName().equals(SimulationConfig.UNDECIDED_NAME)) continue;
 
             double budgetM = p.getCampaignBudget() / 1_000_000.0;
             XYChart.Data<String, Number> data = new XYChart.Data<>(p.getAbbreviation(), budgetM);
-            budgetSeries.getData().add(data);
+            series.getData().add(data);
 
-            // Farbe & Tooltip
             String color = "#" + p.getColorCode();
             runOnNode(data, node -> {
-                node.setStyle("-fx-bar-fill: " + color + ";");
-                installTooltipOnNode(node, String.format("TARGET: %s\nBUDGET: %.2f M€", p.getName(), data.getYValue()));
+                node.setStyle(String.format(STYLE_BAR_FILL, color));
+                // FIX: data.getYValue() returns Number, cast to double for %.2f format
+                installTooltipOnNode(node, String.format(FORMAT_TOOLTIP_BUDGET, p.getName(), data.getYValue().doubleValue()));
             });
         }
-        budgetChart.getData().add(budgetSeries);
+        budgetChart.getData().add(series);
     }
 
+    // --- Helper Methods ---
+
     /**
-     * WICHTIG: Korrigiert die Farben der PieChart-Legende.
-     * Die Legende wird von JavaFX automatisch generiert und ignoriert normalerweise
-     * unsere manuellen Farben. Wir suchen die Legenden-Items und färben sie nachträglich.
+     * Fixes the colors of the PieChart legend items to match the party colors.
+     * JavaFX auto-generates legend items, so we need to look them up manually.
      */
     private void fixPieLegendColors(List<Party> parties) {
         Platform.runLater(() -> {
-            // Wir suchen die Legende im Diagramm (CSS Selektor .chart-legend)
             Node legend = distributionChart.lookup(".chart-legend");
-            if (legend != null && legend instanceof Pane) {
-                // Die Legende enthält Labels für jeden Eintrag
-                for (Node item : ((Pane) legend).getChildren()) {
-                    if (item instanceof Label) {
-                        Label label = (Label) item;
-                        // Der Text des Labels ist das Parteikürzel (z.B. "SPD")
+
+            // FIX: Pattern matching for instanceof (Java 16+)
+            if (legend instanceof Pane pane) {
+                for (Node item : pane.getChildren()) {
+                    // FIX: Pattern matching
+                    if (item instanceof Label label) {
                         Party p = findPartyByAbbr(parties, label.getText());
 
-                        // Das Symbol (der farbige Punkt) ist das "Graphic"-Objekt des Labels
                         if (p != null && label.getGraphic() != null) {
-                            String color = p.getName().equals(SimulationConfig.UNDECIDED_NAME) ? "#666666" : "#" + p.getColorCode();
-                            label.getGraphic().setStyle("-fx-background-color: " + color + ";");
+                            String color = getPartyColorString(p);
+                            label.getGraphic().setStyle(String.format(STYLE_LEGEND_SYMBOL, color));
                         }
                     }
                 }
@@ -145,36 +165,34 @@ public class StatisticsController {
     }
 
     /**
-     * Führt eine Aktion auf dem Node eines Chart-Datenpunkts aus.
-     * Prüft SOFORT, ob der Node da ist, UND setzt einen Listener für später.
+     * Executes an action on the visual Node of a chart data item.
+     * Handles both immediate execution (if Node exists) and delayed execution (via listener).
      */
     private void runOnNode(Object chartData, Consumer<Node> action) {
         Node node = null;
-        // HIER WAR DER FEHLER: Wir nutzen jetzt ReadOnlyObjectProperty (der gemeinsame Nenner)
         javafx.beans.property.ReadOnlyObjectProperty<Node> nodeProperty = null;
 
-        if (chartData instanceof XYChart.Series) {
-            XYChart.Series<?,?> series = (XYChart.Series<?,?>) chartData;
+        // FIX: Pattern Matching for cleaner type checks
+        if (chartData instanceof XYChart.Series<?,?> series) {
             node = series.getNode();
             nodeProperty = series.nodeProperty();
-        } else if (chartData instanceof XYChart.Data) {
-            XYChart.Data<?,?> data = (XYChart.Data<?,?>) chartData;
+        } else if (chartData instanceof XYChart.Data<?,?> data) {
             node = data.getNode();
             nodeProperty = data.nodeProperty();
-        } else if (chartData instanceof PieChart.Data) {
-            PieChart.Data data = (PieChart.Data) chartData;
+        } else if (chartData instanceof PieChart.Data data) {
             node = data.getNode();
             nodeProperty = data.nodeProperty();
         }
 
-        // 1. Wenn Node schon da ist -> Sofort ausführen
+        // 1. Execute immediately if available
         if (node != null) {
             action.accept(node);
         }
 
-        // 2. Listener anhängen (falls Node später neu erzeugt wird)
+        // 2. Attach listener for future availability
         if (nodeProperty != null) {
-            nodeProperty.addListener((obs, oldNode, newNode) -> {
+            // FIX: Renamed unused parameters to 'ignored'
+            nodeProperty.addListener((ignored, ignoredOld, newNode) -> {
                 if (newNode != null) {
                     action.accept(newNode);
                 }
@@ -190,13 +208,24 @@ public class StatisticsController {
     }
 
     private Party findPartyByAbbr(List<Party> parties, String abbr) {
-        return parties.stream().filter(p -> p.getAbbreviation().equals(abbr)).findFirst().orElse(null);
+        return parties.stream()
+                .filter(p -> p.getAbbreviation().equals(abbr))
+                .findFirst()
+                .orElse(null);
     }
+
+    private String getPartyColorString(Party p) {
+        return p.getName().equals(SimulationConfig.UNDECIDED_NAME)
+                ? "#666666"
+                : "#" + p.getColorCode();
+    }
+
+    // --- Navigation ---
 
     @FXML
     public void handleBackToDashboard(ActionEvent event) {
-        if (dashboardRoot != null) {
-            ((Node) event.getSource()).getScene().setRoot(dashboardRoot);
+        if (dashboardRoot != null && event.getSource() instanceof Node sourceNode) {
+            sourceNode.getScene().setRoot(dashboardRoot);
         }
     }
 }

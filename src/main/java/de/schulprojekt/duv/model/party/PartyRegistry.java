@@ -1,8 +1,7 @@
 package de.schulprojekt.duv.model.party;
 
 import de.schulprojekt.duv.model.core.SimulationParameters;
-import de.schulprojekt.duv.model.party.Party;
-import de.schulprojekt.duv.model.party.PartyTemplate;
+import de.schulprojekt.duv.model.random.DistributionProvider;
 import de.schulprojekt.duv.util.CSVLoader;
 import de.schulprojekt.duv.util.SimulationConfig;
 
@@ -11,71 +10,83 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Verwaltet die Liste aller aktiven Parteien in der Simulation.
- * Kümmert sich um die Initialisierung (Laden aus CSV) und die Erstellung der "Unsicher"-Partei.
+ * Manages the list of all active parties in the simulation.
+ * Handles initialization (loading from CSV) and creation of the "Undecided" party.
  */
 public class PartyRegistry {
 
+    // --- CONSTANTS (Configuration) ---
+    private static final String UNDECIDED_ABBREVIATION = "UNS";
+    private static final String UNDECIDED_COLOR_CODE = "#808080"; // Gray
+    private static final double UNDECIDED_POSITION = 50.0;        // Center
+    private static final double SPECTRUM_WIDTH = 100.0;
+    private static final double POSITION_JITTER = 10.0;           // Random variance in positioning
+    private static final double BASE_BUDGET_MIN = 300000.0;
+    private static final double BASE_BUDGET_VARIANCE = 400000.0;
+
+    // --- FIELDS ---
     private final List<Party> partyList = new ArrayList<>();
     private final CSVLoader csvLoader;
-    private final Random random = new Random();
+    private final Random random = new Random(); // Used only for position jitter
 
+    // --- CONSTRUCTOR ---
     public PartyRegistry(CSVLoader csvLoader) {
         this.csvLoader = csvLoader;
     }
 
+    // --- INITIALIZATION ---
+
     /**
-     * Initialisiert die Parteien basierend auf den Parametern.
-     * Erstellt immer zuerst die "Unsicher"-Partei und füllt dann mit zufälligen Parteien aus der CSV auf.
+     * Initializes parties based on simulation parameters.
+     * Uses DistributionProvider for budget calculation to satisfy the Uniform Distribution requirement explicitly.
+     * Always creates the "Undecided" party first, then fills up with random parties from CSV.
      */
-    public void initializeParties(SimulationParameters params) {
+    public void initializeParties(SimulationParameters params, DistributionProvider distribution) {
         partyList.clear();
         int partyCount = params.getNumberOfParties();
 
-        // 1. Die "Unsicher"-Partei (Nichtwähler/Unentschlossene)
-        // Wir nutzen hier Konstanten aus SimulationConfig, falls vorhanden, oder Fallback-Werte.
-        String undecidedName = SimulationConfig.UNDECIDED_NAME; // "Unsicher"
-        // Da Party jetzt String colorCode erwartet, wandeln wir die Color aus Config evtl. um oder nutzen String
-        String undecidedColor = "#808080"; // Grau für Unsicher
-
+        // 1. The "Undecided" Party (Non-voters)
         Party undecided = new Party(
-                undecidedName,
-                "UNS",           // Kürzel
-                undecidedColor,
-                50.0,            // Politische Position (Mitte)
-                0.0,             // Kein Budget
-                0                // Initiale Wähler (wird später berechnet)
+                SimulationConfig.UNDECIDED_NAME,
+                UNDECIDED_ABBREVIATION,
+                UNDECIDED_COLOR_CODE,
+                UNDECIDED_POSITION,
+                0.0, // No Budget
+                0    // Initial count calculated later
         );
         partyList.add(undecided);
 
-        // 2. Zufällige echte Parteien aus CSV laden
+        // 2. Load random real parties from CSV
         List<PartyTemplate> templates = csvLoader.getRandomPartyTemplates(partyCount);
 
         for (int i = 0; i < templates.size(); i++) {
             PartyTemplate template = templates.get(i);
 
-            // Zufällige Positionierung im politischen Spektrum
-            // Wir verteilen sie gleichmäßig mit etwas Zufall ("Jitter")
-            double step = 100.0 / (partyCount + 1);
+            // Positioning: Distribute evenly with some random jitter
+            double step = SPECTRUM_WIDTH / (partyCount + 1);
             double basePos = step * (i + 1);
-            double jitter = (random.nextDouble() - 0.5) * 10.0; // +/- 5.0
+            double jitter = (random.nextDouble() - 0.5) * POSITION_JITTER;
             double position = Math.max(0, Math.min(100, basePos + jitter));
 
-            // Budget berechnen (Basis + Zufall) * Faktor
-            double baseBudget = 300000.0 + random.nextDouble() * 400000.0;
-            double budget = baseBudget * params.getCampaignBudgetFactor();
+            // Budget: Use Uniform Distribution from provider
+            double randomFactor = distribution.sampleUniform(); // Returns 0.0 to RandomRange (usually 1.0)
+            double budgetVariance = BASE_BUDGET_VARIANCE * randomFactor;
 
-            // Erstelle die echte Party-Instanz aus dem Template
+            double budget = (BASE_BUDGET_MIN + budgetVariance) * params.getCampaignBudgetFactor();
+
+            // Create real party instance from template
             partyList.add(template.toParty(position, budget));
         }
     }
 
+    // --- MAIN LOGIC ---
+
     /**
-     * Aktualisiert die Wählerzahlen aller Parteien.
-     * Wird von der Engine aufgerufen, nachdem die Population berechnet wurde.
+     * Updates the supporter counts for all parties.
+     * Called by the engine after population calculation.
      */
     public void updateSupporterCounts(int[] counts) {
-        // Sicherstellen, dass die Arrays zusammenpassen
+        // Ensure arrays match size
         int limit = Math.min(counts.length, partyList.size());
 
         for (int i = 0; i < limit; i++) {
@@ -83,8 +94,10 @@ public class PartyRegistry {
         }
     }
 
+    // --- GETTERS ---
+
     /**
-     * Gibt die Liste aller Parteien zurück (inkl. "Unsicher" an Index 0).
+     * Returns the list of all parties (including "Undecided" at index 0).
      */
     public List<Party> getParties() {
         return partyList;

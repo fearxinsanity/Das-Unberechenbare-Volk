@@ -19,18 +19,30 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Verwaltet Tooltips für BEIDE Ansichten:
- * 1. Dashboard: Dynamisch per Mouse-Hover (handleMouseMove)
- * 2. Parlament: Statisch per Klick (showStaticTooltip)
+ * Manages tooltips for BOTH views:
+ * 1. Dashboard: Dynamic via Mouse-Hover (handleMouseMove)
+ * 2. Parliament: Static via Click (showStaticTooltip)
  */
 public class TooltipManager {
+
+    // --- Constants: Styling ---
+    private static final String STYLE_HEADER_LABEL = "-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-font-family: 'Consolas';";
+    private static final String STYLE_SUBHEADER_LABEL = "-fx-text-fill: rgba(255,255,255,0.8); -fx-font-size: 11px; -fx-font-family: 'Consolas';";
+    private static final String STYLE_INFO_LABEL = "-fx-text-fill: #e0e0e0; -fx-font-size: 12px; -fx-font-family: 'Consolas';";
+    private static final String STYLE_CONTENT_BOX = "-fx-background-color: rgba(20, 20, 25, 0.95);";
+    private static final String STYLE_SCANDAL_LABEL = "-fx-font-size: 12px; -fx-font-family: 'Consolas'; -fx-font-weight: bold;";
+
+    // --- UI Components ---
+    private final Pane overlayPane;
     private final VBox tooltipBox;
     private final Label nameLabel, abbrLabel, votersLabel, posLabel, scandalsLabel;
-    private final Pane overlayPane;
     private final Line connectionLine;
     private final Circle anchorPoint;
 
+    // --- State ---
     private Party currentActiveParty = null;
+
+    // --- Constructor ---
 
     public TooltipManager(Pane animationPane) {
         // 1. Overlay Layer
@@ -38,11 +50,12 @@ public class TooltipManager {
         this.overlayPane.setPickOnBounds(false);
         this.overlayPane.setMouseTransparent(true);
 
+        // Bind size to parent
+        this.overlayPane.prefWidthProperty().bind(animationPane.widthProperty());
+        this.overlayPane.prefHeightProperty().bind(animationPane.heightProperty());
         animationPane.getChildren().add(overlayPane);
-        overlayPane.prefWidthProperty().bind(animationPane.widthProperty());
-        overlayPane.prefHeightProperty().bind(animationPane.heightProperty());
 
-        // 2. Verbindungslinie
+        // 2. Connection Elements (Line & Anchor)
         this.connectionLine = new Line();
         this.connectionLine.setStrokeWidth(1.5);
         this.connectionLine.getStrokeDashArray().addAll(5d, 5d);
@@ -57,41 +70,42 @@ public class TooltipManager {
         this.tooltipBox.setVisible(false);
         this.tooltipBox.setEffect(new DropShadow(15, Color.BLACK));
 
-        // 4. Inhalt bauen
+        // 4. Build Content Structure
         VBox headerBox = new VBox(2);
         headerBox.setPadding(new Insets(8, 10, 8, 10));
-        headerBox.setId("headerBox"); // Für CSS-Zugriff
+        headerBox.setId("headerBox"); // For CSS lookup
 
         nameLabel = new Label();
-        nameLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-font-family: 'Consolas';");
+        nameLabel.setStyle(STYLE_HEADER_LABEL);
         abbrLabel = new Label();
-        abbrLabel.setStyle("-fx-text-fill: rgba(255,255,255,0.8); -fx-font-size: 11px; -fx-font-family: 'Consolas';");
+        abbrLabel.setStyle(STYLE_SUBHEADER_LABEL);
         headerBox.getChildren().addAll(nameLabel, abbrLabel);
 
         VBox contentBox = new VBox(4);
         contentBox.setPadding(new Insets(10));
-        contentBox.setStyle("-fx-background-color: rgba(20, 20, 25, 0.95);");
+        contentBox.setStyle(STYLE_CONTENT_BOX);
 
-        String infoStyle = "-fx-text-fill: #e0e0e0; -fx-font-size: 12px; -fx-font-family: 'Consolas';";
-        votersLabel = new Label(); votersLabel.setStyle(infoStyle);
-        posLabel = new Label(); posLabel.setStyle(infoStyle);
-        Separator sep = new Separator(); sep.setOpacity(0.3);
+        votersLabel = new Label();
+        votersLabel.setStyle(STYLE_INFO_LABEL);
+
+        posLabel = new Label();
+        posLabel.setStyle(STYLE_INFO_LABEL);
+
+        Separator sep = new Separator();
+        sep.setOpacity(0.3);
+
         scandalsLabel = new Label();
-        scandalsLabel.setStyle("-fx-text-fill: #ff5555; -fx-font-size: 12px; -fx-font-family: 'Consolas'; -fx-font-weight: bold;");
+        scandalsLabel.setStyle(STYLE_SCANDAL_LABEL);
 
         contentBox.getChildren().addAll(votersLabel, posLabel, sep, scandalsLabel);
         tooltipBox.getChildren().addAll(headerBox, contentBox);
 
+        // Add everything to overlay
         overlayPane.getChildren().addAll(connectionLine, anchorPoint, tooltipBox);
     }
 
-    // ============================================================================================
-    // MODUS 1: Dashboard (Dynamischer Mouse-Hover)
-    // ============================================================================================
+    // --- Mode 1: Dashboard (Dynamic Hover) ---
 
-    /**
-     * Prüft, ob die Maus über einem Parteikreis ist (für Dashboard).
-     */
     public void handleMouseMove(double mx, double my, List<Party> parties, Map<String, CanvasRenderer.Point> positions, int total) {
         if (parties == null || positions == null) return;
 
@@ -100,26 +114,29 @@ public class TooltipManager {
         for (Party p : parties) {
             CanvasRenderer.Point pt = positions.get(p.getName());
             if (pt != null) {
-                // Radius-Check (etwas größer als der gezeichnete Kreis)
+                // Determine Hit-Radius based on party size
                 double share = (double) p.getCurrentSupporterCount() / Math.max(1, total);
                 double r = 40.0 + (share * 60.0);
 
-                // Hit-Test
-                if (Math.sqrt(Math.pow(mx - pt.x, 2) + Math.pow(my - pt.y, 2)) <= r) {
+                // FIX: Access record fields via method calls pt.x() / pt.y()
+                double px = pt.x();
+                double py = pt.y();
+
+                // Hit-Test (Euclidean Distance)
+                if (Math.sqrt(Math.pow(mx - px, 2) + Math.pow(my - py, 2)) <= r) {
                     foundAny = true;
 
-                    // Zielposition für die Box berechnen (leicht versetzt zur Maus)
+                    // Calculate target position (offset from mouse)
                     double targetBoxX = mx + 30;
                     double targetBoxY = my - 20;
 
-                    // Neue Partei oder nur Bewegung?
+                    // New party or just movement?
                     if (!tooltipBox.isVisible() || currentActiveParty != p) {
                         currentActiveParty = p;
-                        // Animation starten
-                        showCallout(p, pt.x, pt.y, targetBoxX, targetBoxY);
+                        showCallout(p, px, py, targetBoxX, targetBoxY);
                     } else {
-                        // Nur Position updaten (ohne Animation)
-                        updateCalloutPosition(pt.x, pt.y, targetBoxX, targetBoxY);
+                        // Just update position (no animation)
+                        updateCalloutPosition(px, py, targetBoxX, targetBoxY);
                     }
                     break;
                 }
@@ -131,31 +148,39 @@ public class TooltipManager {
         }
     }
 
-    // ============================================================================================
-    // MODUS 2: Parlament (Statischer Klick)
-    // ============================================================================================
+    // --- Mode 2: Parliament (Static Click) ---
 
-    /**
-     * Zeigt den Tooltip statisch an einer festen Position (für Parlament).
-     */
     public void showStaticTooltip(Party p, double anchorX, double anchorY) {
         currentActiveParty = p;
 
-        // Simuliere eine "Box-Position" relativ zum Ankerpunkt
+        // Simulate "preferred" box position relative to anchor
         double targetBoxX = anchorX + 40;
         double targetBoxY = anchorY - 60;
 
         showCallout(p, anchorX, anchorY, targetBoxX, targetBoxY);
     }
 
-    // ============================================================================================
-    // Gemeinsame Logik (Anzeige & Rendering)
-    // ============================================================================================
+    // --- Public Control ---
+
+    public void hideTooltip() {
+        if (tooltipBox.isVisible()) {
+            tooltipBox.setVisible(false);
+            connectionLine.setVisible(false);
+            anchorPoint.setVisible(false);
+            currentActiveParty = null;
+        }
+    }
+
+    // --- Private Helper: Rendering & Logic ---
 
     private void showCallout(Party p, double anchorX, double anchorY, double boxX, double boxY) {
-        // 1. Styling
+        // 1. Dynamic Styling based on Party Color
         Color pColor;
-        try { pColor = Color.web(p.getColorCode()); } catch (Exception e) { pColor = Color.WHITE; }
+        try {
+            pColor = Color.web(p.getColorCode());
+        } catch (Exception e) {
+            pColor = Color.WHITE;
+        }
         String hexColor = toHexString(pColor);
 
         tooltipBox.lookup("#headerBox").setStyle("-fx-background-color: " + hexColor + ";");
@@ -163,7 +188,7 @@ public class TooltipManager {
         connectionLine.setStroke(pColor);
         anchorPoint.setFill(pColor);
 
-        // 2. Inhalte
+        // 2. Set Text Content
         nameLabel.setText(p.getName().toUpperCase());
         abbrLabel.setText(">> " + p.getAbbreviation());
         votersLabel.setText(String.format("STIMMEN: %,d", p.getCurrentSupporterCount()));
@@ -178,57 +203,56 @@ public class TooltipManager {
             scandalsLabel.setTextFill(Color.web("#55ff55"));
         }
 
-        // 3. Sichtbar machen & Layout
+        // 3. Make Visible & Layout
         tooltipBox.setVisible(true);
         connectionLine.setVisible(true);
         anchorPoint.setVisible(true);
         tooltipBox.applyCss();
         tooltipBox.layout();
 
-        // Position initial setzen
+        // Initial Position
         updateCalloutPosition(anchorX, anchorY, boxX, boxY);
 
         // 4. "Tech Unfold" Animation
         ScaleTransition st = new ScaleTransition(Duration.millis(200), tooltipBox);
-        st.setFromY(0); st.setToY(1);
+        st.setFromY(0);
+        st.setToY(1);
+
         FadeTransition ft = new FadeTransition(Duration.millis(200), tooltipBox);
-        ft.setFromValue(0); ft.setToValue(1);
+        ft.setFromValue(0);
+        ft.setToValue(1);
+
         ParallelTransition pt = new ParallelTransition(st, ft);
         pt.play();
     }
 
     private void updateCalloutPosition(double anchorX, double anchorY, double desiredBoxX, double desiredBoxY) {
-        // Bildschirmgrenzen prüfen
         double finalBoxX = desiredBoxX;
         double finalBoxY = desiredBoxY;
 
-        if (finalBoxX + 220 > overlayPane.getWidth()) finalBoxX = anchorX - 230;
-        if (finalBoxY + 150 > overlayPane.getHeight()) finalBoxY = anchorY - 160;
+        // Boundary Check: Keep inside overlay
+        if (finalBoxX + 220 > overlayPane.getWidth()) {
+            finalBoxX = anchorX - 230;
+        }
+        if (finalBoxY + 150 > overlayPane.getHeight()) {
+            finalBoxY = anchorY - 160;
+        }
 
-        // Box setzen
+        // Apply Box Position
         tooltipBox.setLayoutX(finalBoxX);
         tooltipBox.setLayoutY(finalBoxY);
 
-        // Linie von Anker zur Box ziehen
+        // Draw Connection Line
         connectionLine.setStartX(anchorX);
         connectionLine.setStartY(anchorY);
 
-        // Linie soll an der nächstgelegenen Ecke/Kante der Box enden
+        // Connect line to the nearest edge of the box
         connectionLine.setEndX(finalBoxX > anchorX ? finalBoxX : finalBoxX + tooltipBox.getWidth());
         connectionLine.setEndY(finalBoxY > anchorY ? finalBoxY : finalBoxY + tooltipBox.getHeight());
 
-        // Punkt setzen
+        // Update Anchor Point
         anchorPoint.setCenterX(anchorX);
         anchorPoint.setCenterY(anchorY);
-    }
-
-    public void hideTooltip() {
-        if (tooltipBox.isVisible()) {
-            tooltipBox.setVisible(false);
-            connectionLine.setVisible(false);
-            anchorPoint.setVisible(false);
-            currentActiveParty = null;
-        }
     }
 
     private String toHexString(Color c) {

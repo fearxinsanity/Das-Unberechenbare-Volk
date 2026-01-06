@@ -1,13 +1,32 @@
 package de.schulprojekt.duv.model.party;
 
+/**
+ * Represents a political party in the simulation.
+ * Holds state regarding its position, budget, supporters, and scandal history.
+ */
 public class Party {
-    private String name;
-    private String abbreviation;
-    private String colorCode; // Hex-Code als String (z.B. "FF0000")
-    private double politicalPosition; // 0 (Links) bis 100 (Rechts)
-    private double campaignBudget;
+
+    // --- CONSTANTS (UI Logic) ---
+
+    private static final double LIMIT_FAR_LEFT = 20.0;
+    private static final double LIMIT_LEFT = 40.0;
+    private static final double LIMIT_CENTER = 60.0;
+    private static final double LIMIT_RIGHT = 80.0;
+
+    // --- FIELDS ---
+
+    // Immutable Properties (Identity & Config)
+    private final String name;
+    private final String abbreviation;
+    private final String colorCode;        // Hex-Code as String (e.g. "FF0000")
+    private final double politicalPosition; // 0 (Left) to 100 (Right)
+    private final double campaignBudget;
+
+    // Mutable State (Simulation Runtime)
     private int currentSupporterCount;
     private int scandalCount;
+
+    // --- CONSTRUCTOR ---
 
     public Party(String name, String abbreviation, String colorCode, double politicalPosition, double campaignBudget, int currentSupporterCount) {
         this.name = name;
@@ -19,40 +38,32 @@ public class Party {
         this.scandalCount = 0;
     }
 
-    // --- Getter & Setter ---
-
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-    public String getAbbreviation() { return abbreviation; }
-    public void setAbbreviation(String abbreviation) { this.abbreviation = abbreviation; }
-
-    public String getColorCode() { return colorCode; }
-    public void setColorCode(String colorCode) { this.colorCode = colorCode; }
-
-    public double getPoliticalPosition() { return politicalPosition; }
-    public void setPoliticalPosition(double politicalPosition) { this.politicalPosition = politicalPosition; }
-
-    public double getCampaignBudget() { return campaignBudget; }
-    public void setCampaignBudget(double campaignBudget) { this.campaignBudget = campaignBudget; }
-
-    public int getCurrentSupporterCount() { return currentSupporterCount; }
-    public void setCurrentSupporterCount(int currentSupporterCount) { this.currentSupporterCount = currentSupporterCount; }
-
-    public int getScandalCount() { return scandalCount; }
-    public void incrementScandalCount() { this.scandalCount++; }
-
-    // --- Logik-Methoden für UI ---
+    // --- MAIN LOGIC (UI Helpers & Business Logic) ---
 
     /**
-     * Gibt einen lesbaren Text für die politische Ausrichtung zurück.
-     * Wichtig für den Tooltip im Dashboard.
+     * Returns a readable string for the political orientation based on position.
+     * Used for Tooltips in the Dashboard.
      */
     public String getPoliticalOrientationName() {
-        if (politicalPosition < 20) return "Linksextrem";
-        if (politicalPosition < 40) return "Links";
-        if (politicalPosition < 60) return "Zentristisch";
-        if (politicalPosition < 80) return "Rechts";
+        if (politicalPosition < LIMIT_FAR_LEFT) return "Linksextrem";
+        if (politicalPosition < LIMIT_LEFT) return "Links";
+        if (politicalPosition < LIMIT_CENTER) return "Zentristisch";
+        if (politicalPosition < LIMIT_RIGHT) return "Rechts";
         return "Rechtsextrem";
     }
+
+    public void incrementScandalCount() {
+        this.scandalCount++;
+    }
+
+    // --- GETTERS & SETTERS ---
+
+    public String getName() { return name; }
+    public String getAbbreviation() { return abbreviation; }
+    public String getColorCode() { return colorCode; }
+    public double getPoliticalPosition() { return politicalPosition; }
+    public double getCampaignBudget() { return campaignBudget; }
+    public int getCurrentSupporterCount() { return currentSupporterCount; }
+    public void setCurrentSupporterCount(int currentSupporterCount) { this.currentSupporterCount = currentSupporterCount; }
+    public int getScandalCount() { return scandalCount; }
 }
