@@ -14,33 +14,28 @@ import java.util.logging.Logger;
 
 /**
  * Entry point of the JavaFX application.
- * Loads the initial StartView and applies global CSS styles.
  */
 public class Main extends Application {
 
     private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
 
-    // --- Constants: Configuration ---
+    // --- Constants ---
     private static final String APP_TITLE = "Das Unberechenbare Volk";
     private static final int WINDOW_WIDTH = 1200;
     private static final int WINDOW_HEIGHT = 750;
 
-    // --- Constants: Resources ---
+    // Use consistent paths
     private static final String FXML_START_VIEW = "/de/schulprojekt/duv/view/StartView.fxml";
     private static final String CSS_COMMON = "/de/schulprojekt/duv/common.css";
     private static final String CSS_START = "/de/schulprojekt/duv/start.css";
 
-    // --- Main Entry Point ---
     static void main(String[] args) {
         launch(args);
     }
 
-    // --- Application Lifecycle ---
-
     @Override
     public void start(Stage primaryStage) {
         try {
-            // 1. Load FXML
             URL fxmlUrl = getClass().getResource(FXML_START_VIEW);
             if (fxmlUrl == null) {
                 throw new IOException("FXML resource not found: " + FXML_START_VIEW);
@@ -49,21 +44,23 @@ public class Main extends Application {
             FXMLLoader loader = new FXMLLoader(fxmlUrl);
             Parent root = loader.load();
 
-            // 2. Create Scene
+            // FIX: Grab controller for clean shutdown
+            Object controller = loader.getController();
+
             Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-            // 3. Apply CSS
             loadStylesheet(scene, CSS_COMMON);
             loadStylesheet(scene, CSS_START);
 
-            // 4. Configure Stage
             primaryStage.setTitle(APP_TITLE);
             primaryStage.setScene(scene);
             primaryStage.setResizable(true);
 
-            // Ensure full shutdown on close (kills background simulation threads)
-            // FIX: Renamed unused parameter 'e' to 'ignored'
-            primaryStage.setOnCloseRequest(ignored -> {
+            // FIX: Proper shutdown sequence
+            primaryStage.setOnCloseRequest(event -> {
+                if (controller instanceof DashboardController) {
+                    ((DashboardController) controller).shutdown();
+                }
                 Platform.exit();
                 System.exit(0);
             });
@@ -75,12 +72,6 @@ public class Main extends Application {
         }
     }
 
-    // --- Helper Methods ---
-
-    /**
-     * Safely loads a CSS file and adds it to the scene.
-     * Logs a warning if the file is missing but does not crash the app.
-     */
     private void loadStylesheet(Scene scene, String resourcePath) {
         URL url = getClass().getResource(resourcePath);
         if (url != null) {

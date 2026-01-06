@@ -8,6 +8,7 @@ import de.schulprojekt.duv.model.party.Party;
 import de.schulprojekt.duv.view.DashboardController;
 import javafx.application.Platform;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -18,35 +19,31 @@ import java.util.logging.Logger;
 
 /**
  * The controller connects the GUI (View) with the Simulation Engine (Model).
- * It manages the simulation loop (Start/Stop) and propagates parameter changes.
  */
 public class SimulationController {
 
-    // --- CONSTANTS & TOOLS ---
     private static final Logger LOGGER = Logger.getLogger(SimulationController.class.getName());
 
+    // Defaults matches typical starting scenario
     private static final int DEFAULT_VOTERS = 2500;
     private static final double DEFAULT_MEDIA_INFLUENCE = 65.0;
     private static final double DEFAULT_MOBILITY = 35.0;
     private static final double DEFAULT_SCANDAL_CHANCE = 5.0;
     private static final double DEFAULT_LOYALTY = 50.0;
-    private static final int DEFAULT_TPS = 5; // Ticks per Second
+    private static final int DEFAULT_TPS = 5;
     private static final double DEFAULT_RANDOM_RANGE = 1.0;
     private static final int DEFAULT_PARTY_COUNT = 4;
     private static final double DEFAULT_BUDGET_FACTOR = 1.0;
 
-    // --- FIELDS ---
     private final SimulationEngine engine;
     private final DashboardController view;
     private final ScheduledExecutorService executorService;
     private ScheduledFuture<?> simulationTask;
     private boolean isRunning = false;
 
-    // --- CONSTRUCTOR ---
     public SimulationController(DashboardController view) {
         this.view = view;
 
-        // Set default parameters
         SimulationParameters params = new SimulationParameters(
                 DEFAULT_VOTERS,
                 DEFAULT_MEDIA_INFLUENCE,
@@ -62,15 +59,12 @@ public class SimulationController {
         this.engine = new SimulationEngine(params);
         this.engine.initializeSimulation();
 
-        // Create thread pool for the simulation clock
         this.executorService = Executors.newSingleThreadScheduledExecutor(r -> {
             Thread t = new Thread(r, "Simulation-Thread");
-            t.setDaemon(true); // Ensure thread dies when app closes
+            t.setDaemon(true);
             return t;
         });
     }
-
-    // --- MAIN LOGIC ---
 
     public void startSimulation() {
         if (isRunning) return;
@@ -91,9 +85,9 @@ public class SimulationController {
         pauseSimulation();
         executorService.execute(() -> {
             engine.resetState();
-            List<Party> parties = engine.getParties();
-            // UI Reset must happen on JavaFX Application Thread
-            Platform.runLater(() -> view.updateDashboard(parties, List.of(), null, 0));
+            // Create snapshot for safe UI update
+            List<Party> partySnapshot = new ArrayList<>(engine.getParties());
+            Platform.runLater(() -> view.updateDashboard(partySnapshot, List.of(), null, 0));
         });
         LOGGER.info("Simulation reset.");
     }
@@ -105,7 +99,7 @@ public class SimulationController {
         executorService.execute(() -> {
             engine.updateParameters(updated);
             if (isRunning) {
-                scheduleTask(); // Reschedule with new TPS
+                scheduleTask();
             }
         });
     }
@@ -113,8 +107,9 @@ public class SimulationController {
     public void updateAllParameters(SimulationParameters p) {
         executorService.execute(() -> {
             engine.updateParameters(p);
+            List<Party> partySnapshot = new ArrayList<>(engine.getParties());
             Platform.runLater(() ->
-                    view.updateDashboard(engine.getParties(), List.of(), null, engine.getCurrentStep())
+                    view.updateDashboard(partySnapshot, List.of(), null, engine.getCurrentStep())
             );
             if (isRunning) scheduleTask();
         });
@@ -125,11 +120,6 @@ public class SimulationController {
         LOGGER.info("Simulation service stopped.");
     }
 
-    // --- HELPER METHODS ---
-
-    /**
-     * Schedules the periodic simulation task based on current TPS settings.
-     */
     private void scheduleTask() {
         if (simulationTask != null && !simulationTask.isCancelled()) {
             simulationTask.cancel(false);
@@ -140,16 +130,16 @@ public class SimulationController {
 
         simulationTask = executorService.scheduleAtFixedRate(() -> {
             try {
-                // 1. Calculation (Core Logic)
+                // 1. Calculation
                 List<VoterTransition> transitions = engine.runSimulationStep();
                 ScandalEvent scandal = engine.getLastScandal();
                 int step = engine.getCurrentStep();
-                List<Party> parties = engine.getParties();
 
-                // 2. GUI Update (Always on FX Thread)
-                Platform.runLater(() -> {
-                    view.updateDashboard(parties, transitions, scandal, step);
-                });
+                // FIX: Snapshot of parties list to prevent ConcurrentModificationException in UI
+                List<Party> partySnapshot = new ArrayList<>(engine.getParties());
+
+                // 2. GUI Update
+                Platform.runLater(() -> view.updateDashboard(partySnapshot, transitions, scandal, step));
 
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, "Critical error in simulation loop", e);
@@ -157,14 +147,13 @@ public class SimulationController {
         }, 0, period, TimeUnit.MILLISECONDS);
     }
 
-    // --- GETTERS & SETTERS ---
-
     public SimulationParameters getCurrentParameters() {
         return engine.getParameters();
     }
 
     public List<Party> getParties() {
-        return engine.getParties();
+        // Return a copy to ensure safety if called from other threads
+        return new ArrayList<>(engine.getParties());
     }
 
     public boolean isRunning() {

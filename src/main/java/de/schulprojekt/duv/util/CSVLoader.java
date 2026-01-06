@@ -51,7 +51,7 @@ public class CSVLoader {
             return allTemplates;
         }
 
-        // Create a copy to keep the original list intact (if we decide to cache it later)
+        // Create a copy to keep the original list intact
         List<PartyTemplate> selection = new ArrayList<>(allTemplates);
         Collections.shuffle(selection);
         return selection.subList(0, count);
@@ -81,6 +81,7 @@ public class CSVLoader {
     private List<PartyTemplate> loadAllParties() {
         return loadCsvFile(PARTY_FILE, line -> {
             String[] parts = line.split(CSV_SEPARATOR_REGEX);
+            // Check content length
             if (parts.length >= 3) {
                 return new PartyTemplate(parts[0].trim(), parts[1].trim(), parts[2].trim());
             }
@@ -90,10 +91,9 @@ public class CSVLoader {
 
     private List<Scandal> loadAllScandals() {
         return loadCsvFile(SCANDAL_FILE, line -> {
-            // Header check is handled in the generic part, strictly checking content here
-            if (line.toLowerCase().startsWith("id")) return null;
+            // Pre-check specifically for Scandal ID column in content to be safe
+            if (line.trim().toLowerCase().startsWith("id")) return null;
 
-            // Split with limit -1 to preserve empty strings
             String[] parts = line.split(",", -1);
             if (parts.length >= 5) {
                 try {
@@ -118,32 +118,48 @@ public class CSVLoader {
     /**
      * Generic method to parse a CSV file.
      * Handles file I/O and stream management.
-     *
-     * @param filePath Path to the file in the classpath.
-     * @param mapper   Function mapping a CSV line to an object T (or null).
-     * @param <T>      The type of object to load.
-     * @return A list of loaded objects.
      */
     private <T> List<T> loadCsvFile(String filePath, Function<String, T> mapper) {
         List<T> resultList = new ArrayList<>();
 
-        try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(filePath)) {
+        try (InputStream is = getClass().getResourceAsStream("/" + filePath)) {
             if (is == null) {
-                LOGGER.log(Level.SEVERE, "CSV file not found: {0}", filePath);
+                InputStream fallback = Thread.currentThread().getContextClassLoader().getResourceAsStream(filePath);
+                if (fallback == null) {
+                    LOGGER.log(Level.SEVERE, "CSV file not found: {0}", filePath);
+                    return resultList;
+                }
+            }
+
+            InputStream actualStream = getClass().getResourceAsStream("/" + filePath);
+            if (actualStream == null) actualStream = getClass().getResourceAsStream(filePath);
+            if (actualStream == null) actualStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(filePath);
+
+            if (actualStream == null) {
+                LOGGER.log(Level.SEVERE, "CSV file completely missing: {0}", filePath);
                 return resultList;
             }
 
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(actualStream, StandardCharsets.UTF_8))) {
                 String line;
                 boolean isFirstLine = true;
 
                 while ((line = br.readLine()) != null) {
                     if (line.trim().isEmpty()) continue;
 
-                    // Skip header
-                    if (isFirstLine && (line.toLowerCase().startsWith("id") || line.toLowerCase().startsWith("kuerzel"))) {
-                        isFirstLine = false;
-                        continue;
+                    String lowerLine = line.toLowerCase().trim();
+                    
+                    if (isFirstLine) {
+                        if (lowerLine.startsWith("id") ||
+                                lowerLine.startsWith("kuerzel") ||
+                                lowerLine.startsWith("name") ||
+                                lowerLine.startsWith("partei") ||
+                                lowerLine.contains("color") ||
+                                lowerLine.contains("farbe")) {
+
+                            isFirstLine = false;
+                            continue;
+                        }
                     }
                     isFirstLine = false;
 
