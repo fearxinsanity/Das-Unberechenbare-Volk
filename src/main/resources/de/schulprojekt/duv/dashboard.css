@@ -1,13 +1,5 @@
 /* =========================================================================
    === DASHBOARD.CSS - SECRET SERVICE / MILITARY EDITION ===
-   =========================================================================
-   TOC:
-   1. ROOT & BACKGROUNDS (Grid, CRT, Watermark)
-   2. CONTAINERS (Sidebar, TopBar)
-   3. TYPOGRAPHY (Headings, Status, Terminal)
-   4. CONTROLS (Buttons, Sliders, Inputs)
-   5. CHARTS (Radar/Tactical Style)
-   6. COMPONENTS (Feed, Ticker, Glitch)
    ========================================================================= */
 
 /* =========================================================================
@@ -37,7 +29,6 @@
 
 /* --- CRT Monitor Scanlines Overlay --- */
 .crt-overlay {
-    /* Simuliert feine horizontale Bildröhren-Linien */
     -fx-background-color: linear-gradient(from 0px 0px to 0px 4px, repeat, transparent 0%, transparent 50%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0.4) 100%);
     -fx-opacity:          0.3;
     -fx-mouse-transparent: true;
@@ -47,18 +38,13 @@
    2. CONTAINERS
    ========================================================================= */
 
-/* --- Basis für Panels (Hologramm-Look) --- */
 .sidebar,
 .top-bar {
     -fx-background-color: rgba(5, 5, 8, 0.90);
-
-    /* Goldener Rahmen, scharfe Ecken */
     -fx-border-color:     #D4AF37;
     -fx-border-width:     1px;
     -fx-background-radius: 0px;
     -fx-border-radius:     0px;
-
-    /* Inner Glow (Tech-Effekt) */
     -fx-effect:  innershadow(gaussian, rgba(212, 175, 55, 0.25), 20, 0, 0, 0);
     -fx-padding: 1.5em;
 }
@@ -72,7 +58,6 @@
    3. TYPOGRAPHY
    ========================================================================= */
 
-/* Titel */
 .app-title {
     -fx-font-size:   1.4em;
     -fx-font-weight: bold;
@@ -85,25 +70,21 @@
     -fx-font-weight:  bold;
     -fx-text-fill:    #8a8a8a;
     -fx-underline:    false;
-
-    /* Unterstrich nur als Border */
     -fx-border-color: transparent transparent #D4AF37 transparent;
     -fx-border-width: 0 0 2 0;
     -fx-padding:      0 0 5 0;
 }
 
-/* Status Labels */
 .control-label {
     -fx-text-fill: #e0e0e0;
     -fx-font-size: 0.9em;
 }
 
 .status-label {
-    -fx-text-fill:   #00ff41; /* Matrix Grün */
+    -fx-text-fill:   #00ff41;
     -fx-font-weight: bold;
 }
 
-/* HUD (Head-Up Display) Text */
 .hud-text {
     -fx-font-family: "Consolas", monospace;
     -fx-font-size:   0.8em;
@@ -115,18 +96,6 @@
     -fx-font-weight: bold;
 }
 
-/* Terminal Log Styles */
-.terminal-label {
-    -fx-font-family: "Consolas", monospace;
-    -fx-text-fill:   #D4AF37;
-    -fx-font-weight: bold;
-}
-
-.terminal-value {
-    -fx-font-family: "Consolas", monospace;
-    -fx-text-fill:   #00ff41;
-}
-
 .terminal-value-alert {
     -fx-font-family: "Consolas", monospace;
     -fx-text-fill:   #ff3333;
@@ -136,18 +105,13 @@
    4. CONTROLS
    ========================================================================= */
 
-/* --- Tactical Button --- */
 .button {
     -fx-background-color: rgba(212, 175, 55, 0.1);
     -fx-text-fill:        #D4AF37;
-
     -fx-border-color:     #D4AF37;
     -fx-border-width:     1;
-
-    /* Eckig für Military Look */
     -fx-background-radius: 0;
     -fx-border-radius:     0;
-
     -fx-font-family: "Consolas", monospace;
     -fx-cursor:      hand;
     -fx-transition:  all 0.2s;
@@ -164,15 +128,11 @@
     -fx-text-fill:    #555;
 }
 
-/* --- Input Fields --- */
 .text-field {
     -fx-background-color: rgba(0, 0, 0, 0.5);
     -fx-text-fill:        #00ff41;
-
-    /* Nur Unterstrich */
     -fx-border-color:     #444;
     -fx-border-width:     0 0 1 0;
-
     -fx-background-radius: 0;
     -fx-font-family:       "Consolas", monospace;
 }
@@ -181,7 +141,6 @@
     -fx-border-color: #D4AF37;
 }
 
-/* --- Tactical Sliders --- */
 .slider .track {
     -fx-background-color:  #222;
     -fx-border-color:      #444;
@@ -192,11 +151,8 @@
     -fx-background-color:  #1a1a1d;
     -fx-border-color:      #D4AF37;
     -fx-border-width:      2;
-
-    /* Eckiger Thumb */
     -fx-background-radius: 0;
     -fx-border-radius:     0;
-
     -fx-pref-width:  0.8em;
     -fx-pref-height: 1.2em;
 }
@@ -215,7 +171,6 @@
 }
 
 .chart-plot-background {
-    /* Wiederholung des Grid-Musters im Chart */
     -fx-background-color:
             linear-gradient(from 0px 0px to 40px 0px, repeat, rgba(212, 175, 55, 0.05) 0%, rgba(212, 175, 55, 0.05) 1px, transparent 1px, transparent 100%),
             linear-gradient(from 0px 0px to 0px 40px, repeat, rgba(212, 175, 55, 0.05) 0%, rgba(212, 175, 55, 0.05) 1px, transparent 1px, transparent 100%);
@@ -230,7 +185,7 @@
 }
 
 .chart-series-line {
-    -fx-stroke-width: 1.5px;
+    -fx-stroke-width: 2px;
     -fx-effect:       none;
 }
 
@@ -244,15 +199,13 @@
    6. COMPONENTS (FEED, TICKER, GLITCH)
    ========================================================================= */
 
-/* --- Event Feed (Rechts) --- */
 .event-feed-container {
     -fx-padding:          0.8em;
     -fx-background-color: transparent;
     -fx-border-color:     rgba(212, 175, 55, 0.1);
-    -fx-border-width:     0 0 0 1; /* Trennlinie links */
+    -fx-border-width:     0 0 0 1;
 }
 
-/* --- Ticker (Unten) --- */
 .ticker-item {
     -fx-background-color: #111;
     -fx-border-color:     #333;
@@ -265,9 +218,74 @@
     -fx-background-color: #222;
 }
 
-/* --- Glitch Effekt (Java Triggered) --- */
 .glitch-active {
     -fx-border-color:     #ff3333;
     -fx-effect:           innershadow(gaussian, rgba(255, 50, 50, 0.6), 30, 0.5, 0, 0);
     -fx-background-color: rgba(20, 0, 0, 0.9);
+}
+
+/* =========================================================================
+   7. SECURITY & LOCKING STATES
+   ========================================================================= */
+
+/* Neuer Style für das Overlay Label */
+.locked-overlay-label {
+    -fx-text-fill:        #ff3333;
+    -fx-font-family:      "Impact", "Arial Black", sans-serif;
+    -fx-font-size:        24px;
+    -fx-font-weight:      bold;
+    -fx-effect:           dropshadow(gaussian, black, 10, 0.8, 0, 0);
+    -fx-background-color: rgba(0, 0, 0, 0.7);
+    -fx-padding:          5px 10px;
+    -fx-border-color:     #ff3333;
+    -fx-border-width:     2px;
+    -fx-rotate:           -5;
+}
+
+/* Der "Access Denied" Look für gesperrte Bereiche */
+.locked-zone {
+    /* Dunkles Rot-Schwarz mit Hazard-Streifen */
+    -fx-background-color:
+            linear-gradient(from 0px 0px to 20px 20px, repeat, rgba(139, 0, 0, 0.15) 0%, rgba(139, 0, 0, 0.15) 2px, transparent 2px, transparent 100%),
+            rgba(20, 0, 0, 0.7);
+
+    -fx-border-color:     #880000; /* Dunkelroter Rand */
+    -fx-border-style:     solid;
+    -fx-border-width:     1px;
+    -fx-effect:           innershadow(gaussian, rgba(255, 0, 0, 0.3), 10, 0, 0, 0);
+}
+
+/* Elemente innerhalb der Locked Zone "deaktiviert" aussehen lassen */
+.locked-zone .label,
+.locked-zone .control-label {
+    -fx-text-fill: #aa4444 !important; /* Dunkelrot */
+}
+
+.locked-zone .text-field {
+    -fx-border-color: #550000;
+    -fx-text-fill:    #550000;
+    -fx-opacity:      0.7;
+}
+
+.locked-zone .button {
+    -fx-border-color: #550000;
+    -fx-text-fill:    #550000;
+    -fx-background-color: rgba(50,0,0,0.5);
+    -fx-opacity:      0.6;
+}
+
+/* Spezieller Style für den Intel/Parliament Button (Locked State) */
+.locked-button {
+    -fx-background-color: linear-gradient(
+            from 0px 0px to 20px 20px, repeat,
+            #1a0505 0%,
+            #1a0505 49%,
+            #2a0a0a 50%,
+            #2a0a0a 100%
+    ) !important;
+
+    -fx-border-color:     #880000 !important;
+    -fx-text-fill:        #aa4444 !important; /* "Access Denied" Rot */
+    -fx-opacity:          0.8 !important;
+    -fx-cursor:           wait !important;
 }
