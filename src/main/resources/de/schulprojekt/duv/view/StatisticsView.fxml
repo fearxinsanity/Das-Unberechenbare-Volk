@@ -36,13 +36,17 @@
                     </ImageView>
 
                     <Label styleClass="app-title" text="[ INTEL_HUB: OPERATION 'UNBERECHENBAR' - FINAL REPORT ]" />
+
                     <Region HBox.hgrow="ALWAYS" />
-                    <HBox alignment="CENTER" spacing="5" style="-fx-border-color: #D4AF37; -fx-border-width: 1; -fx-padding: 2 5;">
+
+                    <HBox alignment="CENTER" spacing="5" prefHeight="35.0" minHeight="35.0" maxHeight="35.0" style="-fx-border-color: #D4AF37; -fx-border-width: 1; -fx-padding: 0 10;">
                         <Label text="STATUS:" style="-fx-font-size: 10px; -fx-text-fill: #888;" />
                         <Label fx:id="totalTicksLabel" styleClass="status-label-ok" text="ANALYSIS COMPLETE (TICKS: 0)" />
                     </HBox>
+
                     <Separator orientation="VERTICAL" />
-                    <Button onAction="#handleBackToDashboard" styleClass="button" text="&lt;&lt; RÜCKKEHR ZUM DASHBOARD" />
+
+                    <Button onAction="#handleBackToDashboard" prefHeight="35.0" minHeight="35.0" maxHeight="35.0" styleClass="button" text="&lt;&lt; RÜCKKEHR ZUM DASHBOARD" />
                 </HBox>
             </VBox>
         </top>
@@ -142,11 +146,12 @@
                         </VBox.margin>
                     </Separator>
                     <Label style="-fx-font-weight: bold; -fx-text-fill: #D4AF37;" text="ACTIVE_PROTOCOLS" />
+
                     <VBox spacing="5.0" style="-fx-opacity: 0.7;">
                         <children>
-                            <Label style="-fx-font-size: 10px; -fx-border-color: #55ff55; -fx-padding: 2;" text="[✔] DATA_RETENTION" textFill="#a4a4a4" />
-                            <Label style="-fx-font-size: 10px; -fx-border-color: #55ff55; -fx-padding: 2;" text="[✔] PATTERN_MATCHING" textFill="#a4a4a4" />
-                            <Label style="-fx-font-size: 10px; -fx-border-color: #888; -fx-padding: 2;" text="[X] ACTIVE_INTERFERENCE" textFill="#888888" />
+                            <Label maxWidth="Infinity" style="-fx-font-size: 10px; -fx-border-color: #55ff55; -fx-padding: 2;" text="[✔] DATA_RETENTION" textFill="#a4a4a4" />
+                            <Label maxWidth="Infinity" style="-fx-font-size: 10px; -fx-border-color: #55ff55; -fx-padding: 2;" text="[✔] PATTERN_MATCHING" textFill="#a4a4a4" />
+                            <Label maxWidth="Infinity" style="-fx-font-size: 10px; -fx-border-color: #888; -fx-padding: 2;" text="[X] ACTIVE_INTERFERENCE" textFill="#888888" />
                         </children>
                     </VBox>
                 </children>
