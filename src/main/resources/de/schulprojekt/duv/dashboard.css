@@ -2,77 +2,77 @@
    === DASHBOARD.CSS - SECRET SERVICE / MILITARY EDITION ===
    ========================================================================= */
 
-/* --- Globale Einstellungen --- */
+/* =========================================================================
+   1. ROOT & BACKGROUNDS
+   ========================================================================= */
+
 .root-pane {
-    -fx-font-family: "Consolas", "Courier New", monospace;
+    -fx-font-family:      "Consolas", "Courier New", monospace;
     -fx-background-color: #050508; /* Deep Black */
 }
 
-/* --- Hintergrund: Taktisches Gitter --- */
+/* --- Taktisches Hintergrund-Gitter --- */
 .grid-background {
     -fx-background-color:
             linear-gradient(from 0px 0px to 40px 0px, repeat, rgba(212, 175, 55, 0.05) 0%, rgba(212, 175, 55, 0.05) 1px, transparent 1px, transparent 100%),
             linear-gradient(from 0px 0px to 0px 40px, repeat, rgba(212, 175, 55, 0.05) 0%, rgba(212, 175, 55, 0.05) 1px, transparent 1px, transparent 100%);
 }
 
-/* --- Wasserzeichen --- */
+/* --- Wasserzeichen (TOP SECRET) --- */
 .classified-watermark {
-    -fx-text-fill: rgba(255, 255, 255, 0.03);
+    -fx-text-fill:   rgba(255, 255, 255, 0.03);
     -fx-font-family: "Impact", sans-serif;
-    -fx-font-size: 120px;
+    -fx-font-size:   120px;
     -fx-font-weight: bold;
-    -fx-rotate: -30;
+    -fx-rotate:      -30;
 }
 
-/* --- CRT Scanlines Overlay --- */
+/* --- CRT Monitor Scanlines Overlay --- */
 .crt-overlay {
-    /* Simuliert feine horizontale Scanlines */
     -fx-background-color: linear-gradient(from 0px 0px to 0px 4px, repeat, transparent 0%, transparent 50%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0.4) 100%);
-    -fx-opacity: 0.3;
-    -fx-mouse-transparent: true; /* Klicks gehen durch */
+    -fx-opacity:          0.3;
+    -fx-mouse-transparent: true;
 }
 
-/* --- Container: Hologramm-Look --- */
-.sidebar, .top-bar {
+/* =========================================================================
+   2. CONTAINERS
+   ========================================================================= */
+
+.sidebar,
+.top-bar {
     -fx-background-color: rgba(5, 5, 8, 0.90);
-    -fx-border-color: #D4AF37;
-    -fx-border-width: 1px;
-    /* Scharfe Ecken für Military-Look */
+    -fx-border-color:     #D4AF37;
+    -fx-border-width:     1px;
     -fx-background-radius: 0px;
-    -fx-border-radius: 0px;
-    /* Inner Glow (Hologramm-Effekt) */
-    -fx-effect: innershadow(gaussian, rgba(212, 175, 55, 0.25), 20, 0, 0, 0);
+    -fx-border-radius:     0px;
+    -fx-effect:  innershadow(gaussian, rgba(212, 175, 55, 0.25), 20, 0, 0, 0);
     -fx-padding: 1.5em;
 }
 
 .top-bar {
-    -fx-padding: 0.8em 1.2em;
+    -fx-padding:      0.8em 1.2em;
     -fx-border-width: 0 0 1 0;
 }
 
-/* --- Glitch-Klasse (wird per Java getoggled) --- */
-.glitch-active {
-    -fx-border-color: #ff3333;
-    -fx-effect: innershadow(gaussian, rgba(255, 50, 50, 0.6), 30, 0.5, 0, 0);
-    -fx-background-color: rgba(20, 0, 0, 0.9);
-}
+/* =========================================================================
+   3. TYPOGRAPHY
+   ========================================================================= */
 
-/* --- Texte & Labels --- */
 .app-title {
-    -fx-font-size: 1.4em;
+    -fx-font-size:   1.4em;
     -fx-font-weight: bold;
-    -fx-text-fill: #D4AF37;
-    -fx-effect: dropshadow(gaussian, rgba(212, 175, 55, 0.4), 10, 0, 0, 0);
+    -fx-text-fill:   #D4AF37;
+    -fx-effect:      dropshadow(gaussian, rgba(212, 175, 55, 0.4), 10, 0, 0, 0);
 }
 
 .section-title {
-    -fx-font-size: 1.1em;
-    -fx-font-weight: bold;
-    -fx-text-fill: #8a8a8a;
-    -fx-underline: false;
+    -fx-font-size:    1.1em;
+    -fx-font-weight:  bold;
+    -fx-text-fill:    #8a8a8a;
+    -fx-underline:    false;
     -fx-border-color: transparent transparent #D4AF37 transparent;
     -fx-border-width: 0 0 2 0;
-    -fx-padding: 0 0 5 0;
+    -fx-padding:      0 0 5 0;
 }
 
 .control-label {
@@ -81,127 +81,259 @@
 }
 
 .status-label {
-    -fx-text-fill: #00ff41; /* Matrix Grün */
+    -fx-text-fill:   #00ff41;
     -fx-font-weight: bold;
 }
 
 .hud-text {
     -fx-font-family: "Consolas", monospace;
-    -fx-font-size: 0.8em;
-    -fx-text-fill: #555;
+    -fx-font-size:   0.8em;
+    -fx-text-fill:   #555;
 }
+
 .hud-text-highlight {
-    -fx-text-fill: #D4AF37;
+    -fx-text-fill:   #D4AF37;
     -fx-font-weight: bold;
 }
 
-/* --- Controls (Buttons, TextFields) --- */
+.terminal-value-alert {
+    -fx-font-family: "Consolas", monospace;
+    -fx-text-fill:   #ff3333;
+}
+
+/* =========================================================================
+   4. CONTROLS
+   ========================================================================= */
+
 .button {
     -fx-background-color: rgba(212, 175, 55, 0.1);
-    -fx-text-fill: #D4AF37;
-    -fx-border-color: #D4AF37;
-    -fx-border-width: 1;
+    -fx-text-fill:        #D4AF37;
+    -fx-border-color:     #D4AF37;
+    -fx-border-width:     1;
     -fx-background-radius: 0;
-    -fx-border-radius: 0;
+    -fx-border-radius:     0;
     -fx-font-family: "Consolas", monospace;
-    -fx-cursor: hand;
-    -fx-transition: all 0.2s;
+    -fx-cursor:      hand;
+    -fx-transition:  all 0.2s;
 }
+
 .button:hover {
     -fx-background-color: rgba(212, 175, 55, 0.3);
-    -fx-effect: dropshadow(gaussian, #D4AF37, 5, 0, 0, 0);
+    -fx-effect:           dropshadow(gaussian, #D4AF37, 5, 0, 0, 0);
 }
+
 .button:disabled {
-    -fx-opacity: 0.5;
+    -fx-opacity:      0.5;
     -fx-border-color: #555;
-    -fx-text-fill: #555;
+    -fx-text-fill:    #555;
 }
 
 .text-field {
     -fx-background-color: rgba(0, 0, 0, 0.5);
-    -fx-text-fill: #00ff41;
-    -fx-border-color: #444;
-    -fx-border-width: 0 0 1 0; /* Nur Unterstrich */
+    -fx-text-fill:        #00ff41;
+    -fx-border-color:     #444;
+    -fx-border-width:     0 0 1 0;
     -fx-background-radius: 0;
-    -fx-font-family: "Consolas", monospace;
+    -fx-font-family:       "Consolas", monospace;
 }
+
 .text-field:focused {
     -fx-border-color: #D4AF37;
 }
 
-/* --- Sliders (Taktisch) --- */
 .slider .track {
-    -fx-background-color: #222;
-    -fx-border-color: #444;
+    -fx-background-color:  #222;
+    -fx-border-color:      #444;
     -fx-background-radius: 0;
 }
+
 .slider .thumb {
-    -fx-background-color: #1a1a1d;
-    -fx-border-color: #D4AF37;
-    -fx-border-width: 2;
-    -fx-background-radius: 0; /* Eckig */
-    -fx-border-radius: 0;
-    -fx-pref-width: 0.8em;
+    -fx-background-color:  #1a1a1d;
+    -fx-border-color:      #D4AF37;
+    -fx-border-width:      2;
+    -fx-background-radius: 0;
+    -fx-border-radius:     0;
+    -fx-pref-width:  0.8em;
     -fx-pref-height: 1.2em;
 }
+
 .slider .thumb:hover {
     -fx-background-color: #D4AF37;
-    -fx-effect: dropshadow(gaussian, #D4AF37, 5, 0, 0, 0);
+    -fx-effect:           dropshadow(gaussian, #D4AF37, 5, 0, 0, 0);
 }
 
-/* --- Charts (Radar Style) --- */
-.chart { -fx-padding: 0.8em; }
+/* =========================================================================
+   5. CHARTS (RADAR STYLE)
+   ========================================================================= */
+
+.chart {
+    -fx-padding: 0.8em;
+}
+
 .chart-plot-background {
-    /* Radar-Grid Look */
     -fx-background-color:
             linear-gradient(from 0px 0px to 40px 0px, repeat, rgba(212, 175, 55, 0.05) 0%, rgba(212, 175, 55, 0.05) 1px, transparent 1px, transparent 100%),
             linear-gradient(from 0px 0px to 0px 40px, repeat, rgba(212, 175, 55, 0.05) 0%, rgba(212, 175, 55, 0.05) 1px, transparent 1px, transparent 100%);
 }
-.axis { -fx-tick-label-fill: #888; }
-.axis-label { -fx-text-fill: #D4AF37; }
-.chart-series-line { -fx-stroke-width: 1.5px; -fx-effect: none; }
-.chart-line-symbol { -fx-background-radius: 0; -fx-background-color: #D4AF37; -fx-padding: 3px; }
 
-/* --- Ereignis-Feed (Terminal Style) --- */
-.event-feed-container {
-    -fx-padding: 0.8em;
-    -fx-background-color: transparent;
-    -fx-border-color: rgba(212, 175, 55, 0.1);
-    -fx-border-width: 0 0 0 1; /* Linie links */
+.axis {
+    -fx-tick-label-fill: #888;
 }
 
-/* Terminal Labels */
-.terminal-label {
-    -fx-font-family: "Consolas", monospace;
+.axis-label {
     -fx-text-fill: #D4AF37;
-    -fx-font-weight: bold;
-}
-.terminal-value {
-    -fx-font-family: "Consolas", monospace;
-    -fx-text-fill: #00ff41; /* Matrix Grün */
-}
-.terminal-value-alert {
-    -fx-font-family: "Consolas", monospace;
-    -fx-text-fill: #ff3333; /* Alarm Rot */
 }
 
-/* --- Ticker (unten) --- */
+.chart-series-line {
+    -fx-stroke-width: 2px;
+    -fx-effect:       none;
+}
+
+.chart-line-symbol {
+    -fx-background-radius: 0;
+    -fx-background-color:  #D4AF37;
+    -fx-padding:           3px;
+}
+
+/* =========================================================================
+   6. COMPONENTS (FEED, TICKER, GLITCH)
+   ========================================================================= */
+
+.event-feed-container {
+    -fx-padding:          0.8em;
+    -fx-background-color: transparent;
+    -fx-border-color:     rgba(212, 175, 55, 0.1);
+    -fx-border-width:     0 0 0 1;
+}
+
 .ticker-item {
     -fx-background-color: #111;
-    -fx-border-color: #333;
-    -fx-border-width: 1;
-    -fx-cursor: hand;
+    -fx-border-color:     #333;
+    -fx-border-width:     1;
+    -fx-cursor:           hand;
 }
+
 .ticker-item:hover {
-    -fx-border-color: #D4AF37;
+    -fx-border-color:     #D4AF37;
     -fx-background-color: #222;
 }
 
-/* --- Scrollbars (Versteckt / Minimal) --- */
-.scroll-bar:vertical, .scroll-bar:horizontal {
-    -fx-background-color: transparent;
+.glitch-active {
+    -fx-border-color:     #ff3333;
+    -fx-effect:           innershadow(gaussian, rgba(255, 50, 50, 0.6), 30, 0.5, 0, 0);
+    -fx-background-color: rgba(20, 0, 0, 0.9);
 }
-.scroll-bar .thumb {
-    -fx-background-color: #444;
-    -fx-background-radius: 0;
+
+/* =========================================================================
+   7. SECURITY & LOCKING STATES
+   ========================================================================= */
+
+/* Neuer Style für das Overlay Label */
+.locked-overlay-label {
+    -fx-text-fill:        #ff3333;
+    -fx-font-family:      "Impact", "Arial Black", sans-serif;
+    -fx-font-size:        24px;
+    -fx-font-weight:      bold;
+    -fx-effect:           dropshadow(gaussian, black, 10, 0.8, 0, 0);
+    -fx-background-color: rgba(0, 0, 0, 0.7);
+    -fx-padding:          5px 10px;
+    -fx-border-color:     #ff3333;
+    -fx-border-width:     2px;
+    -fx-rotate:           -5;
+}
+
+/* Der "Access Denied" Look für gesperrte Bereiche */
+.locked-zone {
+    /* Dunkles Rot-Schwarz mit Hazard-Streifen */
+    -fx-background-color:
+            linear-gradient(from 0px 0px to 20px 20px, repeat, rgba(139, 0, 0, 0.15) 0%, rgba(139, 0, 0, 0.15) 2px, transparent 2px, transparent 100%),
+            rgba(20, 0, 0, 0.7);
+
+    -fx-border-color:     #880000; /* Dunkelroter Rand */
+    -fx-border-style:     solid;
+    -fx-border-width:     1px;
+    -fx-effect:           innershadow(gaussian, rgba(255, 0, 0, 0.3), 10, 0, 0, 0);
+}
+
+/* Elemente innerhalb der Locked Zone "deaktiviert" aussehen lassen */
+.locked-zone .label,
+.locked-zone .control-label {
+    -fx-text-fill: #aa4444 !important; /* Dunkelrot */
+}
+
+.locked-zone .text-field {
+    -fx-border-color: #550000;
+    -fx-text-fill:    #550000;
+    -fx-opacity:      0.7;
+}
+
+.locked-zone .button {
+    -fx-border-color: #550000;
+    -fx-text-fill:    #550000;
+    -fx-background-color: rgba(50,0,0,0.5);
+    -fx-opacity:      0.6;
+}
+
+/* Spezieller Style für den Intel/Parliament Button (Locked State) */
+.locked-button {
+    -fx-background-color: linear-gradient(
+            from 0px 0px to 20px 20px, repeat,
+            #1a0505 0%,
+            #1a0505 49%,
+            #2a0a0a 50%,
+            #2a0a0a 100%
+    ) !important;
+
+    -fx-border-color:     #880000 !important;
+    -fx-text-fill:        #aa4444 !important; /* "Access Denied" Rot */
+    -fx-opacity:          0.8 !important;
+    -fx-cursor:           wait !important;
+}
+
+/* =========================================================================
+   8. DIALOGS & ALERTS (System Termination)
+   ========================================================================= */
+
+/* Der Dialog-Container */
+.alert-dialog {
+    -fx-background-color: #0d0d0d; /* Tiefes Schwarz */
+    -fx-border-color:     #ff3333; /* Alarm-Rot */
+    -fx-border-width:     2px;
+    -fx-effect:           dropshadow(three-pass-box, rgba(255, 50, 50, 0.4), 20, 0, 0, 0);
+}
+
+/* Die Kopfzeile des Dialogs */
+.alert-dialog .header-panel {
+    -fx-background-color: rgba(50, 0, 0, 0.3); /* Leichtes Dunkelrot */
+    -fx-border-color:     transparent transparent #ff3333 transparent;
+    -fx-border-width:     0 0 1px 0;
+}
+
+/* Überschrift im Header */
+.alert-dialog .header-panel .label {
+    -fx-text-fill:   #ff3333;
+    -fx-font-family: "Impact", sans-serif;
+    -fx-font-size:   1.4em;
+    -fx-padding:     0 0 0 10;
+}
+
+/* Der Text im Content-Bereich */
+.alert-dialog .content .label,
+.alert-dialog .label {
+    -fx-text-fill:   #ffcccc;
+    -fx-font-family: "Consolas", monospace;
+    -fx-font-size:   1.1em;
+}
+
+/* Buttons im Dialog */
+.alert-dialog .button-bar .button {
+    -fx-background-color: #2a0a0a;
+    -fx-text-fill:        #ff3333;
+    -fx-border-color:     #ff3333;
+    -fx-font-weight:      bold;
+}
+
+.alert-dialog .button-bar .button:hover {
+    -fx-background-color: #ff3333;
+    -fx-text-fill:        #000000;
 }
