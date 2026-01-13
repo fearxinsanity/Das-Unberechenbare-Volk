@@ -30,7 +30,8 @@ public final class VisualFX {
     private static final double FONT_MIN_SIZE = 11.0;
     private static final double FONT_MAX_SIZE = 18.0;
 
-    // --- Constructor ---
+    // --- Key for storing animation in Node properties ---
+    private static final String KEY_PULSE_ANIMATION = "duv.visualfx.pulse";
 
     private VisualFX() {
         // Prevent instantiation
@@ -38,27 +39,15 @@ public final class VisualFX {
 
     // --- Public API ---
 
-    /**
-     * Triggers a short "glitch" shaking effect on two sidebar elements.
-     * Typically used when a scandal occurs.
-     *
-     * @param leftNode  The left UI element to shake.
-     * @param rightNode The right UI element to shake.
-     */
     public static void triggerSidebarGlitch(Node leftNode, Node rightNode) {
         if (leftNode == null || rightNode == null) return;
 
-        // Apply CSS class for visual distortion (if defined in CSS)
         leftNode.getStyleClass().add(CSS_GLITCH_CLASS);
         rightNode.getStyleClass().add(CSS_GLITCH_CLASS);
 
-        // Shake Left
         TranslateTransition ttLeft = createShakeTransition(leftNode, GLITCH_OFFSET_X);
-
-        // Shake Right (Counter-movement)
         TranslateTransition ttRight = createShakeTransition(rightNode, -GLITCH_OFFSET_X);
 
-        // Play in parallel
         ParallelTransition pt = new ParallelTransition(ttLeft, ttRight);
 
         pt.setOnFinished(ignored -> {
@@ -68,26 +57,13 @@ public final class VisualFX {
         pt.play();
     }
 
-    /**
-     * Dynamically adjusts the root font size based on window width
-     * to simulate responsive scaling across the application.
-     *
-     * @param scene       The scene to adjust.
-     * @param windowWidth The current width of the window.
-     */
     public static void adjustResponsiveScale(Scene scene, double windowWidth) {
         if (scene == null || scene.getRoot() == null) return;
 
-        // Calculate scaling factor based on reference width
         double scaleFactor = windowWidth / FONT_REF_WIDTH;
-
-        // Calculate raw size
         double rawSize = FONT_BASE_SIZE * Math.sqrt(scaleFactor);
-
-        // Clamp value to defined limits (Java 21+)
         double newSize = Math.clamp(rawSize, FONT_MIN_SIZE, FONT_MAX_SIZE);
 
-        // Apply font size to root node
         scene.getRoot().setStyle(
                 "-fx-font-size: " + String.format(Locale.US, "%.1f", newSize) + "px;"
         );
@@ -95,19 +71,13 @@ public final class VisualFX {
 
     // --- 1. Typewriter Effect ---
 
-    /**
-     * Erzeugt einen Schreibmaschinen-Effekt für ein Label.
-     * @param label Das Label, in dem der Text erscheinen soll.
-     * @param content Der vollständige Text.
-     * @param delayMillis Verzögerung zwischen den Buchstaben.
-     */
     public static void playTypewriterAnimation(Label label, String content, int delayMillis) {
         if (label == null || content == null) return;
 
         final StringBuilder currentText = new StringBuilder();
         Timeline timeline = new Timeline();
 
-        label.setText(""); // Reset content
+        label.setText("");
 
         for (int i = 0; i < content.length(); i++) {
             final int index = i;
@@ -115,7 +85,6 @@ public final class VisualFX {
                     Duration.millis(i * delayMillis),
                     event -> {
                         currentText.append(content.charAt(index));
-                        // Cursor nur anzeigen, wenn nicht fertig
                         String cursor = (index < content.length() - 1) ? "█" : "";
                         label.setText(currentText.toString() + cursor);
                     }
@@ -123,19 +92,21 @@ public final class VisualFX {
             timeline.getKeyFrames().add(frame);
         }
 
-        // Safety: Ensure full text is set at the end
         timeline.setOnFinished(e -> label.setText(content));
         timeline.play();
     }
 
-    // --- 2. Alarm Pulse Effect ---
+    // --- 2. Pulse Effect (Improved) ---
 
     /**
-     * Lässt ein Node (Button, Label, Pane) rot pulsieren, um Alarmbereitschaft zu signalisieren.
-     * @param node Das UI-Element, das pulsieren soll.
+     * Startet ein Pulsieren in der angegebenen Farbe.
+     * Speichert die Animation im Node, damit sie sauber gestoppt werden kann.
      */
-    public static void startAlarmPulse(Node node) {
+    public static void startPulse(Node node, Color color) {
         if (node == null) return;
+
+        // Vorherige Animation stoppen, falls vorhanden
+        stopPulse(node);
 
         FadeTransition fadeTransition = new FadeTransition(Duration.seconds(0.8), node);
         fadeTransition.setFromValue(1.0);
@@ -143,31 +114,40 @@ public final class VisualFX {
         fadeTransition.setCycleCount(Animation.INDEFINITE);
         fadeTransition.setAutoReverse(true);
 
-        DropShadow alarmGlow = new DropShadow();
-        alarmGlow.setColor(Color.RED);
-        alarmGlow.setRadius(20);
-        alarmGlow.setSpread(0.5);
-        node.setEffect(alarmGlow);
+        DropShadow glow = new DropShadow();
+        glow.setColor(color);
+        glow.setRadius(20);
+        glow.setSpread(0.5);
+        node.setEffect(glow);
 
         fadeTransition.play();
+
+        // Animation im Node speichern
+        node.getProperties().put(KEY_PULSE_ANIMATION, fadeTransition);
     }
 
-    public static void stopAlarmPulse(Node node) {
+    /**
+     * Stoppt das Pulsieren und setzt den Node zurück.
+     */
+    public static void stopPulse(Node node) {
         if (node == null) return;
+
+        // Animation abrufen und stoppen
+        if (node.getProperties().containsKey(KEY_PULSE_ANIMATION)) {
+            Object anim = node.getProperties().get(KEY_PULSE_ANIMATION);
+            if (anim instanceof Animation a) {
+                a.stop();
+            }
+            node.getProperties().remove(KEY_PULSE_ANIMATION);
+        }
+
+        // Visuelles Reset
         node.setEffect(null);
         node.setOpacity(1.0);
     }
 
     // --- 3. Decryption Effect ---
 
-    /**
-     * Simuliert einen Entschlüsselungseffekt für Labels oder TextFields.
-     * Gibt die Timeline zurück, damit man auf das Ende warten kann.
-     *
-     * @param control Das UI Element (Label oder TextField).
-     * @param finalValue Der Zielwert als String.
-     * @return Die Animations-Timeline.
-     */
     public static Timeline animateDecryption(Control control, String finalValue) {
         if (control == null) return null;
 
@@ -180,14 +160,12 @@ public final class VisualFX {
             timeline.getKeyFrames().add(new KeyFrame(
                     Duration.millis(i * delay),
                     e -> {
-                        // Generate random string of same length
                         String fake = generateRandomString(finalValue.length(), random);
                         setTextOnControl(control, fake);
                     }
             ));
         }
 
-        // Set final value
         timeline.getKeyFrames().add(new KeyFrame(
                 Duration.millis(iterations * delay),
                 e -> setTextOnControl(control, finalValue)

@@ -55,6 +55,11 @@
                                 onAction="#handleShowParliament"
                                 styleClass="action-button" disable="true">
                         </Button>
+
+                        <Separator orientation="VERTICAL" />
+
+                        <Button text="⏻ LOGOUT" onAction="#handleLogout"
+                                style="-fx-base: #500; -fx-text-fill: #ffcccc; -fx-font-weight: bold;"/>
                     </HBox>
                 </VBox>
             </VBox>

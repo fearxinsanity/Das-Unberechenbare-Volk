@@ -28,6 +28,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
 import java.io.IOException;
@@ -150,8 +151,14 @@ public class DashboardController {
         setupResponsiveLayout();
 
         // Capture original text BEFORE locking
-        if (intelButton != null) originalIntelText = intelButton.getText();
-        if (parliamentButton != null) originalParliamentText = parliamentButton.getText();
+        if (intelButton != null) {
+            originalIntelText = intelButton.getText();
+            intelButton.setOnMouseEntered(e -> VisualFX.stopPulse(intelButton));
+        }
+        if (parliamentButton != null) {
+            originalParliamentText = parliamentButton.getText();
+            parliamentButton.setOnMouseEntered(e -> VisualFX.stopPulse(parliamentButton));
+        }
 
         // Initial Locking (Intel & Parliament)
         lockResultButtons(true);
@@ -176,9 +183,9 @@ public class DashboardController {
                 lockResultButtons(false);
                 VisualFX.triggerSidebarGlitch(leftSidebar, rightSidebar);
 
-                // --- APPLIED EFFECT: ALARM PULSE ---
-                VisualFX.startAlarmPulse(intelButton);
-                VisualFX.startAlarmPulse(parliamentButton);
+                // --- APPLIED EFFECT: SUCCESS PULSE (GREEN) ---
+                VisualFX.startPulse(intelButton, Color.LIME);
+                VisualFX.startPulse(parliamentButton, Color.LIME);
 
                 LOGGER.info("Simulation Mission Complete. Access Granted.");
             }
@@ -192,8 +199,8 @@ public class DashboardController {
 
         // Reset effects if locking again
         if (locked) {
-            if (intelButton != null) VisualFX.stopAlarmPulse(intelButton);
-            if (parliamentButton != null) VisualFX.stopAlarmPulse(parliamentButton);
+            if (intelButton != null) VisualFX.stopPulse(intelButton);
+            if (parliamentButton != null) VisualFX.stopPulse(parliamentButton);
         }
     }
 
@@ -213,8 +220,6 @@ public class DashboardController {
     }
 
     private void synchronizeUiWithParameters(SimulationParameters params) {
-        // --- FORMATTING UPDATE: 1.000 er Trennzeichen ---
-        // Locale.GERMANY sorgt für Punkte als Tausendertrennzeichen
         voterCountField.setText(String.format(Locale.GERMANY, "%,d", params.populationSize()));
         partyCountField.setText(String.valueOf(params.partyCount()));
 
@@ -225,7 +230,6 @@ public class DashboardController {
         randomRangeSlider.setValue(params.chaosFactor());
 
         double displayBudget = params.budgetEffectiveness() * 500000.0;
-        // --- FORMATTING UPDATE: Budget ---
         budgetField.setText(String.format(Locale.GERMANY, "%,.0f", displayBudget));
     }
 
@@ -383,6 +387,35 @@ public class DashboardController {
         }
     }
 
+    // --- UPDATED: LOGOUT HANDLER (ENGLISH) ---
+    @FXML
+    public void handleLogout(ActionEvent ignored) {
+        // Pause simulation first
+        if (controller != null && controller.isRunning()) {
+            handlePauseSimulation(null);
+        }
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("SYSTEM TERMINATION");
+        alert.setHeaderText("CONFIRM DISCONNECT");
+        alert.setContentText("Are you sure you want to terminate the secure connection?");
+
+        // Try to apply dark mode stylesheet
+        try {
+            if (startButton != null && startButton.getScene() != null) {
+                alert.getDialogPane().getStylesheets().addAll(startButton.getScene().getStylesheets());
+                alert.getDialogPane().getStyleClass().add("alert-dialog");
+            }
+        } catch (Exception e) { /* Ignore CSS errors */ }
+
+        if (alert.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
+            LOGGER.info("User initiated logout. Shutting down.");
+            shutdown();
+            Platform.exit();
+            System.exit(0);
+        }
+    }
+
     @FXML
     public void handleDurationIncrement(ActionEvent ignored) {
         if (configDurationSeconds < 300) {
@@ -420,7 +453,6 @@ public class DashboardController {
         double rScandal = rand.nextDouble() * 15.0;
         double rChaos = 0.1 + rand.nextDouble() * 2.9;
 
-        // --- FORMATTING UPDATE: Animation mit formatierten Strings ---
         VisualFX.animateDecryption(voterCountField, String.format(Locale.GERMANY, "%,d", rPop));
         VisualFX.animateDecryption(partyCountField, String.valueOf(rParties));
         VisualFX.animateDecryption(budgetField, String.format(Locale.GERMANY, "%,.0f", rBudget));
@@ -443,7 +475,6 @@ public class DashboardController {
     public void handleParameterChange(Event ignored) {
         if (controller == null) return;
         try {
-            // parseIntSafe entfernt automatisch alles außer Zahlen, funktioniert also auch mit "100.000"
             int popSize = parseIntSafe(voterCountField.getText(), 100000);
 
             int parties = parseIntSafe(partyCountField.getText(), 5);
@@ -451,7 +482,6 @@ public class DashboardController {
 
             double scandalProb = Math.clamp(parseDoubleSafe(scandalChanceField.getText(), 5.0), MIN_SCANDAL_PROB, MAX_SCANDAL_PROB);
 
-            // --- PARSING UPDATE: Budget muss Punkte entfernen ---
             double budgetInput = parseBudgetSafe(budgetField.getText());
             double budgetEffectiveness = Math.clamp(budgetInput / 500000.0, 0.1, 10.0);
 
@@ -523,7 +553,6 @@ public class DashboardController {
 
     private void adjustIntField(TextField f, int delta, int min, int max) {
         int val = parseIntSafe(f.getText(), min);
-        // --- FORMATTING UPDATE: Auch beim Klicken auf +/- wird neu formatiert ---
         f.setText(String.format(Locale.GERMANY, "%,d", Math.clamp(val + delta, min, max)));
         handleParameterChange(null);
     }
@@ -542,10 +571,8 @@ public class DashboardController {
         try { return Double.parseDouble(t.replace(",", ".")); } catch (Exception e) { return def; }
     }
 
-    // --- NEUE HELFER-METHODE FÜR BUDGET (Punkte entfernen) ---
     private double parseBudgetSafe(String t) {
         try {
-            // Entferne Punkte (Tausender) und ersetze Komma durch Punkt (Dezimal)
             String clean = t.replace(".", "").replace(",", ".");
             return Double.parseDouble(clean);
         } catch (Exception e) {

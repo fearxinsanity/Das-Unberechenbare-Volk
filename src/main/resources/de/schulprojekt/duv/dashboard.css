@@ -289,3 +289,51 @@
     -fx-opacity:          0.8 !important;
     -fx-cursor:           wait !important;
 }
+
+/* =========================================================================
+   8. DIALOGS & ALERTS (System Termination)
+   ========================================================================= */
+
+/* Der Dialog-Container */
+.alert-dialog {
+    -fx-background-color: #0d0d0d; /* Tiefes Schwarz */
+    -fx-border-color:     #ff3333; /* Alarm-Rot */
+    -fx-border-width:     2px;
+    -fx-effect:           dropshadow(three-pass-box, rgba(255, 50, 50, 0.4), 20, 0, 0, 0);
+}
+
+/* Die Kopfzeile des Dialogs */
+.alert-dialog .header-panel {
+    -fx-background-color: rgba(50, 0, 0, 0.3); /* Leichtes Dunkelrot */
+    -fx-border-color:     transparent transparent #ff3333 transparent;
+    -fx-border-width:     0 0 1px 0;
+}
+
+/* Überschrift im Header */
+.alert-dialog .header-panel .label {
+    -fx-text-fill:   #ff3333;
+    -fx-font-family: "Impact", sans-serif;
+    -fx-font-size:   1.4em;
+    -fx-padding:     0 0 0 10;
+}
+
+/* Der Text im Content-Bereich */
+.alert-dialog .content .label,
+.alert-dialog .label {
+    -fx-text-fill:   #ffcccc;
+    -fx-font-family: "Consolas", monospace;
+    -fx-font-size:   1.1em;
+}
+
+/* Buttons im Dialog */
+.alert-dialog .button-bar .button {
+    -fx-background-color: #2a0a0a;
+    -fx-text-fill:        #ff3333;
+    -fx-border-color:     #ff3333;
+    -fx-font-weight:      bold;
+}
+
+.alert-dialog .button-bar .button:hover {
+    -fx-background-color: #ff3333;
+    -fx-text-fill:        #000000;
+}
