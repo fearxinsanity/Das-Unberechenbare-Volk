@@ -25,15 +25,15 @@ public class SimulationController {
     private static final Logger LOGGER = Logger.getLogger(SimulationController.class.getName());
 
     // Defaults matches typical starting scenario
-    private static final int DEFAULT_VOTERS = 250000;
+    private static final int DEFAULT_POPULATION = 250000;
     private static final double DEFAULT_MEDIA_INFLUENCE = 65.0;
-    private static final double DEFAULT_MOBILITY = 35.0;
-    private static final double DEFAULT_SCANDAL_CHANCE = 5.0;
+    private static final double DEFAULT_VOLATILITY = 35.0;
+    private static final double DEFAULT_SCANDAL_PROB = 5.0;
     private static final double DEFAULT_LOYALTY = 50.0;
-    private static final int DEFAULT_TPS = 5;
-    private static final double DEFAULT_RANDOM_RANGE = 1.0;
-    private static final int DEFAULT_PARTY_COUNT = 4;
-    private static final double DEFAULT_BUDGET_FACTOR = 1.0;
+    private static final int DEFAULT_TICK_RATE = 5;
+    private static final double DEFAULT_CHAOS = 1.0;
+    private static final int DEFAULT_PARTIES = 4;
+    private static final double DEFAULT_BUDGET_WEIGHT = 1.0;
 
     private final SimulationEngine engine;
     private final DashboardController view;
@@ -45,15 +45,15 @@ public class SimulationController {
         this.view = view;
 
         SimulationParameters params = new SimulationParameters(
-                DEFAULT_VOTERS,
+                DEFAULT_POPULATION,
                 DEFAULT_MEDIA_INFLUENCE,
-                DEFAULT_MOBILITY,
-                DEFAULT_SCANDAL_CHANCE,
+                DEFAULT_VOLATILITY,
+                DEFAULT_SCANDAL_PROB,
                 DEFAULT_LOYALTY,
-                DEFAULT_TPS,
-                DEFAULT_RANDOM_RANGE,
-                DEFAULT_PARTY_COUNT,
-                DEFAULT_BUDGET_FACTOR
+                DEFAULT_TICK_RATE,
+                DEFAULT_CHAOS,
+                DEFAULT_PARTIES,
+                DEFAULT_BUDGET_WEIGHT
         );
 
         this.engine = new SimulationEngine(params);
@@ -94,7 +94,7 @@ public class SimulationController {
 
     public void updateSimulationSpeed(int factor) {
         SimulationParameters current = engine.getParameters();
-        SimulationParameters updated = current.withSimulationTicksPerSecond(factor);
+        SimulationParameters updated = current.withTickRate(factor);
 
         executorService.execute(() -> {
             engine.updateParameters(updated);
@@ -125,7 +125,7 @@ public class SimulationController {
             simulationTask.cancel(false);
         }
 
-        int tps = engine.getParameters().getTickRate();
+        int tps = engine.getParameters().tickRate(); // REF: Record Access
         long period = 1000 / (tps > 0 ? tps : 1);
 
         simulationTask = executorService.scheduleAtFixedRate(() -> {
@@ -135,7 +135,7 @@ public class SimulationController {
                 ScandalEvent scandal = engine.getLastScandal();
                 int step = engine.getCurrentStep();
 
-                // FIX: Snapshot of parties list to prevent ConcurrentModificationException in UI
+                // Snapshot of parties list to prevent ConcurrentModificationException in UI
                 List<Party> partySnapshot = new ArrayList<>(engine.getParties());
 
                 // 2. GUI Update
@@ -152,7 +152,6 @@ public class SimulationController {
     }
 
     public List<Party> getParties() {
-        // Return a copy to ensure safety if called from other threads
         return new ArrayList<>(engine.getParties());
     }
 

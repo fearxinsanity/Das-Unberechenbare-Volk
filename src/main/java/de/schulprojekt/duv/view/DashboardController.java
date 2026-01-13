@@ -33,7 +33,6 @@ import java.util.logging.Logger;
 
 /**
  * Main controller for the simulation dashboard.
- * Handles UI interactions and communicates with the SimulationController.
  */
 public class DashboardController {
 
@@ -62,9 +61,9 @@ public class DashboardController {
     @FXML private TextField scandalChanceField;
 
     @FXML private Slider mediaInfluenceSlider;
-    @FXML private Slider mobilityRateSlider; // Maps to Volatility
-    @FXML private Slider loyaltyMeanSlider;  // Maps to Loyalty
-    @FXML private Slider randomRangeSlider;  // Maps to Chaos
+    @FXML private Slider mobilityRateSlider;
+    @FXML private Slider loyaltyMeanSlider;
+    @FXML private Slider randomRangeSlider;
 
     // --- FXML: Buttons ---
     @FXML private Button startButton;
@@ -84,37 +83,31 @@ public class DashboardController {
 
     @FXML
     public void initialize() {
-        // 1. Initialize View Components
         this.canvasRenderer = new CanvasRenderer(animationPane);
         this.chartManager = new ChartManager(historyChart);
         this.feedManager = new FeedManager(scandalTickerBox, scandalTickerScroll, eventFeedPane);
         this.tooltipManager = new TooltipManager(animationPane);
 
-        // 2. Setup Interactions
         canvasRenderer.getCanvas().setOnMouseMoved(e ->
                 tooltipManager.handleMouseMove(
                         e.getX(),
                         e.getY(),
                         controller.getParties(),
                         canvasRenderer.getPartyPositions(),
-                        controller.getCurrentParameters().getPopulationSize()
+                        controller.getCurrentParameters().populationSize() // REF: Record Access
                 )
         );
         canvasRenderer.getCanvas().setOnMouseExited(ignored -> tooltipManager.hideTooltip());
 
-        // 3. Initialize Logic Controller
         this.controller = new SimulationController(this);
 
-        // 4. Synchronize UI with Controller Defaults
         synchronizeUiWithParameters(controller.getCurrentParameters());
 
         canvasRenderer.startVisualTimer();
         updateStatusDisplay(false);
 
-        // 5. Layout Bindings
         setupResponsiveLayout();
 
-        // 6. Initial Render
         Platform.runLater(() -> {
             if (controller != null) {
                 updateDashboard(controller.getParties(), List.of(), null, 0);
@@ -123,17 +116,16 @@ public class DashboardController {
     }
 
     private void synchronizeUiWithParameters(SimulationParameters params) {
-        voterCountField.setText(String.valueOf(params.getPopulationSize()));
-        partyCountField.setText(String.valueOf(params.getPartyCount()));
+        voterCountField.setText(String.valueOf(params.populationSize())); // REF
+        partyCountField.setText(String.valueOf(params.partyCount()));     // REF
 
-        scandalChanceField.setText(String.format(Locale.US, "%.1f", params.getScandalProbability()));
-        mediaInfluenceSlider.setValue(params.getMediaInfluence());
-        mobilityRateSlider.setValue(params.getVolatilityRate());
-        loyaltyMeanSlider.setValue(params.getLoyaltyAverage());
-        randomRangeSlider.setValue(params.getChaosFactor());
+        scandalChanceField.setText(String.format(Locale.US, "%.1f", params.scandalProbability())); // REF
+        mediaInfluenceSlider.setValue(params.mediaInfluence());       // REF
+        mobilityRateSlider.setValue(params.volatilityRate());         // REF
+        loyaltyMeanSlider.setValue(params.loyaltyAverage());          // REF
+        randomRangeSlider.setValue(params.chaosFactor());             // REF
 
-        // Calculate displayed budget from effectiveness factor
-        double displayBudget = params.getBudgetEffectiveness() * 500000.0;
+        double displayBudget = params.budgetEffectiveness() * 500000.0; // REF
         budgetField.setText(String.format(Locale.US, "%.0f", displayBudget));
     }
 
@@ -176,7 +168,7 @@ public class DashboardController {
 
         feedManager.processScandal(scandal, step);
         chartManager.update(parties, step);
-        canvasRenderer.update(parties, transitions, controller.getCurrentParameters().getPopulationSize());
+        canvasRenderer.update(parties, transitions, controller.getCurrentParameters().populationSize()); // REF
 
         if (scandal != null) {
             VisualFX.triggerSidebarGlitch(leftSidebar, rightSidebar);
@@ -226,17 +218,15 @@ public class DashboardController {
     public void handleRandomize(ActionEvent ignored) {
         Random rand = new Random();
 
-        // 1. Generate Random Values (Clean logical bounds)
-        int rPop = 10000 + rand.nextInt(490000);   // 10k - 500k
-        int rParties = 2 + rand.nextInt(7);        // 2 - 8
+        int rPop = 10000 + rand.nextInt(490000);
+        int rParties = 2 + rand.nextInt(7);
         double rMedia = rand.nextDouble() * 100.0;
         double rVolatility = rand.nextDouble() * 100.0;
         double rLoyalty = rand.nextDouble() * 100.0;
-        double rBudget = 50000.0 + rand.nextDouble() * 1950000.0; // 50k - 2M
-        double rScandal = rand.nextDouble() * 15.0; // 0 - 15%
+        double rBudget = 50000.0 + rand.nextDouble() * 1950000.0;
+        double rScandal = rand.nextDouble() * 15.0;
         double rChaos = 0.1 + rand.nextDouble() * 2.9;
 
-        // 2. Update UI Fields
         voterCountField.setText(String.valueOf(rPop));
         partyCountField.setText(String.valueOf(rParties));
         mediaInfluenceSlider.setValue(rMedia);
@@ -246,7 +236,6 @@ public class DashboardController {
         scandalChanceField.setText(String.format(Locale.US, "%.1f", rScandal));
         randomRangeSlider.setValue(rChaos);
 
-        // 3. Apply Changes
         handleParameterChange(null);
     }
 
@@ -260,19 +249,17 @@ public class DashboardController {
 
             double scandalProb = Math.clamp(parseDoubleSafe(scandalChanceField.getText(), 5.0), MIN_SCANDAL_PROB, MAX_SCANDAL_PROB);
 
-            // Calculate Budget Effectiveness
             double budgetInput = parseDoubleSafe(budgetField.getText(), 500000.0);
             double budgetEffectiveness = Math.clamp(budgetInput / 500000.0, 0.1, 10.0);
 
-            // Create new parameters using updated names
             SimulationParameters params = new SimulationParameters(
                     popSize,
                     mediaInfluenceSlider.getValue(),
-                    mobilityRateSlider.getValue(), // Maps to Volatility
+                    mobilityRateSlider.getValue(),
                     scandalProb,
                     loyaltyMeanSlider.getValue(),
-                    controller.getCurrentParameters().getTickRate(),
-                    randomRangeSlider.getValue(),  // Maps to Chaos
+                    controller.getCurrentParameters().tickRate(), // REF
+                    randomRangeSlider.getValue(),
                     parties,
                     budgetEffectiveness
             );

@@ -18,23 +18,17 @@ import java.util.Random;
 
 /**
  * The core simulation orchestrator.
- * Connects all subsystems (Voters, Parties, Scandals) and manages the timeline (Ticks).
- * Does not contain calculation logic itself, but delegates to specialized modules.
  */
 public class SimulationEngine {
 
-    // --- CONSTANTS (Configuration) ---
+    // --- CONSTANTS ---
     private static final int SCANDAL_MAX_AGE_TICKS = 200;
 
-    // --- FIELDS (State) ---
+    // --- FIELDS ---
     private final SimulationState state;
     private SimulationParameters parameters;
-
-    // --- FIELDS (Infrastructure) ---
     private final CSVLoader csvLoader;
     private final Random random = new Random();
-
-    // --- FIELDS (Subsystems) ---
     private final DistributionProvider distributionProvider;
     private final PartyRegistry partyRegistry;
     private final VoterPopulation voterPopulation;
@@ -48,20 +42,15 @@ public class SimulationEngine {
         this.state = new SimulationState();
         this.csvLoader = new CSVLoader();
 
-        // 1. Initialize Random Distributions
         this.distributionProvider = new DistributionProvider();
         this.distributionProvider.initialize(params);
 
-        // 2. Party Management
         this.partyRegistry = new PartyRegistry(csvLoader);
-
-        // 3. Voter Data & Behavior
         this.voterPopulation = new VoterPopulation();
         this.voterBehavior = new VoterBehavior();
 
-        // 4. Scandal Systems
         this.scandalScheduler = new ScandalScheduler(distributionProvider);
-        this.impactCalculator = new ScandalImpactCalculator(params.getPartyCount() + 10);
+        this.impactCalculator = new ScandalImpactCalculator(params.partyCount() + 10); // REF
     }
 
     // --- INITIALIZATION ---
@@ -71,26 +60,19 @@ public class SimulationEngine {
         scandalScheduler.reset();
         impactCalculator.reset();
 
-        // Load and setup parties
         partyRegistry.initializeParties(parameters, distributionProvider);
 
-        // Generate voter population
         voterPopulation.initialize(
-                parameters.getPopulationSize(),
+                parameters.populationSize(), // REF
                 partyRegistry.getParties().size(),
                 distributionProvider
         );
 
-        // Perform initial vote count
         recalculateCounts();
     }
 
-    // --- MAIN LOGIC (Public Methods) ---
+    // --- MAIN LOGIC ---
 
-    /**
-     * Executes a single simulation step (Tick).
-     * @return List of voter transitions for visualization.
-     */
     public List<VoterTransition> runSimulationStep() {
         state.incrementStep();
 
@@ -108,7 +90,7 @@ public class SimulationEngine {
                 state.getCurrentStep()
         );
 
-        impactCalculator.processRecovery(partyRegistry.getParties(), parameters.getPopulationSize());
+        impactCalculator.processRecovery(partyRegistry.getParties(), parameters.populationSize()); // REF
 
         // 3. Voter Decisions
         List<VoterTransition> transitions = voterBehavior.processVoterDecisions(
@@ -123,12 +105,9 @@ public class SimulationEngine {
         return transitions;
     }
 
-    /**
-     * Reacts to parameter changes.
-     */
     public void updateParameters(SimulationParameters newParams) {
-        boolean structuralChange = (newParams.getPartyCount() != parameters.getPartyCount()) ||
-                (newParams.getPopulationSize() != parameters.getPopulationSize());
+        boolean structuralChange = (newParams.partyCount() != parameters.partyCount()) || // REF
+                (newParams.populationSize() != parameters.populationSize());              // REF
 
         this.parameters = newParams;
         distributionProvider.initialize(newParams);
@@ -142,7 +121,7 @@ public class SimulationEngine {
         initializeSimulation();
     }
 
-    // --- HELPER METHODS (Private) ---
+    // --- HELPER METHODS ---
 
     private void triggerNewScandal() {
         List<Party> realParties = partyRegistry.getParties().stream()
@@ -159,9 +138,6 @@ public class SimulationEngine {
         }
     }
 
-    /**
-     * Counts supporters for all parties based on the current population state.
-     */
     private void recalculateCounts() {
         int[] counts = new int[partyRegistry.getParties().size()];
         int maxIdx = counts.length - 1;
@@ -176,7 +152,7 @@ public class SimulationEngine {
         partyRegistry.updateSupporterCounts(counts);
     }
 
-    // --- GETTERS & SETTERS ---
+    // --- GETTERS ---
 
     public List<Party> getParties() {
         return partyRegistry.getParties();
