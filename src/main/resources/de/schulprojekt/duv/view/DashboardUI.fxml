@@ -138,6 +138,9 @@
                         </VBox>
 
                         <Region VBox.vgrow="ALWAYS"/>
+
+                        <Button text="[ RANDOMIZE_DATA ]" onAction="#handleRandomize" maxWidth="Infinity" style="-fx-base: #333; -fx-margin-bottom: 5;"/>
+
                         <Button text="[ UPDATE_SYSTEM ]" onAction="#handleParameterChange" maxWidth="Infinity" style="-fx-base: #222;"/>
                     </VBox>
                 </content>

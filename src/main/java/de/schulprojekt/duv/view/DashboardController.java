@@ -27,6 +27,7 @@ import javafx.scene.layout.VBox;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -113,8 +114,6 @@ public class DashboardController {
         setupResponsiveLayout();
 
         // 6. Initial Render (Fix gegen leeres Feld)
-        // Wir erzwingen ein Update mit Tick 0, damit die Punkte sofort sichtbar sind,
-        // auch wenn die Simulation noch nicht läuft.
         Platform.runLater(() -> {
             if (controller != null) {
                 updateDashboard(controller.getParties(), List.of(), null, 0);
@@ -218,6 +217,34 @@ public class DashboardController {
             this.currentTick = 0;
             updateStatusDisplay(false);
         }
+    }
+
+    @FXML
+    public void handleRandomize(ActionEvent ignored) {
+        Random rand = new Random();
+
+        // 1. Generate Random Values within reasonable bounds
+        int rVoters = 10000 + rand.nextInt(990000);   // 10k - 1M
+        int rParties = 2 + rand.nextInt(7);           // 2 - 8
+        double rMedia = rand.nextDouble() * 100.0;
+        double rMobility = rand.nextDouble() * 100.0;
+        double rLoyalty = rand.nextDouble() * 100.0;
+        double rBudget = 50000.0 + rand.nextDouble() * 4950000.0; // 50k - 5M
+        double rScandal = rand.nextDouble() * 20.0;   // 0 - 20% (Conservative)
+        double rChaos = 0.1 + rand.nextDouble() * 4.9;
+
+        // 2. Update UI Fields
+        voterCountField.setText(String.valueOf(rVoters));
+        partyCountField.setText(String.valueOf(rParties));
+        mediaInfluenceSlider.setValue(rMedia);
+        mobilityRateSlider.setValue(rMobility);
+        loyaltyMeanSlider.setValue(rLoyalty);
+        budgetField.setText(String.format(Locale.US, "%.0f", rBudget));
+        scandalChanceField.setText(String.format(Locale.US, "%.1f", rScandal));
+        randomRangeSlider.setValue(rChaos);
+
+        // 3. Apply Changes immediately
+        handleParameterChange(null);
     }
 
     @FXML
