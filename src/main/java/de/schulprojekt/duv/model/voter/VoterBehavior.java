@@ -130,7 +130,7 @@ public class VoterBehavior {
     }
 
     private double calculateSwitchProbability(VoterPopulation pop, int idx, SimulationParameters params, double penalty, int currentIdx) {
-        double baseMobility = params.getBaseMobilityRate() / 100.0;
+        double baseMobility = params.getVolatilityRate() / 100.0;
 
         // Basis: Mobilität * (1 - Loyalität%) * Medieneinfluss
         double switchProb = baseMobility *
@@ -245,8 +245,8 @@ public class VoterBehavior {
                 positions,
                 budgetScores,
                 momentum,
-                params.getUniformRandomRange(),
-                params.getGlobalMediaInfluence() / 100.0
+                params.getChaosFactor(),
+                params.getMediaInfluence() / 100.0
         );
     }
 

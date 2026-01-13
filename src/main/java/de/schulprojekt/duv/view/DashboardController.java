@@ -97,7 +97,7 @@ public class DashboardController {
                         e.getY(),
                         controller.getParties(),
                         canvasRenderer.getPartyPositions(),
-                        controller.getCurrentParameters().getTotalVoterCount()
+                        controller.getCurrentParameters().getPopulationSize()
                 )
         );
         canvasRenderer.getCanvas().setOnMouseExited(ignored -> tooltipManager.hideTooltip());
@@ -123,17 +123,17 @@ public class DashboardController {
     }
 
     private void synchronizeUiWithParameters(SimulationParameters params) {
-        voterCountField.setText(String.valueOf(params.getTotalVoterCount()));
-        partyCountField.setText(String.valueOf(params.getNumberOfParties()));
+        voterCountField.setText(String.valueOf(params.getPopulationSize()));
+        partyCountField.setText(String.valueOf(params.getPartyCount()));
 
-        scandalChanceField.setText(String.format(Locale.US, "%.1f", params.getScandalChance()));
-        mediaInfluenceSlider.setValue(params.getGlobalMediaInfluence());
-        mobilityRateSlider.setValue(params.getBaseMobilityRate());
-        loyaltyMeanSlider.setValue(params.getInitialLoyaltyMean());
-        randomRangeSlider.setValue(params.getUniformRandomRange());
+        scandalChanceField.setText(String.format(Locale.US, "%.1f", params.getScandalProbability()));
+        mediaInfluenceSlider.setValue(params.getMediaInfluence());
+        mobilityRateSlider.setValue(params.getVolatilityRate());
+        loyaltyMeanSlider.setValue(params.getLoyaltyAverage());
+        randomRangeSlider.setValue(params.getChaosFactor());
 
         // Calculate displayed budget from effectiveness factor
-        double displayBudget = params.getCampaignBudgetFactor() * 500000.0;
+        double displayBudget = params.getBudgetEffectiveness() * 500000.0;
         budgetField.setText(String.format(Locale.US, "%.0f", displayBudget));
     }
 
@@ -176,7 +176,7 @@ public class DashboardController {
 
         feedManager.processScandal(scandal, step);
         chartManager.update(parties, step);
-        canvasRenderer.update(parties, transitions, controller.getCurrentParameters().getTotalVoterCount());
+        canvasRenderer.update(parties, transitions, controller.getCurrentParameters().getPopulationSize());
 
         if (scandal != null) {
             VisualFX.triggerSidebarGlitch(leftSidebar, rightSidebar);
@@ -271,7 +271,7 @@ public class DashboardController {
                     mobilityRateSlider.getValue(), // Maps to Volatility
                     scandalProb,
                     loyaltyMeanSlider.getValue(),
-                    controller.getCurrentParameters().getSimulationTicksPerSecond(),
+                    controller.getCurrentParameters().getTickRate(),
                     randomRangeSlider.getValue(),  // Maps to Chaos
                     parties,
                     budgetEffectiveness

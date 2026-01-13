@@ -20,21 +20,21 @@ public class SimulationParameters {
     // --- FIELDS ---
 
     // General Settings
-    private final int totalVoterCount;
-    private final int numberOfParties;
+    private final int populationSize;
+    private final int partyCount;
 
     // Dynamic Settings
-    private final double globalMediaInfluence;   // 0-100
-    private final double baseMobilityRate;       // 0-100 (Willingness to change)
-    private final double scandalChance;          // Probability (0-60)
+    private final double mediaInfluence;   // 0-100
+    private final double volatilityRate;       // 0-100 (Willingness to change)
+    private final double scandalProbability;          // Probability (0-60)
 
     // Statistical Initialization
-    private final double initialLoyaltyMean;     // 0-100
-    private final double uniformRandomRange;     // Random factor (Variance)
-    private final double campaignBudgetFactor;   // Multiplier for budget influence
+    private final double loyaltyAverage;     // 0-100
+    private final double chaosFactor;     // Random factor (Variance)
+    private final double budgetEffectiveness;   // Multiplier for budget influence
 
     // System Settings
-    private final int simulationTicksPerSecond;  // Speed (TPS)
+    private final int tickRate;  // Speed (TPS)
 
     // --- CONSTRUCTORS ---
 
@@ -59,34 +59,34 @@ public class SimulationParameters {
      * Full constructor for all parameters.
      * The order corresponds exactly to the usage in DashboardController.
      *
-     * @param totalVoterCount          Number of voters (Simulated Agents)
-     * @param globalMediaInfluence     Influence of media (0-100)
-     * @param baseMobilityRate         Base probability for party switching (0-100)
-     * @param scandalChance            Probability for scandals
-     * @param initialLoyaltyMean       Average party loyalty at start
-     * @param simulationTicksPerSecond Speed of simulation (Ticks per second)
-     * @param uniformRandomRange       Random deviation in decisions
-     * @param numberOfParties          Number of parties (excl. Undecided)
-     * @param campaignBudgetFactor     Weighting of the budget
+     * @param populationSize          Number of voters (Simulated Agents)
+     * @param mediaInfluence     Influence of media (0-100)
+     * @param volatilityRate         Base probability for party switching (0-100)
+     * @param scandalProbability            Probability for scandals
+     * @param loyaltyAverage       Average party loyalty at start
+     * @param tickRate Speed of simulation (Ticks per second)
+     * @param chaosFactor       Random deviation in decisions
+     * @param partyCount          Number of parties (excl. Undecided)
+     * @param budgetEffectiveness     Weighting of the budget
      */
-    public SimulationParameters(int totalVoterCount,
-                                double globalMediaInfluence,
-                                double baseMobilityRate,
-                                double scandalChance,
-                                double initialLoyaltyMean,
-                                int simulationTicksPerSecond,
-                                double uniformRandomRange,
-                                int numberOfParties,
-                                double campaignBudgetFactor) {
-        this.totalVoterCount = totalVoterCount;
-        this.globalMediaInfluence = globalMediaInfluence;
-        this.baseMobilityRate = baseMobilityRate;
-        this.scandalChance = scandalChance;
-        this.initialLoyaltyMean = initialLoyaltyMean;
-        this.simulationTicksPerSecond = simulationTicksPerSecond;
-        this.uniformRandomRange = uniformRandomRange;
-        this.numberOfParties = numberOfParties;
-        this.campaignBudgetFactor = campaignBudgetFactor;
+    public SimulationParameters(int populationSize,
+                                double mediaInfluence,
+                                double volatilityRate,
+                                double scandalProbability,
+                                double loyaltyAverage,
+                                int tickRate,
+                                double chaosFactor,
+                                int partyCount,
+                                double budgetEffectiveness) {
+        this.populationSize = populationSize;
+        this.mediaInfluence = mediaInfluence;
+        this.volatilityRate = volatilityRate;
+        this.scandalProbability = scandalProbability;
+        this.loyaltyAverage = loyaltyAverage;
+        this.tickRate = tickRate;
+        this.chaosFactor = chaosFactor;
+        this.partyCount = partyCount;
+        this.budgetEffectiveness = budgetEffectiveness;
     }
     // --- HELPER METHODS ---
 
@@ -96,53 +96,53 @@ public class SimulationParameters {
      */
     public SimulationParameters withSimulationTicksPerSecond(int newTps) {
         return new SimulationParameters(
-                this.totalVoterCount,
-                this.globalMediaInfluence,
-                this.baseMobilityRate,
-                this.scandalChance,
-                this.initialLoyaltyMean,
+                this.populationSize,
+                this.mediaInfluence,
+                this.volatilityRate,
+                this.scandalProbability,
+                this.loyaltyAverage,
                 newTps,
-                this.uniformRandomRange,
-                this.numberOfParties,
-                this.campaignBudgetFactor
+                this.chaosFactor,
+                this.partyCount,
+                this.budgetEffectiveness
         );
     }
 
     // --- GETTERS ---
 
-    public int getTotalVoterCount() {
-        return totalVoterCount;
+    public int getPopulationSize() {
+        return populationSize;
     }
 
-    public int getNumberOfParties() {
-        return numberOfParties;
+    public int getPartyCount() {
+        return partyCount;
     }
 
-    public double getGlobalMediaInfluence() {
-        return globalMediaInfluence;
+    public double getMediaInfluence() {
+        return mediaInfluence;
     }
 
-    public double getBaseMobilityRate() {
-        return baseMobilityRate;
+    public double getVolatilityRate() {
+        return volatilityRate;
     }
 
-    public double getScandalChance() {
-        return scandalChance;
+    public double getScandalProbability() {
+        return scandalProbability;
     }
 
-    public double getInitialLoyaltyMean() {
-        return initialLoyaltyMean;
+    public double getLoyaltyAverage() {
+        return loyaltyAverage;
     }
 
-    public double getUniformRandomRange() {
-        return uniformRandomRange;
+    public double getChaosFactor() {
+        return chaosFactor;
     }
 
-    public double getCampaignBudgetFactor() {
-        return campaignBudgetFactor;
+    public double getBudgetEffectiveness() {
+        return budgetEffectiveness;
     }
 
-    public int getSimulationTicksPerSecond() {
-        return simulationTicksPerSecond;
+    public int getTickRate() {
+        return tickRate;
     }
 }

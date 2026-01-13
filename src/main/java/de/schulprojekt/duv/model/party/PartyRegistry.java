@@ -43,7 +43,7 @@ public class PartyRegistry {
      */
     public void initializeParties(SimulationParameters params, DistributionProvider distribution) {
         partyList.clear();
-        int partyCount = params.getNumberOfParties();
+        int partyCount = params.getPartyCount();
 
         // 1. The "Undecided" Party (Non-voters)
         Party undecided = new Party(
@@ -72,7 +72,7 @@ public class PartyRegistry {
             double randomFactor = distribution.sampleUniform(); // Returns 0.0 to RandomRange (usually 1.0)
             double budgetVariance = BASE_BUDGET_VARIANCE * randomFactor;
 
-            double budget = (BASE_BUDGET_MIN + budgetVariance) * params.getCampaignBudgetFactor();
+            double budget = (BASE_BUDGET_MIN + budgetVariance) * params.getBudgetEffectiveness();
 
             // Create real party instance from template
             partyList.add(template.toParty(position, budget));

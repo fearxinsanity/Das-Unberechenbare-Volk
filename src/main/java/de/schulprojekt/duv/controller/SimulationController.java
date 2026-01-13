@@ -125,7 +125,7 @@ public class SimulationController {
             simulationTask.cancel(false);
         }
 
-        int tps = engine.getParameters().getSimulationTicksPerSecond();
+        int tps = engine.getParameters().getTickRate();
         long period = 1000 / (tps > 0 ? tps : 1);
 
         simulationTask = executorService.scheduleAtFixedRate(() -> {

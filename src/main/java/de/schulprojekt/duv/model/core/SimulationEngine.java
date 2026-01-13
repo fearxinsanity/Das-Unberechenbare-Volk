@@ -61,7 +61,7 @@ public class SimulationEngine {
 
         // 4. Scandal Systems
         this.scandalScheduler = new ScandalScheduler(distributionProvider);
-        this.impactCalculator = new ScandalImpactCalculator(params.getNumberOfParties() + 10);
+        this.impactCalculator = new ScandalImpactCalculator(params.getPartyCount() + 10);
     }
 
     // --- INITIALIZATION ---
@@ -76,7 +76,7 @@ public class SimulationEngine {
 
         // Generate voter population
         voterPopulation.initialize(
-                parameters.getTotalVoterCount(),
+                parameters.getPopulationSize(),
                 partyRegistry.getParties().size(),
                 distributionProvider
         );
@@ -108,7 +108,7 @@ public class SimulationEngine {
                 state.getCurrentStep()
         );
 
-        impactCalculator.processRecovery(partyRegistry.getParties(), parameters.getTotalVoterCount());
+        impactCalculator.processRecovery(partyRegistry.getParties(), parameters.getPopulationSize());
 
         // 3. Voter Decisions
         List<VoterTransition> transitions = voterBehavior.processVoterDecisions(
@@ -127,8 +127,8 @@ public class SimulationEngine {
      * Reacts to parameter changes.
      */
     public void updateParameters(SimulationParameters newParams) {
-        boolean structuralChange = (newParams.getNumberOfParties() != parameters.getNumberOfParties()) ||
-                (newParams.getTotalVoterCount() != parameters.getTotalVoterCount());
+        boolean structuralChange = (newParams.getPartyCount() != parameters.getPartyCount()) ||
+                (newParams.getPopulationSize() != parameters.getPopulationSize());
 
         this.parameters = newParams;
         distributionProvider.initialize(newParams);

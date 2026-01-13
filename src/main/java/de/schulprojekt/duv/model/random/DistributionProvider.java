@@ -39,18 +39,18 @@ public class DistributionProvider {
     public void initialize(SimulationParameters params) {
         // 1. Normal Distribution for Voter Loyalty (Bell Curve)
         this.loyaltyDistribution = new NormalDistribution(
-                params.getInitialLoyaltyMean(),
+                params.getLoyaltyAverage(),
                 SimulationConfig.DEFAULT_LOYALTY_STD_DEV
         );
 
         // 2. Uniform Distribution for Random Noise (0.0 to Range)
         this.uniformDistribution = new UniformRealDistribution(
                 UNIFORM_MIN,
-                params.getUniformRandomRange()
+                params.getChaosFactor()
         );
 
         // 3. Exponential Distribution for Scandals (Time until next event)
-        double scandalProb = params.getScandalChance();
+        double scandalProb = params.getScandalProbability();
         // Calculation of Lambda for Poisson process / Exponential distribution
         double scandalLambda = Math.max(MIN_SCANDAL_LAMBDA, scandalProb / SCANDAL_PROBABILITY_DIVISOR);
         this.scandalDistribution = new ExponentialDistribution(1.0 / scandalLambda);
