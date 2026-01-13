@@ -33,14 +33,15 @@ import java.util.logging.Logger;
 
 /**
  * Main controller for the simulation dashboard.
+ * Handles UI interactions and communicates with the SimulationController.
  */
 public class DashboardController {
 
     private static final Logger LOGGER = Logger.getLogger(DashboardController.class.getName());
 
     // --- Constants ---
-    private static final double MIN_SCANDAL_CHANCE = 0.0;
-    private static final double MAX_SCANDAL_CHANCE = 60.0;
+    private static final double MIN_SCANDAL_PROB = 0.0;
+    private static final double MAX_SCANDAL_PROB = 60.0;
 
     // --- FXML: Layout & Containers ---
     @FXML private ScrollPane scandalTickerScroll;
@@ -61,9 +62,9 @@ public class DashboardController {
     @FXML private TextField scandalChanceField;
 
     @FXML private Slider mediaInfluenceSlider;
-    @FXML private Slider mobilityRateSlider;
-    @FXML private Slider loyaltyMeanSlider;
-    @FXML private Slider randomRangeSlider;
+    @FXML private Slider mobilityRateSlider; // Maps to Volatility
+    @FXML private Slider loyaltyMeanSlider;  // Maps to Loyalty
+    @FXML private Slider randomRangeSlider;  // Maps to Chaos
 
     // --- FXML: Buttons ---
     @FXML private Button startButton;
@@ -113,7 +114,7 @@ public class DashboardController {
         // 5. Layout Bindings
         setupResponsiveLayout();
 
-        // 6. Initial Render (Fix gegen leeres Feld)
+        // 6. Initial Render
         Platform.runLater(() -> {
             if (controller != null) {
                 updateDashboard(controller.getParties(), List.of(), null, 0);
@@ -131,7 +132,9 @@ public class DashboardController {
         loyaltyMeanSlider.setValue(params.getInitialLoyaltyMean());
         randomRangeSlider.setValue(params.getUniformRandomRange());
 
-        budgetField.setText(String.format(Locale.US, "%.0f", params.getCampaignBudgetFactor() * 500000.0));
+        // Calculate displayed budget from effectiveness factor
+        double displayBudget = params.getCampaignBudgetFactor() * 500000.0;
+        budgetField.setText(String.format(Locale.US, "%.0f", displayBudget));
     }
 
     private void setupResponsiveLayout() {
@@ -223,27 +226,27 @@ public class DashboardController {
     public void handleRandomize(ActionEvent ignored) {
         Random rand = new Random();
 
-        // 1. Generate Random Values within reasonable bounds
-        int rVoters = 10000 + rand.nextInt(990000);   // 10k - 1M
-        int rParties = 2 + rand.nextInt(7);           // 2 - 8
+        // 1. Generate Random Values (Clean logical bounds)
+        int rPop = 10000 + rand.nextInt(490000);   // 10k - 500k
+        int rParties = 2 + rand.nextInt(7);        // 2 - 8
         double rMedia = rand.nextDouble() * 100.0;
-        double rMobility = rand.nextDouble() * 100.0;
+        double rVolatility = rand.nextDouble() * 100.0;
         double rLoyalty = rand.nextDouble() * 100.0;
-        double rBudget = 50000.0 + rand.nextDouble() * 4950000.0; // 50k - 5M
-        double rScandal = rand.nextDouble() * 20.0;   // 0 - 20% (Conservative)
-        double rChaos = 0.1 + rand.nextDouble() * 4.9;
+        double rBudget = 50000.0 + rand.nextDouble() * 1950000.0; // 50k - 2M
+        double rScandal = rand.nextDouble() * 15.0; // 0 - 15%
+        double rChaos = 0.1 + rand.nextDouble() * 2.9;
 
         // 2. Update UI Fields
-        voterCountField.setText(String.valueOf(rVoters));
+        voterCountField.setText(String.valueOf(rPop));
         partyCountField.setText(String.valueOf(rParties));
         mediaInfluenceSlider.setValue(rMedia);
-        mobilityRateSlider.setValue(rMobility);
+        mobilityRateSlider.setValue(rVolatility);
         loyaltyMeanSlider.setValue(rLoyalty);
         budgetField.setText(String.format(Locale.US, "%.0f", rBudget));
         scandalChanceField.setText(String.format(Locale.US, "%.1f", rScandal));
         randomRangeSlider.setValue(rChaos);
 
-        // 3. Apply Changes immediately
+        // 3. Apply Changes
         handleParameterChange(null);
     }
 
@@ -251,24 +254,27 @@ public class DashboardController {
     public void handleParameterChange(Event ignored) {
         if (controller == null) return;
         try {
-            int voters = parseIntSafe(voterCountField.getText(), 100000);
+            int popSize = parseIntSafe(voterCountField.getText(), 100000);
             int parties = parseIntSafe(partyCountField.getText(), 5);
             parties = Math.clamp(parties, 2, 8);
 
-            double scandalChance = Math.clamp(parseDoubleSafe(scandalChanceField.getText(), 5.0), MIN_SCANDAL_CHANCE, MAX_SCANDAL_CHANCE);
-            double budgetInput = parseDoubleSafe(budgetField.getText(), 500000.0);
-            double budgetFactor = Math.clamp(budgetInput / 500000.0, 0.1, 10.0);
+            double scandalProb = Math.clamp(parseDoubleSafe(scandalChanceField.getText(), 5.0), MIN_SCANDAL_PROB, MAX_SCANDAL_PROB);
 
+            // Calculate Budget Effectiveness
+            double budgetInput = parseDoubleSafe(budgetField.getText(), 500000.0);
+            double budgetEffectiveness = Math.clamp(budgetInput / 500000.0, 0.1, 10.0);
+
+            // Create new parameters using updated names
             SimulationParameters params = new SimulationParameters(
-                    voters,
+                    popSize,
                     mediaInfluenceSlider.getValue(),
-                    mobilityRateSlider.getValue(),
-                    scandalChance,
+                    mobilityRateSlider.getValue(), // Maps to Volatility
+                    scandalProb,
                     loyaltyMeanSlider.getValue(),
                     controller.getCurrentParameters().getSimulationTicksPerSecond(),
-                    randomRangeSlider.getValue(),
+                    randomRangeSlider.getValue(),  // Maps to Chaos
                     parties,
-                    budgetFactor
+                    budgetEffectiveness
             );
             controller.updateAllParameters(params);
 
@@ -335,7 +341,7 @@ public class DashboardController {
 
     private void adjustDoubleField(TextField f, double delta) {
         double val = parseDoubleSafe(f.getText(), 0.0);
-        f.setText(String.format(Locale.US, "%.1f", Math.clamp(val + delta, MIN_SCANDAL_CHANCE, MAX_SCANDAL_CHANCE)));
+        f.setText(String.format(Locale.US, "%.1f", Math.clamp(val + delta, MIN_SCANDAL_PROB, MAX_SCANDAL_PROB)));
         handleParameterChange(null);
     }
 

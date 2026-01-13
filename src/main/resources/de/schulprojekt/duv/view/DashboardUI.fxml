@@ -72,7 +72,7 @@
                             <Insets top="20" right="20" bottom="20" left="20"/>
                         </padding>
 
-                        <Label text=">> MISSION PARAMETERS" styleClass="section-title"/>
+                        <Label text=">> CONFIGURATION" styleClass="section-title"/>
                         <Separator style="-fx-opacity: 0.3;"/>
 
                         <VBox spacing="5">
@@ -85,7 +85,7 @@
                         </VBox>
 
                         <VBox spacing="5">
-                            <Label text="FACTIONS (2-8)" styleClass="control-label"/>
+                            <Label text="NUMBER OF PARTIES" styleClass="control-label"/>
                             <HBox spacing="5" alignment="CENTER_LEFT">
                                 <Button text="-" onAction="#handlePartyCountDecrement" prefWidth="35"/>
                                 <TextField fx:id="partyCountField" text="5" HBox.hgrow="ALWAYS" alignment="CENTER" editable="false"/>
@@ -97,23 +97,23 @@
 
                         <VBox spacing="12">
                             <VBox spacing="2">
-                                <Label text="MEDIA_INFLUENCE (%)" styleClass="control-label"/>
+                                <Label text="MEDIA INFLUENCE (%)" styleClass="control-label"/>
                                 <Slider fx:id="mediaInfluenceSlider" min="0" max="100" value="65" onMouseReleased="#handleParameterChange"/>
                             </VBox>
                             <VBox spacing="2">
-                                <Label text="MOBILITY_RATE (%)" styleClass="control-label"/>
+                                <Label text="VOTER VOLATILITY (%)" styleClass="control-label"/>
                                 <Slider fx:id="mobilityRateSlider" min="0" max="100" value="35" onMouseReleased="#handleParameterChange"/>
                             </VBox>
                             <VBox spacing="2">
-                                <Label text="LOYALTY_INDEX" styleClass="control-label"/>
+                                <Label text="PARTY LOYALTY (AVG)" styleClass="control-label"/>
                                 <Slider fx:id="loyaltyMeanSlider" min="0" max="100" value="50" onMouseReleased="#handleParameterChange"/>
                             </VBox>
                             <VBox spacing="2">
-                                <Label text="CAMPAIGN_BUDGET (€)" styleClass="control-label"/>
+                                <Label text="CAMPAIGN BUDGET (€)" styleClass="control-label"/>
                                 <TextField fx:id="budgetField" text="500000" onAction="#handleParameterChange"/>
                             </VBox>
                             <VBox spacing="2">
-                                <Label text="SCANDAL_PROBABILITY (%)" styleClass="terminal-value-alert"/>
+                                <Label text="SCANDAL RISK (%)" styleClass="terminal-value-alert"/>
                                 <HBox spacing="5" alignment="CENTER_LEFT">
                                     <Button text="-" onAction="#handleScandalChanceDecrement" prefWidth="35"/>
                                     <TextField fx:id="scandalChanceField" text="5.0" HBox.hgrow="ALWAYS" alignment="CENTER" onAction="#handleParameterChange"/>
@@ -121,7 +121,7 @@
                                 </HBox>
                             </VBox>
                             <VBox spacing="2">
-                                <Label text="CHAOS_FACTOR (Variance)" styleClass="control-label"/>
+                                <Label text="CHAOS FACTOR (Variance)" styleClass="control-label"/>
                                 <Slider fx:id="randomRangeSlider" min="0.1" max="5.0" value="1.0" onMouseReleased="#handleParameterChange"/>
                             </VBox>
                         </VBox>
@@ -129,7 +129,7 @@
                         <Separator style="-fx-opacity: 0.2;"/>
 
                         <VBox spacing="5">
-                            <Label text="RENDER_SPEED" styleClass="control-label"/>
+                            <Label text="SIMULATION SPEED" styleClass="control-label"/>
                             <HBox spacing="5" alignment="CENTER">
                                 <Button text="1x" onAction="#handleSpeed1x" prefWidth="50"/>
                                 <Button text="2x" onAction="#handleSpeed2x" prefWidth="50"/>
@@ -138,10 +138,8 @@
                         </VBox>
 
                         <Region VBox.vgrow="ALWAYS"/>
-
-                        <Button text="[ RANDOMIZE_DATA ]" onAction="#handleRandomize" maxWidth="Infinity" style="-fx-base: #333; -fx-margin-bottom: 5;"/>
-
-                        <Button text="[ UPDATE_SYSTEM ]" onAction="#handleParameterChange" maxWidth="Infinity" style="-fx-base: #222;"/>
+                        <Button text="[ RANDOMIZE DATA ]" onAction="#handleRandomize" maxWidth="Infinity" style="-fx-base: #333; -fx-margin-bottom: 5;"/>
+                        <Button text="[ APPLY UPDATE ]" onAction="#handleParameterChange" maxWidth="Infinity" style="-fx-base: #222;"/>
                     </VBox>
                 </content>
             </ScrollPane>

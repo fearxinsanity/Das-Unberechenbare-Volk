@@ -4,9 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="Added a new Button to randomize user Input">
+    <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="Changed top, right BorderPane in fxml for better visuals">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/view/StatisticsView.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/view/StatisticsView.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/core/SimulationParameters.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/core/SimulationParameters.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/DashboardController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/DashboardController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/view/DashboardUI.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/view/DashboardUI.fxml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -400,14 +402,21 @@
       <option name="project" value="LOCAL" />
       <updated>1768297292805</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="Changed top, right BorderPane in fxml for better visuals">
+      <option name="closed" value="true" />
+      <created>1768297601029</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1768297601029</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Update comments in pom.xml and workspace.xml for clarity" />
     <MESSAGE value="Refactor package structure and update main class reference in pom.xml" />
     <MESSAGE value="Add Party, Voter, SimulationEngine, and SimulationParameters classes for election simulation" />
     <MESSAGE value="Removed everything and fresh start" />
@@ -432,6 +441,7 @@
     <MESSAGE value="workspace.xml" />
     <MESSAGE value="fixed window scaling" />
     <MESSAGE value="Added a new Button to randomize user Input" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added a new Button to randomize user Input" />
+    <MESSAGE value="Changed top, right BorderPane in fxml for better visuals" />
+    <option name="LAST_COMMIT_MESSAGE" value="Changed top, right BorderPane in fxml for better visuals" />
   </component>
 </project>
