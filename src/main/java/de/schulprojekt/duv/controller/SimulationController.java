@@ -25,7 +25,7 @@ public class SimulationController {
     private static final Logger LOGGER = Logger.getLogger(SimulationController.class.getName());
 
     // Defaults matches typical starting scenario
-    private static final int DEFAULT_VOTERS = 2500;
+    private static final int DEFAULT_VOTERS = 250000;
     private static final double DEFAULT_MEDIA_INFLUENCE = 65.0;
     private static final double DEFAULT_MOBILITY = 35.0;
     private static final double DEFAULT_SCANDAL_CHANCE = 5.0;
