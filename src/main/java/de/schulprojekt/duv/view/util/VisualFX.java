@@ -83,16 +83,16 @@ public final class VisualFX {
             final int index = i;
             KeyFrame frame = new KeyFrame(
                     Duration.millis(i * delayMillis),
-                    event -> {
+                    _ -> {
                         currentText.append(content.charAt(index));
                         String cursor = (index < content.length() - 1) ? "█" : "";
-                        label.setText(currentText.toString() + cursor);
+                        label.setText(currentText + cursor);
                     }
             );
             timeline.getKeyFrames().add(frame);
         }
 
-        timeline.setOnFinished(e -> label.setText(content));
+        timeline.setOnFinished(_ -> label.setText(content));
         timeline.play();
     }
 
@@ -159,7 +159,7 @@ public final class VisualFX {
         for (int i = 0; i < iterations; i++) {
             timeline.getKeyFrames().add(new KeyFrame(
                     Duration.millis(i * delay),
-                    e -> {
+                    _ -> {
                         String fake = generateRandomString(finalValue.length(), random);
                         setTextOnControl(control, fake);
                     }
@@ -168,7 +168,7 @@ public final class VisualFX {
 
         timeline.getKeyFrames().add(new KeyFrame(
                 Duration.millis(iterations * delay),
-                e -> setTextOnControl(control, finalValue)
+                _ -> setTextOnControl(control, finalValue)
         ));
 
         timeline.play();

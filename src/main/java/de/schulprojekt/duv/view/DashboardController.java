@@ -153,11 +153,11 @@ public class DashboardController {
         // Capture original text BEFORE locking
         if (intelButton != null) {
             originalIntelText = intelButton.getText();
-            intelButton.setOnMouseEntered(e -> VisualFX.stopPulse(intelButton));
+            intelButton.setOnMouseEntered(_ -> VisualFX.stopPulse(intelButton));
         }
         if (parliamentButton != null) {
             originalParliamentText = parliamentButton.getText();
-            parliamentButton.setOnMouseEntered(e -> VisualFX.stopPulse(parliamentButton));
+            parliamentButton.setOnMouseEntered(_ -> VisualFX.stopPulse(parliamentButton));
         }
 
         // Initial Locking (Intel & Parliament)
@@ -465,7 +465,7 @@ public class DashboardController {
         randomRangeSlider.setValue(rChaos);
 
         if (lastAnim != null) {
-            lastAnim.setOnFinished(e -> handleParameterChange(null));
+            lastAnim.setOnFinished(_ -> handleParameterChange(null));
         } else {
             handleParameterChange(null);
         }
