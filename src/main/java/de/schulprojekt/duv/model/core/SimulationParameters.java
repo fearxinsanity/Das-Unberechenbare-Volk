@@ -39,23 +39,6 @@ public class SimulationParameters {
     // --- CONSTRUCTORS ---
 
     /**
-     * Default constructor with reasonable default values.
-     */
-    public SimulationParameters() {
-        this(
-                DEFAULT_VOTER_COUNT,
-                DEFAULT_MEDIA_INFLUENCE,
-                DEFAULT_MOBILITY_RATE,
-                DEFAULT_SCANDAL_CHANCE,
-                DEFAULT_INITIAL_LOYALTY,
-                DEFAULT_TICKS_PER_SECOND,
-                DEFAULT_RANDOM_RANGE,
-                DEFAULT_PARTY_COUNT,
-                DEFAULT_BUDGET_FACTOR
-        );
-    }
-
-    /**
      * Full constructor for all parameters.
      * The order corresponds exactly to the usage in DashboardController.
      *

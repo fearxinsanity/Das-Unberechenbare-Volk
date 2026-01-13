@@ -30,9 +30,7 @@
             <VBox styleClass="top-bar">
                 <HBox alignment="CENTER_LEFT" spacing="20">
                     <ImageView fitHeight="40.0" preserveRatio="true" opacity="0.9">
-                        <image>
-                            <Image url="@../Pictures/DUV_Logo.png" />
-                        </image>
+                        <Image url="@../Pictures/DUV_Logo.png"/>
                     </ImageView>
 
                     <Label styleClass="app-title" text="[ INTEL_HUB: OPERATION 'UNBERECHENBAR' - FINAL REPORT ]" />
@@ -80,7 +78,7 @@
                         <Region HBox.hgrow="ALWAYS"/>
                         <Label text="● CALCULATED" styleClass="blink-indicator-ok"/>
                     </HBox>
-                    <PieChart fx:id="distributionChart" animated="true" labelsVisible="false" legendVisible="true" VBox.vgrow="ALWAYS" />
+                    <PieChart fx:id="distributionChart" labelsVisible="false" VBox.vgrow="ALWAYS" />
                     <HBox styleClass="panel-footer">
                         <Label text="MAJORITY_HOLDER: IDENTIFIED // FRAGMENTATION_INDEX: LOW" />
                     </HBox>
@@ -92,7 +90,7 @@
                         <Region HBox.hgrow="ALWAYS"/>
                         <Label text="● REVIEW REQ." styleClass="blink-indicator-alert"/>
                     </HBox>
-                    <BarChart fx:id="scandalChart" animated="true" legendVisible="false" VBox.vgrow="ALWAYS">
+                    <BarChart fx:id="scandalChart" legendVisible="false" VBox.vgrow="ALWAYS">
                         <xAxis><CategoryAxis label="FACTION_ID" styleClass="axis-label" tickLabelFill="white" /></xAxis>
                         <yAxis><NumberAxis label="INCIDENT_COUNT" styleClass="axis-label" tickLabelFill="white" /></yAxis>
                     </BarChart>
@@ -107,7 +105,7 @@
                         <Region HBox.hgrow="ALWAYS"/>
                         <Label text="● VERIFIED" styleClass="blink-indicator-ok"/>
                     </HBox>
-                    <BarChart fx:id="budgetChart" animated="true" legendVisible="false" VBox.vgrow="ALWAYS">
+                    <BarChart fx:id="budgetChart" legendVisible="false" VBox.vgrow="ALWAYS">
                         <xAxis><CategoryAxis label="FACTION_ID" styleClass="axis-label" tickLabelFill="white" /></xAxis>
                         <yAxis><NumberAxis label="REMAINING_BUDGET (M€)" styleClass="axis-label" tickLabelFill="white" /></yAxis>
                     </BarChart>
@@ -128,33 +126,34 @@
             </GridPane>
         </center>
         <right>
-            <VBox prefHeight="200.0" prefWidth="180.0" spacing="10.0" style="-fx-border-color: transparent transparent transparent rgba(212, 175, 55, 0.3); -fx-padding: 15; -fx-background-color: rgba(0,0,0,0.2);" BorderPane.alignment="CENTER">
-                <children>
-                    <Label style="-fx-font-weight: bold; -fx-text-fill: #D4AF37;" text="SYSTEM_TELEMETRY" />
-                    <Separator style="-fx-opacity: 0.3;" />
-                    <VBox spacing="2.0" style="-fx-opacity: 0.7;">
-                        <children>
-                            <Label style="-fx-font-size: 10px;" text="SERVER_LOAD: 12% (IDLE)" textFill="#a4a4a4" />
-                            <Label style="-fx-font-size: 10px;" text="MEMORY_USAGE: 4.2 GB" textFill="#a4a4a4" />
-                            <Label style="-fx-font-size: 10px;" text="ENCRYPTION: QUANTUM-RES." textFill="#a4a4a4" />
-                            <Label style="-fx-font-size: 10px;" text="UPLINK: SECURE (SAT-4)" textFill="#a4a4a4" />
-                        </children>
-                    </VBox>
-                    <Separator style="-fx-opacity: 0.3;">
-                        <VBox.margin>
-                            <Insets top="20.0" />
-                        </VBox.margin>
-                    </Separator>
-                    <Label style="-fx-font-weight: bold; -fx-text-fill: #D4AF37;" text="ACTIVE_PROTOCOLS" />
+            <VBox prefHeight="200.0" prefWidth="180.0" spacing="10.0"
+                  style="-fx-border-color: transparent transparent transparent rgba(212, 175, 55, 0.3); -fx-padding: 15; -fx-background-color: rgba(0,0,0,0.2);"
+                  BorderPane.alignment="CENTER">
+                <Label style="-fx-font-weight: bold; -fx-text-fill: #D4AF37;" text="SYSTEM_TELEMETRY"/>
+                <Separator style="-fx-opacity: 0.3;"/>
+                <VBox spacing="2.0" style="-fx-opacity: 0.7;">
+                    <Label style="-fx-font-size: 10px;" text="SERVER_LOAD: 12% (IDLE)" textFill="#a4a4a4"/>
+                    <Label style="-fx-font-size: 10px;" text="MEMORY_USAGE: 4.2 GB" textFill="#a4a4a4"/>
+                    <Label style="-fx-font-size: 10px;" text="ENCRYPTION: QUANTUM-RES." textFill="#a4a4a4"/>
+                    <Label style="-fx-font-size: 10px;" text="UPLINK: SECURE (SAT-4)" textFill="#a4a4a4"/>
+                </VBox>
+                <Separator style="-fx-opacity: 0.3;">
+                    <VBox.margin>
+                        <Insets top="20.0"/>
+                    </VBox.margin>
+                </Separator>
+                <Label style="-fx-font-weight: bold; -fx-text-fill: #D4AF37;" text="ACTIVE_PROTOCOLS"/>
 
-                    <VBox spacing="5.0" style="-fx-opacity: 0.7;">
-                        <children>
-                            <Label maxWidth="Infinity" style="-fx-font-size: 10px; -fx-border-color: #55ff55; -fx-padding: 2;" text="[✔] DATA_RETENTION" textFill="#a4a4a4" />
-                            <Label maxWidth="Infinity" style="-fx-font-size: 10px; -fx-border-color: #55ff55; -fx-padding: 2;" text="[✔] PATTERN_MATCHING" textFill="#a4a4a4" />
-                            <Label maxWidth="Infinity" style="-fx-font-size: 10px; -fx-border-color: #888; -fx-padding: 2;" text="[X] ACTIVE_INTERFERENCE" textFill="#888888" />
-                        </children>
-                    </VBox>
-                </children>
+                <VBox spacing="5.0" style="-fx-opacity: 0.7;">
+                    <Label maxWidth="Infinity"
+                           style="-fx-font-size: 10px; -fx-border-color: #55ff55; -fx-padding: 2;"
+                           text="[✔] DATA_RETENTION" textFill="#a4a4a4"/>
+                    <Label maxWidth="Infinity"
+                           style="-fx-font-size: 10px; -fx-border-color: #55ff55; -fx-padding: 2;"
+                           text="[✔] PATTERN_MATCHING" textFill="#a4a4a4"/>
+                    <Label maxWidth="Infinity" style="-fx-font-size: 10px; -fx-border-color: #888; -fx-padding: 2;"
+                           text="[X] ACTIVE_INTERFERENCE" textFill="#888888"/>
+                </VBox>
             </VBox>
         </right>
         <bottom>

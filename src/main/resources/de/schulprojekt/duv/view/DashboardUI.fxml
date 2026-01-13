@@ -37,9 +37,7 @@
                 <VBox styleClass="top-bar">
                     <HBox alignment="CENTER_LEFT" spacing="20">
                         <ImageView fitHeight="40.0" preserveRatio="true" opacity="0.9">
-                            <image>
-                                <Image url="@../Pictures/DUV_Logo.png" />
-                            </image>
+                            <Image url="@../Pictures/DUV_Logo.png"/>
                         </ImageView>
 
                         <Label text="[ SYSTEM: DAS UNBERECHENBARE VOLK ]" styleClass="app-title"/>
@@ -49,9 +47,8 @@
                         <Button fx:id="startButton" text="▶ EXECUTE" onAction="#handleStartSimulation"/>
                         <Button fx:id="pauseButton" text="⏸ FREEZE" onAction="#handlePauseSimulation" disable="true"/>
                         <Button fx:id="resetButton" text="↺ REBOOT" onAction="#handleResetSimulation" disable="true"/>
-                        <Button fx:id="statsButton" text="📊 INTEL" onAction="#handleShowStatistics" style="-fx-base: #222;"/>
-                        <Button fx:id="parliamentButton"
-                                text="PARLIAMENT"
+                        <Button text="📊 INTEL" onAction="#handleShowStatistics" style="-fx-base: #222;"/>
+                        <Button text="PARLIAMENT"
                                 onAction="#handleShowParliament"
                                 styleClass="action-button">
                         </Button>
@@ -61,87 +58,94 @@
         </top>
 
         <left>
-            <ScrollPane fitToWidth="true" fitToHeight="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+            <ScrollPane fitToWidth="true" fitToHeight="true" hbarPolicy="NEVER"
                         style="-fx-background-color: transparent; -fx-background: transparent; -fx-padding: 0;">
                 <BorderPane.margin>
-                    <Insets top="15" left="15" bottom="15" right="0"/>
+                    <Insets top="15" left="15" bottom="15"/>
                 </BorderPane.margin>
-                <content>
-                    <VBox fx:id="leftSidebar" spacing="15" styleClass="sidebar" prefWidth="300" minHeight="0">
-                        <padding>
-                            <Insets top="20" right="20" bottom="20" left="20"/>
-                        </padding>
+                <VBox fx:id="leftSidebar" spacing="15" styleClass="sidebar" prefWidth="300" minHeight="0">
+                    <padding>
+                        <Insets top="20" right="20" bottom="20" left="20"/>
+                    </padding>
 
-                        <Label text=">> CONFIGURATION" styleClass="section-title"/>
-                        <Separator style="-fx-opacity: 0.3;"/>
+                    <Label text=">> CONFIGURATION" styleClass="section-title"/>
+                    <Separator style="-fx-opacity: 0.3;"/>
 
-                        <VBox spacing="5">
-                            <Label text="POPULATION SIZE" styleClass="control-label"/>
-                            <HBox spacing="5" alignment="CENTER_LEFT">
-                                <Button text="-" onAction="#handleVoterCountDecrement" prefWidth="35"/>
-                                <TextField fx:id="voterCountField" text="100000" HBox.hgrow="ALWAYS" onAction="#handleParameterChange" alignment="CENTER"/>
-                                <Button text="+" onAction="#handleVoterCountIncrement" prefWidth="35"/>
-                            </HBox>
-                        </VBox>
-
-                        <VBox spacing="5">
-                            <Label text="NUMBER OF PARTIES" styleClass="control-label"/>
-                            <HBox spacing="5" alignment="CENTER_LEFT">
-                                <Button text="-" onAction="#handlePartyCountDecrement" prefWidth="35"/>
-                                <TextField fx:id="partyCountField" text="5" HBox.hgrow="ALWAYS" alignment="CENTER" editable="false"/>
-                                <Button text="+" onAction="#handlePartyCountIncrement" prefWidth="35"/>
-                            </HBox>
-                        </VBox>
-
-                        <Separator style="-fx-opacity: 0.2;"/>
-
-                        <VBox spacing="12">
-                            <VBox spacing="2">
-                                <Label text="MEDIA INFLUENCE (%)" styleClass="control-label"/>
-                                <Slider fx:id="mediaInfluenceSlider" min="0" max="100" value="65" onMouseReleased="#handleParameterChange"/>
-                            </VBox>
-                            <VBox spacing="2">
-                                <Label text="VOTER VOLATILITY (%)" styleClass="control-label"/>
-                                <Slider fx:id="mobilityRateSlider" min="0" max="100" value="35" onMouseReleased="#handleParameterChange"/>
-                            </VBox>
-                            <VBox spacing="2">
-                                <Label text="PARTY LOYALTY (AVG)" styleClass="control-label"/>
-                                <Slider fx:id="loyaltyMeanSlider" min="0" max="100" value="50" onMouseReleased="#handleParameterChange"/>
-                            </VBox>
-                            <VBox spacing="2">
-                                <Label text="CAMPAIGN BUDGET (€)" styleClass="control-label"/>
-                                <TextField fx:id="budgetField" text="500000" onAction="#handleParameterChange"/>
-                            </VBox>
-                            <VBox spacing="2">
-                                <Label text="SCANDAL RISK (%)" styleClass="terminal-value-alert"/>
-                                <HBox spacing="5" alignment="CENTER_LEFT">
-                                    <Button text="-" onAction="#handleScandalChanceDecrement" prefWidth="35"/>
-                                    <TextField fx:id="scandalChanceField" text="5.0" HBox.hgrow="ALWAYS" alignment="CENTER" onAction="#handleParameterChange"/>
-                                    <Button text="+" onAction="#handleScandalChanceIncrement" prefWidth="35"/>
-                                </HBox>
-                            </VBox>
-                            <VBox spacing="2">
-                                <Label text="CHAOS FACTOR (Variance)" styleClass="control-label"/>
-                                <Slider fx:id="randomRangeSlider" min="0.1" max="5.0" value="1.0" onMouseReleased="#handleParameterChange"/>
-                            </VBox>
-                        </VBox>
-
-                        <Separator style="-fx-opacity: 0.2;"/>
-
-                        <VBox spacing="5">
-                            <Label text="SIMULATION SPEED" styleClass="control-label"/>
-                            <HBox spacing="5" alignment="CENTER">
-                                <Button text="1x" onAction="#handleSpeed1x" prefWidth="50"/>
-                                <Button text="2x" onAction="#handleSpeed2x" prefWidth="50"/>
-                                <Button text="4x" onAction="#handleSpeed4x" prefWidth="50"/>
-                            </HBox>
-                        </VBox>
-
-                        <Region VBox.vgrow="ALWAYS"/>
-                        <Button text="[ RANDOMIZE DATA ]" onAction="#handleRandomize" maxWidth="Infinity" style="-fx-base: #333; -fx-margin-bottom: 5;"/>
-                        <Button text="[ APPLY UPDATE ]" onAction="#handleParameterChange" maxWidth="Infinity" style="-fx-base: #222;"/>
+                    <VBox spacing="5">
+                        <Label text="POPULATION SIZE" styleClass="control-label"/>
+                        <HBox spacing="5" alignment="CENTER_LEFT">
+                            <Button text="-" onAction="#handleVoterCountDecrement" prefWidth="35"/>
+                            <TextField fx:id="voterCountField" text="100000" HBox.hgrow="ALWAYS"
+                                       onAction="#handleParameterChange" alignment="CENTER"/>
+                            <Button text="+" onAction="#handleVoterCountIncrement" prefWidth="35"/>
+                        </HBox>
                     </VBox>
-                </content>
+
+                    <VBox spacing="5">
+                        <Label text="NUMBER OF PARTIES" styleClass="control-label"/>
+                        <HBox spacing="5" alignment="CENTER_LEFT">
+                            <Button text="-" onAction="#handlePartyCountDecrement" prefWidth="35"/>
+                            <TextField fx:id="partyCountField" text="5" HBox.hgrow="ALWAYS" alignment="CENTER"
+                                       editable="false"/>
+                            <Button text="+" onAction="#handlePartyCountIncrement" prefWidth="35"/>
+                        </HBox>
+                    </VBox>
+
+                    <Separator style="-fx-opacity: 0.2;"/>
+
+                    <VBox spacing="12">
+                        <VBox spacing="2">
+                            <Label text="MEDIA INFLUENCE (%)" styleClass="control-label"/>
+                            <Slider fx:id="mediaInfluenceSlider" value="65"
+                                    onMouseReleased="#handleParameterChange"/>
+                        </VBox>
+                        <VBox spacing="2">
+                            <Label text="VOTER VOLATILITY (%)" styleClass="control-label"/>
+                            <Slider fx:id="mobilityRateSlider" value="35"
+                                    onMouseReleased="#handleParameterChange"/>
+                        </VBox>
+                        <VBox spacing="2">
+                            <Label text="PARTY LOYALTY (AVG)" styleClass="control-label"/>
+                            <Slider fx:id="loyaltyMeanSlider" value="50"
+                                    onMouseReleased="#handleParameterChange"/>
+                        </VBox>
+                        <VBox spacing="2">
+                            <Label text="CAMPAIGN BUDGET (€)" styleClass="control-label"/>
+                            <TextField fx:id="budgetField" text="500000" onAction="#handleParameterChange"/>
+                        </VBox>
+                        <VBox spacing="2">
+                            <Label text="SCANDAL RISK (%)" styleClass="terminal-value-alert"/>
+                            <HBox spacing="5" alignment="CENTER_LEFT">
+                                <Button text="-" onAction="#handleScandalChanceDecrement" prefWidth="35"/>
+                                <TextField fx:id="scandalChanceField" text="5.0" HBox.hgrow="ALWAYS" alignment="CENTER"
+                                           onAction="#handleParameterChange"/>
+                                <Button text="+" onAction="#handleScandalChanceIncrement" prefWidth="35"/>
+                            </HBox>
+                        </VBox>
+                        <VBox spacing="2">
+                            <Label text="CHAOS FACTOR (Variance)" styleClass="control-label"/>
+                            <Slider fx:id="randomRangeSlider" min="0.1" max="5.0" value="1.0"
+                                    onMouseReleased="#handleParameterChange"/>
+                        </VBox>
+                    </VBox>
+
+                    <Separator style="-fx-opacity: 0.2;"/>
+
+                    <VBox spacing="5">
+                        <Label text="SIMULATION SPEED" styleClass="control-label"/>
+                        <HBox spacing="5" alignment="CENTER">
+                            <Button text="1x" onAction="#handleSpeed1x" prefWidth="50"/>
+                            <Button text="2x" onAction="#handleSpeed2x" prefWidth="50"/>
+                            <Button text="4x" onAction="#handleSpeed4x" prefWidth="50"/>
+                        </HBox>
+                    </VBox>
+
+                    <Region VBox.vgrow="ALWAYS"/>
+                    <Button text="[ RANDOMIZE DATA ]" onAction="#handleRandomize" maxWidth="Infinity"
+                            style="-fx-base: #333; -fx-margin-bottom: 5;"/>
+                    <Button text="[ APPLY UPDATE ]" onAction="#handleParameterChange" maxWidth="Infinity"
+                            style="-fx-base: #222;"/>
+                </VBox>
             </ScrollPane>
         </left>
 
@@ -150,7 +154,7 @@
                 <center>
                     <StackPane fx:id="animationPane" style="-fx-background-color: transparent;" minWidth="0" minHeight="0">
                         <BorderPane.margin>
-                            <Insets top="15" left="15" right="15" bottom="0"/>
+                            <Insets top="15" left="15" right="15"/>
                         </BorderPane.margin>
                     </StackPane>
                 </center>
@@ -160,13 +164,12 @@
                             <Insets top="15" left="15" right="15" bottom="15"/>
                         </BorderPane.margin>
                         <Label text="LIVE_INTEL // SCANDAL_TICKER" styleClass="control-label" style="-fx-padding: 0 0 5 10;"/>
-                        <ScrollPane fx:id="scandalTickerScroll" fitToHeight="true" vbarPolicy="NEVER" hbarPolicy="AS_NEEDED"
+                        <ScrollPane fx:id="scandalTickerScroll" fitToHeight="true" vbarPolicy="NEVER"
                                     style="-fx-background-color: transparent; -fx-background: transparent;"
                                     minHeight="80.0" prefHeight="100.0">
-                            <content>
-                                <HBox fx:id="scandalTickerBox" alignment="CENTER_LEFT" spacing="20.0" style="-fx-padding: 10;">
-                                </HBox>
-                            </content>
+                            <HBox fx:id="scandalTickerBox" alignment="CENTER_LEFT" spacing="20.0"
+                                  style="-fx-padding: 10;">
+                            </HBox>
                         </ScrollPane>
                     </VBox>
                 </bottom>
@@ -176,7 +179,7 @@
         <right>
             <VBox fx:id="rightSidebar" spacing="15" styleClass="sidebar" prefWidth="320">
                 <BorderPane.margin>
-                    <Insets top="15" right="15" bottom="15" left="0"/>
+                    <Insets top="15" right="15" bottom="15"/>
                 </BorderPane.margin>
 
                 <VBox spacing="5" VBox.vgrow="NEVER">
