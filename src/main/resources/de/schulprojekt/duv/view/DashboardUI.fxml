@@ -67,12 +67,13 @@
                 <BorderPane.margin>
                     <Insets top="15" left="15" bottom="15"/>
                 </BorderPane.margin>
-                <VBox fx:id="leftSidebar" spacing="15" styleClass="sidebar" prefWidth="300" minHeight="0">
+
+                <VBox fx:id="leftSidebar" spacing="10" styleClass="sidebar" prefWidth="300" minHeight="0">
                     <padding>
-                        <Insets top="20" right="20" bottom="20" left="20"/>
+                        <Insets top="15" right="15" bottom="15" left="15"/>
                     </padding>
 
-                    <Label text=">> CONFIGURATION" styleClass="section-title"/>
+                    <Label text=">> MISSION_CONFIG [STATIC]" styleClass="section-title"/>
                     <Separator style="-fx-opacity: 0.3;"/>
 
                     <StackPane>
@@ -101,7 +102,31 @@
                         <Label fx:id="partyOverlay" text="[ LOCKED ]" visible="false" styleClass="locked-overlay-label"/>
                     </StackPane>
 
-                    <Separator style="-fx-opacity: 0.2;"/>
+                    <StackPane>
+                        <VBox fx:id="budgetBox" spacing="5">
+                            <Label text="CAMPAIGN BUDGET (€)" styleClass="control-label"/>
+                            <TextField fx:id="budgetField" text="500000" onAction="#handleParameterChange"/>
+                        </VBox>
+                        <Label fx:id="budgetOverlay" text="[ LOCKED ]" visible="false" styleClass="locked-overlay-label"/>
+                    </StackPane>
+
+                    <StackPane>
+                        <VBox fx:id="durationBox" spacing="5">
+                            <Label text="SIMULATION DURATION" styleClass="control-label"/>
+                            <HBox spacing="5" alignment="CENTER_LEFT">
+                                <Button text="-" onAction="#handleDurationDecrement" prefWidth="35"/>
+                                <TextField fx:id="durationField" text="00:30" editable="false"
+                                           HBox.hgrow="ALWAYS" alignment="CENTER"/>
+                                <Button text="+" onAction="#handleDurationIncrement" prefWidth="35"/>
+                            </HBox>
+                        </VBox>
+                        <Label fx:id="durationOverlay" text="[ LOCKED ]" visible="false" styleClass="locked-overlay-label"/>
+                    </StackPane>
+
+                    <Region prefHeight="10"/>
+
+                    <Label text=">> LIVE_INTERFERENCE" styleClass="section-title"/>
+                    <Separator style="-fx-opacity: 0.3;"/>
 
                     <VBox spacing="12">
                         <VBox spacing="2">
@@ -109,24 +134,24 @@
                             <Slider fx:id="mediaInfluenceSlider" value="65"
                                     onMouseReleased="#handleParameterChange"/>
                         </VBox>
+
                         <VBox spacing="2">
                             <Label text="VOTER VOLATILITY (%)" styleClass="control-label"/>
                             <Slider fx:id="mobilityRateSlider" value="35"
                                     onMouseReleased="#handleParameterChange"/>
                         </VBox>
+
                         <VBox spacing="2">
                             <Label text="PARTY LOYALTY (AVG)" styleClass="control-label"/>
                             <Slider fx:id="loyaltyMeanSlider" value="50"
                                     onMouseReleased="#handleParameterChange"/>
                         </VBox>
 
-                        <StackPane>
-                            <VBox fx:id="budgetBox" spacing="2">
-                                <Label text="CAMPAIGN BUDGET (€)" styleClass="control-label"/>
-                                <TextField fx:id="budgetField" text="500000" onAction="#handleParameterChange"/>
-                            </VBox>
-                            <Label fx:id="budgetOverlay" text="[ LOCKED ]" visible="false" styleClass="locked-overlay-label"/>
-                        </StackPane>
+                        <VBox spacing="2">
+                            <Label text="CHAOS FACTOR (Variance)" styleClass="control-label"/>
+                            <Slider fx:id="randomRangeSlider" min="0.1" max="5.0" value="1.0"
+                                    onMouseReleased="#handleParameterChange"/>
+                        </VBox>
 
                         <VBox spacing="2">
                             <Label text="SCANDAL RISK (%)" styleClass="terminal-value-alert"/>
@@ -137,27 +162,9 @@
                                 <Button text="+" onAction="#handleScandalChanceIncrement" prefWidth="35"/>
                             </HBox>
                         </VBox>
-
-                        <StackPane>
-                            <VBox fx:id="durationBox" spacing="2">
-                                <Label text="SIMULATION DURATION" styleClass="control-label"/>
-                                <HBox spacing="5" alignment="CENTER_LEFT">
-                                    <Button text="-" onAction="#handleDurationDecrement" prefWidth="35"/>
-                                    <TextField fx:id="durationField" text="00:30" editable="false"
-                                               HBox.hgrow="ALWAYS" alignment="CENTER"/>
-                                    <Button text="+" onAction="#handleDurationIncrement" prefWidth="35"/>
-                                </HBox>
-                            </VBox>
-                            <Label fx:id="durationOverlay" text="[ LOCKED ]" visible="false" styleClass="locked-overlay-label"/>
-                        </StackPane>
-
-                        <VBox spacing="2">
-                            <Label text="CHAOS FACTOR (Variance)" styleClass="control-label"/>
-                            <Slider fx:id="randomRangeSlider" min="0.1" max="5.0" value="1.0"
-                                    onMouseReleased="#handleParameterChange"/>
-                        </VBox>
                     </VBox>
 
+                    <Region VBox.vgrow="ALWAYS"/>
                     <Separator style="-fx-opacity: 0.2;"/>
 
                     <VBox spacing="5">
@@ -169,7 +176,6 @@
                         </HBox>
                     </VBox>
 
-                    <Region VBox.vgrow="ALWAYS"/>
                     <Button text="[ RANDOMIZE DATA ]" onAction="#handleRandomize" maxWidth="Infinity"
                             style="-fx-base: #333; -fx-margin-bottom: 5;"/>
                     <Button text="[ APPLY UPDATE ]" onAction="#handleParameterChange" maxWidth="Infinity"

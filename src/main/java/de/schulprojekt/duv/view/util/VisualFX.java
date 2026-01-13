@@ -1,11 +1,16 @@
 package de.schulprojekt.duv.view.util;
 
-import javafx.animation.ParallelTransition;
-import javafx.animation.TranslateTransition;
+import javafx.animation.*;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Control;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextInputControl;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import java.util.Locale;
+import java.util.Random;
 
 /**
  * Utility class for global visual effects and responsive UI scaling.
@@ -88,6 +93,110 @@ public final class VisualFX {
         );
     }
 
+    // --- 1. Typewriter Effect ---
+
+    /**
+     * Erzeugt einen Schreibmaschinen-Effekt für ein Label.
+     * @param label Das Label, in dem der Text erscheinen soll.
+     * @param content Der vollständige Text.
+     * @param delayMillis Verzögerung zwischen den Buchstaben.
+     */
+    public static void playTypewriterAnimation(Label label, String content, int delayMillis) {
+        if (label == null || content == null) return;
+
+        final StringBuilder currentText = new StringBuilder();
+        Timeline timeline = new Timeline();
+
+        label.setText(""); // Reset content
+
+        for (int i = 0; i < content.length(); i++) {
+            final int index = i;
+            KeyFrame frame = new KeyFrame(
+                    Duration.millis(i * delayMillis),
+                    event -> {
+                        currentText.append(content.charAt(index));
+                        // Cursor nur anzeigen, wenn nicht fertig
+                        String cursor = (index < content.length() - 1) ? "█" : "";
+                        label.setText(currentText.toString() + cursor);
+                    }
+            );
+            timeline.getKeyFrames().add(frame);
+        }
+
+        // Safety: Ensure full text is set at the end
+        timeline.setOnFinished(e -> label.setText(content));
+        timeline.play();
+    }
+
+    // --- 2. Alarm Pulse Effect ---
+
+    /**
+     * Lässt ein Node (Button, Label, Pane) rot pulsieren, um Alarmbereitschaft zu signalisieren.
+     * @param node Das UI-Element, das pulsieren soll.
+     */
+    public static void startAlarmPulse(Node node) {
+        if (node == null) return;
+
+        FadeTransition fadeTransition = new FadeTransition(Duration.seconds(0.8), node);
+        fadeTransition.setFromValue(1.0);
+        fadeTransition.setToValue(0.4);
+        fadeTransition.setCycleCount(Animation.INDEFINITE);
+        fadeTransition.setAutoReverse(true);
+
+        DropShadow alarmGlow = new DropShadow();
+        alarmGlow.setColor(Color.RED);
+        alarmGlow.setRadius(20);
+        alarmGlow.setSpread(0.5);
+        node.setEffect(alarmGlow);
+
+        fadeTransition.play();
+    }
+
+    public static void stopAlarmPulse(Node node) {
+        if (node == null) return;
+        node.setEffect(null);
+        node.setOpacity(1.0);
+    }
+
+    // --- 3. Decryption Effect ---
+
+    /**
+     * Simuliert einen Entschlüsselungseffekt für Labels oder TextFields.
+     * Gibt die Timeline zurück, damit man auf das Ende warten kann.
+     *
+     * @param control Das UI Element (Label oder TextField).
+     * @param finalValue Der Zielwert als String.
+     * @return Die Animations-Timeline.
+     */
+    public static Timeline animateDecryption(Control control, String finalValue) {
+        if (control == null) return null;
+
+        Timeline timeline = new Timeline();
+        Random random = new Random();
+        int iterations = 15;
+        int delay = 40;
+
+        for (int i = 0; i < iterations; i++) {
+            timeline.getKeyFrames().add(new KeyFrame(
+                    Duration.millis(i * delay),
+                    e -> {
+                        // Generate random string of same length
+                        String fake = generateRandomString(finalValue.length(), random);
+                        setTextOnControl(control, fake);
+                    }
+            ));
+        }
+
+        // Set final value
+        timeline.getKeyFrames().add(new KeyFrame(
+                Duration.millis(iterations * delay),
+                e -> setTextOnControl(control, finalValue)
+        ));
+
+        timeline.play();
+        return timeline;
+    }
+
     // --- Private Helpers ---
 
     private static TranslateTransition createShakeTransition(Node node, double byX) {
@@ -96,5 +205,25 @@ public final class VisualFX {
         tt.setCycleCount(GLITCH_CYCLES);
         tt.setAutoReverse(true);
         return tt;
+    }
+
+    private static String generateRandomString(int length, Random random) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            if (random.nextBoolean()) {
+                sb.append(random.nextInt(10));
+            } else {
+                sb.append((char) ('A' + random.nextInt(26)));
+            }
+        }
+        return sb.toString();
+    }
+
+    private static void setTextOnControl(Control control, String text) {
+        if (control instanceof Label l) {
+            l.setText(text);
+        } else if (control instanceof TextInputControl t) {
+            t.setText(text);
+        }
     }
 }

@@ -176,6 +176,10 @@ public class DashboardController {
                 lockResultButtons(false);
                 VisualFX.triggerSidebarGlitch(leftSidebar, rightSidebar);
 
+                // --- APPLIED EFFECT: ALARM PULSE ---
+                VisualFX.startAlarmPulse(intelButton);
+                VisualFX.startAlarmPulse(parliamentButton);
+
                 LOGGER.info("Simulation Mission Complete. Access Granted.");
             }
         }));
@@ -185,6 +189,12 @@ public class DashboardController {
     private void lockResultButtons(boolean locked) {
         setButtonLockState(intelButton, locked, originalIntelText);
         setButtonLockState(parliamentButton, locked, originalParliamentText);
+
+        // Reset effects if locking again
+        if (locked) {
+            if (intelButton != null) VisualFX.stopAlarmPulse(intelButton);
+            if (parliamentButton != null) VisualFX.stopAlarmPulse(parliamentButton);
+        }
     }
 
     private void setButtonLockState(Button btn, boolean locked, String originalText) {
@@ -203,7 +213,9 @@ public class DashboardController {
     }
 
     private void synchronizeUiWithParameters(SimulationParameters params) {
-        voterCountField.setText(String.valueOf(params.populationSize()));
+        // --- FORMATTING UPDATE: 1.000 er Trennzeichen ---
+        // Locale.GERMANY sorgt für Punkte als Tausendertrennzeichen
+        voterCountField.setText(String.format(Locale.GERMANY, "%,d", params.populationSize()));
         partyCountField.setText(String.valueOf(params.partyCount()));
 
         scandalChanceField.setText(String.format(Locale.US, "%.1f", params.scandalProbability()));
@@ -213,7 +225,8 @@ public class DashboardController {
         randomRangeSlider.setValue(params.chaosFactor());
 
         double displayBudget = params.budgetEffectiveness() * 500000.0;
-        budgetField.setText(String.format(Locale.US, "%.0f", displayBudget));
+        // --- FORMATTING UPDATE: Budget ---
+        budgetField.setText(String.format(Locale.GERMANY, "%,.0f", displayBudget));
     }
 
     private void setupResponsiveLayout() {
@@ -235,9 +248,6 @@ public class DashboardController {
         });
     }
 
-    /**
-     * Hauptmethode zum Sperren/Entsperren der Simulations-Parameter.
-     */
     private void setSimulationLocked(boolean locked) {
         toggleBoxLockState(populationBox, populationOverlay, locked);
         toggleBoxLockState(partyBox, partyOverlay, locked);
@@ -245,22 +255,12 @@ public class DashboardController {
         toggleBoxLockState(durationBox, durationOverlay, locked);
     }
 
-    /**
-     * Setzt den Lock-Status für eine Box + Overlay.
-     * Wendet das Styling auf das Parent (StackPane) an.
-     */
     private void toggleBoxLockState(VBox box, Label overlay, boolean locked) {
         if (box == null) return;
-
-        // Deaktiviere die Eingaben
         box.setDisable(locked);
-
-        // Overlay sichtbar machen
         if (overlay != null) {
             overlay.setVisible(locked);
         }
-
-        // Style auf das Parent (StackPane) anwenden, damit der Rahmen außen ist
         Parent container = box.getParent();
         if (container != null) {
             if (locked) {
@@ -349,10 +349,7 @@ public class DashboardController {
                     simulationTimer.play();
                 }
                 setSimulationLocked(true);
-
-                // Ergebnisse sperren
                 lockResultButtons(true);
-
                 updateStatusDisplay(true);
             }
         }
@@ -363,9 +360,7 @@ public class DashboardController {
         if (controller != null) {
             controller.pauseSimulation();
             updateButtonState(false);
-
             simulationTimer.pause();
-
             updateStatusDisplay(false);
         }
     }
@@ -383,15 +378,10 @@ public class DashboardController {
             updateDurationDisplay();
 
             setSimulationLocked(false);
-
-            // Ergebnisse wieder sperren
             lockResultButtons(true);
-
             updateStatusDisplay(false);
         }
     }
-
-    // --- Helper Methods ---
 
     @FXML
     public void handleDurationIncrement(ActionEvent ignored) {
@@ -430,29 +420,39 @@ public class DashboardController {
         double rScandal = rand.nextDouble() * 15.0;
         double rChaos = 0.1 + rand.nextDouble() * 2.9;
 
-        voterCountField.setText(String.valueOf(rPop));
-        partyCountField.setText(String.valueOf(rParties));
+        // --- FORMATTING UPDATE: Animation mit formatierten Strings ---
+        VisualFX.animateDecryption(voterCountField, String.format(Locale.GERMANY, "%,d", rPop));
+        VisualFX.animateDecryption(partyCountField, String.valueOf(rParties));
+        VisualFX.animateDecryption(budgetField, String.format(Locale.GERMANY, "%,.0f", rBudget));
+
+        Timeline lastAnim = VisualFX.animateDecryption(scandalChanceField, String.format(Locale.US, "%.1f", rScandal));
+
         mediaInfluenceSlider.setValue(rMedia);
         mobilityRateSlider.setValue(rVolatility);
         loyaltyMeanSlider.setValue(rLoyalty);
-        budgetField.setText(String.format(Locale.US, "%.0f", rBudget));
-        scandalChanceField.setText(String.format(Locale.US, "%.1f", rScandal));
         randomRangeSlider.setValue(rChaos);
 
-        handleParameterChange(null);
+        if (lastAnim != null) {
+            lastAnim.setOnFinished(e -> handleParameterChange(null));
+        } else {
+            handleParameterChange(null);
+        }
     }
 
     @FXML
     public void handleParameterChange(Event ignored) {
         if (controller == null) return;
         try {
+            // parseIntSafe entfernt automatisch alles außer Zahlen, funktioniert also auch mit "100.000"
             int popSize = parseIntSafe(voterCountField.getText(), 100000);
+
             int parties = parseIntSafe(partyCountField.getText(), 5);
             parties = Math.clamp(parties, 2, 8);
 
             double scandalProb = Math.clamp(parseDoubleSafe(scandalChanceField.getText(), 5.0), MIN_SCANDAL_PROB, MAX_SCANDAL_PROB);
 
-            double budgetInput = parseDoubleSafe(budgetField.getText(), 500000.0);
+            // --- PARSING UPDATE: Budget muss Punkte entfernen ---
+            double budgetInput = parseBudgetSafe(budgetField.getText());
             double budgetEffectiveness = Math.clamp(budgetInput / 500000.0, 0.1, 10.0);
 
             SimulationParameters params = new SimulationParameters(
@@ -523,7 +523,8 @@ public class DashboardController {
 
     private void adjustIntField(TextField f, int delta, int min, int max) {
         int val = parseIntSafe(f.getText(), min);
-        f.setText(String.valueOf(Math.clamp(val + delta, min, max)));
+        // --- FORMATTING UPDATE: Auch beim Klicken auf +/- wird neu formatiert ---
+        f.setText(String.format(Locale.GERMANY, "%,d", Math.clamp(val + delta, min, max)));
         handleParameterChange(null);
     }
 
@@ -539,6 +540,17 @@ public class DashboardController {
 
     private double parseDoubleSafe(String t, double def) {
         try { return Double.parseDouble(t.replace(",", ".")); } catch (Exception e) { return def; }
+    }
+
+    // --- NEUE HELFER-METHODE FÜR BUDGET (Punkte entfernen) ---
+    private double parseBudgetSafe(String t) {
+        try {
+            // Entferne Punkte (Tausender) und ersetze Komma durch Punkt (Dezimal)
+            String clean = t.replace(".", "").replace(",", ".");
+            return Double.parseDouble(clean);
+        } catch (Exception e) {
+            return 500000.0;
+        }
     }
 
     private void updateButtonState(boolean isRunning) {

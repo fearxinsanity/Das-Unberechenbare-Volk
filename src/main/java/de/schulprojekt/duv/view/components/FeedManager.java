@@ -1,6 +1,7 @@
 package de.schulprojekt.duv.view.components;
 
 import de.schulprojekt.duv.model.scandal.ScandalEvent;
+import de.schulprojekt.duv.view.util.VisualFX; // Import added
 import javafx.animation.*;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -111,7 +112,7 @@ public class FeedManager {
         wrapper.setClip(clip);
 
         // Add to front (Left side)
-        tickerBox.getChildren().addFirst(wrapper); // Java 21+ syntax
+        tickerBox.getChildren().addFirst(wrapper);
 
         // Animate Width
         Timeline slideIn = new Timeline();
@@ -273,9 +274,12 @@ public class FeedManager {
         header.getChildren().addAll(idLbl, timeLbl);
 
         // Message
-        Label msg = new Label(event.scandal().title());
+        Label msg = new Label(); // Empty initially for typewriter
         msg.setStyle("-fx-text-fill: #e0e0e0; -fx-font-family: Consolas; -fx-font-weight: bold; -fx-font-size: 12px;");
         msg.setWrapText(true);
+
+        // --- APPLIED EFFECT: TYPEWRITER ---
+        VisualFX.playTypewriterAnimation(msg, event.scandal().title(), 15);
 
         // Details
         Label target = new Label(">>> TARGET: " + event.affectedParty().getName());
