@@ -1,5 +1,6 @@
 /* =========================================================================
    === DASHBOARD.CSS - SECRET SERVICE / MILITARY EDITION ===
+   === FIXED: NO SPOTLIGHT / FLAT DARK BACKGROUND ===
    ========================================================================= */
 
 /* =========================================================================
@@ -8,10 +9,18 @@
 
 .root-pane {
     -fx-font-family:      "Consolas", "Courier New", monospace;
-    -fx-background-color: #050508; /* Deep Black */
+    /* WICHTIG: Flaches Schwarz, kein Verlauf/Glow */
+    -fx-background-color: #050508 !important;
 }
 
-/* --- Taktisches Hintergrund-Gitter --- */
+/* --- FIX: Falls noch eine "glow-region" im FXML ist -> unsichtbar machen --- */
+.glow-region {
+    -fx-background-color: transparent !important;
+    -fx-effect:           none !important;
+    -fx-opacity:          0 !important;
+}
+
+/* --- Taktisches Hintergrund-Gitter (Bleibt erhalten, da gewünschtes Design) --- */
 .grid-background {
     -fx-background-color:
             linear-gradient(from 0px 0px to 40px 0px, repeat, rgba(212, 175, 55, 0.05) 0%, rgba(212, 175, 55, 0.05) 1px, transparent 1px, transparent 100%),
@@ -228,7 +237,6 @@
    7. SECURITY & LOCKING STATES
    ========================================================================= */
 
-/* Neuer Style für das Overlay Label */
 .locked-overlay-label {
     -fx-text-fill:        #ff3333;
     -fx-font-family:      "Impact", "Arial Black", sans-serif;
@@ -242,23 +250,20 @@
     -fx-rotate:           -5;
 }
 
-/* Der "Access Denied" Look für gesperrte Bereiche */
 .locked-zone {
-    /* Dunkles Rot-Schwarz mit Hazard-Streifen */
     -fx-background-color:
             linear-gradient(from 0px 0px to 20px 20px, repeat, rgba(139, 0, 0, 0.15) 0%, rgba(139, 0, 0, 0.15) 2px, transparent 2px, transparent 100%),
             rgba(20, 0, 0, 0.7);
 
-    -fx-border-color:     #880000; /* Dunkelroter Rand */
+    -fx-border-color:     #880000;
     -fx-border-style:     solid;
     -fx-border-width:     1px;
     -fx-effect:           innershadow(gaussian, rgba(255, 0, 0, 0.3), 10, 0, 0, 0);
 }
 
-/* Elemente innerhalb der Locked Zone "deaktiviert" aussehen lassen */
 .locked-zone .label,
 .locked-zone .control-label {
-    -fx-text-fill: #aa4444 !important; /* Dunkelrot */
+    -fx-text-fill: #aa4444 !important;
 }
 
 .locked-zone .text-field {
@@ -274,7 +279,6 @@
     -fx-opacity:      0.6;
 }
 
-/* Spezieller Style für den Intel/Parliament Button (Locked State) */
 .locked-button {
     -fx-background-color: linear-gradient(
             from 0px 0px to 20px 20px, repeat,
@@ -285,31 +289,28 @@
     ) !important;
 
     -fx-border-color:     #880000 !important;
-    -fx-text-fill:        #aa4444 !important; /* "Access Denied" Rot */
+    -fx-text-fill:        #aa4444 !important;
     -fx-opacity:          0.8 !important;
     -fx-cursor:           wait !important;
 }
 
 /* =========================================================================
-   8. DIALOGS & ALERTS (System Termination)
+   8. DIALOGS & ALERTS
    ========================================================================= */
 
-/* Der Dialog-Container */
 .alert-dialog {
-    -fx-background-color: #0d0d0d; /* Tiefes Schwarz */
-    -fx-border-color:     #ff3333; /* Alarm-Rot */
+    -fx-background-color: #0d0d0d;
+    -fx-border-color:     #ff3333;
     -fx-border-width:     2px;
     -fx-effect:           dropshadow(three-pass-box, rgba(255, 50, 50, 0.4), 20, 0, 0, 0);
 }
 
-/* Die Kopfzeile des Dialogs */
 .alert-dialog .header-panel {
-    -fx-background-color: rgba(50, 0, 0, 0.3); /* Leichtes Dunkelrot */
+    -fx-background-color: rgba(50, 0, 0, 0.3);
     -fx-border-color:     transparent transparent #ff3333 transparent;
     -fx-border-width:     0 0 1px 0;
 }
 
-/* Überschrift im Header */
 .alert-dialog .header-panel .label {
     -fx-text-fill:   #ff3333;
     -fx-font-family: "Impact", sans-serif;
@@ -317,7 +318,6 @@
     -fx-padding:     0 0 0 10;
 }
 
-/* Der Text im Content-Bereich */
 .alert-dialog .content .label,
 .alert-dialog .label {
     -fx-text-fill:   #ffcccc;
@@ -325,7 +325,6 @@
     -fx-font-size:   1.1em;
 }
 
-/* Buttons im Dialog */
 .alert-dialog .button-bar .button {
     -fx-background-color: #2a0a0a;
     -fx-text-fill:        #ff3333;

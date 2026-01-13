@@ -52,9 +52,9 @@ public class DashboardController {
     private static final double MIN_SCANDAL_PROB = 0.0;
     private static final double MAX_SCANDAL_PROB = 60.0;
 
-    // LIMITS zur Performance-Sicherung
+    // Limits
     private static final int MIN_POPULATION = 10_000;
-    private static final int MAX_POPULATION = 2_000_000;
+    private static final int MAX_POPULATION = 500_000;
     private static final double MAX_BUDGET_FACTOR = 1000.0;
 
     // --- FXML: Layout & Containers ---
@@ -183,17 +183,11 @@ public class DashboardController {
         });
     }
 
-    /**
-     * Konfiguriert Events (Enter, Fokus) für ein Feld.
-     * Der Input-Filter (TextFormatter) wird separat gesetzt, damit wir ihn an/ausschalten können.
-     */
     private void setupInteractiveField(TextField field) {
         if (field == null) return;
 
-        // 1. Filter initial aktivieren
         applyInputFilter(field);
 
-        // 2. Events (bleiben immer aktiv)
         field.setOnAction(e -> {
             formatAndApply(field);
             animationPane.requestFocus();
@@ -208,14 +202,9 @@ public class DashboardController {
         field.setOnKeyPressed(e -> field.setStyle(""));
     }
 
-    /**
-     * Aktiviert den "Nur Zahlen"-Filter.
-     */
     private void applyInputFilter(TextField field) {
         if (field == null) return;
-
         boolean isDecimal = (field == scandalChanceField);
-        // Erlaube Ziffern und Punkt (und Komma bei Dezimal)
         String regex = isDecimal ? "[0-9.,]*" : "[0-9.]*";
 
         field.setTextFormatter(new TextFormatter<>(change -> {
@@ -223,13 +212,10 @@ public class DashboardController {
             if (newText.matches(regex)) {
                 return change;
             }
-            return null; // Blockieren
+            return null;
         }));
     }
 
-    /**
-     * Entfernt den Filter (erlaubt ALLES), damit die Animation Buchstaben anzeigen darf.
-     */
     private void removeInputFilter(TextField field) {
         if (field != null) {
             field.setTextFormatter(null);
@@ -249,12 +235,11 @@ public class DashboardController {
             } else {
                 long val = parseLongSafe(text);
 
-                // Limit Check
                 if (field == voterCountField) {
                     val = Math.clamp(val, MIN_POPULATION, MAX_POPULATION);
                 }
 
-                NumberFormat formatter = NumberFormat.getInstance(Locale.GERMANY);
+                NumberFormat formatter = NumberFormat.getInstance(Locale.GERMANY); // Format with dots (DE style often used in EU tech)
                 field.setText(formatter.format(val));
             }
 
@@ -292,7 +277,7 @@ public class DashboardController {
                 VisualFX.triggerSidebarGlitch(leftSidebar, rightSidebar);
                 VisualFX.startPulse(intelButton, Color.LIME);
                 VisualFX.startPulse(parliamentButton, Color.LIME);
-                LOGGER.info("Simulation abgeschlossen. Zugriff gewährt.");
+                LOGGER.info("Simulation finished. Access granted.");
             }
         }));
         simulationTimer.setCycleCount(Timeline.INDEFINITE);
@@ -314,7 +299,7 @@ public class DashboardController {
                 if (!btn.getStyleClass().contains("locked-button")) {
                     btn.getStyleClass().add("locked-button");
                 }
-                btn.setText("[ GESPERRT ]");
+                btn.setText("[ LOCKED ]"); // English
             } else {
                 btn.getStyleClass().remove("locked-button");
                 if (originalText != null) btn.setText(originalText);
@@ -405,8 +390,11 @@ public class DashboardController {
 
     private void updateStatusDisplay(boolean isRunning) {
         if (timeStepLabel == null) return;
-        String statusText = isRunning ? "LAUFEND" : "PAUSIERT";
+
+        // --- TRANSLATION: English ---
+        String statusText = isRunning ? "RUNNING" : "PAUSED";
         String color = isRunning ? "#55ff55" : "#ff5555";
+
         int m = remainingSeconds / 60; int s = remainingSeconds % 60;
         String timeText = String.format("%02d:%02d", m, s);
         timeStepLabel.setText(String.format("STATUS: %s | TICK: %d | T-MINUS: %s", statusText, currentTick, timeText));
@@ -454,8 +442,12 @@ public class DashboardController {
     public void handleLogout(ActionEvent ignored) {
         if (controller != null && controller.isRunning()) handlePauseSimulation(null);
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("SYSTEMABBRUCH"); alert.setHeaderText("VERBINDUNG TRENNEN");
-        alert.setContentText("Sind Sie sicher, dass Sie die sichere Verbindung trennen wollen?");
+
+        // --- TRANSLATION: English ---
+        alert.setTitle("SYSTEM ABORT");
+        alert.setHeaderText("TERMINATE SESSION");
+        alert.setContentText("Are you sure you want to terminate the secure connection?");
+
         try {
             if (startButton != null && startButton.getScene() != null) {
                 alert.getDialogPane().getStylesheets().addAll(startButton.getScene().getStylesheets());
@@ -488,7 +480,6 @@ public class DashboardController {
 
     @FXML
     public void handleRandomize(ActionEvent ignored) {
-        // 1. Filter entfernen -> Erlaubt der Animation, "Hacker-Zeichen" zu schreiben
         removeInputFilter(voterCountField);
         removeInputFilter(partyCountField);
         removeInputFilter(budgetField);
@@ -504,7 +495,6 @@ public class DashboardController {
         double rScandal = rand.nextDouble() * 15.0;
         double rChaos = 0.1 + rand.nextDouble() * 2.9;
 
-        // 2. Animieren (schreibt jetzt erfolgreich wirres Zeug ins Feld)
         VisualFX.animateDecryption(voterCountField, String.format(Locale.GERMANY, "%,d", rPop));
         VisualFX.animateDecryption(partyCountField, String.valueOf(rParties));
         VisualFX.animateDecryption(budgetField, String.format(Locale.GERMANY, "%,.0f", rBudget));
@@ -515,7 +505,6 @@ public class DashboardController {
         loyaltyMeanSlider.setValue(rLoyalty);
         randomRangeSlider.setValue(rChaos);
 
-        // 3. Wenn Animation fertig: Filter wieder draufsetzen ("Nur Zahlen!")
         if (lastAnim != null) {
             lastAnim.setOnFinished(e -> {
                 applyInputFilter(voterCountField);
@@ -525,7 +514,6 @@ public class DashboardController {
                 handleParameterChange(null);
             });
         } else {
-            // Fallback (sehr unwahrscheinlich)
             applyInputFilter(voterCountField);
             applyInputFilter(partyCountField);
             applyInputFilter(budgetField);
@@ -561,7 +549,7 @@ public class DashboardController {
             );
             controller.updateAllParameters(params);
         } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "Ungültige Parametereingabe", e);
+            LOGGER.log(Level.WARNING, "Invalid parameter input", e);
         }
     }
 
@@ -589,7 +577,7 @@ public class DashboardController {
         try {
             var resource = getClass().getResource(fxmlPath);
             if (resource == null) {
-                new Alert(Alert.AlertType.ERROR, "View nicht gefunden: " + fxmlPath).show();
+                new Alert(Alert.AlertType.ERROR, "View not found: " + fxmlPath).show();
                 return;
             }
             FXMLLoader loader = new FXMLLoader(resource);
@@ -597,7 +585,7 @@ public class DashboardController {
             initAction.accept(loader, root);
             startButton.getScene().setRoot(root);
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Navigation fehlgeschlagen", e);
+            LOGGER.log(Level.SEVERE, "Navigation failed", e);
         }
     }
 

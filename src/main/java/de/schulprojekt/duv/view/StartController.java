@@ -13,8 +13,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextFormatter; // NEU
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Region;
@@ -25,7 +23,6 @@ import javafx.util.Duration;
 
 import java.io.IOException;
 import java.net.URL;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -34,22 +31,26 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Controls the intro screen, background particle effects, and the transition to the dashboard.
+ * Controls the login screen visuals and the transition to the dashboard.
  */
 public class StartController {
 
     private static final Logger LOGGER = Logger.getLogger(StartController.class.getName());
 
-    // --- Constants: Resources ---
+    // --- Defaults (werden ans Dashboard übergeben) ---
+    private static final long DEFAULT_POPULATION = 250_000;
+    private static final long DEFAULT_BUDGET = 500_000;
+
+    // --- Resources ---
     private static final String DASHBOARD_FXML = "/de/schulprojekt/duv/view/DashboardUI.fxml";
     private static final String DASHBOARD_CSS = "/de/schulprojekt/duv/dashboard.css";
 
-    // --- Constants: Animation ---
-    private static final int PARTICLE_COUNT = 80;
-    private static final double BASE_CONNECTION_DIST = 160;
-    private static final double RELATIVE_SPEED = 0.0005;
+    // --- Animation Constants ---
+    private static final int PARTICLE_COUNT = 90;
+    private static final double BASE_CONNECTION_DIST = 170;
+    private static final double RELATIVE_SPEED = 0.0004;
 
-    // --- FXML: UI Components ---
+    // --- FXML Components ---
     @FXML private StackPane rootPane;
     @FXML private ImageView logoImageView;
     @FXML private VBox cardBox;
@@ -58,25 +59,16 @@ public class StartController {
     @FXML private Canvas codeCanvas;
     @FXML private Region gridRegion;
 
-    @FXML private TextField populationField;
-    @FXML private TextField campaignBudgetField;
-
     // --- State ---
     private AnimationTimer animTimer;
     private final List<Particle> particles = new ArrayList<>();
     private final Random random = new Random();
-
-    // --- Initialization ---
 
     @FXML
     public void initialize() {
         cardBox.setOpacity(0);
         hudLayer.setOpacity(0);
         glowRegion.setOpacity(0);
-
-        // Setup Fields: Formatter & Input Filter
-        if (populationField != null) setupCurrencyField(populationField);
-        if (campaignBudgetField != null) setupCurrencyField(campaignBudgetField);
 
         codeCanvas.widthProperty().bind(rootPane.widthProperty());
         codeCanvas.heightProperty().bind(rootPane.heightProperty());
@@ -91,34 +83,24 @@ public class StartController {
                 scene.widthProperty().addListener((obs, oldVal, newVal) -> adjustScale(newVal.doubleValue()));
                 adjustScale(scene.getWidth());
 
-                logoImageView.fitWidthProperty().bind(Bindings.min(600, scene.widthProperty().multiply(0.45)));
-                cardBox.maxWidthProperty().bind(Bindings.min(scene.widthProperty().multiply(0.90), 850));
-                glowRegion.maxWidthProperty().bind(cardBox.widthProperty().multiply(1.3));
-                glowRegion.maxHeightProperty().bind(cardBox.heightProperty().multiply(0.9));
+                logoImageView.fitWidthProperty().bind(Bindings.min(500, scene.widthProperty().multiply(0.4)));
+
+                // Card Scaling
+                cardBox.maxWidthProperty().bind(Bindings.min(scene.widthProperty().multiply(0.8), 600));
             }
         });
     }
 
-    // --- Event Handlers ---
-
     @FXML
     public void handleStartSimulation(ActionEvent ignored) {
         try {
-            if (populationField != null) formatField(populationField);
-            if (campaignBudgetField != null) formatField(campaignBudgetField);
-
-            long population = (populationField != null) ? parseFormattedNumber(populationField.getText()) : 100_000;
-            long budget = (campaignBudgetField != null) ? parseFormattedNumber(campaignBudgetField.getText()) : 500_000;
-
-            if (population <= 0) population = 100_000;
-            if (budget <= 0) budget = 500_000;
-
             FXMLLoader loader = new FXMLLoader(getClass().getResource(DASHBOARD_FXML));
             Parent dashboardRoot = loader.load();
 
+            // Defaults übergeben, da keine Inputs mehr da sind
             DashboardController dashboardCtrl = loader.getController();
             if (dashboardCtrl != null) {
-                dashboardCtrl.applyInitialSettings(population, budget);
+                dashboardCtrl.applyInitialSettings(DEFAULT_POPULATION, DEFAULT_BUDGET);
             }
 
             dashboardRoot.setStyle("-fx-background-color: transparent;");
@@ -145,74 +127,17 @@ public class StartController {
         System.exit(0);
     }
 
-    // --- Input Helper Methods ---
-
-    private void setupCurrencyField(TextField field) {
-        // NEU: Input Filter (verhindert Buchstaben während des Tippens)
-        // Erlaubt nur Ziffern [0-9] und Punkte [.] (für die Formatierung)
-        field.setTextFormatter(new TextFormatter<>(change -> {
-            String newText = change.getControlNewText();
-            if (newText.matches("[0-9.]*")) {
-                return change;
-            }
-            return null; // Änderung ablehnen (Buchstabe etc.)
-        }));
-
-        // ENTER Taste (Formatierung finalisieren)
-        field.setOnAction(e -> {
-            formatField(field);
-            // Fokus weitergeben (UX-Verbesserung)
-            // if (field == populationField && campaignBudgetField != null) campaignBudgetField.requestFocus();
-        });
-
-        // Fokus verloren
-        field.focusedProperty().addListener((obs, oldVal, newVal) -> {
-            if (!newVal) { // focus lost
-                formatField(field);
-            }
-        });
-
-        field.setOnKeyPressed(e -> field.setStyle(""));
-    }
-
-    private void formatField(TextField field) {
-        String originalText = field.getText();
-        if (originalText == null || originalText.isEmpty()) return;
-
-        try {
-            String cleanString = originalText.replaceAll("\\D", ""); // Alles außer Ziffern weg
-            if (cleanString.isEmpty()) return;
-
-            long value = Long.parseLong(cleanString);
-            NumberFormat formatter = NumberFormat.getInstance(Locale.GERMANY);
-            String formattedText = formatter.format(value);
-
-            if (!formattedText.equals(field.getText())) {
-                field.setText(formattedText);
-                field.positionCaret(formattedText.length());
-            }
-        } catch (NumberFormatException e) {
-            field.setStyle("-fx-border-color: red; -fx-border-width: 2px;");
-        }
-    }
-
-    private long parseFormattedNumber(String text) {
-        if (text == null) return 0;
-        String clean = text.replaceAll("\\D", "");
-        return clean.isEmpty() ? 0 : Long.parseLong(clean);
-    }
-
-    // --- Animation Logic ---
+    // --- Visuals & Animation ---
 
     private void startIntroAnimation() {
-        FadeTransition ftHud = new FadeTransition(Duration.seconds(1.5), hudLayer);
+        FadeTransition ftHud = new FadeTransition(Duration.seconds(1.0), hudLayer);
         ftHud.setFromValue(0); ftHud.setToValue(1.0); ftHud.play();
 
-        FadeTransition ftCard = new FadeTransition(Duration.seconds(2.0), cardBox);
-        ftCard.setFromValue(0); ftCard.setToValue(1.0); ftCard.setDelay(Duration.seconds(0.5)); ftCard.play();
+        FadeTransition ftCard = new FadeTransition(Duration.seconds(1.5), cardBox);
+        ftCard.setFromValue(0); ftCard.setToValue(1.0); ftCard.setDelay(Duration.seconds(0.2)); ftCard.play();
 
-        FadeTransition ftGlow = new FadeTransition(Duration.seconds(3.0), glowRegion);
-        ftGlow.setFromValue(0); ftGlow.setToValue(0.8); ftGlow.setDelay(Duration.seconds(0.8)); ftGlow.play();
+        FadeTransition ftGlow = new FadeTransition(Duration.seconds(2.5), glowRegion);
+        ftGlow.setFromValue(0); ftGlow.setToValue(0.8); ftGlow.setDelay(Duration.seconds(0.5)); ftGlow.play();
     }
 
     private void startNetworkAnimation() {
@@ -228,13 +153,13 @@ public class StartController {
         double scaleFactor = Math.max(0.5, Math.sqrt(w * w + h * h) / 1400.0);
         double activeConnectionDist = BASE_CONNECTION_DIST * scaleFactor;
 
-        gc.setFill(Color.web("#D4AF37"));
+        gc.setFill(Color.web("#D4AF37")); // Gold Nodes
         for (Particle p : particles) {
             p.update();
             gc.fillOval(p.relX * w, p.relY * h, p.sizeBase * scaleFactor, p.sizeBase * scaleFactor);
         }
 
-        gc.setLineWidth(0.8 * scaleFactor);
+        gc.setLineWidth(0.6 * scaleFactor);
         for (int i = 0; i < particles.size(); i++) {
             Particle p1 = particles.get(i);
             for (int j = i + 1; j < particles.size(); j++) {
@@ -244,7 +169,7 @@ public class StartController {
                 double dist = Math.sqrt(dx * dx + dy * dy);
 
                 if (dist < activeConnectionDist) {
-                    double opacity = (1.0 - dist / activeConnectionDist) * 0.4;
+                    double opacity = (1.0 - dist / activeConnectionDist) * 0.3;
                     gc.setStroke(Color.color(0.83, 0.68, 0.21, opacity));
                     gc.strokeLine(
                             p1.relX * w + p1.sizeBase/2, p1.relY * h + p1.sizeBase/2,
@@ -267,13 +192,15 @@ public class StartController {
     }
 
     private ParallelTransition buildTransitionAnimation(Parent dashboardRoot) {
-        FadeTransition ftCard = new FadeTransition(Duration.seconds(0.6), cardBox); ftCard.setToValue(0);
-        FadeTransition ftHud = new FadeTransition(Duration.seconds(0.4), hudLayer); ftHud.setToValue(0);
-        FadeTransition ftGlow = new FadeTransition(Duration.seconds(0.4), glowRegion); ftGlow.setToValue(0);
-        FadeTransition ftGrid = new FadeTransition(Duration.seconds(1.5), gridRegion); ftGrid.setToValue(0);
-        FadeTransition ftCanvas = new FadeTransition(Duration.seconds(1.5), codeCanvas); ftCanvas.setToValue(0);
-        FadeTransition ftDash = new FadeTransition(Duration.seconds(1.2), dashboardRoot); ftDash.setToValue(1.0);
-        ScaleTransition stDash = new ScaleTransition(Duration.seconds(1.2), dashboardRoot); stDash.setToX(1.0); stDash.setToY(1.0);
+        FadeTransition ftCard = new FadeTransition(Duration.seconds(0.5), cardBox); ftCard.setToValue(0);
+        FadeTransition ftHud = new FadeTransition(Duration.seconds(0.3), hudLayer); ftHud.setToValue(0);
+        FadeTransition ftGlow = new FadeTransition(Duration.seconds(0.3), glowRegion); ftGlow.setToValue(0);
+        FadeTransition ftGrid = new FadeTransition(Duration.seconds(1.0), gridRegion); ftGrid.setToValue(0);
+        FadeTransition ftCanvas = new FadeTransition(Duration.seconds(1.0), codeCanvas); ftCanvas.setToValue(0);
+
+        // Dashboard Fade-In
+        FadeTransition ftDash = new FadeTransition(Duration.seconds(1.0), dashboardRoot); ftDash.setToValue(1.0);
+        ScaleTransition stDash = new ScaleTransition(Duration.seconds(1.0), dashboardRoot); stDash.setToX(1.0); stDash.setToY(1.0);
 
         ParallelTransition transition = new ParallelTransition(ftCard, ftHud, ftGlow, ftGrid, ftCanvas, ftDash, stDash);
         transition.setOnFinished(ignored -> {
@@ -290,7 +217,7 @@ public class StartController {
             this.relX = r.nextDouble(); this.relY = r.nextDouble();
             this.velX = (r.nextDouble() - 0.5) * RELATIVE_SPEED;
             this.velY = (r.nextDouble() - 0.5) * RELATIVE_SPEED;
-            this.sizeBase = 1.5 + r.nextDouble() * 2.0;
+            this.sizeBase = 1.0 + r.nextDouble() * 2.0;
         }
         void update() {
             relX += velX; relY += velY;
