@@ -26,6 +26,7 @@ public class CanvasRenderer {
     private static final double ROTATION_SPEED = 1.5;
     private static final int PARTICLE_SPAWN_LIMIT_PER_TICK = 50;
     private static final double TARGET_LOCK_SCALE = 1.3;
+    private static final int MAX_ACTIVE_PARTICLES = 1200;
 
     private static final Color GRID_COLOR = Color.web("#D4AF37", 0.1);
     private static final Color TEXT_COLOR = Color.web("#e0e0e0");
@@ -317,10 +318,13 @@ public class CanvasRenderer {
     }
 
     private void spawnParticles(List<VoterTransition> transitions) {
-        int spawnedCount = 0;
-
+        if (activeParticles.size() >= MAX_ACTIVE_PARTICLES) {
+            return;
+        }
+        int spawnedInThisTick = 0;
         for (VoterTransition t : transitions) {
-            if (spawnedCount++ > PARTICLE_SPAWN_LIMIT_PER_TICK) break;
+            if (spawnedInThisTick >= PARTICLE_SPAWN_LIMIT_PER_TICK) break;
+            if (activeParticles.size() >= MAX_ACTIVE_PARTICLES) break;
 
             Point start = partyPositions.get(t.from().getName());
             Point end = partyPositions.get(t.to().getName());
@@ -328,11 +332,11 @@ public class CanvasRenderer {
             if (start != null && end != null) {
                 MovingVoter p = particlePool.isEmpty() ? new MovingVoter() : particlePool.pop();
 
-                // FIX: Use safe color parsing for particle too
                 Color color = safeParseColor(t.to());
                 p.reset(start.x(), start.y(), end.x(), end.y(), color);
 
                 activeParticles.add(p);
+                spawnedInThisTick++;
             }
         }
     }

@@ -126,24 +126,45 @@
             </GridPane>
         </center>
         <right>
-            <VBox prefHeight="200.0" prefWidth="180.0" spacing="10.0"
+            <VBox prefHeight="350.0" prefWidth="240.0" spacing="10.0"
                   style="-fx-border-color: transparent transparent transparent rgba(212, 175, 55, 0.3); -fx-padding: 15; -fx-background-color: rgba(0,0,0,0.2);"
                   BorderPane.alignment="CENTER">
                 <Label style="-fx-font-weight: bold; -fx-text-fill: #D4AF37;" text="SYSTEM_TELEMETRY"/>
                 <Separator style="-fx-opacity: 0.3;"/>
-                <VBox spacing="2.0" style="-fx-opacity: 0.7;">
-                    <Label style="-fx-font-size: 10px;" text="SERVER_LOAD: 12% (IDLE)" textFill="#a4a4a4"/>
-                    <Label style="-fx-font-size: 10px;" text="MEMORY_USAGE: 4.2 GB" textFill="#a4a4a4"/>
-                    <Label style="-fx-font-size: 10px;" text="ENCRYPTION: QUANTUM-RES." textFill="#a4a4a4"/>
-                    <Label style="-fx-font-size: 10px;" text="UPLINK: SECURE (SAT-4)" textFill="#a4a4a4"/>
+
+                <VBox spacing="6.0" style="-fx-opacity: 0.9;">
+                    <Label text="CPU_MODEL:" style="-fx-font-size: 9px; -fx-text-fill: #888;"/>
+                    <Label fx:id="cpuLabel" style="-fx-font-size: 10px; -fx-font-family: 'Consolas';"
+                           text="DETECTING..." textFill="#e0e0e0" wrapText="true"/>
+
+                    <Label text="GPU_PIPELINE:" style="-fx-font-size: 9px; -fx-text-fill: #888;"/>
+                    <Label fx:id="gpuLabel" style="-fx-font-size: 10px; -fx-font-family: 'Consolas';"
+                           text="SCANNING..." textFill="#e0e0e0"/>
+
+                    <Label text="CORE_LOAD:" style="-fx-font-size: 9px; -fx-text-fill: #888;"/>
+                    <Label fx:id="serverLoadLabel" style="-fx-font-size: 10px; -fx-font-family: 'Consolas';"
+                           text="CALC..." textFill="#a4a4a4"/>
+
+                    <Label text="MEMORY_ALLOCATION (USED / TOTAL):"
+                           style="-fx-font-size: 9px; -fx-text-fill: #888;"/>
+                    <Label fx:id="ramLabel" style="-fx-font-size: 10px; -fx-font-family: 'Consolas';" text="CALC..."
+                           textFill="#a4a4a4"/>
+
+                    <Label fx:id="uptimeLabel"
+                           style="-fx-font-size: 10px; -fx-font-family: 'Consolas'; -fx-padding: 5 0 0 0;"
+                           text="SESSION: 00:00:00" textFill="#a4a4a4"/>
+
+                    <Label style="-fx-font-size: 10px; -fx-font-family: 'Consolas';" text="UPLINK: SECURE (SAT-4)"
+                           textFill="#55ff55"/>
                 </VBox>
+
                 <Separator style="-fx-opacity: 0.3;">
                     <VBox.margin>
-                        <Insets top="20.0"/>
+                        <Insets top="10.0"/>
                     </VBox.margin>
                 </Separator>
-                <Label style="-fx-font-weight: bold; -fx-text-fill: #D4AF37;" text="ACTIVE_PROTOCOLS"/>
 
+                <Label style="-fx-font-weight: bold; -fx-text-fill: #D4AF37;" text="ACTIVE_PROTOCOLS"/>
                 <VBox spacing="5.0" style="-fx-opacity: 0.7;">
                     <Label maxWidth="Infinity"
                            style="-fx-font-size: 10px; -fx-border-color: #55ff55; -fx-padding: 2;"
