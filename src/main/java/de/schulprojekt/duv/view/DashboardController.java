@@ -32,6 +32,7 @@ import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -51,6 +52,11 @@ public class DashboardController {
     private static final double MIN_SCANDAL_PROB = 0.0;
     private static final double MAX_SCANDAL_PROB = 60.0;
 
+    // LIMITS zur Performance-Sicherung
+    private static final int MIN_POPULATION = 10_000;
+    private static final int MAX_POPULATION = 2_000_000;
+    private static final double MAX_BUDGET_FACTOR = 1000.0;
+
     // --- FXML: Layout & Containers ---
     @FXML private ScrollPane scandalTickerScroll;
     @FXML private HBox scandalTickerBox;
@@ -59,13 +65,13 @@ public class DashboardController {
     @FXML private VBox leftSidebar;
     @FXML private VBox rightSidebar;
 
-    // -- Locking Containers (Content VBoxes) --
+    // -- Locking Containers ---
     @FXML private VBox populationBox;
     @FXML private VBox partyBox;
     @FXML private VBox budgetBox;
     @FXML private VBox durationBox;
 
-    // -- Locking Overlays (Labels inside StackPanes) --
+    // -- Locking Overlays ---
     @FXML private Label populationOverlay;
     @FXML private Label partyOverlay;
     @FXML private Label budgetOverlay;
@@ -126,6 +132,7 @@ public class DashboardController {
         this.feedManager = new FeedManager(scandalTickerBox, scandalTickerScroll, eventFeedPane);
         this.tooltipManager = new TooltipManager(animationPane);
 
+        // Tooltip setup
         canvasRenderer.getCanvas().setOnMouseMoved(e ->
                 tooltipManager.handleMouseMove(
                         e.getX(),
@@ -138,6 +145,12 @@ public class DashboardController {
         canvasRenderer.getCanvas().setOnMouseExited(ignored -> tooltipManager.hideTooltip());
 
         this.controller = new SimulationController(this);
+
+        // Setup Fields
+        setupInteractiveField(voterCountField);
+        setupInteractiveField(partyCountField);
+        setupInteractiveField(budgetField);
+        setupInteractiveField(scandalChanceField);
 
         synchronizeUiWithParameters(controller.getCurrentParameters());
 
@@ -153,11 +166,11 @@ public class DashboardController {
         // Capture original text BEFORE locking
         if (intelButton != null) {
             originalIntelText = intelButton.getText();
-            intelButton.setOnMouseEntered(_ -> VisualFX.stopPulse(intelButton));
+            intelButton.setOnMouseEntered(e -> VisualFX.stopPulse(intelButton));
         }
         if (parliamentButton != null) {
             originalParliamentText = parliamentButton.getText();
-            parliamentButton.setOnMouseEntered(_ -> VisualFX.stopPulse(parliamentButton));
+            parliamentButton.setOnMouseEntered(e -> VisualFX.stopPulse(parliamentButton));
         }
 
         // Initial Locking (Intel & Parliament)
@@ -170,24 +183,116 @@ public class DashboardController {
         });
     }
 
+    /**
+     * Konfiguriert Events (Enter, Fokus) für ein Feld.
+     * Der Input-Filter (TextFormatter) wird separat gesetzt, damit wir ihn an/ausschalten können.
+     */
+    private void setupInteractiveField(TextField field) {
+        if (field == null) return;
+
+        // 1. Filter initial aktivieren
+        applyInputFilter(field);
+
+        // 2. Events (bleiben immer aktiv)
+        field.setOnAction(e -> {
+            formatAndApply(field);
+            animationPane.requestFocus();
+        });
+
+        field.focusedProperty().addListener((obs, oldVal, newVal) -> {
+            if (!newVal) { // Focus lost
+                formatAndApply(field);
+            }
+        });
+
+        field.setOnKeyPressed(e -> field.setStyle(""));
+    }
+
+    /**
+     * Aktiviert den "Nur Zahlen"-Filter.
+     */
+    private void applyInputFilter(TextField field) {
+        if (field == null) return;
+
+        boolean isDecimal = (field == scandalChanceField);
+        // Erlaube Ziffern und Punkt (und Komma bei Dezimal)
+        String regex = isDecimal ? "[0-9.,]*" : "[0-9.]*";
+
+        field.setTextFormatter(new TextFormatter<>(change -> {
+            String newText = change.getControlNewText();
+            if (newText.matches(regex)) {
+                return change;
+            }
+            return null; // Blockieren
+        }));
+    }
+
+    /**
+     * Entfernt den Filter (erlaubt ALLES), damit die Animation Buchstaben anzeigen darf.
+     */
+    private void removeInputFilter(TextField field) {
+        if (field != null) {
+            field.setTextFormatter(null);
+        }
+    }
+
+    private void formatAndApply(TextField field) {
+        String text = field.getText();
+        if (text == null || text.isEmpty()) return;
+
+        try {
+            boolean isDecimal = (field == scandalChanceField);
+
+            if (isDecimal) {
+                double val = parseDoubleSafe(text, 0.0);
+                field.setText(String.format(Locale.US, "%.1f", val));
+            } else {
+                long val = parseLongSafe(text);
+
+                // Limit Check
+                if (field == voterCountField) {
+                    val = Math.clamp(val, MIN_POPULATION, MAX_POPULATION);
+                }
+
+                NumberFormat formatter = NumberFormat.getInstance(Locale.GERMANY);
+                field.setText(formatter.format(val));
+            }
+
+            handleParameterChange(null);
+
+        } catch (Exception e) {
+            field.setStyle("-fx-border-color: red;");
+        }
+    }
+
+    private long parseLongSafe(String text) {
+        String clean = text.replaceAll("[^0-9]", "");
+        return clean.isEmpty() ? 0 : Long.parseLong(clean);
+    }
+
+    public void applyInitialSettings(long population, long budget) {
+        if (voterCountField != null) {
+            long safePop = Math.clamp(population, MIN_POPULATION, MAX_POPULATION);
+            voterCountField.setText(String.format(Locale.GERMANY, "%,d", safePop));
+        }
+        if (budgetField != null) {
+            budgetField.setText(String.format(Locale.GERMANY, "%,d", budget));
+        }
+        handleParameterChange(null);
+    }
+
     private void setupTimer() {
-        simulationTimer = new Timeline(new KeyFrame(Duration.seconds(1), _ -> {
+        simulationTimer = new Timeline(new KeyFrame(Duration.seconds(1), ignored -> {
             remainingSeconds--;
             updateStatusDisplay(true);
 
-            // Wenn Zeit abgelaufen ist:
             if (remainingSeconds <= 0) {
-                handlePauseSimulation(null); // Stop Simulation logic
-
-                // UNLOCK RESULTS explicitly
+                handlePauseSimulation(null);
                 lockResultButtons(false);
                 VisualFX.triggerSidebarGlitch(leftSidebar, rightSidebar);
-
-                // --- APPLIED EFFECT: SUCCESS PULSE (GREEN) ---
                 VisualFX.startPulse(intelButton, Color.LIME);
                 VisualFX.startPulse(parliamentButton, Color.LIME);
-
-                LOGGER.info("Simulation Mission Complete. Access Granted.");
+                LOGGER.info("Simulation abgeschlossen. Zugriff gewährt.");
             }
         }));
         simulationTimer.setCycleCount(Timeline.INDEFINITE);
@@ -196,8 +301,6 @@ public class DashboardController {
     private void lockResultButtons(boolean locked) {
         setButtonLockState(intelButton, locked, originalIntelText);
         setButtonLockState(parliamentButton, locked, originalParliamentText);
-
-        // Reset effects if locking again
         if (locked) {
             if (intelButton != null) VisualFX.stopPulse(intelButton);
             if (parliamentButton != null) VisualFX.stopPulse(parliamentButton);
@@ -211,7 +314,7 @@ public class DashboardController {
                 if (!btn.getStyleClass().contains("locked-button")) {
                     btn.getStyleClass().add("locked-button");
                 }
-                btn.setText("[ LOCKED ]");
+                btn.setText("[ GESPERRT ]");
             } else {
                 btn.getStyleClass().remove("locked-button");
                 if (originalText != null) btn.setText(originalText);
@@ -222,13 +325,11 @@ public class DashboardController {
     private void synchronizeUiWithParameters(SimulationParameters params) {
         voterCountField.setText(String.format(Locale.GERMANY, "%,d", params.populationSize()));
         partyCountField.setText(String.valueOf(params.partyCount()));
-
         scandalChanceField.setText(String.format(Locale.US, "%.1f", params.scandalProbability()));
         mediaInfluenceSlider.setValue(params.mediaInfluence());
         mobilityRateSlider.setValue(params.volatilityRate());
         loyaltyMeanSlider.setValue(params.loyaltyAverage());
         randomRangeSlider.setValue(params.chaosFactor());
-
         double displayBudget = params.budgetEffectiveness() * 500000.0;
         budgetField.setText(String.format(Locale.GERMANY, "%,.0f", displayBudget));
     }
@@ -241,13 +342,8 @@ public class DashboardController {
                         VisualFX.adjustResponsiveScale(scene, newVal.doubleValue())
                 );
                 VisualFX.adjustResponsiveScale(scene, scene.getWidth());
-
-                if (leftSidebar != null) {
-                    leftSidebar.prefWidthProperty().bind(Bindings.max(250, Bindings.min(450, scene.widthProperty().multiply(0.22))));
-                }
-                if (rightSidebar != null) {
-                    rightSidebar.prefWidthProperty().bind(Bindings.max(250, Bindings.min(450, scene.widthProperty().multiply(0.22))));
-                }
+                if (leftSidebar != null) leftSidebar.prefWidthProperty().bind(Bindings.max(250, Bindings.min(450, scene.widthProperty().multiply(0.22))));
+                if (rightSidebar != null) rightSidebar.prefWidthProperty().bind(Bindings.max(250, Bindings.min(450, scene.widthProperty().multiply(0.22))));
             }
         });
     }
@@ -262,15 +358,11 @@ public class DashboardController {
     private void toggleBoxLockState(VBox box, Label overlay, boolean locked) {
         if (box == null) return;
         box.setDisable(locked);
-        if (overlay != null) {
-            overlay.setVisible(locked);
-        }
+        if (overlay != null) overlay.setVisible(locked);
         Parent container = box.getParent();
         if (container != null) {
             if (locked) {
-                if (!container.getStyleClass().contains("locked-zone")) {
-                    container.getStyleClass().add("locked-zone");
-                }
+                if (!container.getStyleClass().contains("locked-zone")) container.getStyleClass().add("locked-zone");
                 setBlinking(container, true);
             } else {
                 container.getStyleClass().remove("locked-zone");
@@ -283,78 +375,53 @@ public class DashboardController {
         if (blinking) {
             if (!activeBlinks.containsKey(node)) {
                 FadeTransition fade = new FadeTransition(Duration.seconds(0.8), node);
-                fade.setFromValue(1.0);
-                fade.setToValue(0.5);
-                fade.setCycleCount(Animation.INDEFINITE);
-                fade.setAutoReverse(true);
-                fade.play();
-                activeBlinks.put(node, fade);
+                fade.setFromValue(1.0); fade.setToValue(0.5);
+                fade.setCycleCount(Animation.INDEFINITE); fade.setAutoReverse(true);
+                fade.play(); activeBlinks.put(node, fade);
             }
         } else {
             if (activeBlinks.containsKey(node)) {
                 FadeTransition fade = activeBlinks.get(node);
-                fade.stop();
-                node.setOpacity(1.0);
-                activeBlinks.remove(node);
+                fade.stop(); node.setOpacity(1.0); activeBlinks.remove(node);
             }
         }
     }
-
-    // --- Core Update Loop ---
 
     public void updateDashboard(List<Party> parties, List<VoterTransition> transitions, ScandalEvent scandal, int step) {
         if (!Platform.isFxApplicationThread()) {
             Platform.runLater(() -> updateDashboard(parties, transitions, scandal, step));
             return;
         }
-
         this.currentTick = step;
-
         if (step == 0) {
-            chartManager.clear();
-            canvasRenderer.clear(parties);
-            feedManager.clear();
+            chartManager.clear(); canvasRenderer.clear(parties); feedManager.clear();
         }
-
         updateStatusDisplay(controller.isRunning());
-
         feedManager.processScandal(scandal, step);
         chartManager.update(parties, step);
         canvasRenderer.update(parties, transitions, controller.getCurrentParameters().populationSize());
-
-        if (scandal != null) {
-            VisualFX.triggerSidebarGlitch(leftSidebar, rightSidebar);
-        }
+        if (scandal != null) VisualFX.triggerSidebarGlitch(leftSidebar, rightSidebar);
     }
 
     private void updateStatusDisplay(boolean isRunning) {
         if (timeStepLabel == null) return;
-        String statusText = isRunning ? "RUNNING" : "HALTED";
+        String statusText = isRunning ? "LAUFEND" : "PAUSIERT";
         String color = isRunning ? "#55ff55" : "#ff5555";
-
-        int m = remainingSeconds / 60;
-        int s = remainingSeconds % 60;
+        int m = remainingSeconds / 60; int s = remainingSeconds % 60;
         String timeText = String.format("%02d:%02d", m, s);
-
         timeStepLabel.setText(String.format("STATUS: %s | TICK: %d | T-MINUS: %s", statusText, currentTick, timeText));
         timeStepLabel.setStyle("-fx-text-fill: " + color + "; -fx-font-family: 'Consolas'; -fx-font-weight: bold;");
     }
-
-    // --- Event Handlers ---
 
     @FXML
     public void handleStartSimulation(ActionEvent ignored) {
         if (controller != null) {
             if (remainingSeconds > 0) {
+                handleParameterChange(null);
                 controller.startSimulation();
                 updateButtonState(true);
-
-                if (simulationTimer.getStatus() != Animation.Status.RUNNING) {
-                    simulationTimer.play();
-                }
-                setSimulationLocked(true);
-                lockResultButtons(true);
-                updateStatusDisplay(true);
+                if (simulationTimer.getStatus() != Animation.Status.RUNNING) simulationTimer.play();
+                setSimulationLocked(true); lockResultButtons(true); updateStatusDisplay(true);
             }
         }
     }
@@ -376,75 +443,59 @@ public class DashboardController {
             updateButtonState(false);
             if (resetButton != null) resetButton.setDisable(true);
             this.currentTick = 0;
-
             simulationTimer.stop();
             remainingSeconds = configDurationSeconds;
             updateDurationDisplay();
-
-            setSimulationLocked(false);
-            lockResultButtons(true);
-            updateStatusDisplay(false);
+            setSimulationLocked(false); lockResultButtons(true); updateStatusDisplay(false);
         }
     }
 
-    // --- UPDATED: LOGOUT HANDLER (ENGLISH) ---
     @FXML
     public void handleLogout(ActionEvent ignored) {
-        // Pause simulation first
-        if (controller != null && controller.isRunning()) {
-            handlePauseSimulation(null);
-        }
-
+        if (controller != null && controller.isRunning()) handlePauseSimulation(null);
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("SYSTEM TERMINATION");
-        alert.setHeaderText("CONFIRM DISCONNECT");
-        alert.setContentText("Are you sure you want to terminate the secure connection?");
-
-        // Try to apply dark mode stylesheet
+        alert.setTitle("SYSTEMABBRUCH"); alert.setHeaderText("VERBINDUNG TRENNEN");
+        alert.setContentText("Sind Sie sicher, dass Sie die sichere Verbindung trennen wollen?");
         try {
             if (startButton != null && startButton.getScene() != null) {
                 alert.getDialogPane().getStylesheets().addAll(startButton.getScene().getStylesheets());
                 alert.getDialogPane().getStyleClass().add("alert-dialog");
             }
         } catch (Exception e) { /* Ignore CSS errors */ }
-
         if (alert.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
-            LOGGER.info("User initiated logout. Shutting down.");
-            shutdown();
-            Platform.exit();
-            System.exit(0);
+            shutdown(); Platform.exit(); System.exit(0);
         }
     }
 
     @FXML
     public void handleDurationIncrement(ActionEvent ignored) {
         if (configDurationSeconds < 300) {
-            configDurationSeconds += 30;
-            remainingSeconds = configDurationSeconds;
-            updateDurationDisplay();
+            configDurationSeconds += 30; remainingSeconds = configDurationSeconds; updateDurationDisplay();
         }
     }
 
     @FXML
     public void handleDurationDecrement(ActionEvent ignored) {
         if (configDurationSeconds > 30) {
-            configDurationSeconds -= 30;
-            remainingSeconds = configDurationSeconds;
-            updateDurationDisplay();
+            configDurationSeconds -= 30; remainingSeconds = configDurationSeconds; updateDurationDisplay();
         }
     }
 
     private void updateDurationDisplay() {
-        int m = configDurationSeconds / 60;
-        int s = configDurationSeconds % 60;
+        int m = configDurationSeconds / 60; int s = configDurationSeconds % 60;
         durationField.setText(String.format("%02d:%02d", m, s));
     }
 
     @FXML
     public void handleRandomize(ActionEvent ignored) {
-        Random rand = new Random();
+        // 1. Filter entfernen -> Erlaubt der Animation, "Hacker-Zeichen" zu schreiben
+        removeInputFilter(voterCountField);
+        removeInputFilter(partyCountField);
+        removeInputFilter(budgetField);
+        removeInputFilter(scandalChanceField);
 
-        int rPop = 10000 + rand.nextInt(490000);
+        Random rand = new Random();
+        int rPop = 10000 + rand.nextInt(MAX_POPULATION - 10000);
         int rParties = 2 + rand.nextInt(7);
         double rMedia = rand.nextDouble() * 100.0;
         double rVolatility = rand.nextDouble() * 100.0;
@@ -453,10 +504,10 @@ public class DashboardController {
         double rScandal = rand.nextDouble() * 15.0;
         double rChaos = 0.1 + rand.nextDouble() * 2.9;
 
+        // 2. Animieren (schreibt jetzt erfolgreich wirres Zeug ins Feld)
         VisualFX.animateDecryption(voterCountField, String.format(Locale.GERMANY, "%,d", rPop));
         VisualFX.animateDecryption(partyCountField, String.valueOf(rParties));
         VisualFX.animateDecryption(budgetField, String.format(Locale.GERMANY, "%,.0f", rBudget));
-
         Timeline lastAnim = VisualFX.animateDecryption(scandalChanceField, String.format(Locale.US, "%.1f", rScandal));
 
         mediaInfluenceSlider.setValue(rMedia);
@@ -464,9 +515,21 @@ public class DashboardController {
         loyaltyMeanSlider.setValue(rLoyalty);
         randomRangeSlider.setValue(rChaos);
 
+        // 3. Wenn Animation fertig: Filter wieder draufsetzen ("Nur Zahlen!")
         if (lastAnim != null) {
-            lastAnim.setOnFinished(_ -> handleParameterChange(null));
+            lastAnim.setOnFinished(e -> {
+                applyInputFilter(voterCountField);
+                applyInputFilter(partyCountField);
+                applyInputFilter(budgetField);
+                applyInputFilter(scandalChanceField);
+                handleParameterChange(null);
+            });
         } else {
+            // Fallback (sehr unwahrscheinlich)
+            applyInputFilter(voterCountField);
+            applyInputFilter(partyCountField);
+            applyInputFilter(budgetField);
+            applyInputFilter(scandalChanceField);
             handleParameterChange(null);
         }
     }
@@ -476,14 +539,14 @@ public class DashboardController {
         if (controller == null) return;
         try {
             int popSize = parseIntSafe(voterCountField.getText(), 100000);
+            popSize = Math.clamp(popSize, MIN_POPULATION, MAX_POPULATION);
 
             int parties = parseIntSafe(partyCountField.getText(), 5);
             parties = Math.clamp(parties, 2, 8);
 
             double scandalProb = Math.clamp(parseDoubleSafe(scandalChanceField.getText(), 5.0), MIN_SCANDAL_PROB, MAX_SCANDAL_PROB);
-
             double budgetInput = parseBudgetSafe(budgetField.getText());
-            double budgetEffectiveness = Math.clamp(budgetInput / 500000.0, 0.1, 10.0);
+            double budgetEffectiveness = Math.clamp(budgetInput / 500000.0, 0.1, MAX_BUDGET_FACTOR);
 
             SimulationParameters params = new SimulationParameters(
                     popSize,
@@ -497,9 +560,8 @@ public class DashboardController {
                     budgetEffectiveness
             );
             controller.updateAllParameters(params);
-
         } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "Invalid parameter input", e);
+            LOGGER.log(Level.WARNING, "Ungültige Parametereingabe", e);
         }
     }
 
@@ -524,11 +586,10 @@ public class DashboardController {
     private void navigate(String fxmlPath, java.util.function.BiConsumer<FXMLLoader, Parent> initAction) {
         if (controller == null) return;
         if (controller.isRunning()) handlePauseSimulation(null);
-
         try {
             var resource = getClass().getResource(fxmlPath);
             if (resource == null) {
-                new Alert(Alert.AlertType.ERROR, "View not found: " + fxmlPath).show();
+                new Alert(Alert.AlertType.ERROR, "View nicht gefunden: " + fxmlPath).show();
                 return;
             }
             FXMLLoader loader = new FXMLLoader(resource);
@@ -536,12 +597,12 @@ public class DashboardController {
             initAction.accept(loader, root);
             startButton.getScene().setRoot(root);
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Navigation failed", e);
+            LOGGER.log(Level.SEVERE, "Navigation fehlgeschlagen", e);
         }
     }
 
-    @FXML public void handleVoterCountIncrement(ActionEvent ignored) { adjustIntField(voterCountField, 10000, 1000, 2000000); }
-    @FXML public void handleVoterCountDecrement(ActionEvent ignored) { adjustIntField(voterCountField, -10000, 1000, 2000000); }
+    @FXML public void handleVoterCountIncrement(ActionEvent ignored) { adjustIntField(voterCountField, 10000, MIN_POPULATION, MAX_POPULATION); }
+    @FXML public void handleVoterCountDecrement(ActionEvent ignored) { adjustIntField(voterCountField, -10000, MIN_POPULATION, MAX_POPULATION); }
     @FXML public void handlePartyCountIncrement(ActionEvent ignored) { adjustIntField(partyCountField, 1, 2, 8); }
     @FXML public void handlePartyCountDecrement(ActionEvent ignored) { adjustIntField(partyCountField, -1, 2, 8); }
     @FXML public void handleScandalChanceIncrement(ActionEvent ignored) { adjustDoubleField(scandalChanceField, 0.5); }

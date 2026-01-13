@@ -13,6 +13,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter; // NEU
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Region;
@@ -23,6 +25,7 @@ import javafx.util.Duration;
 
 import java.io.IOException;
 import java.net.URL;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -55,6 +58,9 @@ public class StartController {
     @FXML private Canvas codeCanvas;
     @FXML private Region gridRegion;
 
+    @FXML private TextField populationField;
+    @FXML private TextField campaignBudgetField;
+
     // --- State ---
     private AnimationTimer animTimer;
     private final List<Particle> particles = new ArrayList<>();
@@ -64,33 +70,29 @@ public class StartController {
 
     @FXML
     public void initialize() {
-        // Initial visibility states
         cardBox.setOpacity(0);
         hudLayer.setOpacity(0);
         glowRegion.setOpacity(0);
 
-        // Bind canvas to full screen
+        // Setup Fields: Formatter & Input Filter
+        if (populationField != null) setupCurrencyField(populationField);
+        if (campaignBudgetField != null) setupCurrencyField(campaignBudgetField);
+
         codeCanvas.widthProperty().bind(rootPane.widthProperty());
         codeCanvas.heightProperty().bind(rootPane.heightProperty());
 
         Platform.runLater(() -> {
             if (logoImageView.getScene() != null) {
                 Scene scene = logoImageView.getScene();
-
                 startIntroAnimation();
                 initParticles();
                 startNetworkAnimation();
 
-                // Responsive scaling listener
-                scene.widthProperty().addListener((ignored, ignored2, newVal) ->
-                        adjustScale(newVal.doubleValue())
-                );
+                scene.widthProperty().addListener((obs, oldVal, newVal) -> adjustScale(newVal.doubleValue()));
                 adjustScale(scene.getWidth());
 
-                // Layout bindings
                 logoImageView.fitWidthProperty().bind(Bindings.min(600, scene.widthProperty().multiply(0.45)));
                 cardBox.maxWidthProperty().bind(Bindings.min(scene.widthProperty().multiply(0.90), 850));
-
                 glowRegion.maxWidthProperty().bind(cardBox.widthProperty().multiply(1.3));
                 glowRegion.maxHeightProperty().bind(cardBox.heightProperty().multiply(0.9));
             }
@@ -102,29 +104,34 @@ public class StartController {
     @FXML
     public void handleStartSimulation(ActionEvent ignored) {
         try {
-            // 1. Load Dashboard
+            if (populationField != null) formatField(populationField);
+            if (campaignBudgetField != null) formatField(campaignBudgetField);
+
+            long population = (populationField != null) ? parseFormattedNumber(populationField.getText()) : 100_000;
+            long budget = (campaignBudgetField != null) ? parseFormattedNumber(campaignBudgetField.getText()) : 500_000;
+
+            if (population <= 0) population = 100_000;
+            if (budget <= 0) budget = 500_000;
+
             FXMLLoader loader = new FXMLLoader(getClass().getResource(DASHBOARD_FXML));
             Parent dashboardRoot = loader.load();
 
-            // 2. Prepare Dashboard (Transparent & Scaled Down for effect)
+            DashboardController dashboardCtrl = loader.getController();
+            if (dashboardCtrl != null) {
+                dashboardCtrl.applyInitialSettings(population, budget);
+            }
+
             dashboardRoot.setStyle("-fx-background-color: transparent;");
             dashboardRoot.setOpacity(0);
             dashboardRoot.setScaleX(0.95);
             dashboardRoot.setScaleY(0.95);
 
-            // 3. Apply CSS safely
             URL cssUrl = getClass().getResource(DASHBOARD_CSS);
-            if (cssUrl != null) {
+            if (cssUrl != null && rootPane.getScene() != null) {
                 rootPane.getScene().getStylesheets().add(cssUrl.toExternalForm());
-            } else {
-                LOGGER.warning("Dashboard CSS not found: " + DASHBOARD_CSS);
             }
 
-            // 4. Add to scene (layered on top)
             rootPane.getChildren().add(dashboardRoot);
-
-            // 5. Build and Play Transition
-            // FIX: Inlined redundant variable 'transition'
             buildTransitionAnimation(dashboardRoot).play();
 
         } catch (IOException e) {
@@ -138,56 +145,100 @@ public class StartController {
         System.exit(0);
     }
 
-    // --- Animation Logic: Setup ---
+    // --- Input Helper Methods ---
+
+    private void setupCurrencyField(TextField field) {
+        // NEU: Input Filter (verhindert Buchstaben während des Tippens)
+        // Erlaubt nur Ziffern [0-9] und Punkte [.] (für die Formatierung)
+        field.setTextFormatter(new TextFormatter<>(change -> {
+            String newText = change.getControlNewText();
+            if (newText.matches("[0-9.]*")) {
+                return change;
+            }
+            return null; // Änderung ablehnen (Buchstabe etc.)
+        }));
+
+        // ENTER Taste (Formatierung finalisieren)
+        field.setOnAction(e -> {
+            formatField(field);
+            // Fokus weitergeben (UX-Verbesserung)
+            // if (field == populationField && campaignBudgetField != null) campaignBudgetField.requestFocus();
+        });
+
+        // Fokus verloren
+        field.focusedProperty().addListener((obs, oldVal, newVal) -> {
+            if (!newVal) { // focus lost
+                formatField(field);
+            }
+        });
+
+        field.setOnKeyPressed(e -> field.setStyle(""));
+    }
+
+    private void formatField(TextField field) {
+        String originalText = field.getText();
+        if (originalText == null || originalText.isEmpty()) return;
+
+        try {
+            String cleanString = originalText.replaceAll("\\D", ""); // Alles außer Ziffern weg
+            if (cleanString.isEmpty()) return;
+
+            long value = Long.parseLong(cleanString);
+            NumberFormat formatter = NumberFormat.getInstance(Locale.GERMANY);
+            String formattedText = formatter.format(value);
+
+            if (!formattedText.equals(field.getText())) {
+                field.setText(formattedText);
+                field.positionCaret(formattedText.length());
+            }
+        } catch (NumberFormatException e) {
+            field.setStyle("-fx-border-color: red; -fx-border-width: 2px;");
+        }
+    }
+
+    private long parseFormattedNumber(String text) {
+        if (text == null) return 0;
+        String clean = text.replaceAll("\\D", "");
+        return clean.isEmpty() ? 0 : Long.parseLong(clean);
+    }
+
+    // --- Animation Logic ---
 
     private void startIntroAnimation() {
         FadeTransition ftHud = new FadeTransition(Duration.seconds(1.5), hudLayer);
-        ftHud.setFromValue(0); ftHud.setToValue(1.0);
-        ftHud.play();
+        ftHud.setFromValue(0); ftHud.setToValue(1.0); ftHud.play();
 
         FadeTransition ftCard = new FadeTransition(Duration.seconds(2.0), cardBox);
-        ftCard.setFromValue(0); ftCard.setToValue(1.0);
-        ftCard.setDelay(Duration.seconds(0.5));
-        ftCard.play();
+        ftCard.setFromValue(0); ftCard.setToValue(1.0); ftCard.setDelay(Duration.seconds(0.5)); ftCard.play();
 
         FadeTransition ftGlow = new FadeTransition(Duration.seconds(3.0), glowRegion);
-        ftGlow.setFromValue(0); ftGlow.setToValue(0.8);
-        ftGlow.setDelay(Duration.seconds(0.8));
-        ftGlow.play();
+        ftGlow.setFromValue(0); ftGlow.setToValue(0.8); ftGlow.setDelay(Duration.seconds(0.8)); ftGlow.play();
     }
 
     private void startNetworkAnimation() {
         GraphicsContext gc = codeCanvas.getGraphicsContext2D();
         animTimer = new AnimationTimer() {
-            @Override
-            public void handle(long now) {
-                drawNetwork(gc, codeCanvas.getWidth(), codeCanvas.getHeight());
-            }
+            @Override public void handle(long now) { drawNetwork(gc, codeCanvas.getWidth(), codeCanvas.getHeight()); }
         };
         animTimer.start();
     }
-
-    // --- Animation Logic: Drawing ---
 
     private void drawNetwork(GraphicsContext gc, double w, double h) {
         gc.clearRect(0, 0, w, h);
         double scaleFactor = Math.max(0.5, Math.sqrt(w * w + h * h) / 1400.0);
         double activeConnectionDist = BASE_CONNECTION_DIST * scaleFactor;
 
-        // Draw Nodes
         gc.setFill(Color.web("#D4AF37"));
         for (Particle p : particles) {
             p.update();
             gc.fillOval(p.relX * w, p.relY * h, p.sizeBase * scaleFactor, p.sizeBase * scaleFactor);
         }
 
-        // Draw Connections
         gc.setLineWidth(0.8 * scaleFactor);
         for (int i = 0; i < particles.size(); i++) {
             Particle p1 = particles.get(i);
             for (int j = i + 1; j < particles.size(); j++) {
                 Particle p2 = particles.get(j);
-
                 double dx = (p1.relX - p2.relX) * w;
                 double dy = (p1.relY - p2.relY) * h;
                 double dist = Math.sqrt(dx * dx + dy * dy);
@@ -195,103 +246,54 @@ public class StartController {
                 if (dist < activeConnectionDist) {
                     double opacity = (1.0 - dist / activeConnectionDist) * 0.4;
                     gc.setStroke(Color.color(0.83, 0.68, 0.21, opacity));
-
-                    double offset1 = (p1.sizeBase * scaleFactor) / 2;
-                    double offset2 = (p2.sizeBase * scaleFactor) / 2;
-
                     gc.strokeLine(
-                            p1.relX * w + offset1, p1.relY * h + offset1,
-                            p2.relX * w + offset2, p2.relY * h + offset2
+                            p1.relX * w + p1.sizeBase/2, p1.relY * h + p1.sizeBase/2,
+                            p2.relX * w + p2.sizeBase/2, p2.relY * h + p2.sizeBase/2
                     );
                 }
             }
         }
     }
 
-    // --- Helper Methods ---
-
     private void initParticles() {
         particles.clear();
-        for (int i = 0; i < PARTICLE_COUNT; i++) {
-            particles.add(new Particle(random));
-        }
+        for (int i = 0; i < PARTICLE_COUNT; i++) particles.add(new Particle(random));
     }
 
     private void adjustScale(double windowWidth) {
         if (logoImageView.getScene() == null) return;
-
-        // Calculate responsive font size
         double rawSize = 12.0 * (windowWidth / 1280.0);
-        double newSize = Math.clamp(rawSize, 10.0, 24.0);
-
-        logoImageView.getScene().getRoot().setStyle(
-                "-fx-font-size: " + String.format(Locale.US, "%.1f", newSize) + "px;"
-        );
+        logoImageView.getScene().getRoot().setStyle("-fx-font-size: " + String.format(Locale.US, "%.1f", Math.clamp(rawSize, 10.0, 24.0)) + "px;");
     }
 
-    /**
-     * Builds the transition sequence that hides the intro and shows the dashboard.
-     */
     private ParallelTransition buildTransitionAnimation(Parent dashboardRoot) {
-        // A. Fade Out Intro Elements
-        FadeTransition ftCard = new FadeTransition(Duration.seconds(0.6), cardBox);
-        ftCard.setToValue(0);
-
-        FadeTransition ftHud = new FadeTransition(Duration.seconds(0.4), hudLayer);
-        ftHud.setToValue(0);
-
-        FadeTransition ftGlow = new FadeTransition(Duration.seconds(0.4), glowRegion);
-        ftGlow.setToValue(0);
-
-        // B. Fade Out Background (Slowly)
-        FadeTransition ftGrid = new FadeTransition(Duration.seconds(1.5), gridRegion);
-        ftGrid.setToValue(0);
-
-        FadeTransition ftCanvas = new FadeTransition(Duration.seconds(1.5), codeCanvas);
-        ftCanvas.setToValue(0);
-
-        // C. Fade In Dashboard
-        FadeTransition ftDash = new FadeTransition(Duration.seconds(1.2), dashboardRoot);
-        ftDash.setToValue(1.0);
-
-        ScaleTransition stDash = new ScaleTransition(Duration.seconds(1.2), dashboardRoot);
-        stDash.setToX(1.0);
-        stDash.setToY(1.0);
+        FadeTransition ftCard = new FadeTransition(Duration.seconds(0.6), cardBox); ftCard.setToValue(0);
+        FadeTransition ftHud = new FadeTransition(Duration.seconds(0.4), hudLayer); ftHud.setToValue(0);
+        FadeTransition ftGlow = new FadeTransition(Duration.seconds(0.4), glowRegion); ftGlow.setToValue(0);
+        FadeTransition ftGrid = new FadeTransition(Duration.seconds(1.5), gridRegion); ftGrid.setToValue(0);
+        FadeTransition ftCanvas = new FadeTransition(Duration.seconds(1.5), codeCanvas); ftCanvas.setToValue(0);
+        FadeTransition ftDash = new FadeTransition(Duration.seconds(1.2), dashboardRoot); ftDash.setToValue(1.0);
+        ScaleTransition stDash = new ScaleTransition(Duration.seconds(1.2), dashboardRoot); stDash.setToX(1.0); stDash.setToY(1.0);
 
         ParallelTransition transition = new ParallelTransition(ftCard, ftHud, ftGlow, ftGrid, ftCanvas, ftDash, stDash);
-
-        // Cleanup after animation
         transition.setOnFinished(ignored -> {
             if (animTimer != null) animTimer.stop();
-
-            cardBox.setVisible(false);
-            hudLayer.setVisible(false);
-            glowRegion.setVisible(false);
-            gridRegion.setVisible(false);
-            codeCanvas.setVisible(false);
+            cardBox.setVisible(false); hudLayer.setVisible(false); glowRegion.setVisible(false);
+            gridRegion.setVisible(false); codeCanvas.setVisible(false);
         });
-
         return transition;
     }
 
-    // --- Inner Classes ---
-
     private static class Particle {
         double relX, relY, velX, velY, sizeBase;
-
         Particle(Random r) {
-            this.relX = r.nextDouble();
-            this.relY = r.nextDouble();
+            this.relX = r.nextDouble(); this.relY = r.nextDouble();
             this.velX = (r.nextDouble() - 0.5) * RELATIVE_SPEED;
             this.velY = (r.nextDouble() - 0.5) * RELATIVE_SPEED;
             this.sizeBase = 1.5 + r.nextDouble() * 2.0;
         }
-
         void update() {
-            relX += velX;
-            relY += velY;
-
-            // Bounce off edges
+            relX += velX; relY += velY;
             if (relX < 0) { relX = 0; velX *= -1; }
             if (relX > 1) { relX = 1; velX *= -1; }
             if (relY < 0) { relY = 0; velY *= -1; }

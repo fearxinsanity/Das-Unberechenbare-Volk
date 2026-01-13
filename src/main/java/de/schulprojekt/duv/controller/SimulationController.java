@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 
 /**
  * The controller connects the GUI (View) with the Simulation Engine (Model).
+ * Thread-Safety Update: All simulation control logic is now confined to the executorService.
  */
 public class SimulationController {
 
@@ -37,9 +38,13 @@ public class SimulationController {
 
     private final SimulationEngine engine;
     private final DashboardController view;
+    // Single Thread ensures sequential execution of Start/Stop/Update commands
     private final ScheduledExecutorService executorService;
+
     private ScheduledFuture<?> simulationTask;
-    private boolean isRunning = false;
+
+    // Volatile ensures visibility across threads
+    private volatile boolean isRunning = false;
 
     public SimulationController(DashboardController view) {
         this.view = view;
@@ -61,43 +66,57 @@ public class SimulationController {
 
         this.executorService = Executors.newSingleThreadScheduledExecutor(r -> {
             Thread t = new Thread(r, "Simulation-Thread");
-            t.setDaemon(true);
+            t.setDaemon(true); // Important: Allows JVM to exit even if thread is running
             return t;
         });
     }
 
     public void startSimulation() {
-        if (isRunning) return;
-        isRunning = true;
-        scheduleTask();
-        LOGGER.info("Simulation started.");
+        // Move logic to executor to prevent race conditions with updateParameters
+        executorService.execute(() -> {
+            if (isRunning) return;
+            isRunning = true;
+            scheduleTask();
+            LOGGER.info("Simulation started.");
+        });
     }
 
     public void pauseSimulation() {
-        isRunning = false;
-        if (simulationTask != null) {
-            simulationTask.cancel(false);
-        }
-        LOGGER.info("Simulation paused.");
+        // Move logic to executor to ensure we cancel the CORRECT task reference
+        executorService.execute(() -> {
+            isRunning = false;
+            stopCurrentTask();
+            LOGGER.info("Simulation paused.");
+        });
     }
 
     public void resetSimulation() {
-        pauseSimulation();
+        // Execute sequentially: First pause, then reset
         executorService.execute(() -> {
+            // 1. Force Stop
+            isRunning = false;
+            stopCurrentTask();
+
+            // 2. Reset Logic
             engine.resetState();
-            // Create snapshot for safe UI update
+
+            // 3. UI Update (Snapshot)
             List<Party> partySnapshot = new ArrayList<>(engine.getParties());
             Platform.runLater(() -> view.updateDashboard(partySnapshot, List.of(), null, 0));
+
+            LOGGER.info("Simulation reset.");
         });
-        LOGGER.info("Simulation reset.");
     }
 
     public void updateSimulationSpeed(int factor) {
-        SimulationParameters current = engine.getParameters();
-        SimulationParameters updated = current.withTickRate(factor);
-
+        // Parameter updates are already safe, but we fetch current inside the lambda to be sure
         executorService.execute(() -> {
+            SimulationParameters current = engine.getParameters();
+            SimulationParameters updated = current.withTickRate(factor);
+
             engine.updateParameters(updated);
+
+            // Restart task with new speed if running
             if (isRunning) {
                 scheduleTask();
             }
@@ -107,29 +126,54 @@ public class SimulationController {
     public void updateAllParameters(SimulationParameters p) {
         executorService.execute(() -> {
             engine.updateParameters(p);
+
             List<Party> partySnapshot = new ArrayList<>(engine.getParties());
+            int currentStep = engine.getCurrentStep();
+
             Platform.runLater(() ->
-                    view.updateDashboard(partySnapshot, List.of(), null, engine.getCurrentStep())
+                    view.updateDashboard(partySnapshot, List.of(), null, currentStep)
             );
-            if (isRunning) scheduleTask();
+
+            // Restart task if running to apply new parameters (like tick rate or chaos) immediately
+            if (isRunning) {
+                scheduleTask();
+            }
         });
     }
 
     public void shutdown() {
+        // Disable new tasks and interrupt running ones
         executorService.shutdownNow();
         LOGGER.info("Simulation service stopped.");
     }
 
-    private void scheduleTask() {
-        if (simulationTask != null && !simulationTask.isCancelled()) {
-            simulationTask.cancel(false);
+    /**
+     * Helper to stop the scheduled task safely.
+     * Must be called from inside executorService.
+     */
+    private void stopCurrentTask() {
+        if (simulationTask != null) {
+            // true = interrupt if running (helps if a step takes very long)
+            simulationTask.cancel(true);
+            simulationTask = null;
         }
+    }
 
-        int tps = engine.getParameters().tickRate(); // REF: Record Access
+    /**
+     * Schedules the simulation loop.
+     * Must be called from inside executorService.
+     */
+    private void scheduleTask() {
+        stopCurrentTask(); // Ensure old task is gone
+
+        int tps = engine.getParameters().tickRate();
         long period = 1000 / (tps > 0 ? tps : 1);
 
         simulationTask = executorService.scheduleAtFixedRate(() -> {
             try {
+                // Double check running state inside the loop
+                if (!isRunning) return;
+
                 // 1. Calculation
                 List<VoterTransition> transitions = engine.runSimulationStep();
                 ScandalEvent scandal = engine.getLastScandal();
@@ -143,6 +187,8 @@ public class SimulationController {
 
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, "Critical error in simulation loop", e);
+                // Optional: Auto-Pause on error
+                isRunning = false;
             }
         }, 0, period, TimeUnit.MILLISECONDS);
     }
