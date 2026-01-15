@@ -3,21 +3,33 @@ package de.schulprojekt.duv.model.voter;
 import de.schulprojekt.duv.model.party.Party;
 
 /**
- * Ein unveränderlicher Datensatz, der einen Wählerwechsel beschreibt.
- * Dient hauptsächlich der Visualisierung (z.B. fliegende Punkte im UI).
+ * Immutable Data Transfer Object describing a voter's party change.
+ * * @param from the original party
+ * @param to the target party
+ * * @author Nico Hoffmann
+ * @version 1.1
+ * @since Java 16
  */
-public record VoterTransition(Party from, Party to) {
+public record VoterTransition(
+        Party from,
+        Party to
+) {
 
-    // --- Business Logic / Formatting ---
+    // ========================================
+    // Custom Accessor Methods
+    // ========================================
 
     /**
-     * Erstellt ein formatiertes Label für UI-Anzeigen oder Logs.
+     * Returns a formatted label for the transition.
+     * * @return transition arrow string
      */
     public String getTransitionLabel() {
         return String.format("%s ➔ %s", from.getName(), to.getName());
     }
 
-    // --- Technical Overrides ---
+    // ========================================
+    // Utility Methods
+    // ========================================
 
     @Override
     public String toString() {

@@ -5,35 +5,55 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Berechnet die Auswirkungen von Skandalen.
- * UPDATE: Deutlich sanftere Kurven (Fade-In), damit Wähler nicht schlagartig fliehen.
+ * Calculates the impact of scandals on voters and parties.
+ * * @author Nico Hoffmann
+ * @version 1.1
  */
 public class ScandalImpactCalculator {
 
-    // --- Konstanten (Konfiguration) ---
-    private static final int SCANDAL_DURATION = 300; // Längere Gesamtdauer (war 200)
+    // ========================================
+    // Static Variables
+    // ========================================
 
-    // WICHTIG: Das Fade-In stark verlängert (war 20).
-    // Der Skandal baut sich jetzt langsam über ~90 Ticks auf, statt sofort zu explodieren.
+    private static final int SCANDAL_DURATION = 300;
     private static final int FADE_IN_TICKS = 90;
-
-    // Gewichtungsfaktoren (Reduziert für weniger "Schock")
-    private static final double ACUTE_PRESSURE_FACTOR = 4.0; // War 8.0 (halbiert!)
-    private static final double PERMANENT_DAMAGE_FACTOR = 2.0; // War 2.5
-
-    // Recovery-Werte
+    private static final double ACUTE_PRESSURE_FACTOR = 4.0;
+    private static final double PERMANENT_DAMAGE_FACTOR = 2.0;
     private static final double BASE_RECOVERY_RATE = 0.005;
     private static final double VOTER_SHARE_RECOVERY_FACTOR = 0.04;
 
-    // --- Felder ---
+    // ========================================
+    // Instance Variables
+    // ========================================
+
     private final double[] partyPermanentDamage;
 
-    // --- Konstruktor ---
+    // ========================================
+    // Constructors
+    // ========================================
+
+    /**
+     * Initializes the calculator with a fixed size for party tracking.
+     * * @param maxParties maximum number of expected parties
+     */
     public ScandalImpactCalculator(int maxParties) {
         this.partyPermanentDamage = new double[maxParties + 10];
     }
 
-    // --- Business Logik ---
+    // ========================================
+    // Getter Methods
+    // ========================================
+
+    public double getPermanentDamage(int partyIndex) {
+        if (isValidIndex(partyIndex)) {
+            return partyPermanentDamage[partyIndex];
+        }
+        return 0.0;
+    }
+
+    // ========================================
+    // Business Logic Methods
+    // ========================================
 
     public double[] calculateAcutePressure(List<ScandalEvent> activeScandals, List<Party> parties, int currentStep) {
         double[] acutePressure = new double[parties.size()];
@@ -47,13 +67,10 @@ public class ScandalImpactCalculator {
             int age = currentStep - event.occurredAtStep();
             if (age > SCANDAL_DURATION) continue;
 
-            // 1. Akuten Druck berechnen
             double strength = event.scandal().strength();
             double timeFactor = calculateTimeFactor(age);
 
             acutePressure[pIndex] += strength * ACUTE_PRESSURE_FACTOR * timeFactor;
-
-            // 2. Langzeitschaden aufbauen (passiert langsamer)
             accumulatePermanentDamage(pIndex, strength);
         }
         return acutePressure;
@@ -75,35 +92,24 @@ public class ScandalImpactCalculator {
         }
     }
 
-    // --- Getter & Setter ---
-
-    public double getPermanentDamage(int partyIndex) {
-        if (isValidIndex(partyIndex)) {
-            return partyPermanentDamage[partyIndex];
-        }
-        return 0.0;
-    }
-
     public void reset() {
         Arrays.fill(partyPermanentDamage, 0.0);
     }
 
-    // --- Private Hilfsmethoden ---
+    // ========================================
+    // Utility Methods
+    // ========================================
 
     private double calculateTimeFactor(int age) {
-        // 0-90 Ticks: Langsamer Anstieg (die Nachricht verbreitet sich)
         if (age < FADE_IN_TICKS) {
-            // Nutzung einer quadratischen Kurve für sanfteren Start (Ease-In)
             double progress = (double) age / FADE_IN_TICKS;
             return progress * progress;
         }
-        // Danach: Langsames Abklingen
         return 1.0 - ((double) (age - FADE_IN_TICKS) / (SCANDAL_DURATION - FADE_IN_TICKS));
     }
 
     private void accumulatePermanentDamage(int index, double strength) {
         if (isValidIndex(index)) {
-            // Langzeitschaden baut sich über die gesamte Dauer auf
             double damageBuildUp = (strength * PERMANENT_DAMAGE_FACTOR) / (double) SCANDAL_DURATION;
             partyPermanentDamage[index] += damageBuildUp;
         }

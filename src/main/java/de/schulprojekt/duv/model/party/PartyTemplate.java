@@ -2,28 +2,36 @@ package de.schulprojekt.duv.model.party;
 
 /**
  * A blueprint for a party loaded from a CSV file.
- * Implemented as a Java Record because it is a pure, immutable data carrier (DTO).
- * Used to generate random party instances during the initialization phase.
+ * * @param name the full name of the party
+ * @param abbreviation the short identifier
+ * @param colorCode hex color for UI representation
+ * * @author Nico Hoffmann
+ * @version 1.1
+ * @since Java 16
  */
-public record PartyTemplate(String name, String abbreviation, String colorCode) {
+public record PartyTemplate(
+        String name,
+        String abbreviation,
+        String colorCode
+) {
 
-    // --- MAIN LOGIC (Conversion) ---
+    // ========================================
+    // Transformation Methods
+    // ========================================
 
     /**
      * Creates a fully-fledged Party instance from this template.
-     * Combines the static template data (Name, ID, Color) with dynamic simulation parameters.
-     *
-     * @param politicalPosition The assigned political position (0-100).
-     * @param campaignBudget    The initial campaign budget.
-     * @return A new, ready-to-use Party instance.
+     * * @param politicalPosition assigned position (0-100)
+     * @param campaignBudget initial budget
+     * @return a new Party instance
      */
     public Party toParty(double politicalPosition, double campaignBudget) {
-        // Pass record components to Party constructor
-        // Initial supporter count is 0 (will be calculated by SimulationEngine)
         return new Party(name, abbreviation, colorCode, politicalPosition, campaignBudget, 0);
     }
 
-    // --- OVERRIDES ---
+    // ========================================
+    // Utility Methods
+    // ========================================
 
     @Override
     public String toString() {

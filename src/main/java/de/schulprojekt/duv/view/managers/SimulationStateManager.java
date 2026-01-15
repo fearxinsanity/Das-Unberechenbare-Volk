@@ -20,7 +20,8 @@ import java.util.logging.Logger;
 
 /**
  * Manages simulation state, timer, locking mechanisms, and UI status display.
- * Handles simulation lifecycle (running, paused, reset) and UI feedback.
+ * Handles the complete simulation lifecycle including running, paused, and reset states.
+ * Provides visual feedback through button states, blinking effects, and status labels.
  *
  * @author Nico Hoffmann
  * @version 1.0
@@ -70,7 +71,6 @@ public class SimulationStateManager {
 
     private final Map<Node, FadeTransition> activeBlinks;
 
-    private Runnable onTimerCompleteCallback;
     private Runnable onPauseCallback;
 
     // ========================================
@@ -78,7 +78,8 @@ public class SimulationStateManager {
     // ========================================
 
     /**
-     * Default constructor.
+     * Default constructor for SimulationStateManager.
+     * Initializes with default duration and empty state.
      */
     public SimulationStateManager() {
         this.configDurationSeconds = DEFAULT_DURATION_SECONDS;
@@ -91,18 +92,40 @@ public class SimulationStateManager {
     // Getter Methods
     // ========================================
 
+    /**
+     * Gets the current simulation tick count.
+     *
+     * @return the current tick number
+     */
     public int getCurrentTick() {
         return currentTick;
     }
 
+    /**
+     * Gets the remaining time in seconds.
+     *
+     * @return the remaining seconds in the simulation
+     */
     public int getRemainingSeconds() {
         return remainingSeconds;
     }
 
+    /**
+     * Gets the configured duration in seconds.
+     *
+     * @return the total configured duration
+     */
+    @SuppressWarnings("unused")
     public int getConfigDurationSeconds() {
         return configDurationSeconds;
     }
 
+    /**
+     * Checks if the simulation timer is currently running.
+     *
+     * @return true if the timer is running, false otherwise
+     */
+    @SuppressWarnings("unused")
     public boolean isTimerRunning() {
         return simulationTimer != null && simulationTimer.getStatus() == Animation.Status.RUNNING;
     }
@@ -111,18 +134,42 @@ public class SimulationStateManager {
     // Setter Methods
     // ========================================
 
+    /**
+     * Sets the current simulation tick.
+     *
+     * @param tick the tick count to set
+     */
     public void setCurrentTick(int tick) {
         this.currentTick = tick;
     }
 
+    /**
+     * Sets the status display label.
+     *
+     * @param label the label to display simulation status
+     */
     public void setTimeStepLabel(Label label) {
         this.timeStepLabel = label;
     }
 
+    /**
+     * Sets the duration input field.
+     *
+     * @param field the text field for duration display
+     */
     public void setDurationField(TextField field) {
         this.durationField = field;
     }
 
+    /**
+     * Sets all control buttons for state management.
+     *
+     * @param start the start simulation button
+     * @param pause the pause simulation button
+     * @param reset the reset simulation button
+     * @param intel the intelligence report button
+     * @param parliament the parliament view button
+     */
     public void setButtons(Button start, Button pause, Button reset, Button intel, Button parliament) {
         this.startButton = start;
         this.pauseButton = pause;
@@ -130,7 +177,6 @@ public class SimulationStateManager {
         this.intelButton = intel;
         this.parliamentButton = parliament;
 
-        // Capture original text
         if (intel != null) {
             this.originalIntelText = intel.getText();
         }
@@ -139,6 +185,18 @@ public class SimulationStateManager {
         }
     }
 
+    /**
+     * Sets the parameter boxes and their lock overlays.
+     *
+     * @param popBox the population parameter box
+     * @param partyBox the party count parameter box
+     * @param budgetBox the budget parameter box
+     * @param durationBox the duration parameter box
+     * @param popOverlay the population lock overlay
+     * @param partyOverlay the party lock overlay
+     * @param budgetOverlay the budget lock overlay
+     * @param durationOverlay the duration lock overlay
+     */
     public void setLockingContainers(
             VBox popBox, VBox partyBox, VBox budgetBox, VBox durationBox,
             Label popOverlay, Label partyOverlay, Label budgetOverlay, Label durationOverlay
@@ -153,15 +211,22 @@ public class SimulationStateManager {
         this.durationOverlay = durationOverlay;
     }
 
+    /**
+     * Sets the sidebar containers for visual effects.
+     *
+     * @param left the left sidebar container
+     * @param right the right sidebar container
+     */
     public void setSidebars(VBox left, VBox right) {
         this.leftSidebar = left;
         this.rightSidebar = right;
     }
 
-    public void setOnTimerCompleteCallback(Runnable callback) {
-        this.onTimerCompleteCallback = callback;
-    }
-
+    /**
+     * Sets the callback to invoke when simulation is paused.
+     *
+     * @param callback the runnable to execute on pause
+     */
     public void setOnPauseCallback(Runnable callback) {
         this.onPauseCallback = callback;
     }
@@ -171,10 +236,12 @@ public class SimulationStateManager {
     // ========================================
 
     /**
-     * Initializes and starts the simulation timer.
+     * Initializes and configures the simulation timer.
+     * Creates a timeline that decrements remaining time every second.
+     * Triggers completion callback and visual effects when time reaches zero.
      */
     public void setupTimer() {
-        simulationTimer = new Timeline(new KeyFrame(Duration.seconds(1), ignored -> {
+        simulationTimer = new Timeline(new KeyFrame(Duration.seconds(1), _ -> {
             remainingSeconds--;
             updateStatusDisplay(true);
 
@@ -194,7 +261,8 @@ public class SimulationStateManager {
     }
 
     /**
-     * Starts the simulation timer.
+     * Starts the simulation timer and locks parameter inputs.
+     * Updates button states and UI feedback to reflect running state.
      */
     public void startTimer() {
         if (simulationTimer != null && remainingSeconds > 0) {
@@ -210,6 +278,7 @@ public class SimulationStateManager {
 
     /**
      * Pauses the simulation timer.
+     * Updates button states and status display to reflect paused state.
      */
     public void pauseTimer() {
         if (simulationTimer != null) {
@@ -220,7 +289,8 @@ public class SimulationStateManager {
     }
 
     /**
-     * Resets the simulation state and timer.
+     * Resets the simulation to initial state.
+     * Stops timer, resets tick count, unlocks inputs, and updates UI.
      */
     public void resetSimulation() {
         if (simulationTimer != null) {
@@ -236,7 +306,8 @@ public class SimulationStateManager {
     }
 
     /**
-     * Increments the configured duration by 30 seconds.
+     * Increments the configured simulation duration by 30 seconds.
+     * Maximum duration is capped at 300 seconds (5 minutes).
      */
     public void incrementDuration() {
         if (configDurationSeconds < 300) {
@@ -247,7 +318,8 @@ public class SimulationStateManager {
     }
 
     /**
-     * Decrements the configured duration by 30 seconds.
+     * Decrements the configured simulation duration by 30 seconds.
+     * Minimum duration is capped at 30 seconds.
      */
     public void decrementDuration() {
         if (configDurationSeconds > 30) {
@@ -259,6 +331,7 @@ public class SimulationStateManager {
 
     /**
      * Updates the status display label with current simulation state.
+     * Shows running/paused status, tick count, and remaining time.
      *
      * @param isRunning whether the simulation is currently running
      */
@@ -283,9 +356,10 @@ public class SimulationStateManager {
     }
 
     /**
-     * Locks or unlocks the result buttons (Intel, Parliament).
+     * Locks or unlocks the result buttons (Intelligence and Parliament views).
+     * Locked buttons show "[ LOCKED ]" text and are disabled.
      *
-     * @param locked true to lock, false to unlock
+     * @param locked true to lock buttons, false to unlock
      */
     public void lockResultButtons(boolean locked) {
         setButtonLockState(intelButton, locked, originalIntelText);
@@ -299,6 +373,7 @@ public class SimulationStateManager {
 
     /**
      * Stops the simulation timer completely.
+     * Used during application shutdown.
      */
     public void stopTimer() {
         if (simulationTimer != null) {
@@ -310,6 +385,9 @@ public class SimulationStateManager {
     // Utility Methods
     // ========================================
 
+    /**
+     * Updates the duration display field with formatted time.
+     */
     private void updateDurationDisplay() {
         if (durationField == null) return;
         int m = configDurationSeconds / 60;
@@ -317,12 +395,22 @@ public class SimulationStateManager {
         durationField.setText(String.format("%02d:%02d", m, s));
     }
 
+    /**
+     * Updates control button states based on simulation state.
+     *
+     * @param isRunning true if simulation is running
+     */
     private void updateButtonStates(boolean isRunning) {
         if (startButton != null) startButton.setDisable(isRunning);
         if (pauseButton != null) pauseButton.setDisable(!isRunning);
         if (resetButton != null) resetButton.setDisable(isRunning);
     }
 
+    /**
+     * Locks or unlocks parameter input boxes.
+     *
+     * @param locked true to lock inputs
+     */
     private void setSimulationLocked(boolean locked) {
         toggleBoxLockState(populationBox, populationOverlay, locked);
         toggleBoxLockState(partyBox, partyOverlay, locked);
@@ -330,6 +418,13 @@ public class SimulationStateManager {
         toggleBoxLockState(durationBox, durationOverlay, locked);
     }
 
+    /**
+     * Toggles the lock state of a parameter box with visual feedback.
+     *
+     * @param box the container box to lock/unlock
+     * @param overlay the lock overlay label
+     * @param locked true to lock, false to unlock
+     */
     private void toggleBoxLockState(VBox box, Label overlay, boolean locked) {
         if (box == null) return;
         box.setDisable(locked);
@@ -349,6 +444,12 @@ public class SimulationStateManager {
         }
     }
 
+    /**
+     * Starts or stops a blinking animation on a node.
+     *
+     * @param node the node to animate
+     * @param blinking true to start blinking, false to stop
+     */
     private void setBlinking(Node node, boolean blinking) {
         if (blinking) {
             if (!activeBlinks.containsKey(node)) {
@@ -370,6 +471,13 @@ public class SimulationStateManager {
         }
     }
 
+    /**
+     * Sets the visual lock state of a button.
+     *
+     * @param btn the button to modify
+     * @param locked true to show locked state
+     * @param originalText the original button text to restore when unlocked
+     */
     private void setButtonLockState(Button btn, boolean locked, String originalText) {
         if (btn == null) return;
 

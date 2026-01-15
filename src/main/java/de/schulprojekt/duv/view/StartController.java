@@ -31,26 +31,31 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Controls the login screen visuals and the transition to the dashboard.
+ * Controller for the application start screen and login visuals.
+ * * @author Nico Hoffmann
+ * @version 1.1
  */
 public class StartController {
 
-    private static final Logger LOGGER = Logger.getLogger(StartController.class.getName());
+    // ========================================
+    // Static Variables
+    // ========================================
 
-    // --- Defaults (werden ans Dashboard übergeben) ---
+    private static final Logger LOGGER = Logger.getLogger(StartController.class.getName());
     private static final long DEFAULT_POPULATION = 250_000;
     private static final long DEFAULT_BUDGET = 500_000;
 
-    // --- Resources ---
     private static final String DASHBOARD_FXML = "/de/schulprojekt/duv/view/DashboardUI.fxml";
     private static final String DASHBOARD_CSS = "/de/schulprojekt/duv/dashboard.css";
 
-    // --- Animation Constants ---
     private static final int PARTICLE_COUNT = 90;
     private static final double BASE_CONNECTION_DIST = 170;
     private static final double RELATIVE_SPEED = 0.0004;
 
-    // --- FXML Components ---
+    // ========================================
+    // Instance Variables
+    // ========================================
+
     @FXML private StackPane rootPane;
     @FXML private ImageView logoImageView;
     @FXML private VBox cardBox;
@@ -59,10 +64,13 @@ public class StartController {
     @FXML private Canvas codeCanvas;
     @FXML private Region gridRegion;
 
-    // --- State ---
     private AnimationTimer animTimer;
     private final List<Particle> particles = new ArrayList<>();
     private final Random random = new Random();
+
+    // ========================================
+    // Business Logic Methods
+    // ========================================
 
     @FXML
     public void initialize() {
@@ -80,12 +88,10 @@ public class StartController {
                 initParticles();
                 startNetworkAnimation();
 
-                scene.widthProperty().addListener((obs, oldVal, newVal) -> adjustScale(newVal.doubleValue()));
+                scene.widthProperty().addListener((_, _, newVal) -> adjustScale(newVal.doubleValue()));
                 adjustScale(scene.getWidth());
 
                 logoImageView.fitWidthProperty().bind(Bindings.min(500, scene.widthProperty().multiply(0.4)));
-
-                // Card Scaling
                 cardBox.maxWidthProperty().bind(Bindings.min(scene.widthProperty().multiply(0.8), 600));
             }
         });
@@ -97,7 +103,6 @@ public class StartController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(DASHBOARD_FXML));
             Parent dashboardRoot = loader.load();
 
-            // Defaults übergeben, da keine Inputs mehr da sind
             DashboardController dashboardCtrl = loader.getController();
             if (dashboardCtrl != null) {
                 dashboardCtrl.applyInitialSettings(DEFAULT_POPULATION, DEFAULT_BUDGET);
@@ -115,7 +120,6 @@ public class StartController {
 
             rootPane.getChildren().add(dashboardRoot);
             buildTransitionAnimation(dashboardRoot).play();
-
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Failed to load Dashboard view.", e);
         }
@@ -127,17 +131,19 @@ public class StartController {
         System.exit(0);
     }
 
-    // --- Visuals & Animation ---
+    // ========================================
+    // Utility Methods
+    // ========================================
 
     private void startIntroAnimation() {
         FadeTransition ftHud = new FadeTransition(Duration.seconds(1.0), hudLayer);
-        ftHud.setFromValue(0); ftHud.setToValue(1.0); ftHud.play();
+        ftHud.setToValue(1.0); ftHud.play();
 
         FadeTransition ftCard = new FadeTransition(Duration.seconds(1.5), cardBox);
-        ftCard.setFromValue(0); ftCard.setToValue(1.0); ftCard.setDelay(Duration.seconds(0.2)); ftCard.play();
+        ftCard.setToValue(1.0); ftCard.setDelay(Duration.seconds(0.2)); ftCard.play();
 
         FadeTransition ftGlow = new FadeTransition(Duration.seconds(2.5), glowRegion);
-        ftGlow.setFromValue(0); ftGlow.setToValue(0.8); ftGlow.setDelay(Duration.seconds(0.5)); ftGlow.play();
+        ftGlow.setToValue(0.8); ftGlow.setDelay(Duration.seconds(0.5)); ftGlow.play();
     }
 
     private void startNetworkAnimation() {
@@ -151,9 +157,9 @@ public class StartController {
     private void drawNetwork(GraphicsContext gc, double w, double h) {
         gc.clearRect(0, 0, w, h);
         double scaleFactor = Math.max(0.5, Math.sqrt(w * w + h * h) / 1400.0);
-        double activeConnectionDist = BASE_CONNECTION_DIST * scaleFactor;
+        double activeDist = BASE_CONNECTION_DIST * scaleFactor;
 
-        gc.setFill(Color.web("#D4AF37")); // Gold Nodes
+        gc.setFill(Color.web("#D4AF37"));
         for (Particle p : particles) {
             p.update();
             gc.fillOval(p.relX * w, p.relY * h, p.sizeBase * scaleFactor, p.sizeBase * scaleFactor);
@@ -164,17 +170,13 @@ public class StartController {
             Particle p1 = particles.get(i);
             for (int j = i + 1; j < particles.size(); j++) {
                 Particle p2 = particles.get(j);
-                double dx = (p1.relX - p2.relX) * w;
-                double dy = (p1.relY - p2.relY) * h;
-                double dist = Math.sqrt(dx * dx + dy * dy);
+                double dist = Math.sqrt(Math.pow((p1.relX - p2.relX) * w, 2) + Math.pow((p1.relY - p2.relY) * h, 2));
 
-                if (dist < activeConnectionDist) {
-                    double opacity = (1.0 - dist / activeConnectionDist) * 0.3;
+                if (dist < activeDist) {
+                    double opacity = (1.0 - dist / activeDist) * 0.3;
                     gc.setStroke(Color.color(0.83, 0.68, 0.21, opacity));
-                    gc.strokeLine(
-                            p1.relX * w + p1.sizeBase/2, p1.relY * h + p1.sizeBase/2,
-                            p2.relX * w + p2.sizeBase/2, p2.relY * h + p2.sizeBase/2
-                    );
+                    gc.strokeLine(p1.relX * w + p1.sizeBase/2, p1.relY * h + p1.sizeBase/2,
+                            p2.relX * w + p2.sizeBase/2, p2.relY * h + p2.sizeBase/2);
                 }
             }
         }
@@ -198,18 +200,21 @@ public class StartController {
         FadeTransition ftGrid = new FadeTransition(Duration.seconds(1.0), gridRegion); ftGrid.setToValue(0);
         FadeTransition ftCanvas = new FadeTransition(Duration.seconds(1.0), codeCanvas); ftCanvas.setToValue(0);
 
-        // Dashboard Fade-In
         FadeTransition ftDash = new FadeTransition(Duration.seconds(1.0), dashboardRoot); ftDash.setToValue(1.0);
         ScaleTransition stDash = new ScaleTransition(Duration.seconds(1.0), dashboardRoot); stDash.setToX(1.0); stDash.setToY(1.0);
 
-        ParallelTransition transition = new ParallelTransition(ftCard, ftHud, ftGlow, ftGrid, ftCanvas, ftDash, stDash);
-        transition.setOnFinished(ignored -> {
+        ParallelTransition pt = new ParallelTransition(ftCard, ftHud, ftGlow, ftGrid, ftCanvas, ftDash, stDash);
+        pt.setOnFinished(ignored -> {
             if (animTimer != null) animTimer.stop();
             cardBox.setVisible(false); hudLayer.setVisible(false); glowRegion.setVisible(false);
             gridRegion.setVisible(false); codeCanvas.setVisible(false);
         });
-        return transition;
+        return pt;
     }
+
+    // ========================================
+    // Inner Classes
+    // ========================================
 
     private static class Particle {
         double relX, relY, velX, velY, sizeBase;
@@ -221,10 +226,8 @@ public class StartController {
         }
         void update() {
             relX += velX; relY += velY;
-            if (relX < 0) { relX = 0; velX *= -1; }
-            if (relX > 1) { relX = 1; velX *= -1; }
-            if (relY < 0) { relY = 0; velY *= -1; }
-            if (relY > 1) { relY = 1; velY *= -1; }
+            if (relX < 0 || relX > 1) velX *= -1;
+            if (relY < 0 || relY > 1) velY *= -1;
         }
     }
 }

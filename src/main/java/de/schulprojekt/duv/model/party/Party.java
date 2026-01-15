@@ -2,31 +2,35 @@ package de.schulprojekt.duv.model.party;
 
 /**
  * Represents a political party in the simulation.
- * Holds state regarding its position, budget, supporters, and scandal history.
+ * * @author Nico Hoffmann
+ * @version 1.0
  */
 public class Party {
 
-    // --- CONSTANTS (UI Logic) ---
+    // ========================================
+    // Static Variables
+    // ========================================
 
     private static final double LIMIT_FAR_LEFT = 20.0;
     private static final double LIMIT_LEFT = 40.0;
     private static final double LIMIT_CENTER = 60.0;
     private static final double LIMIT_RIGHT = 80.0;
 
-    // --- FIELDS ---
+    // ========================================
+    // Instance Variables
+    // ========================================
 
-    // Immutable Properties (Identity & Config)
     private final String name;
     private final String abbreviation;
-    private final String colorCode;        // Hex-Code as String (e.g. "FF0000")
-    private final double politicalPosition; // 0 (Left) to 100 (Right)
+    private final String colorCode;
+    private final double politicalPosition;
     private final double campaignBudget;
-
-    // Mutable State (Simulation Runtime)
     private int currentSupporterCount;
     private int scandalCount;
 
-    // --- CONSTRUCTOR ---
+    // ========================================
+    // Constructors
+    // ========================================
 
     public Party(String name, String abbreviation, String colorCode, double politicalPosition, double campaignBudget, int currentSupporterCount) {
         this.name = name;
@@ -38,11 +42,53 @@ public class Party {
         this.scandalCount = 0;
     }
 
-    // --- MAIN LOGIC (UI Helpers & Business Logic) ---
+    // ========================================
+    // Getter Methods
+    // ========================================
+
+    public String getName() {
+        return name;
+    }
+
+    public String getAbbreviation() {
+        return abbreviation;
+    }
+
+    public String getColorCode() {
+        return colorCode;
+    }
+
+    public double getPoliticalPosition() {
+        return politicalPosition;
+    }
+
+    public double getCampaignBudget() {
+        return campaignBudget;
+    }
+
+    public int getCurrentSupporterCount() {
+        return currentSupporterCount;
+    }
+
+    public int getScandalCount() {
+        return scandalCount;
+    }
+
+    // ========================================
+    // Setter Methods
+    // ========================================
+
+    public void setCurrentSupporterCount(int currentSupporterCount) {
+        this.currentSupporterCount = currentSupporterCount;
+    }
+
+    // ========================================
+    // Business Logic Methods
+    // ========================================
 
     /**
-     * Returns a readable string for the political orientation based on position.
-     * Used for Tooltips in the Dashboard.
+     * Returns the political orientation name based on position.
+     * * @return orientation description
      */
     public String getPoliticalOrientationName() {
         if (politicalPosition < LIMIT_FAR_LEFT) return "Linksextrem";
@@ -55,15 +101,4 @@ public class Party {
     public void incrementScandalCount() {
         this.scandalCount++;
     }
-
-    // --- GETTERS & SETTERS ---
-
-    public String getName() { return name; }
-    public String getAbbreviation() { return abbreviation; }
-    public String getColorCode() { return colorCode; }
-    public double getPoliticalPosition() { return politicalPosition; }
-    public double getCampaignBudget() { return campaignBudget; }
-    public int getCurrentSupporterCount() { return currentSupporterCount; }
-    public void setCurrentSupporterCount(int currentSupporterCount) { this.currentSupporterCount = currentSupporterCount; }
-    public int getScandalCount() { return scandalCount; }
 }

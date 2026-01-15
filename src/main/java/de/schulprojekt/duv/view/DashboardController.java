@@ -18,7 +18,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
@@ -280,9 +279,7 @@ public class DashboardController {
     public void handleRandomize(ActionEvent ignored) {
         if (parameterManager == null) return;
 
-        parameterManager.randomizeParameters(() -> {
-            handleParameterChange(null);
-        });
+        parameterManager.randomizeParameters(() -> handleParameterChange(null));
     }
 
     // ========================================
@@ -446,10 +443,10 @@ public class DashboardController {
         }
 
         if (intelButton != null) {
-            intelButton.setOnMouseEntered(e -> VisualFX.stopPulse(intelButton));
+            intelButton.setOnMouseEntered(_ -> VisualFX.stopPulse(intelButton));
         }
         if (parliamentButton != null) {
-            parliamentButton.setOnMouseEntered(e -> VisualFX.stopPulse(parliamentButton));
+            parliamentButton.setOnMouseEntered(_ -> VisualFX.stopPulse(parliamentButton));
         }
     }
 

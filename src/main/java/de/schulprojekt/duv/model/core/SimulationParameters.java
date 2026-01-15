@@ -1,18 +1,19 @@
 package de.schulprojekt.duv.model.core;
 
 /**
- * Holds all configurable parameters of the simulation.
- * Serves as the immutable "Single Source of Truth" for settings modified via the GUI.
- *
- * @param populationSize      General: Total number of voters (Simulated Agents).
- * @param mediaInfluence      Dynamic: Influence of media (0.0 - 100.0).
- * @param volatilityRate      Dynamic: Willingness to change parties (0.0 - 100.0).
- * @param scandalProbability  Dynamic: Probability of a scandal per tick (0.0 - 60.0).
- * @param loyaltyAverage      Stats: Average party loyalty at start (0.0 - 100.0).
- * @param tickRate            System: Simulation speed in Ticks Per Second (TPS).
- * @param chaosFactor         Stats: Random deviation/variance factor.
- * @param partyCount          General: Number of active parties.
- * @param budgetEffectiveness Stats: Multiplier for the impact of campaign budgets.
+ * Immutable Data Transfer Object for simulation settings.
+ * * @param populationSize total number of simulated voters
+ * @param mediaInfluence influence of media on voters (0.0 - 100.0)
+ * @param volatilityRate willingness of voters to change parties (0.0 - 100.0)
+ * @param scandalProbability probability of a scandal per tick (0.0 - 60.0)
+ * @param loyaltyAverage average initial party loyalty (0.0 - 100.0)
+ * @param tickRate simulation speed in Ticks Per Second
+ * @param chaosFactor random deviation factor for variance
+ * @param partyCount number of active political parties
+ * @param budgetEffectiveness multiplier for campaign budget impact
+ * * @author Nico Hoffmann
+ * @version 1.1
+ * @since Java 16
  */
 public record SimulationParameters(
         int populationSize,
@@ -26,11 +27,26 @@ public record SimulationParameters(
         double budgetEffectiveness
 ) {
 
-    // --- Helper Methods (Copying) ---
+    // ========================================
+    // Compact Constructor (Validation)
+    // ========================================
 
     /**
-     * Creates a COPY of these parameters with a new tick rate.
-     * Used for live speed adjustments during simulation.
+     * Validates that numeric constraints are met.
+     */
+    public SimulationParameters {
+        if (populationSize < 0) throw new IllegalArgumentException("Population cannot be negative");
+        if (tickRate < 1) throw new IllegalArgumentException("Tick rate must be at least 1");
+    }
+
+    // ========================================
+    // Transformation Methods
+    // ========================================
+
+    /**
+     * Creates a copy of the parameters with an updated tick rate.
+     * * @param newTickRate the new simulation speed
+     * @return a new SimulationParameters instance
      */
     public SimulationParameters withTickRate(int newTickRate) {
         return new SimulationParameters(

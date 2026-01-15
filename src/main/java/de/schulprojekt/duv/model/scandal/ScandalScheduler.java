@@ -3,45 +3,53 @@ package de.schulprojekt.duv.model.scandal;
 import de.schulprojekt.duv.model.random.DistributionProvider;
 
 /**
- * Plant das Auftreten von Skandalen basierend auf einer Wahrscheinlichkeitsverteilung.
+ * Schedules the occurrence of scandals based on probability distributions.
+ * * @author Nico Hoffmann
+ * @version 1.1
  */
 public class ScandalScheduler {
 
-    // --- Dependencies & State ---
+    // ========================================
+    // Instance Variables
+    // ========================================
+
     private final DistributionProvider distributionProvider;
     private double timeUntilNextScandal;
 
-    // --- Konstruktor ---
+    // ========================================
+    // Constructors
+    // ========================================
+
     public ScandalScheduler(DistributionProvider distributionProvider) {
         this.distributionProvider = distributionProvider;
         reset();
     }
 
-    // --- Business Logik ---
+    // ========================================
+    // Business Logic Methods
+    // ========================================
 
     /**
-     * Prüft in jedem Zeitschritt, ob ein neuer Skandal ausgelöst werden soll.
-     * Zählt den internen Timer herunter.
-     *
-     * @return true, wenn ein Skandal auftreten soll, sonst false.
+     * Checks if a new scandal should be triggered in the current step.
+     * * @return true if a scandal occurs
      */
     public boolean shouldScandalOccur() {
         timeUntilNextScandal -= 1.0;
 
         if (timeUntilNextScandal <= 0) {
-            scheduleNext(); // Planen für das nächste Mal
+            scheduleNext();
             return true;
         }
         return false;
     }
 
-    // --- Lifecycle / Reset ---
-
     public void reset() {
         scheduleNext();
     }
 
-    // --- Private Hilfsmethoden ---
+    // ========================================
+    // Utility Methods
+    // ========================================
 
     private void scheduleNext() {
         this.timeUntilNextScandal = distributionProvider.sampleTimeUntilNextScandal();

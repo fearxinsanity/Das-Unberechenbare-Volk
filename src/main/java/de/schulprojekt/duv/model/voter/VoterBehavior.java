@@ -13,44 +13,47 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 /**
- * Steuert das Verhalten der Wählerpopulation.
- * UPDATE: Gedämpfte Reaktionen auf Skandale (weniger "Sofort-Flucht").
+ * Controls the behavior and decision-making of the voter population.
+ * * @author Nico Hoffmann
+ * @version 1.1
  */
 public class VoterBehavior {
 
-    // --- Konstanten: Mobilität & Wechsel ---
+    // ========================================
+    // Static Variables
+    // ========================================
+
     private static final double OPINION_DRIFT_FACTOR = 0.25;
     private static final double LOYALTY_DAMPING_FACTOR = 180.0;
     private static final double MAX_SWITCH_PROBABILITY = 0.65;
     private static final double UNDECIDED_MOBILITY_BONUS = 1.3;
     private static final double RESIGNATION_PROBABILITY = 0.15;
-
-    // --- Konstanten: Skandale & Druck ---
-    // WICHTIG: Divisor erhöht (war 600). Skandale drücken jetzt weniger stark auf die Wechselquote.
     private static final double PENALTY_PRESSURE_DIVISOR = 1800.0;
-
-    // Schwelle erhöht (war 12). Panik tritt erst später ein.
     private static final double DISASTER_FLIGHT_THRESHOLD = 25.0;
-
     private static final double PERMANENT_DAMAGE_WEIGHT = 1.5;
-
-    // --- Konstanten: Scoring (Parteiwahl) ---
     private static final double DISTANCE_SCORE_BASE = 40.0;
     private static final double DISTANCE_SENSITIVITY = 0.04;
     private static final double DECISION_NOISE_FACTOR = 12.0;
-
-    // --- Konstanten: Zeitgeist ---
     private static final double ZEITGEIST_DRIFT_STRENGTH = 0.15;
     private static final double ZEITGEIST_MAX_AMPLITUDE = 8.0;
 
-    // --- State ---
-    private double currentZeitgeist = 0.0;
+    // ========================================
+    // Instance Variables
+    // ========================================
+
+    private double currentZeitgeist;
+
+    // ========================================
+    // Constructors
+    // ========================================
 
     public VoterBehavior() {
         this.currentZeitgeist = (ThreadLocalRandom.current().nextDouble() - 0.5) * 2.0;
     }
 
-    // --- Business Logik ---
+    // ========================================
+    // Business Logic Methods
+    // ========================================
 
     public List<VoterTransition> processVoterDecisions(
             VoterPopulation population,
@@ -112,7 +115,9 @@ public class VoterBehavior {
         return new ArrayList<>(visualTransitions);
     }
 
-    // --- Private Hilfsmethoden ---
+    // ========================================
+    // Utility Methods
+    // ========================================
 
     private void updateZeitgeist() {
         double change = (ThreadLocalRandom.current().nextDouble() - 0.5) * ZEITGEIST_DRIFT_STRENGTH;
@@ -143,7 +148,6 @@ public class VoterBehavior {
                 (1.0 - pop.getLoyalty(idx) / LOYALTY_DAMPING_FACTOR) *
                 pop.getMediaInfluence(idx);
 
-        // Skandale erhöhen Wechselwahrscheinlichkeit, aber gedämpfter durch höheren Divisor
         if (penalty > 0) {
             switchProb += (penalty / PENALTY_PRESSURE_DIVISOR);
         }
@@ -195,11 +199,7 @@ public class VoterBehavior {
             }
         }
 
-        if (bestScore < 0) {
-            return 0;
-        }
-
-        return targetIdx;
+        return (bestScore < 0) ? 0 : targetIdx;
     }
 
     private AtomicInteger[] initDeltas(int size) {
@@ -228,8 +228,7 @@ public class VoterBehavior {
             Party p = parties.get(k);
             positions[k] = p.getPoliticalPosition();
             budgetScores[k] = (p.getCampaignBudget() / SimulationConfig.CAMPAIGN_BUDGET_FACTOR) * 12.0;
-            double randomFactor = ThreadLocalRandom.current().nextDouble();
-            momentum[k] = 0.8 + (randomFactor * 0.4);
+            momentum[k] = 0.8 + (ThreadLocalRandom.current().nextDouble() * 0.4);
         }
 
         return new PartyCalculationCache(

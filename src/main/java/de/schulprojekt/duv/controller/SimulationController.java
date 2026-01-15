@@ -18,10 +18,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Connects the GUI (View) with the Simulation Engine (Model).
- *
- * @author Nico Hoffmann
- * @version 1.0
+ * Controller connecting the UI with the simulation engine.
+ * * @author Nico Hoffmann
+ * @version 1.1
  */
 public class SimulationController {
 
@@ -31,7 +30,6 @@ public class SimulationController {
 
     private static final Logger LOGGER = Logger.getLogger(SimulationController.class.getName());
 
-    // Default Simulation Config
     private static final int DEFAULT_POPULATION = 250_000;
     private static final double DEFAULT_MEDIA_INFLUENCE = 65.0;
     private static final double DEFAULT_VOLATILITY = 35.0;
@@ -57,9 +55,8 @@ public class SimulationController {
     // ========================================
 
     /**
-     * Initializes the controller with default values.
-     *
-     * @param view the dashboard controller for UI updates
+     * Initializes the controller with default simulation values.
+     * * @param view the dashboard controller for UI updates
      */
     public SimulationController(DashboardController view) {
         this.view = view;
