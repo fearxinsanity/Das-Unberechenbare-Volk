@@ -18,6 +18,13 @@ import java.util.Random;
 
 /**
  * The core simulation orchestrator.
+ * Manages all simulation components including parties, voters, scandals, and their interactions.
+ *
+ * <p>This class coordinates between the party registry, voter population,
+ * scandal scheduler, and impact calculator to produce each simulation step.</p>
+ *
+ * @author Nico Hoffmann
+ * @version 1.0
  */
 public class SimulationEngine {
 
@@ -50,7 +57,8 @@ public class SimulationEngine {
         this.voterBehavior = new VoterBehavior();
 
         this.scandalScheduler = new ScandalScheduler(distributionProvider);
-        this.impactCalculator = new ScandalImpactCalculator(params.partyCount() + 10); // REF
+        // Impact calculator size includes buffer for potential new parties
+        this.impactCalculator = new ScandalImpactCalculator(params.partyCount() + 10);
     }
 
     // --- INITIALIZATION ---
@@ -62,8 +70,9 @@ public class SimulationEngine {
 
         partyRegistry.initializeParties(parameters, distributionProvider);
 
+        // Initialize voter population with configured size
         voterPopulation.initialize(
-                parameters.populationSize(), // REF
+                parameters.populationSize(),
                 partyRegistry.getParties().size(),
                 distributionProvider
         );
@@ -90,7 +99,8 @@ public class SimulationEngine {
                 state.getCurrentStep()
         );
 
-        impactCalculator.processRecovery(partyRegistry.getParties(), parameters.populationSize()); // REF
+        // Process scandal recovery based on population size
+        impactCalculator.processRecovery(partyRegistry.getParties(), parameters.populationSize());
 
         // 3. Voter Decisions
         List<VoterTransition> transitions = voterBehavior.processVoterDecisions(
@@ -106,8 +116,9 @@ public class SimulationEngine {
     }
 
     public void updateParameters(SimulationParameters newParams) {
-        boolean structuralChange = (newParams.partyCount() != parameters.partyCount()) || // REF
-                (newParams.populationSize() != parameters.populationSize());              // REF
+        // Check if party count or population size changed, requiring full re-initialization
+        boolean structuralChange = (newParams.partyCount() != parameters.partyCount()) ||
+                (newParams.populationSize() != parameters.populationSize());
 
         this.parameters = newParams;
         distributionProvider.initialize(newParams);

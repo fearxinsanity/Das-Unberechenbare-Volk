@@ -1,7 +1,15 @@
+/*
+ * Project: Das Unberechenbare Volk
+ * Author: Nico Hoffmann
+ * Version: 1.0
+ * Last Modified: 15.01.2026
+ * Description: Parliament view styling with secret service theme.
+ *              Provides deep black background, tactical grid, and CRT effects.
+ */
+
 /* =========================================================================
-   === PARLIAMENT.CSS - SECRET SERVICE EDITION ===
+   TABLE OF CONTENTS
    =========================================================================
-   TOC:
    1. ROOT & BACKGROUNDS (Deep Black, Tactical Grid)
    2. TYPOGRAPHY (Headers, Status Info)
    3. CONTROLS (Navigation Buttons)

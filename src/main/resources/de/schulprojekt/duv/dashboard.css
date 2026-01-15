@@ -1,6 +1,23 @@
+/*
+ * Project: Das Unberechenbare Volk
+ * Author: Nico Hoffmann
+ * Version: 1.0
+ * Last Modified: 15.01.2026
+ * Description: Main dashboard styling with military/secret service theme.
+ *              Provides dark background, tactical UI elements, and security states.
+ */
+
 /* =========================================================================
-   === DASHBOARD.CSS - SECRET SERVICE / MILITARY EDITION ===
-   === FIXED: NO SPOTLIGHT / FLAT DARK BACKGROUND ===
+   TABLE OF CONTENTS
+   =========================================================================
+   1. ROOT & BACKGROUNDS
+   2. CONTAINERS
+   3. TYPOGRAPHY
+   4. CONTROLS
+   5. CHARTS (RADAR STYLE)
+   6. COMPONENTS (FEED, TICKER, GLITCH)
+   7. SECURITY & LOCKING STATES
+   8. DIALOGS & ALERTS
    ========================================================================= */
 
 /* =========================================================================

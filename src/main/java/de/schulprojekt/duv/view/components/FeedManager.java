@@ -15,8 +15,14 @@ import javafx.util.Duration;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Manages the news feed visualizations.
+ * Manages the news feed visualizations for scandal events.
  * Controls the horizontal ticker (bottom) and the vertical history feed (right side).
+ *
+ * <p>This class handles the processing of scandal events and displays them
+ * through animated cards in the ticker area and log entries in the vertical feed.</p>
+ *
+ * @author Nico Hoffmann
+ * @version 1.0
  */
 public class FeedManager {
 

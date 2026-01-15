@@ -22,6 +22,12 @@ import java.util.Map;
  * Manages tooltips for BOTH views:
  * 1. Dashboard: Dynamic via Mouse-Hover (handleMouseMove)
  * 2. Parliament: Static via Click (showStaticTooltip)
+ *
+ * <p>This class provides tactical callout-style tooltips with animated
+ * transitions and connection lines to the target elements.</p>
+ *
+ * @author Nico Hoffmann
+ * @version 1.0
  */
 public class TooltipManager {
 

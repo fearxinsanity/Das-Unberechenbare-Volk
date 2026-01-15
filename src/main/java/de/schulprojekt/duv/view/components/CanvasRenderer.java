@@ -19,6 +19,12 @@ import java.util.*;
 /**
  * Handles the graphical visualization of the simulation.
  * Renders the party network, nodes, and moving voter particles on a JavaFX Canvas.
+ * 
+ * <p>This class uses an AnimationTimer for smooth rendering and implements
+ * object pooling for particle management to optimize performance.</p>
+ *
+ * @author Nico Hoffmann
+ * @version 1.0
  */
 public class CanvasRenderer {
 

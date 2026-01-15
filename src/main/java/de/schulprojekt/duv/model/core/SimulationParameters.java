@@ -13,6 +13,10 @@ package de.schulprojekt.duv.model.core;
  * @param chaosFactor         Stats: Random deviation/variance factor.
  * @param partyCount          General: Number of active parties.
  * @param budgetEffectiveness Stats: Multiplier for the impact of campaign budgets.
+ *
+ * @author Nico Hoffmann
+ * @version 1.0
+ * @since Java 16
  */
 public record SimulationParameters(
         int populationSize,

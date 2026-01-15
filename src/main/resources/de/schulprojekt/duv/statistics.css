@@ -1,7 +1,15 @@
+/*
+ * Project: Das Unberechenbare Volk
+ * Author: Nico Hoffmann
+ * Version: 1.0
+ * Last Modified: 15.01.2026
+ * Description: Intel and analysis view styling. Provides panel layouts,
+ *              chart styling, and tactical tooltip design.
+ */
+
 /* =========================================================================
-   === STATISTICS.CSS - INTEL & ANALYSIS STYLES ===
+   TABLE OF CONTENTS
    =========================================================================
-   TOC:
    1. INTEL PANELS (Containers)
    2. HEADERS & FOOTERS
    3. TYPOGRAPHY & INDICATORS

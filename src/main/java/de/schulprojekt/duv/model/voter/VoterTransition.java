@@ -3,8 +3,15 @@ package de.schulprojekt.duv.model.voter;
 import de.schulprojekt.duv.model.party.Party;
 
 /**
- * Ein unveränderlicher Datensatz, der einen Wählerwechsel beschreibt.
- * Dient hauptsächlich der Visualisierung (z.B. fliegende Punkte im UI).
+ * An immutable record representing a voter transition between parties.
+ * Used primarily for visualization (e.g., flying particles in UI).
+ *
+ * @param from the party the voter is leaving
+ * @param to the party the voter is joining
+ *
+ * @author Nico Hoffmann
+ * @version 1.0
+ * @since Java 16
  */
 public record VoterTransition(Party from, Party to) {
 

@@ -9,6 +9,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Manages the history chart visualization for tracking party support over time.
+ * Handles chart series creation, updates, and data management.
+ *
+ * <p>The chart updates periodically based on a configurable update interval
+ * and maintains a rolling history of data points.</p>
+ *
+ * @author Nico Hoffmann
+ * @version 1.0
+ */
 public class ChartManager {
 
     // --- Constants ---

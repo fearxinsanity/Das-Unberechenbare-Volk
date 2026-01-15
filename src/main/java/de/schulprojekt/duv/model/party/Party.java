@@ -3,6 +3,9 @@ package de.schulprojekt.duv.model.party;
 /**
  * Represents a political party in the simulation.
  * Holds state regarding its position, budget, supporters, and scandal history.
+ *
+ * @author Nico Hoffmann
+ * @version 1.0
  */
 public class Party {
 

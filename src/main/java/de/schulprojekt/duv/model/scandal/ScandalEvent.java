@@ -3,8 +3,16 @@ package de.schulprojekt.duv.model.scandal;
 import de.schulprojekt.duv.model.party.Party;
 
 /**
- * Repräsentiert ein aktives Skandal-Ereignis in der Simulation.
- * Enthält den Skandal, die betroffene Partei und den Zeitstempel.
+ * Represents an active scandal event in the simulation.
+ * Contains the scandal, the affected party, and the timestamp when it occurred.
+ *
+ * @param scandal the scandal that occurred
+ * @param affectedParty the party affected by the scandal
+ * @param occurredAtStep the simulation step when the scandal occurred
+ *
+ * @author Nico Hoffmann
+ * @version 1.0
+ * @since Java 16
  */
 public record ScandalEvent(Scandal scandal, Party affectedParty, int occurredAtStep) {
 
