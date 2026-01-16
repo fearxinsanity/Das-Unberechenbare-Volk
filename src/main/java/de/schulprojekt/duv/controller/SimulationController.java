@@ -198,9 +198,9 @@ public class SimulationController {
 
             Platform.runLater(() -> view.updateDashboard(partySnapshot, transitions, scandal, step));
         } catch (RuntimeException e) {
-            LOGGER.log(Level.SEVERE, "Runtime error in simulation loop", e);
+            LOGGER.log(Level.SEVERE, "Runtime error in simulation loop - stopping simulation", e);
             isRunning.set(false);
-            throw e; // Re-throw to ensure errors aren't silently swallowed
+            // Do not re-throw in scheduled task - it would silently stop the executor
         }
     }
 }

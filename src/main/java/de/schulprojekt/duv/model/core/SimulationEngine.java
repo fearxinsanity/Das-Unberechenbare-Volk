@@ -23,7 +23,6 @@ import java.util.Random;
  */
 public class SimulationEngine {
 
-
     // ========================================
     // Instance Variables
     // ========================================

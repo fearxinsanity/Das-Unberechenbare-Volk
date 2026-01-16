@@ -38,18 +38,22 @@ public class VoterPopulation {
     }
 
     public byte getPartyIndex(int i) {
+        validateIndex(i);
         return voterPartyIndices[i];
     }
 
     public float getPosition(int i) {
+        validateIndex(i);
         return voterPositions[i];
     }
 
     public float getLoyalty(int i) {
+        validateIndex(i);
         return voterLoyalties[i];
     }
 
     public float getMediaInfluence(int i) {
+        validateIndex(i);
         return voterMediaInfluence[i];
     }
 
@@ -58,10 +62,12 @@ public class VoterPopulation {
     // ========================================
 
     public void setPartyIndex(int i, byte idx) {
+        validateIndex(i);
         voterPartyIndices[i] = idx;
     }
 
     public void setPosition(int i, float pos) {
+        validateIndex(i);
         voterPositions[i] = pos;
     }
 
@@ -97,5 +103,20 @@ public class VoterPopulation {
             voterPositions[i] = (float) Math.max(0, Math.min(100, rawPos));
             voterMediaInfluence[i] = (float) Math.pow(rnd.nextDouble(), MEDIA_INFLUENCE_EXPONENT);
         });
+    }
+
+    // ========================================
+    // Utility Methods
+    // ========================================
+
+    /**
+     * Validates that the given index is within bounds.
+     * @param index the index to validate
+     * @throws IndexOutOfBoundsException if index is invalid
+     */
+    private void validateIndex(int index) {
+        if (index < 0 || index >= size()) {
+            throw new IndexOutOfBoundsException("Voter index out of bounds: " + index + " (size: " + size() + ")");
+        }
     }
 }

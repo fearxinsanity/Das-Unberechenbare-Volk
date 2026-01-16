@@ -95,50 +95,6 @@ public class ParameterManager {
     }
 
     // ========================================
-    // Getter Methods
-    // ========================================
-
-    /**
-     * Gets the voter count text field.
-     *
-     * @return the voter count input field
-     */
-    @SuppressWarnings("unused")
-    public TextField getVoterCountField() {
-        return voterCountField;
-    }
-
-    /**
-     * Gets the party count text field.
-     *
-     * @return the party count input field
-     */
-    @SuppressWarnings("unused")
-    public TextField getPartyCountField() {
-        return partyCountField;
-    }
-
-    /**
-     * Gets the budget text field.
-     *
-     * @return the budget input field
-     */
-    @SuppressWarnings("unused")
-    public TextField getBudgetField() {
-        return budgetField;
-    }
-
-    /**
-     * Gets the scandal chance text field.
-     *
-     * @return the scandal probability input field
-     */
-    @SuppressWarnings("unused")
-    public TextField getScandalChanceField() {
-        return scandalChanceField;
-    }
-
-    // ========================================
     // Setter Methods
     // ========================================
 
@@ -181,7 +137,7 @@ public class ParameterManager {
         loyaltyMeanSlider.setValue(params.loyaltyAverage());
         randomRangeSlider.setValue(params.chaosFactor());
 
-        double displayBudget = params.budgetEffectiveness() * 500000.0;
+        double displayBudget = params.budgetEffectiveness() * DEFAULT_BUDGET;
         budgetField.setText(String.format(Locale.GERMANY, "%,.0f", displayBudget));
     }
 
@@ -207,7 +163,7 @@ public class ParameterManager {
             );
 
             double budgetInput = parseBudgetSafe(budgetField.getText());
-            double budgetEffectiveness = Math.clamp(budgetInput / 500000.0, 0.1, MAX_BUDGET_FACTOR);
+            double budgetEffectiveness = Math.clamp(budgetInput / DEFAULT_BUDGET, 0.1, MAX_BUDGET_FACTOR);
 
             return new SimulationParameters(
                     popSize,

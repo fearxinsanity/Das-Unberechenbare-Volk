@@ -16,6 +16,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Handles the graphical visualization of the simulation on a canvas.
@@ -49,10 +50,10 @@ public class CanvasRenderer {
     private final AdaptiveParticleManager adaptiveManager;
 
     private final Map<String, Point> partyPositions = new HashMap<>();
-    private List<Party> currentParties = new ArrayList<>();
-    private int currentTotalVoters = 1;
-    private double currentScaleFactor = 1.0;
-    private double targetRotationAngle = 0;
+    private volatile List<Party> currentParties = new ArrayList<>();
+    private volatile int currentTotalVoters = 1;
+    private volatile double currentScaleFactor = 1.0;
+    private final AtomicReference<Double> targetRotationAngle = new AtomicReference<>(0.0);
 
     private final ArrayDeque<MovingVoter> particlePool = new ArrayDeque<>(INITIAL_POOL_SIZE);
     private final List<MovingVoter> activeParticles = new ArrayList<>();
@@ -95,7 +96,7 @@ public class CanvasRenderer {
         this.visualTimer = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                targetRotationAngle += ROTATION_SPEED;
+                targetRotationAngle.updateAndGet(angle -> angle + ROTATION_SPEED);
                 renderCanvas();
             }
         };
@@ -277,7 +278,8 @@ public class CanvasRenderer {
     private void drawTargetLock(double x, double y, double size) {
         gc.save();
         gc.translate(x, y);
-        gc.rotate(targetRotationAngle);
+        double currentAngle = targetRotationAngle.get();
+        gc.rotate(currentAngle);
 
         gc.setStroke(Color.RED);
         gc.setLineWidth(2.0);

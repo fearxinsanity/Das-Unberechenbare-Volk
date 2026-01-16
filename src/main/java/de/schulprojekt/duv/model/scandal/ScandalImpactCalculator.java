@@ -62,7 +62,7 @@ public class ScandalImpactCalculator {
             Party affected = event.affectedParty();
             int pIndex = parties.indexOf(affected);
 
-            if (pIndex == -1) continue;
+            if (pIndex == -1 || pIndex >= acutePressure.length) continue;
 
             int age = currentStep - event.occurredAtStep();
             if (age > SCANDAL_DURATION) continue;

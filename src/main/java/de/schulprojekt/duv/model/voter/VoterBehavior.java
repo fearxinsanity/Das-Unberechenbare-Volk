@@ -50,6 +50,15 @@ public class VoterBehavior {
     // Maximum absolute value for global political trend
     private static final double ZEITGEIST_MAX_AMPLITUDE = 8.0;
 
+    // Campaign budget score multiplier for attractiveness calculation
+    private static final double BUDGET_SCORE_MULTIPLIER = 12.0;
+    // Base momentum value for party daily performance variance
+    private static final double MOMENTUM_BASE = 0.8;
+    // Random variance range for party daily momentum
+    private static final double MOMENTUM_VARIANCE = 0.4;
+    // Weight factor for global trend influence on individual voter opinion drift
+    private static final double GLOBAL_TREND_WEIGHT = 0.1;
+
     // ========================================
     // Instance Variables
     // ========================================
@@ -147,7 +156,7 @@ public class VoterBehavior {
 
     private void applyOpinionDrift(VoterPopulation population, int index, ThreadLocalRandom rnd, double globalTrend) {
         double individualDrift = (rnd.nextDouble() - 0.5) * OPINION_DRIFT_FACTOR;
-        double totalDrift = individualDrift + (globalTrend * 0.1);
+        double totalDrift = individualDrift + (globalTrend * GLOBAL_TREND_WEIGHT);
 
         float newPos = (float) (population.getPosition(index) + totalDrift);
         if (newPos < 0) newPos = 0;
@@ -191,7 +200,7 @@ public class VoterBehavior {
             float voterPos,
             float mediaInfluence,
             int currentIdx,
-            int pSize,
+            int partyCount,
             double currentPenalty,
             PartyCalculationCache cache,
             double[] acutePressures,
@@ -205,21 +214,21 @@ public class VoterBehavior {
 
         double bestScore = -Double.MAX_VALUE;
         int targetIdx = currentIdx;
-        double campaignEffectiveness = rnd.nextDouble() * cache.uniformRange;
+        double campaignEffectiveness = rnd.nextDouble() * cache.uniformRange();
 
-        for (int pIdx = 1; pIdx < pSize; pIdx++) {
+        for (int pIdx = 1; pIdx < partyCount; pIdx++) {
             if (pIdx == currentIdx) continue;
 
-            double dist = Math.abs(voterPos - cache.positions[pIdx]);
+            double dist = Math.abs(voterPos - cache.positions()[pIdx]);
             double distScore = DISTANCE_SCORE_BASE / (1.0 + (dist * DISTANCE_SENSITIVITY));
 
-            double budgetScore = cache.budgetScores[pIdx] * campaignEffectiveness * mediaInfluence * cache.globalMediaFactor;
-            double score = distScore + (budgetScore * cache.dailyMomentum[pIdx]);
+            double budgetScore = cache.budgetScores()[pIdx] * campaignEffectiveness * mediaInfluence * cache.globalMediaFactor();
+            double score = distScore + (budgetScore * cache.dailyMomentum()[pIdx]);
 
             double targetPenalty = acutePressures[pIdx] + (impactCalc.getPermanentDamage(pIdx) * PERMANENT_DAMAGE_WEIGHT);
             score -= targetPenalty;
 
-            double noise = (rnd.nextDouble() - 0.5) * DECISION_NOISE_FACTOR * cache.uniformRange;
+            double noise = (rnd.nextDouble() - 0.5) * DECISION_NOISE_FACTOR * cache.uniformRange();
 
             if ((score + noise) > bestScore) {
                 bestScore = score + noise;
@@ -255,8 +264,8 @@ public class VoterBehavior {
         for (int k = 0; k < size; k++) {
             Party p = parties.get(k);
             positions[k] = p.getPoliticalPosition();
-            budgetScores[k] = (p.getCampaignBudget() / SimulationConfig.CAMPAIGN_BUDGET_FACTOR) * 12.0;
-            momentum[k] = 0.8 + (ThreadLocalRandom.current().nextDouble() * 0.4);
+            budgetScores[k] = (p.getCampaignBudget() / SimulationConfig.CAMPAIGN_BUDGET_FACTOR) * BUDGET_SCORE_MULTIPLIER;
+            momentum[k] = MOMENTUM_BASE + (ThreadLocalRandom.current().nextDouble() * MOMENTUM_VARIANCE);
         }
 
         return new PartyCalculationCache(
@@ -267,12 +276,4 @@ public class VoterBehavior {
                 params.mediaInfluence() / 100.0
         );
     }
-
-    private record PartyCalculationCache(
-            double[] positions,
-            double[] budgetScores,
-            double[] dailyMomentum,
-            double uniformRange,
-            double globalMediaFactor
-    ) {}
 }

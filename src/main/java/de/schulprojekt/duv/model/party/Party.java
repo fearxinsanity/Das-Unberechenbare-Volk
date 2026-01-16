@@ -88,6 +88,9 @@ public class Party {
     // ========================================
 
     public void setCurrentSupporterCount(int currentSupporterCount) {
+        if (currentSupporterCount < 0) {
+            throw new IllegalArgumentException("Supporter count cannot be negative, got: " + currentSupporterCount);
+        }
         this.currentSupporterCount = currentSupporterCount;
     }
 

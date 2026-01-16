@@ -73,7 +73,7 @@ public class CSVLoader {
             cachedScandals = loadAllScandals();
         }
 
-        if (cachedScandals.isEmpty()) {
+        if (cachedScandals == null || cachedScandals.isEmpty()) {
             LOGGER.warning("No scandals loaded. Creating fallback.");
             return new Scandal(0, "SCANDAL", "Unknown", "No data loaded.", 0.5);
         }
@@ -123,7 +123,8 @@ public class CSVLoader {
             return resultList;
         }
 
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+        try (InputStream stream = is;
+             BufferedReader br = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
             String line;
             boolean isFirstLine = true;
             while ((line = br.readLine()) != null) {
@@ -138,12 +139,6 @@ public class CSVLoader {
             }
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Error reading CSV: " + filePath, e);
-        } finally {
-            try {
-                is.close();
-            } catch (IOException e) {
-                LOGGER.log(Level.WARNING, "Failed to close InputStream", e);
-            }
         }
         return resultList;
     }
