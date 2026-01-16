@@ -6,6 +6,7 @@ import de.schulprojekt.duv.model.party.Party;
 import de.schulprojekt.duv.model.scandal.ScandalEvent;
 import de.schulprojekt.duv.model.dto.VoterTransition;
 import de.schulprojekt.duv.util.validation.ParameterValidator;
+import de.schulprojekt.duv.util.validation.ValidationMessage;
 import de.schulprojekt.duv.view.controllers.DashboardController;
 import javafx.application.Platform;
 
@@ -137,17 +138,15 @@ public class SimulationController {
     }
 
     public void updateSimulationSpeed(int factor) {
-        // Clamp to valid tick rate range
-        factor = ParameterValidator.clampInt(
-                factor,
-                ParameterValidator.getMinTickRate(),
-                ParameterValidator.getMaxTickRate()
-        );
-
-        int finalFactor = factor;
         executorService.execute(() -> {
+            int validFactor = ParameterValidator.clampInt(
+                    factor,
+                    ParameterValidator.getMinTickRate(),
+                    ParameterValidator.getMaxTickRate()
+            );
+
             SimulationParameters current = engine.getParameters();
-            SimulationParameters updated = current.withTickRate(finalFactor);
+            SimulationParameters updated = current.withTickRate(validFactor);
 
             ParameterValidator.validate(updated);
 
@@ -161,8 +160,10 @@ public class SimulationController {
 
     public void updateAllParameters(SimulationParameters p) {
         executorService.execute(() -> {
-            if (!ParameterValidator.isValid(p)) {
-                LOGGER.warning("Invalid parameters rejected: " + ParameterValidator.getValidationError(p));
+            if (ParameterValidator.isInvalid(p)) {
+                LOGGER.warning(ValidationMessage.INVALID_PARAMETERS_REJECTED.format(
+                        ParameterValidator.getValidationError(p)
+                ));
                 return;
             }
 

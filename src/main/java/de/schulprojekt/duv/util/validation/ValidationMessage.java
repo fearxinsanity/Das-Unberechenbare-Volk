@@ -1,8 +1,8 @@
 package de.schulprojekt.duv.util.validation;
 
 /**
- * Enumeration of validation error messages for simulation parameters.
- * Provides centralized, type-safe error message management.
+ * Enumeration of all validation and logging messages for simulation parameters.
+ * Provides centralized, type-safe message management for the entire application.
  *
  * @author Nico Hoffmann
  * @version 1.0
@@ -10,7 +10,7 @@ package de.schulprojekt.duv.util.validation;
 public enum ValidationMessage {
 
     // ========================================
-    // Enum Constants
+    // Validation Error Messages
     // ========================================
 
     POPULATION_OUT_OF_RANGE(
@@ -47,6 +47,34 @@ public enum ValidationMessage {
 
     BUDGET_EFFECTIVENESS_OUT_OF_RANGE(
             "Budget effectiveness must be between %.1f and %.1f"
+    ),
+
+    // ========================================
+    // Controller Log Messages
+    // ========================================
+
+    INVALID_PARAMETERS_REJECTED(
+            "Invalid parameters rejected: %s"
+    ),
+
+    INVALID_PARAMETER_INPUT(
+            "Invalid parameter input, using defaults"
+    ),
+
+    BUILT_PARAMETERS_INVALID(
+            "Built parameters are invalid: %s"
+    ),
+
+    SPEED_FACTOR_OUT_OF_RANGE(
+            "Speed factor must be between 1 and 100, got: %d"
+    ),
+
+    // ========================================
+    // Utility Class Error Messages
+    // ========================================
+
+    UTILITY_CLASS_INSTANTIATION(
+            "Utility class cannot be instantiated"
     );
 
     // ========================================
@@ -76,18 +104,19 @@ public enum ValidationMessage {
      * Formats the message template with the provided arguments.
      *
      * @param args the arguments to format into the message
-     * @return the formatted error message
+     * @return the formatted message
      */
     public String format(Object... args) {
         return String.format(messageTemplate, args);
     }
 
     /**
-     * Gets the raw message template.
+     * Gets the message without formatting (for messages without placeholders).
      *
-     * @return the unformatted message template
+     * @return the message string
      */
-    public String getTemplate() {
+    @Override
+    public String toString() {
         return messageTemplate;
     }
 }

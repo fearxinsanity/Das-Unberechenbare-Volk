@@ -39,7 +39,7 @@ public class ParameterValidator {
     // ========================================
 
     private ParameterValidator() {
-        throw new UnsupportedOperationException("Utility class cannot be instantiated");
+        throw new UnsupportedOperationException(ValidationMessage.UTILITY_CLASS_INSTANTIATION.toString());
     }
 
     // ========================================
@@ -125,6 +125,16 @@ public class ParameterValidator {
      */
     public static boolean isValid(SimulationParameters params) {
         return getValidationError(params).isEmpty();
+    }
+
+    /**
+     * Checks if parameters are invalid.
+     * Convenience method to avoid negation in calling code.
+     * @param params the parameters to check
+     * @return true if invalid, false otherwise
+     */
+    public static boolean isInvalid(SimulationParameters params) {
+        return !isValid(params);
     }
 
     /**

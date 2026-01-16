@@ -2,6 +2,7 @@ package de.schulprojekt.duv.view.managers;
 
 import de.schulprojekt.duv.model.core.SimulationParameters;
 import de.schulprojekt.duv.util.validation.ParameterValidator;
+import de.schulprojekt.duv.util.validation.ValidationMessage;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
@@ -198,19 +199,21 @@ public class ParameterManager {
                     budgetEffectiveness
             );
 
-            // Finale Validierung vor Rückgabe
-            if (!ParameterValidator.isValid(params)) {
-                LOGGER.warning("Built parameters are invalid: " + ParameterValidator.getValidationError(params));
+            if (ParameterValidator.isInvalid(params)) {
+                LOGGER.warning(ValidationMessage.BUILT_PARAMETERS_INVALID.format(
+                        ParameterValidator.getValidationError(params)
+                ));
                 return null;
             }
 
             return params;
 
         } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "Invalid parameter input, using defaults", e);
+            LOGGER.log(Level.WARNING, ValidationMessage.INVALID_PARAMETER_INPUT.toString(), e);
             return null;
         }
     }
+
 
     /**
      * Applies initial settings from StartController.
