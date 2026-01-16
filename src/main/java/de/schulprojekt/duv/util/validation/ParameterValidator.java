@@ -13,7 +13,7 @@ public class ParameterValidator {
     // Static Variables
     // ========================================
 
-    private static final int MIN_POPULATION = 8;
+    private static final int MIN_POPULATION = 1000;
     private static final int MAX_POPULATION = 2_000_000;
 
     private static final double MIN_PERCENTAGE = 0.0;
@@ -29,7 +29,7 @@ public class ParameterValidator {
     private static final double MAX_CHAOS = 10.0;
 
     private static final int MIN_PARTIES = 2;
-    private static final int MAX_PARTIES = 20;
+    private static final int MAX_PARTIES = 8;
 
     private static final double MIN_BUDGET_EFFECTIVENESS = 0.0;
     private static final double MAX_BUDGET_EFFECTIVENESS = 5.0;

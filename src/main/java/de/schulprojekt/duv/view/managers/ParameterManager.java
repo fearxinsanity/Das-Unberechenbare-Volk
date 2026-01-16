@@ -403,6 +403,12 @@ public class ParameterManager {
                             ParameterValidator.getMinPopulation(),
                             ParameterValidator.getMaxPopulation()
                     );
+                } else if (field == partyCountField) {
+                    val = ParameterValidator.clampInt(
+                            (int) val,
+                            ParameterValidator.getMinParties(),
+                            ParameterValidator.getMaxParties()
+                    );
                 }
 
                 NumberFormat formatter = NumberFormat.getInstance(Locale.GERMANY);
