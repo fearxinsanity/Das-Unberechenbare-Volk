@@ -14,7 +14,6 @@ import de.schulprojekt.duv.view.managers.SimulationStateManager;
 import de.schulprojekt.duv.view.managers.UIControlManager;
 import de.schulprojekt.duv.view.util.VisualFX;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -212,18 +211,18 @@ public class DashboardController {
     // ========================================
 
     @FXML
-    public void handleStartSimulation(ActionEvent ignored) {
+    public void handleStartSimulation() {
         if (controller == null) return;
 
         if (stateManager.getRemainingSeconds() > 0) {
-            handleParameterChange(null);
+            handleParameterChange();
             controller.startSimulation();
             stateManager.startTimer();
         }
     }
 
     @FXML
-    public void handlePauseSimulation(ActionEvent ignored) {
+    public void handlePauseSimulation() {
         if (controller != null) {
             controller.pauseSimulation();
             stateManager.pauseTimer();
@@ -231,7 +230,7 @@ public class DashboardController {
     }
 
     @FXML
-    public void handleResetSimulation(ActionEvent ignored) {
+    public void handleResetSimulation() {
         if (controller != null) {
             controller.resetSimulation();
             stateManager.resetSimulation();
@@ -239,9 +238,9 @@ public class DashboardController {
     }
 
     @FXML
-    public void handleLogout(ActionEvent ignored) {
+    public void handleLogout() {
         if (controller != null && controller.isRunning()) {
-            handlePauseSimulation(null);
+            handlePauseSimulation();
         }
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -263,23 +262,25 @@ public class DashboardController {
     // ========================================
 
     @FXML
-    public void handleParameterChange(ActionEvent ignored) {
+    public void handleParameterChange() {
         if (controller == null || parameterManager == null) return;
 
-        SimulationParameters params = parameterManager.buildParametersFromUI(
-                controller.getCurrentParameters().tickRate()
-        );
+        Platform.runLater(() -> {
+            SimulationParameters params = parameterManager.buildParametersFromUI(
+                    controller.getCurrentParameters().tickRate()
+            );
 
-        if (params != null) {
-            controller.updateAllParameters(params);
-        }
+            if (params != null) {
+                controller.updateAllParameters(params);
+            }
+        });
     }
 
     @FXML
-    public void handleRandomize(ActionEvent ignored) {
+    public void handleRandomize() {
         if (parameterManager == null) return;
 
-        parameterManager.randomizeParameters(() -> handleParameterChange(null));
+        parameterManager.randomizeParameters(this::handleParameterChange);
     }
 
     // ========================================
@@ -287,14 +288,14 @@ public class DashboardController {
     // ========================================
 
     @FXML
-    public void handleDurationIncrement(ActionEvent ignored) {
+    public void handleDurationIncrement() {
         if (stateManager != null) {
             stateManager.incrementDuration();
         }
     }
 
     @FXML
-    public void handleDurationDecrement(ActionEvent ignored) {
+    public void handleDurationDecrement() {
         if (stateManager != null) {
             stateManager.decrementDuration();
         }
@@ -305,32 +306,32 @@ public class DashboardController {
     // ========================================
 
     @FXML
-    public void handleVoterCountIncrement(ActionEvent ignored) {
+    public void handleVoterCountIncrement() {
         parameterManager.adjustIntField(voterCountField, 10000, 10000, 500000);
     }
 
     @FXML
-    public void handleVoterCountDecrement(ActionEvent ignored) {
+    public void handleVoterCountDecrement() {
         parameterManager.adjustIntField(voterCountField, -10000, 10000, 500000);
     }
 
     @FXML
-    public void handlePartyCountIncrement(ActionEvent ignored) {
+    public void handlePartyCountIncrement() {
         parameterManager.adjustIntField(partyCountField, 1, 2, 8);
     }
 
     @FXML
-    public void handlePartyCountDecrement(ActionEvent ignored) {
+    public void handlePartyCountDecrement() {
         parameterManager.adjustIntField(partyCountField, -1, 2, 8);
     }
 
     @FXML
-    public void handleScandalChanceIncrement(ActionEvent ignored) {
+    public void handleScandalChanceIncrement() {
         parameterManager.adjustDoubleField(scandalChanceField, 0.5);
     }
 
     @FXML
-    public void handleScandalChanceDecrement(ActionEvent ignored) {
+    public void handleScandalChanceDecrement() {
         parameterManager.adjustDoubleField(scandalChanceField, -0.5);
     }
 
@@ -339,21 +340,21 @@ public class DashboardController {
     // ========================================
 
     @FXML
-    public void handleSpeed1x(ActionEvent ignored) {
+    public void handleSpeed1x() {
         if (controller != null) {
             controller.updateSimulationSpeed(1);
         }
     }
 
     @FXML
-    public void handleSpeed2x(ActionEvent ignored) {
+    public void handleSpeed2x() {
         if (controller != null) {
             controller.updateSimulationSpeed(2);
         }
     }
 
     @FXML
-    public void handleSpeed4x(ActionEvent ignored) {
+    public void handleSpeed4x() {
         if (controller != null) {
             controller.updateSimulationSpeed(4);
         }
@@ -364,7 +365,7 @@ public class DashboardController {
     // ========================================
 
     @FXML
-    public void handleShowStatistics(ActionEvent ignored) {
+    public void handleShowStatistics() {
         navigate("/de/schulprojekt/duv/view/StatisticsView.fxml", (loader, ignoredRoot) -> {
             StatisticsController statsCtrl = loader.getController();
             Parent dashboardRoot = startButton.getScene().getRoot();
@@ -378,7 +379,7 @@ public class DashboardController {
     }
 
     @FXML
-    public void handleShowParliament(ActionEvent ignored) {
+    public void handleShowParliament() {
         navigate("/de/schulprojekt/duv/view/ParliamentView.fxml", (loader, ignoredRoot) -> {
             ParliamentController parliamentController = loader.getController();
             Parent dashboardView = startButton.getScene().getRoot();
@@ -396,7 +397,7 @@ public class DashboardController {
                 voterCountField, partyCountField, budgetField, scandalChanceField,
                 mediaInfluenceSlider, mobilityRateSlider, loyaltyMeanSlider, randomRangeSlider
         );
-        parameterManager.setOnParameterChangeCallback(() -> handleParameterChange(null));
+        parameterManager.setOnParameterChangeCallback(this::handleParameterChange);
         parameterManager.initializeFields();
 
         // State Manager
@@ -409,7 +410,7 @@ public class DashboardController {
                 populationOverlay, partyOverlay, budgetOverlay, durationOverlay
         );
         stateManager.setSidebars(leftSidebar, rightSidebar);
-        stateManager.setOnPauseCallback(() -> handlePauseSimulation(null));
+        stateManager.setOnPauseCallback(this::handlePauseSimulation);
         stateManager.setupTimer();
 
         // UI Manager
@@ -462,7 +463,7 @@ public class DashboardController {
     ) {
         if (controller == null) return;
         if (controller.isRunning()) {
-            handlePauseSimulation(null);
+            handlePauseSimulation();
         }
 
         try {
