@@ -1,6 +1,7 @@
 package de.schulprojekt.duv.view.managers;
 
 import de.schulprojekt.duv.model.core.SimulationParameters;
+import de.schulprojekt.duv.util.validation.ParameterValidator;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
@@ -26,12 +27,6 @@ public class ParameterManager {
     // ========================================
 
     private static final Logger LOGGER = Logger.getLogger(ParameterManager.class.getName());
-
-    private static final double MIN_SCANDAL_PROB = 0.0;
-    private static final double MAX_SCANDAL_PROB = 60.0;
-    private static final int MIN_POPULATION = 10_000;
-    private static final int MAX_POPULATION = 2_000_000;
-    private static final double MAX_BUDGET_FACTOR = 1000.0;
     private static final double DEFAULT_BUDGET = 500000.0;
 
     // ========================================
@@ -114,12 +109,26 @@ public class ParameterManager {
     /**
      * Initializes all input fields with event handlers and formatters.
      * Sets up input validation, focus listeners, and automatic formatting.
+     * Also configures slider bounds from ParameterValidator.
      */
     public void initializeFields() {
         setupInteractiveField(voterCountField);
         setupInteractiveField(partyCountField);
         setupInteractiveField(budgetField);
         setupInteractiveField(scandalChanceField);
+
+        // Configure slider bounds from Validator
+        mediaInfluenceSlider.setMin(ParameterValidator.getMinPercentage());
+        mediaInfluenceSlider.setMax(ParameterValidator.getMaxPercentage());
+
+        mobilityRateSlider.setMin(ParameterValidator.getMinPercentage());
+        mobilityRateSlider.setMax(ParameterValidator.getMaxPercentage());
+
+        loyaltyMeanSlider.setMin(ParameterValidator.getMinPercentage());
+        loyaltyMeanSlider.setMax(ParameterValidator.getMaxPercentage());
+
+        randomRangeSlider.setMin(ParameterValidator.getMinChaos());
+        randomRangeSlider.setMax(ParameterValidator.getMaxChaos());
     }
 
     /**
@@ -143,7 +152,7 @@ public class ParameterManager {
 
     /**
      * Reads current UI values and constructs a SimulationParameters object.
-     * Validates and clamps all input values to acceptable ranges.
+     * Validates and clamps all input values to acceptable ranges from ParameterValidator.
      *
      * @param currentTickRate the current tick rate to preserve
      * @return the constructed SimulationParameters, or null if validation fails
@@ -151,21 +160,33 @@ public class ParameterManager {
     public SimulationParameters buildParametersFromUI(int currentTickRate) {
         try {
             int popSize = parseIntSafe(voterCountField.getText(), 100000);
-            popSize = Math.clamp(popSize, MIN_POPULATION, MAX_POPULATION);
+            popSize = ParameterValidator.clampInt(
+                    popSize,
+                    ParameterValidator.getMinPopulation(),
+                    ParameterValidator.getMaxPopulation()
+            );
 
             int parties = parseIntSafe(partyCountField.getText(), 5);
-            parties = Math.clamp(parties, 2, 8);
+            parties = ParameterValidator.clampInt(
+                    parties,
+                    ParameterValidator.getMinParties(),
+                    ParameterValidator.getMaxParties()
+            );
 
-            double scandalProb = Math.clamp(
+            double scandalProb = ParameterValidator.clampDouble(
                     parseDoubleSafe(scandalChanceField.getText(), 5.0),
-                    MIN_SCANDAL_PROB,
-                    MAX_SCANDAL_PROB
+                    ParameterValidator.getMinScandalProb(),
+                    ParameterValidator.getMaxScandalProb()
             );
 
             double budgetInput = parseBudgetSafe(budgetField.getText());
-            double budgetEffectiveness = Math.clamp(budgetInput / DEFAULT_BUDGET, 0.1, MAX_BUDGET_FACTOR);
+            double budgetEffectiveness = ParameterValidator.clampDouble(
+                    budgetInput / DEFAULT_BUDGET,
+                    ParameterValidator.getMinBudgetEffectiveness(),
+                    ParameterValidator.getMaxBudgetEffectiveness()
+            );
 
-            return new SimulationParameters(
+            SimulationParameters params = new SimulationParameters(
                     popSize,
                     mediaInfluenceSlider.getValue(),
                     mobilityRateSlider.getValue(),
@@ -176,6 +197,15 @@ public class ParameterManager {
                     parties,
                     budgetEffectiveness
             );
+
+            // Finale Validierung vor Rückgabe
+            if (!ParameterValidator.isValid(params)) {
+                LOGGER.warning("Built parameters are invalid: " + ParameterValidator.getValidationError(params));
+                return null;
+            }
+
+            return params;
+
         } catch (Exception e) {
             LOGGER.log(Level.WARNING, "Invalid parameter input, using defaults", e);
             return null;
@@ -191,7 +221,11 @@ public class ParameterManager {
      */
     public void applyInitialSettings(long population, long budget) {
         if (voterCountField != null) {
-            long safePop = Math.clamp(population, MIN_POPULATION, MAX_POPULATION);
+            long safePop = ParameterValidator.clampInt(
+                    (int) population,
+                    ParameterValidator.getMinPopulation(),
+                    ParameterValidator.getMaxPopulation()
+            );
             voterCountField.setText(String.format(Locale.GERMANY, "%,d", safePop));
         }
         if (budgetField != null) {
@@ -201,7 +235,7 @@ public class ParameterManager {
     }
 
     /**
-     * Randomizes all parameter values with safe bounds.
+     * Randomizes all parameter values with safe bounds from ParameterValidator.
      * Generates random values within acceptable ranges for all parameters.
      *
      * @param animationCallback callback to handle animation completion (optional)
@@ -210,14 +244,24 @@ public class ParameterManager {
         removeInputFilters();
 
         Random rand = new Random();
-        int rPop = 10000 + rand.nextInt(MAX_POPULATION - 10000);
-        int rParties = 2 + rand.nextInt(7);
-        double rMedia = rand.nextDouble() * 100.0;
-        double rVolatility = rand.nextDouble() * 100.0;
-        double rLoyalty = rand.nextDouble() * 100.0;
+
+        int rPop = ParameterValidator.getMinPopulation() +
+                rand.nextInt(ParameterValidator.getMaxPopulation() - ParameterValidator.getMinPopulation());
+
+        int rParties = ParameterValidator.getMinParties() +
+                rand.nextInt(ParameterValidator.getMaxParties() - ParameterValidator.getMinParties());
+
+        double rMedia = ParameterValidator.clampPercentage(rand.nextDouble() * 100.0);
+        double rVolatility = ParameterValidator.clampPercentage(rand.nextDouble() * 100.0);
+        double rLoyalty = ParameterValidator.clampPercentage(rand.nextDouble() * 100.0);
+
         double rBudget = 50000.0 + rand.nextDouble() * 1950000.0;
-        double rScandal = rand.nextDouble() * 15.0;
-        double rChaos = 0.1 + rand.nextDouble() * 2.9;
+
+        double rScandal = ParameterValidator.getMinScandalProb() +
+                rand.nextDouble() * (ParameterValidator.getMaxScandalProb() - ParameterValidator.getMinScandalProb());
+
+        double rChaos = ParameterValidator.getMinChaos() +
+                rand.nextDouble() * (ParameterValidator.getMaxChaos() - ParameterValidator.getMinChaos());
 
         voterCountField.setText(String.format(Locale.GERMANY, "%,d", rPop));
         partyCountField.setText(String.valueOf(rParties));
@@ -245,7 +289,8 @@ public class ParameterManager {
      */
     public void adjustIntField(TextField field, int delta, int min, int max) {
         int val = parseIntSafe(field.getText(), min);
-        field.setText(String.format(Locale.GERMANY, "%,d", Math.clamp(val + delta, min, max)));
+        int newVal = ParameterValidator.clampInt(val + delta, min, max);
+        field.setText(String.format(Locale.GERMANY, "%,d", newVal));
         triggerParameterChange();
     }
 
@@ -257,8 +302,12 @@ public class ParameterManager {
      */
     public void adjustDoubleField(TextField field, double delta) {
         double val = parseDoubleSafe(field.getText(), 0.0);
-        field.setText(String.format(Locale.US, "%.1f",
-                Math.clamp(val + delta, MIN_SCANDAL_PROB, MAX_SCANDAL_PROB)));
+        double newVal = ParameterValidator.clampDouble(
+                val + delta,
+                ParameterValidator.getMinScandalProb(),
+                ParameterValidator.getMaxScandalProb()
+        );
+        field.setText(String.format(Locale.US, "%.1f", newVal));
         triggerParameterChange();
     }
 
@@ -346,7 +395,11 @@ public class ParameterManager {
                 long val = parseLongSafe(text);
 
                 if (field == voterCountField) {
-                    val = Math.clamp(val, MIN_POPULATION, MAX_POPULATION);
+                    val = ParameterValidator.clampInt(
+                            (int) val,
+                            ParameterValidator.getMinPopulation(),
+                            ParameterValidator.getMaxPopulation()
+                    );
                 }
 
                 NumberFormat formatter = NumberFormat.getInstance(Locale.GERMANY);

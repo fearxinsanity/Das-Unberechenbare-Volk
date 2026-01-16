@@ -29,7 +29,7 @@ public class ParameterValidator {
     private static final double MAX_CHAOS = 10.0;
 
     private static final int MIN_PARTIES = 2;
-    private static final int MAX_PARTIES = 8;
+    private static final int MAX_PARTIES = 20;
 
     private static final double MIN_BUDGET_EFFECTIVENESS = 0.0;
     private static final double MAX_BUDGET_EFFECTIVENESS = 5.0;
@@ -128,45 +128,45 @@ public class ParameterValidator {
     }
 
     /**
-     * Gets validation error message.
+     * Gets validation error message using centralized ValidationMessage enum.
      * @param params the parameters to validate
      * @return error message, or empty string if valid
      */
     public static String getValidationError(SimulationParameters params) {
         if (params.populationSize() < MIN_POPULATION || params.populationSize() > MAX_POPULATION) {
-            return String.format("Population size must be between %d and %,d", MIN_POPULATION, MAX_POPULATION);
+            return ValidationMessage.POPULATION_OUT_OF_RANGE.format(MIN_POPULATION, MAX_POPULATION);
         }
 
         if (params.mediaInfluence() < MIN_PERCENTAGE || params.mediaInfluence() > MAX_PERCENTAGE) {
-            return String.format("Media influence must be between %.1f%% and %.1f%%", MIN_PERCENTAGE, MAX_PERCENTAGE);
+            return ValidationMessage.MEDIA_INFLUENCE_OUT_OF_RANGE.format(MIN_PERCENTAGE, MAX_PERCENTAGE);
         }
 
         if (params.volatilityRate() < MIN_PERCENTAGE || params.volatilityRate() > MAX_PERCENTAGE) {
-            return String.format("Volatility rate must be between %.1f%% and %.1f%%", MIN_PERCENTAGE, MAX_PERCENTAGE);
+            return ValidationMessage.VOLATILITY_OUT_OF_RANGE.format(MIN_PERCENTAGE, MAX_PERCENTAGE);
         }
 
         if (params.scandalProbability() < MIN_SCANDAL_PROB || params.scandalProbability() > MAX_SCANDAL_PROB) {
-            return String.format("Scandal probability must be between %.1f%% and %.1f%%", MIN_SCANDAL_PROB, MAX_SCANDAL_PROB);
+            return ValidationMessage.SCANDAL_PROBABILITY_OUT_OF_RANGE.format(MIN_SCANDAL_PROB, MAX_SCANDAL_PROB);
         }
 
         if (params.loyaltyAverage() < MIN_PERCENTAGE || params.loyaltyAverage() > MAX_PERCENTAGE) {
-            return String.format("Loyalty average must be between %.1f%% and %.1f%%", MIN_PERCENTAGE, MAX_PERCENTAGE);
+            return ValidationMessage.LOYALTY_OUT_OF_RANGE.format(MIN_PERCENTAGE, MAX_PERCENTAGE);
         }
 
         if (params.tickRate() < MIN_TICK_RATE || params.tickRate() > MAX_TICK_RATE) {
-            return String.format("Tick rate must be between %d and %d", MIN_TICK_RATE, MAX_TICK_RATE);
+            return ValidationMessage.TICK_RATE_OUT_OF_RANGE.format(MIN_TICK_RATE, MAX_TICK_RATE);
         }
 
         if (params.chaosFactor() < MIN_CHAOS || params.chaosFactor() > MAX_CHAOS) {
-            return String.format("Chaos factor must be between %.1f and %.1f", MIN_CHAOS, MAX_CHAOS);
+            return ValidationMessage.CHAOS_FACTOR_OUT_OF_RANGE.format(MIN_CHAOS, MAX_CHAOS);
         }
 
         if (params.partyCount() < MIN_PARTIES || params.partyCount() > MAX_PARTIES) {
-            return String.format("Party count must be between %d and %d", MIN_PARTIES, MAX_PARTIES);
+            return ValidationMessage.PARTY_COUNT_OUT_OF_RANGE.format(MIN_PARTIES, MAX_PARTIES);
         }
 
         if (params.budgetEffectiveness() < MIN_BUDGET_EFFECTIVENESS || params.budgetEffectiveness() > MAX_BUDGET_EFFECTIVENESS) {
-            return String.format("Budget effectiveness must be between %.1f and %.1f", MIN_BUDGET_EFFECTIVENESS, MAX_BUDGET_EFFECTIVENESS);
+            return ValidationMessage.BUDGET_EFFECTIVENESS_OUT_OF_RANGE.format(MIN_BUDGET_EFFECTIVENESS, MAX_BUDGET_EFFECTIVENESS);
         }
 
         return "";

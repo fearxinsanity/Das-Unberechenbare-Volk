@@ -137,12 +137,17 @@ public class SimulationController {
     }
 
     public void updateSimulationSpeed(int factor) {
-        if (factor <= 0 || factor > 100) {
-            throw new IllegalArgumentException("Speed factor must be between 1 and 100, got: " + factor);
-        }
+        // Clamp to valid tick rate range
+        factor = ParameterValidator.clampInt(
+                factor,
+                ParameterValidator.getMinTickRate(),
+                ParameterValidator.getMaxTickRate()
+        );
+
+        int finalFactor = factor;
         executorService.execute(() -> {
             SimulationParameters current = engine.getParameters();
-            SimulationParameters updated = current.withTickRate(factor);
+            SimulationParameters updated = current.withTickRate(finalFactor);
 
             ParameterValidator.validate(updated);
 
@@ -156,9 +161,8 @@ public class SimulationController {
 
     public void updateAllParameters(SimulationParameters p) {
         executorService.execute(() -> {
-            String validationError = ParameterValidator.getValidationError(p);
-            if (!validationError.isEmpty()) {
-                LOGGER.warning("Invalid parameters rejected: " + validationError);
+            if (!ParameterValidator.isValid(p)) {
+                LOGGER.warning("Invalid parameters rejected: " + ParameterValidator.getValidationError(p));
                 return;
             }
 
