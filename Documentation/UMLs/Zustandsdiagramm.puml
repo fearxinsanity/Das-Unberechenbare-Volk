@@ -1,0 +1,70 @@
+@startuml StateDiagram
+title Zustandsdiagramm: Simulationszustände
+
+[*] --> Nicht_Initialisiert
+
+Nicht_Initialisiert --> Initialisierung : Anwendung starten
+
+state Initialisierung {
+    [*] --> Parameter_laden
+    Parameter_laden --> Parteien_laden
+    Parteien_laden --> Wähler_verteilen
+    Wähler_verteilen --> Skandale_laden
+    Skandale_laden --> [*]
+}
+
+Initialisierung --> Bereit : Initialisierung abgeschlossen
+
+state Bereit {
+    [*] --> Wartend
+    Wartend : Dashboard zeigt Ausgangszustand
+    Wartend : Alle Steuerelemente aktiv
+}
+
+Bereit --> Laufend : Start-Button gedrückt
+Bereit --> Parameter_Ändern : Parameter anpassen
+
+state Parameter_Ändern {
+    [*] --> Eingabe_prüfen
+    Eingabe_prüfen --> Werte_aktualisieren : Gültig
+    Eingabe_prüfen --> Fehler_anzeigen : Ungültig
+    Fehler_anzeigen --> Eingabe_prüfen
+    Werte_aktualisieren --> Neu_initialisieren : Strukturänderung
+    Werte_aktualisieren --> [*] : Keine Strukturänderung
+    Neu_initialisieren --> [*]
+}
+
+Parameter_Ändern --> Bereit : Änderungen übernommen
+
+state Laufend {
+    [*] --> Simulationsschritt_ausführen
+
+    Simulationsschritt_ausführen --> Skandal_prüfen
+    Skandal_prüfen --> Skandal_auslösen : Zufall < Wahrscheinlichkeit
+    Skandal_prüfen --> Wähler_verarbeiten : Kein Skandal
+    Skandal_auslösen --> Wähler_verarbeiten
+
+    Wähler_verarbeiten --> UI_aktualisieren
+    UI_aktualisieren --> Simulationsschritt_ausführen : Weiter
+
+    Simulationsschritt_ausführen : Simulation läuft mit\neingestellter Geschwindigkeit
+}
+
+Laufend --> Pausiert : Pause-Button
+Pausiert --> Laufend : Start-Button
+Pausiert --> Bereit : Reset-Button
+
+Laufend --> Bereit : Reset-Button
+Bereit --> [*] : Anwendung beenden
+
+note right of Laufend
+    Geschwindigkeit kann während
+    der Ausführung angepasst werden
+end note
+
+note right of Pausiert
+    Im Pause-Modus können
+    Einzelschritte ausgeführt werden
+end note
+
+@enduml

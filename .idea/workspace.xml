@@ -4,12 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="changed SimulationParameters.java to record class">
+    <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="created configs and removed magic numbers">
+      <change afterPath="$PROJECT_DIR$/src/test/java/de/schulprojekt/duv/model/calculation/StatisticsCalculatorTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/de/schulprojekt/duv/model/random/DistributionProviderTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/de/schulprojekt/duv/model/voter/VoterBehaviorTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/de/schulprojekt/duv/util/ParameterValidatorTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/DashboardController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/DashboardController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/util/VisualFX.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/util/VisualFX.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/dashboard.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/dashboard.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/view/DashboardUI.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/view/DashboardUI.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -20,6 +21,14 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="FxmlFile" />
+        <option value="UML Class" />
+        <option value="UML Sequence" />
+        <option value="UML Use Case" />
+        <option value="UML Activity" />
+        <option value="UML State" />
+        <option value="UML Component" />
+        <option value="UML Object" />
+        <option value="Enum" />
         <option value="Class" />
       </list>
     </option>
@@ -33,20 +42,20 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
-  &quot;lastFilter&quot;: {
+    &quot;lastFilter&quot;: {
     &quot;state&quot;: &quot;OPEN&quot;,
     &quot;assignee&quot;: &quot;fearxinsanity&quot;
-  }
-}</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/fearxinsanity/Das-Unberechenbare-Volk.git&quot;,
-    &quot;accountId&quot;: &quot;79da5971-a308-459c-94f0-745ff2f8a3a8&quot;
-  }
-}</component>
-  <component name="MavenImportPreferences">
-    <option name="explicitlyEnabledProfiles" value="portable" />
+    }
+    }</component>
+  <component name="GitRewordedCommitMessages">
+    <option name="onto" value="62f560bd00925e796afa88a1e5d464dca42d37c1" />
   </component>
+  <component name="GithubPullRequestsUISettings">{
+    &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/fearxinsanity/Das-Unberechenbare-Volk.git&quot;,
+    &quot;accountId&quot;: &quot;10a031bf-ee9a-44ba-8807-923d19b7784a&quot;
+    }
+    }</component>
   <component name="MavenRunner">
     <option name="vmOptions" value="--enable-native-access=ALL-UNNAMED" />
   </component>
@@ -54,8 +63,8 @@
     <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 0
-}</component>
+    &quot;associatedIndex&quot;: 0
+    }</component>
   <component name="ProjectId" id="35CJ4DKXHtIHjKmEXuAyfJNLhMP" />
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="2" id="Add" />
@@ -64,38 +73,42 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;Application.Main.executor&quot;: &quot;Run&quot;,
-    &quot;Maven.Build EXE.executor&quot;: &quot;Run&quot;,
-    &quot;Maven.DUV - run.executor&quot;: &quot;Run&quot;,
-    &quot;Maven.Das-Unberechenbare-Volk [clean].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.Das-Unberechenbare-Volk [install].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.Das-Unberechenbare-Volk [package].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.Package &amp; Install.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;Optimizing&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/4_Projekte/IntelliJ/Das-Unberechenbare-Volk&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settings.project.maven.runner&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Application.Main.executor": "Run",
+    "DefaultPlantUmlFileTemplate": "UML Object",
+    "JUnit.ParameterValidatorTest.testClampingMethods.executor": "Run",
+    "JUnit.ParameterValidatorTest.testPopulationBoundary.executor": "Run",
+    "JUnit.ParameterValidatorTest.testValidParameters.executor": "Run",
+    "Maven.Build EXE.executor": "Run",
+    "Maven.DUV - run.executor": "Run",
+    "Maven.Das-Unberechenbare-Volk [clean].executor": "Run",
+    "Maven.Das-Unberechenbare-Volk [install].executor": "Run",
+    "Maven.Das-Unberechenbare-Volk [package].executor": "Run",
+    "Maven.Package & Install.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "code__optimization",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/4_Projekte/IntelliJ/Das-Unberechenbare-Volk",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\4_Projekte\IntelliJ\Das-Unberechenbare-Volk\src\main\resources\de\schulprojekt\duv" />
@@ -105,7 +118,70 @@
       <recent name="C:\Projekt\BS-Projekt\src\main\resources\de.schulprojekt.duv\" />
     </key>
   </component>
-  <component name="RunManager" selected="Maven.DUV - run">
+  <component name="RunManager" selected="JUnit.ParameterValidatorTest">
+    <configuration name="ParameterValidatorTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="Das-Unberechenbare-Volk" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="de.schulprojekt.duv.util.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="de.schulprojekt.duv.util" />
+      <option name="MAIN_CLASS_NAME" value="de.schulprojekt.duv.util.ParameterValidatorTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ParameterValidatorTest.testClampingMethods" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="Das-Unberechenbare-Volk" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="de.schulprojekt.duv.util.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="de.schulprojekt.duv.util" />
+      <option name="MAIN_CLASS_NAME" value="de.schulprojekt.duv.util.ParameterValidatorTest" />
+      <option name="METHOD_NAME" value="testClampingMethods" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ParameterValidatorTest.testPopulationBoundary" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="Das-Unberechenbare-Volk" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="de.schulprojekt.duv.util.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="de.schulprojekt.duv.util" />
+      <option name="MAIN_CLASS_NAME" value="de.schulprojekt.duv.util.ParameterValidatorTest" />
+      <option name="METHOD_NAME" value="testPopulationBoundary" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ParameterValidatorTest.testValidParameters" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="Das-Unberechenbare-Volk" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="de.schulprojekt.duv.util.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="de.schulprojekt.duv.util" />
+      <option name="MAIN_CLASS_NAME" value="de.schulprojekt.duv.util.ParameterValidatorTest" />
+      <option name="METHOD_NAME" value="testValidParameters" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="Build EXE" type="MavenRunConfiguration" factoryName="Maven">
       <MavenSettings>
         <option name="myGeneralSettings" />
@@ -170,9 +246,21 @@
       <method v="2" />
     </configuration>
     <list>
+      <item itemvalue="JUnit.ParameterValidatorTest" />
+      <item itemvalue="JUnit.ParameterValidatorTest.testClampingMethods" />
+      <item itemvalue="JUnit.ParameterValidatorTest.testPopulationBoundary" />
+      <item itemvalue="JUnit.ParameterValidatorTest.testValidParameters" />
       <item itemvalue="Maven.Build EXE" />
       <item itemvalue="Maven.DUV - run" />
     </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JUnit.ParameterValidatorTest" />
+        <item itemvalue="JUnit.ParameterValidatorTest.testValidParameters" />
+        <item itemvalue="JUnit.ParameterValidatorTest.testClampingMethods" />
+        <item itemvalue="JUnit.ParameterValidatorTest.testPopulationBoundary" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
@@ -205,6 +293,10 @@
       <workItem from="1767619857062" duration="606000" />
       <workItem from="1767633030896" duration="615000" />
       <workItem from="1767645087297" duration="5388000" />
+      <workItem from="1768349976957" duration="31000" />
+      <workItem from="1768502477113" duration="364000" />
+      <workItem from="1768502852653" duration="249000" />
+      <workItem from="1768503116630" duration="1700000" />
     </task>
     <task id="LOCAL-00001" summary="workspace.xml changed">
       <option name="closed" value="true" />
@@ -454,21 +546,69 @@
       <option name="project" value="LOCAL" />
       <updated>1768301132059</updated>
     </task>
-    <option name="localTasksCounter" value="32" />
+    <task id="LOCAL-00032" summary="Optimized Particle flow">
+      <option name="closed" value="true" />
+      <created>1768556518178</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1768556518178</updated>
+    </task>
+    <task id="LOCAL-00033" summary="fixed errors">
+      <option name="closed" value="true" />
+      <created>1768557509024</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1768557509024</updated>
+    </task>
+    <task id="LOCAL-00034" summary="edited workspace.xml">
+      <option name="closed" value="true" />
+      <created>1768570738193</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1768570738193</updated>
+    </task>
+    <task id="LOCAL-00035" summary="WZischenstand">
+      <option name="closed" value="true" />
+      <created>1768577349861</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1768577349861</updated>
+    </task>
+    <task id="LOCAL-00036" summary="Zischenstand 2">
+      <option name="closed" value="true" />
+      <created>1768578215567</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1768578215567</updated>
+    </task>
+    <task id="LOCAL-00037" summary="Created Enum with all error Messages">
+      <option name="closed" value="true" />
+      <created>1768578986631</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1768578986631</updated>
+    </task>
+    <task id="LOCAL-00038" summary="created configs and removed magic numbers">
+      <option name="closed" value="true" />
+      <created>1768581702621</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1768581702621</updated>
+    </task>
+    <option name="localTasksCounter" value="39" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Added simulation reset method" />
-    <MESSAGE value="Added parameter logic with view implementation" />
-    <MESSAGE value="Tried to implement the animation ... failed" />
-    <MESSAGE value="Fixed the missing animation" />
-    <MESSAGE value="changed animation" />
-    <MESSAGE value="removed durationSlider" />
-    <MESSAGE value="fixed performance issues and changed animation" />
-    <MESSAGE value="fixed parallel access error" />
     <MESSAGE value="changed math related to voter transition" />
     <MESSAGE value="changed design" />
     <MESSAGE value="changed buttons from square to round" />
@@ -486,6 +626,14 @@
     <MESSAGE value="refactored parameter names" />
     <MESSAGE value="refactored warnings and method names" />
     <MESSAGE value="changed SimulationParameters.java to record class" />
-    <option name="LAST_COMMIT_MESSAGE" value="changed SimulationParameters.java to record class" />
+    <MESSAGE value="Optimized Particle flow" />
+    <MESSAGE value="fixed errors" />
+    <MESSAGE value="edited workspace.xml" />
+    <MESSAGE value="edited new classes" />
+    <MESSAGE value="WZischenstand" />
+    <MESSAGE value="Zischenstand 2" />
+    <MESSAGE value="Created Enum with all error Messages" />
+    <MESSAGE value="created configs and removed magic numbers" />
+    <option name="LAST_COMMIT_MESSAGE" value="created configs and removed magic numbers" />
   </component>
 </project>

@@ -9,22 +9,24 @@ import de.schulprojekt.duv.model.scandal.ScandalImpactCalculator;
 import de.schulprojekt.duv.model.scandal.ScandalScheduler;
 import de.schulprojekt.duv.model.voter.VoterBehavior;
 import de.schulprojekt.duv.model.voter.VoterPopulation;
-import de.schulprojekt.duv.model.voter.VoterTransition;
-import de.schulprojekt.duv.util.CSVLoader;
-import de.schulprojekt.duv.util.SimulationConfig;
+import de.schulprojekt.duv.model.dto.VoterTransition;
+import de.schulprojekt.duv.util.io.CSVLoader;
+import de.schulprojekt.duv.util.config.SimulationConfig;
 
 import java.util.List;
 import java.util.Random;
 
 /**
- * The core simulation orchestrator.
+ * Orchestrator class for the simulation logic.
+ * @author Nico Hoffmann
+ * @version 1.0
  */
 public class SimulationEngine {
 
-    // --- CONSTANTS ---
-    private static final int SCANDAL_MAX_AGE_TICKS = 200;
+    // ========================================
+    // Instance Variables
+    // ========================================
 
-    // --- FIELDS ---
     private final SimulationState state;
     private SimulationParameters parameters;
     private final CSVLoader csvLoader;
@@ -36,7 +38,14 @@ public class SimulationEngine {
     private final ScandalScheduler scandalScheduler;
     private final ScandalImpactCalculator impactCalculator;
 
-    // --- CONSTRUCTOR ---
+    // ========================================
+    // Constructors
+    // ========================================
+
+    /**
+     * Constructs a new SimulationEngine with the given parameters.
+     * @param params the initial simulation parameters
+     */
     public SimulationEngine(SimulationParameters params) {
         this.parameters = params;
         this.state = new SimulationState();
@@ -50,10 +59,32 @@ public class SimulationEngine {
         this.voterBehavior = new VoterBehavior();
 
         this.scandalScheduler = new ScandalScheduler(distributionProvider);
-        this.impactCalculator = new ScandalImpactCalculator(params.partyCount() + 10); // REF
+        this.impactCalculator = new ScandalImpactCalculator(params.partyCount() + 10);
     }
 
-    // --- INITIALIZATION ---
+    // ========================================
+    // Getter Methods
+    // ========================================
+
+    public List<Party> getParties() {
+        return partyRegistry.getParties();
+    }
+
+    public ScandalEvent getLastScandal() {
+        return state.consumeLastScandal();
+    }
+
+    public int getCurrentStep() {
+        return state.getCurrentStep();
+    }
+
+    public SimulationParameters getParameters() {
+        return parameters;
+    }
+
+    // ========================================
+    // Business Logic Methods
+    // ========================================
 
     public void initializeSimulation() {
         state.reset();
@@ -63,7 +94,7 @@ public class SimulationEngine {
         partyRegistry.initializeParties(parameters, distributionProvider);
 
         voterPopulation.initialize(
-                parameters.populationSize(), // REF
+                parameters.populationSize(),
                 partyRegistry.getParties().size(),
                 distributionProvider
         );
@@ -71,28 +102,23 @@ public class SimulationEngine {
         recalculateCounts();
     }
 
-    // --- MAIN LOGIC ---
-
     public List<VoterTransition> runSimulationStep() {
         state.incrementStep();
 
-        // 1. Scandal Management
-        state.getActiveScandals().removeIf(e -> state.getCurrentStep() - e.occurredAtStep() > SCANDAL_MAX_AGE_TICKS);
+        state.getActiveScandals().removeIf(e -> state.getCurrentStep() - e.occurredAtStep() > SimulationConfig.SCANDAL_MAX_AGE_TICKS);
 
         if (scandalScheduler.shouldScandalOccur() && partyRegistry.getParties().size() > 1) {
             triggerNewScandal();
         }
 
-        // 2. Calculate Scandal Impact
         double[] acutePressures = impactCalculator.calculateAcutePressure(
                 state.getActiveScandals(),
                 partyRegistry.getParties(),
                 state.getCurrentStep()
         );
 
-        impactCalculator.processRecovery(partyRegistry.getParties(), parameters.populationSize()); // REF
+        impactCalculator.processRecovery(partyRegistry.getParties(), parameters.populationSize());
 
-        // 3. Voter Decisions
         List<VoterTransition> transitions = voterBehavior.processVoterDecisions(
                 voterPopulation,
                 partyRegistry.getParties(),
@@ -100,14 +126,15 @@ public class SimulationEngine {
                 acutePressures,
                 impactCalculator
         );
+
         recalculateCounts();
 
         return transitions;
     }
 
     public void updateParameters(SimulationParameters newParams) {
-        boolean structuralChange = (newParams.partyCount() != parameters.partyCount()) || // REF
-                (newParams.populationSize() != parameters.populationSize());              // REF
+        boolean structuralChange = (newParams.partyCount() != parameters.partyCount()) ||
+                (newParams.populationSize() != parameters.populationSize());
 
         this.parameters = newParams;
         distributionProvider.initialize(newParams);
@@ -121,7 +148,9 @@ public class SimulationEngine {
         initializeSimulation();
     }
 
-    // --- HELPER METHODS ---
+    // ========================================
+    // Utility Methods
+    // ========================================
 
     private void triggerNewScandal() {
         List<Party> realParties = partyRegistry.getParties().stream()
@@ -150,23 +179,5 @@ public class SimulationEngine {
         }
 
         partyRegistry.updateSupporterCounts(counts);
-    }
-
-    // --- GETTERS ---
-
-    public List<Party> getParties() {
-        return partyRegistry.getParties();
-    }
-
-    public ScandalEvent getLastScandal() {
-        return state.consumeLastScandal();
-    }
-
-    public int getCurrentStep() {
-        return state.getCurrentStep();
-    }
-
-    public SimulationParameters getParameters() {
-        return parameters;
     }
 }

@@ -1,9 +1,14 @@
 package de.schulprojekt.duv.model.voter;
 
+import de.schulprojekt.duv.model.calculation.PartyCalculationCache;
+import de.schulprojekt.duv.model.calculation.VoterDecisionContext;
+import de.schulprojekt.duv.model.calculation.PartyEvaluationResult;
 import de.schulprojekt.duv.model.core.SimulationParameters;
+import de.schulprojekt.duv.model.dto.VoterTransition;
 import de.schulprojekt.duv.model.party.Party;
 import de.schulprojekt.duv.model.scandal.ScandalImpactCalculator;
-import de.schulprojekt.duv.util.SimulationConfig;
+import de.schulprojekt.duv.util.config.SimulationConfig;
+import de.schulprojekt.duv.util.config.VoterBehaviorConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,39 +18,30 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 /**
- * Steuert das Verhalten der Wählerpopulation.
- * Beinhaltet Meinungsdrift, Wechselwahrscheinlichkeiten und Parteiwahl.
+ * Controls the behavior and decision-making of the voter population.
+ * @author Nico Hoffmann
+ * @version 1.3
  */
 public class VoterBehavior {
 
-    // --- Konstanten: Mobilität & Wechsel ---
-    private static final double OPINION_DRIFT_FACTOR = 0.2;
-    private static final double LOYALTY_DAMPING_FACTOR = 200.0;
-    private static final double MAX_SWITCH_PROBABILITY = 0.60;
-    private static final double UNDECIDED_MOBILITY_BONUS = 1.2;
-    private static final double RESIGNATION_PROBABILITY = 0.15; // Chance, Nichtwähler zu werden
+    // ========================================
+    // Instance Variables
+    // ========================================
 
-    // --- Konstanten: Skandale & Druck ---
-    private static final double PENALTY_PRESSURE_DIVISOR = 600.0;
-    private static final double DISASTER_FLIGHT_THRESHOLD = 12.0; // Panik-Grenze
-    private static final double PERMANENT_DAMAGE_WEIGHT = 1.5;
+    private volatile double currentZeitgeist;
 
-    // --- Konstanten: Scoring (Parteiwahl) ---
-    private static final double DISTANCE_SCORE_BASE = 40.0;
-    private static final double DISTANCE_SENSITIVITY = 0.04;
-    private static final double DECISION_NOISE_FACTOR = 10.0;
+    // ========================================
+    // Constructors
+    // ========================================
 
-    // --- Konstruktor ---
     public VoterBehavior() {
-        // Stateless Service - kein expliziter Konstruktor nötig
+        this.currentZeitgeist = (ThreadLocalRandom.current().nextDouble() - 0.5) * 2.0;
     }
 
-    // --- Business Logik ---
+    // ========================================
+    // Business Logic Methods
+    // ========================================
 
-    /**
-     * Hauptmethode zur Berechnung der Wählerwanderung in einem Zeitschritt.
-     * Nutzt Parallel-Streams für Performance.
-     */
     public List<VoterTransition> processVoterDecisions(
             VoterPopulation population,
             List<Party> parties,
@@ -54,53 +50,55 @@ public class VoterBehavior {
             ScandalImpactCalculator impactCalculator
     ) {
         ConcurrentLinkedQueue<VoterTransition> visualTransitions = new ConcurrentLinkedQueue<>();
-        int pSize = parties.size();
+        int partyCount = parties.size();
 
-        // 1. Vorbereitung (Thread-Safe Counter & Caching)
-        AtomicInteger[] partyDeltas = initDeltas(pSize);
+        updateZeitgeist();
+
+        AtomicInteger[] partyDeltas = initDeltas(partyCount);
         PartyCalculationCache cache = createPartyCache(parties, params);
 
-        // 2. Parallele Verarbeitung der Population
+        final double activeZeitgeist = this.currentZeitgeist;
+
         IntStream.range(0, population.size()).parallel().forEach(i -> {
             ThreadLocalRandom rnd = ThreadLocalRandom.current();
 
-            // A. Meinungsdrift anwenden
-            applyOpinionDrift(population, i, rnd);
+            applyOpinionDrift(population, i, rnd, activeZeitgeist);
 
             int currentIdx = population.getPartyIndex(i);
-            // Korrektur falls Index Out-of-Bounds (Sicherheitsnetz)
-            if (currentIdx >= pSize) {
+            if (currentIdx >= partyCount) {
                 currentIdx = 0;
                 population.setPartyIndex(i, (byte) 0);
             }
 
-            // B. Skandaldruck berechnen
+            VoterType voterType = population.getVoterType(i);
             double totalPenalty = calculatePenalty(currentIdx, acutePressures, impactCalculator);
 
-            // C. Soll gewechselt werden? (Switch Probability)
-            double switchProb = calculateSwitchProbability(population, i, params, totalPenalty, currentIdx);
+            VoterDecisionContext context = new VoterDecisionContext(
+                    population.getPosition(i),
+                    population.getLoyalty(i),
+                    population.getMediaInfluence(i),
+                    voterType,
+                    currentIdx,
+                    totalPenalty
+            );
+
+            double switchProb = calculateSwitchProbability(context, params);
 
             if (rnd.nextDouble() < switchProb) {
-                // D. Wohin wird gewechselt? (Target Selection)
                 int targetIdx = findBestTargetParty(
-                        population.getPosition(i),
-                        population.getMediaInfluence(i),
-                        currentIdx,
-                        pSize,
-                        totalPenalty,
+                        context,
+                        partyCount,
                         cache,
                         acutePressures,
                         impactCalculator,
                         rnd
                 );
 
-                // E. Wechsel durchführen
                 if (targetIdx != currentIdx) {
                     population.setPartyIndex(i, (byte) targetIdx);
                     partyDeltas[currentIdx].decrementAndGet();
                     partyDeltas[targetIdx].incrementAndGet();
 
-                    // Visualisierung sampeln
                     if (rnd.nextDouble() < SimulationConfig.VISUALIZATION_SAMPLE_RATE) {
                         visualTransitions.add(new VoterTransition(parties.get(currentIdx), parties.get(targetIdx)));
                     }
@@ -108,17 +106,33 @@ public class VoterBehavior {
             }
         });
 
-        // 3. Ergebnisse aggregieren
         applyPopulationChanges(parties, partyDeltas);
-
         return new ArrayList<>(visualTransitions);
     }
 
-    // --- Private Hilfsmethoden: Logik-Details ---
+    // ========================================
+    // Utility Methods
+    // ========================================
 
-    private void applyOpinionDrift(VoterPopulation population, int index, ThreadLocalRandom rnd) {
-        double drift = (rnd.nextDouble() - 0.5) * OPINION_DRIFT_FACTOR;
-        float newPos = (float) (population.getPosition(index) + drift);
+    private void updateZeitgeist() {
+        double nextZeitgeist = this.currentZeitgeist;
+        double change = (ThreadLocalRandom.current().nextDouble() - 0.5) * VoterBehaviorConfig.ZEITGEIST_DRIFT_STRENGTH;
+        nextZeitgeist += change;
+
+        if (nextZeitgeist > VoterBehaviorConfig.ZEITGEIST_MAX_AMPLITUDE) {
+            nextZeitgeist = VoterBehaviorConfig.ZEITGEIST_MAX_AMPLITUDE;
+        } else if (nextZeitgeist < -VoterBehaviorConfig.ZEITGEIST_MAX_AMPLITUDE) {
+            nextZeitgeist = -VoterBehaviorConfig.ZEITGEIST_MAX_AMPLITUDE;
+        }
+
+        this.currentZeitgeist = nextZeitgeist;
+    }
+
+    private void applyOpinionDrift(VoterPopulation population, int index, ThreadLocalRandom rnd, double globalTrend) {
+        double individualDrift = (rnd.nextDouble() - 0.5) * VoterBehaviorConfig.OPINION_DRIFT_FACTOR;
+        double totalDrift = individualDrift + (globalTrend * VoterBehaviorConfig.GLOBAL_TREND_WEIGHT);
+
+        float newPos = (float) (population.getPosition(index) + totalDrift);
         if (newPos < 0) newPos = 0;
         if (newPos > 100) newPos = 100;
         population.setPosition(index, newPos);
@@ -129,88 +143,103 @@ public class VoterBehavior {
         return acutePressures[partyIdx] + calc.getPermanentDamage(partyIdx);
     }
 
-    private double calculateSwitchProbability(VoterPopulation pop, int idx, SimulationParameters params, double penalty, int currentIdx) {
+    private double calculateSwitchProbability(VoterDecisionContext context, SimulationParameters params) {
         double baseMobility = params.volatilityRate() / 100.0;
 
-        // Basis: Mobilität * (1 - Loyalität%) * Medieneinfluss
         double switchProb = baseMobility *
-                (1.0 - pop.getLoyalty(idx) / LOYALTY_DAMPING_FACTOR) *
-                pop.getMediaInfluence(idx);
+                context.voterType().getLoyaltyModifier() *
+                (1.0 - context.loyalty() / VoterBehaviorConfig.LOYALTY_DAMPING_FACTOR) *
+                context.mediaInfluence() *
+                context.voterType().getMediaModifier();
 
-        // Skandale erhöhen Druck
-        if (penalty > 0) {
-            switchProb += (penalty / PENALTY_PRESSURE_DIVISOR);
+        if (context.currentPenalty() > 0) {
+            switchProb += (context.currentPenalty() / VoterBehaviorConfig.PENALTY_PRESSURE_DIVISOR);
         }
 
-        // Unsichere Wähler wechseln leichter
-        if (currentIdx == 0) {
-            switchProb *= UNDECIDED_MOBILITY_BONUS;
+        if (context.currentPartyIndex() == 0) {
+            switchProb *= VoterBehaviorConfig.UNDECIDED_MOBILITY_BONUS;
         }
 
-        return Math.min(switchProb, MAX_SWITCH_PROBABILITY);
+        return Math.min(switchProb, VoterBehaviorConfig.MAX_SWITCH_PROBABILITY);
     }
 
-    /**
-     * Kernlogik der Parteiwahl: Findet die Partei mit dem höchsten Score.
-     */
     private int findBestTargetParty(
-            float voterPos,
-            float mediaInfluence,
-            int currentIdx,
-            int pSize,
-            double currentPenalty,
+            VoterDecisionContext context,
+            int partyCount,
             PartyCalculationCache cache,
             double[] acutePressures,
             ScandalImpactCalculator impactCalc,
             ThreadLocalRandom rnd
     ) {
-        // 1. Panik-Check: Ist der Druck so hoch, dass der Wähler fliehen MUSS?
-        boolean isPanicMode = currentPenalty > DISASTER_FLIGHT_THRESHOLD;
-        if (!isPanicMode && currentIdx != 0 && rnd.nextDouble() < RESIGNATION_PROBABILITY) {
-            return 0; // Zurück zu "Unsicher"
+        boolean isPanicMode = context.currentPenalty() > VoterBehaviorConfig.DISASTER_FLIGHT_THRESHOLD;
+
+        if (!isPanicMode && context.currentPartyIndex() != 0 &&
+                rnd.nextDouble() < VoterBehaviorConfig.RESIGNATION_PROBABILITY) {
+            return 0;
         }
 
-        // Ab hier beginnt die Suche nach der besten Alternative (Passiert bei Panik IMMER)
         double bestScore = -Double.MAX_VALUE;
-        int targetIdx = currentIdx;
-        double campaignEffectiveness = rnd.nextDouble() * cache.uniformRange;
+        int targetIdx = context.currentPartyIndex();
+        double campaignEffectiveness = rnd.nextDouble() * cache.uniformRange();
 
-        // Alle Parteien bewerten (außer Unsicher=0, Start bei 1)
-        for (int pIdx = 1; pIdx < pSize; pIdx++) {
-            if (pIdx == currentIdx) continue;
+        for (int pIdx = 1; pIdx < partyCount; pIdx++) {
+            if (pIdx == context.currentPartyIndex()) continue;
 
-            // 1. Politische Nähe
-            double dist = Math.abs(voterPos - cache.positions[pIdx]);
-            double distScore = DISTANCE_SCORE_BASE / (1.0 + (dist * DISTANCE_SENSITIVITY));
+            PartyEvaluationResult evaluation = evaluateParty(
+                    pIdx,
+                    context,
+                    cache,
+                    acutePressures,
+                    impactCalc,
+                    campaignEffectiveness,
+                    rnd
+            );
 
-            // 2. Budget & Kampagne
-            double budgetScore = cache.budgetScores[pIdx] * campaignEffectiveness * mediaInfluence * cache.globalMediaFactor;
-
-            // Zwischensumme
-            double score = distScore + (budgetScore * cache.dailyMomentum[pIdx]);
-
-            // 3. Abzug für Skandale der Zielpartei
-            double targetPenalty = acutePressures[pIdx] + (impactCalc.getPermanentDamage(pIdx) * PERMANENT_DAMAGE_WEIGHT);
-            score -= targetPenalty;
-
-            // 4. Zufallsrauschen (Irrationalität)
-            double noise = (rnd.nextDouble() - 0.5) * DECISION_NOISE_FACTOR * cache.uniformRange;
-
-            if ((score + noise) > bestScore) {
-                bestScore = score + noise;
+            if (evaluation.finalScore() > bestScore) {
+                bestScore = evaluation.finalScore();
                 targetIdx = pIdx;
             }
         }
 
-        // Wenn alle Parteien unattraktiv sind (negativer Score), werde Nichtwähler
-        if (bestScore < 0) {
-            return 0;
-        }
-
-        return targetIdx;
+        return (bestScore < 0) ? 0 : targetIdx;
     }
 
-    // --- Private Hilfsmethoden: Setup & Aggregation ---
+    private PartyEvaluationResult evaluateParty(
+            int partyIdx,
+            VoterDecisionContext context,
+            PartyCalculationCache cache,
+            double[] acutePressures,
+            ScandalImpactCalculator impactCalc,
+            double campaignEffectiveness,
+            ThreadLocalRandom rnd
+    ) {
+        double dist = Math.abs(context.position() - cache.positions()[partyIdx]);
+        double typeAdjustedSensitivity = VoterBehaviorConfig.DISTANCE_SENSITIVITY *
+                context.voterType().getDistanceSensitivity();
+        double distScore = VoterBehaviorConfig.DISTANCE_SCORE_BASE / (1.0 + (dist * typeAdjustedSensitivity));
+
+        double budgetScore = cache.budgetScores()[partyIdx] *
+                campaignEffectiveness *
+                context.mediaInfluence() *
+                context.voterType().getMediaModifier() *
+                cache.globalMediaFactor();
+
+        double score = distScore + (budgetScore * cache.dailyMomentum()[partyIdx]);
+
+        double targetPenalty = acutePressures[partyIdx] +
+                (impactCalc.getPermanentDamage(partyIdx) * VoterBehaviorConfig.PERMANENT_DAMAGE_WEIGHT);
+        score -= targetPenalty;
+
+        double noise = (rnd.nextDouble() - 0.5) * VoterBehaviorConfig.DECISION_NOISE_FACTOR * cache.uniformRange();
+
+        return new PartyEvaluationResult(
+                partyIdx,
+                distScore,
+                budgetScore,
+                targetPenalty,
+                score + noise
+        );
+    }
 
     private AtomicInteger[] initDeltas(int size) {
         AtomicInteger[] deltas = new AtomicInteger[size];
@@ -237,8 +266,10 @@ public class VoterBehavior {
         for (int k = 0; k < size; k++) {
             Party p = parties.get(k);
             positions[k] = p.getPoliticalPosition();
-            budgetScores[k] = (p.getCampaignBudget() / SimulationConfig.CAMPAIGN_BUDGET_FACTOR) * 12.0;
-            momentum[k] = 0.95 + (ThreadLocalRandom.current().nextDouble() * 0.1);
+            budgetScores[k] = (p.getCampaignBudget() / SimulationConfig.CAMPAIGN_BUDGET_FACTOR) *
+                    VoterBehaviorConfig.BUDGET_SCORE_MULTIPLIER;
+            momentum[k] = VoterBehaviorConfig.MOMENTUM_BASE +
+                    (ThreadLocalRandom.current().nextDouble() * VoterBehaviorConfig.MOMENTUM_VARIANCE);
         }
 
         return new PartyCalculationCache(
@@ -249,15 +280,4 @@ public class VoterBehavior {
                 params.mediaInfluence() / 100.0
         );
     }
-
-    /**
-     * Interne Datenstruktur (Record) zum Bündeln von Read-Only Werten für den Loop.
-     */
-    private record PartyCalculationCache(
-            double[] positions,
-            double[] budgetScores,
-            double[] dailyMomentum,
-            double uniformRange,
-            double globalMediaFactor
-    ) {}
 }

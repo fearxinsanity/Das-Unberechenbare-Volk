@@ -1,0 +1,76 @@
+@startuml ActivityDiagram
+title Aktivitätsdiagramm: Simulationsschritt
+
+|Benutzer|
+start
+:Simulation starten;
+
+|SimulationController|
+:Parameter laden;
+:SimulationEngine initialisieren;
+
+|SimulationEngine|
+repeat
+    :Schritt-Zähler erhöhen;
+
+    :Alte Skandale entfernen\n(älter als 200 Ticks);
+
+    fork
+        :Zeitgeist aktualisieren;
+    fork again
+        if (Skandal auslösen?) then (ja)
+            :Zufällige Partei wählen;
+            :Skandal aus CSV laden;
+            :Skandal-Event erstellen;
+            :Skandalzähler erhöhen;
+        else (nein)
+        endif
+    end fork
+
+    :Akute Skandaldrücke\nberechnen;
+
+    :Permanente Schäden\nverarbeiten (Recovery);
+
+    |VoterBehavior|
+    partition "Parallele Wählerverarbeitung" {
+        fork
+            :Wähler 1 verarbeiten;
+            :Meinungsdrift anwenden;
+            if (Wechsel?) then (ja)
+                :Beste Partei finden;
+                :Partei wechseln;
+            else (nein)
+            endif
+        fork again
+            :Wähler 2 verarbeiten;
+        fork again
+            :Wähler 3 verarbeiten;
+        fork again
+            :Wähler N verarbeiten;
+        end fork
+    }
+
+    |SimulationEngine|
+    :Unterstützerzahlen\nneu berechnen;
+
+    |DashboardController|
+    :Visualisierung\naktualisieren;
+
+    fork
+        :Parlamentsverteilung\nzeichnen;
+    fork again
+        :Statistiken\naktualisieren;
+    fork again
+        :Feed-Events\nanzeigen;
+    end fork
+
+    |Benutzer|
+    note right: Benutzer kann jederzeit\npausieren oder Parameter ändern
+
+repeat while (Simulation läuft?) is (ja)
+-> nein;
+
+:Endergebnisse anzeigen;
+stop
+
+@enduml

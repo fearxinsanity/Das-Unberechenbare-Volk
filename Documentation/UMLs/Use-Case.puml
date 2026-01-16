@@ -1,0 +1,91 @@
+@startuml UseCaseDiagram
+title Use-Case-Diagramm: Wahlsimulation "Das Unberechenbare Volk"
+
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Benutzer" as User
+actor "System-Administrator" as Admin
+
+rectangle "Wahlsimulation" {
+
+    package "Simulationssteuerung" {
+        usecase "Simulation starten" as UC1
+        usecase "Simulation pausieren" as UC2
+        usecase "Simulation zurücksetzen" as UC3
+        usecase "Simulationsgeschwindigkeit\nanpassen" as UC4
+        usecase "Einzelschritt ausführen" as UC5
+    }
+
+    package "Parameterverwaltung" {
+        usecase "Bevölkerungsgröße\neinstellen" as UC6
+        usecase "Medieneinfluss\nkonfigurieren" as UC7
+        usecase "Volatilität anpassen" as UC8
+        usecase "Skandalwahrscheinlichkeit\nfestlegen" as UC9
+        usecase "Loyalitätsfaktor\neinstellen" as UC10
+        usecase "Chaosfaktor anpassen" as UC11
+        usecase "Parteianzahl festlegen" as UC12
+    }
+
+    package "Visualisierung" {
+        usecase "Parlamentsverteilung\nanzeigen" as UC13
+        usecase "Statistiken anzeigen" as UC14
+        usecase "Wählerwanderung\nvisualisieren" as UC15
+        usecase "Skandale anzeigen" as UC16
+        usecase "Zeitverlauf darstellen" as UC17
+    }
+
+    package "Datenverwaltung" {
+        usecase "Parteien laden" as UC18
+        usecase "Skandaldaten laden" as UC19
+        usecase "Ergebnisse exportieren" as UC20
+    }
+
+    package "Hilfefunktionen" {
+        usecase "Benutzerhandbuch\naufrufen" as UC21
+        usecase "Tooltips anzeigen" as UC22
+    }
+}
+
+' Benutzer-Beziehungen
+User --> UC1
+User --> UC2
+User --> UC3
+User --> UC4
+User --> UC5
+
+User --> UC6
+User --> UC7
+User --> UC8
+User --> UC9
+User --> UC10
+User --> UC11
+User --> UC12
+
+User --> UC13
+User --> UC14
+User --> UC15
+User --> UC16
+User --> UC17
+
+User --> UC21
+User --> UC22
+
+' Administrator-Beziehungen
+Admin --> UC18
+Admin --> UC19
+Admin --> UC20
+
+' Include-Beziehungen
+UC1 ..> UC13 : <<include>>
+UC1 ..> UC14 : <<include>>
+UC4 ..> UC1 : <<extend>>
+UC5 ..> UC1 : <<extend>>
+
+UC14 ..> UC17 : <<include>>
+UC15 ..> UC14 : <<include>>
+
+' Extend-Beziehungen
+UC16 ..> UC14 : <<extend>>
+
+@enduml

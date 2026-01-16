@@ -1,4 +1,4 @@
-package de.schulprojekt.duv.view;
+package de.schulprojekt.duv.view.controllers;
 
 import de.schulprojekt.duv.model.party.Party;
 import de.schulprojekt.duv.view.components.ParliamentRenderer;
@@ -12,38 +12,44 @@ import java.util.List;
 
 /**
  * Controller for the Parliament View (Semicircle Seating).
- * Handles user interaction (Hover, Click) and navigation back to Dashboard.
+ * @author Nico Hoffmann
+ * @version 1.1
  */
 public class ParliamentController {
 
-    // --- FXML Components ---
+    // ========================================
+    // Instance Variables
+    // ========================================
+
     @FXML private Pane canvasContainer;
 
-    // --- Logic & Renderers ---
     private ParliamentRenderer renderer;
     private TooltipManager tooltipManager;
     private Parent previousView;
 
-    // --- Initialization ---
+    // ========================================
+    // Business Logic Methods
+    // ========================================
 
+    /**
+     * Initializes the view with party data and a reference to the previous view.
+     * @param parties list of parties to render
+     * @param previousView the dashboard root for navigation back
+     */
     public void initData(List<Party> parties, Parent previousView) {
         this.previousView = previousView;
-
-        // Initialize Components
         this.renderer = new ParliamentRenderer(canvasContainer);
         this.tooltipManager = new TooltipManager(canvasContainer);
 
-        // Initial Render
         this.renderer.renderDistribution(parties);
-
-        // Setup Event Handlers
         setupInteractions();
     }
 
-    // --- Interaction Logic ---
+    // ========================================
+    // Utility Methods
+    // ========================================
 
     private void setupInteractions() {
-        // 1. Hover Effect (Glow)
         canvasContainer.setOnMouseMoved(event -> {
             if (renderer != null) {
                 Party hovered = renderer.getPartyAt(event.getX(), event.getY());
@@ -51,27 +57,20 @@ public class ParliamentController {
             }
         });
 
-        // 2. Click Handling (Tooltip & Selection)
         canvasContainer.setOnMouseClicked(event -> {
             if (renderer == null || tooltipManager == null) return;
 
             Party clickedParty = renderer.getPartyAt(event.getX(), event.getY());
-
             if (clickedParty != null) {
-                // Select and Show Tooltip
                 renderer.setSelectedParty(clickedParty);
-
                 double[] center = renderer.getPartyCenterCoordinates(clickedParty);
                 tooltipManager.showStaticTooltip(clickedParty, center[0], center[1]);
             } else {
-                // Deselect and Hide
                 renderer.setSelectedParty(null);
                 tooltipManager.hideTooltip();
             }
         });
     }
-
-    // --- Navigation ---
 
     @FXML
     public void handleBack(ActionEvent ignored) {

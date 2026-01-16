@@ -1,0 +1,109 @@
+@startuml ComponentDiagram
+title Komponentendiagramm: Systemarchitektur
+
+package "View Layer" {
+    component [Main\nJavaFX Application] as Main
+    component [DashboardController] as Dashboard
+    component [StatisticsController] as Stats
+    component [ParliamentController] as Parliament
+    component [StartController] as Start
+
+    package "UI Components" {
+        component [FeedManager] as Feed
+        component [ParliamentRenderer] as Renderer
+        component [ChartManager] as Charts
+    }
+}
+
+package "Controller Layer" {
+    component [SimulationController] as SimCtrl
+}
+
+package "Model Layer" {
+
+    package "Core" {
+        component [SimulationEngine] as Engine
+        component [SimulationState] as State
+    }
+
+    package "Party Management" {
+        component [PartyRegistry] as Registry
+        component [Party] as Party
+    }
+
+    package "Voter Management" {
+        component [VoterPopulation] as Voters
+        component [VoterBehavior] as Behavior
+    }
+
+    package "Scandal System" {
+        component [ScandalScheduler] as Scandal
+        component [ScandalImpactCalculator] as Impact
+    }
+
+    package "Random System" {
+        component [DistributionProvider] as Random
+    }
+}
+
+package "Utility Layer" {
+    component [CSVLoader] as CSV
+    component [SimulationConfig] as Config
+}
+
+database "CSV-Dateien" {
+    file [parteien.csv] as PartyCSV
+    file [skandale.csv] as ScandalCSV
+}
+
+' View connections
+Main --> Start
+Start --> SimCtrl
+Dashboard --> SimCtrl
+Dashboard --> Feed
+Dashboard --> Renderer
+Stats --> Charts
+Parliament --> Renderer
+
+' Controller connections
+SimCtrl --> Engine
+SimCtrl --> Dashboard
+
+' Engine connections
+Engine --> State
+Engine --> Registry
+Engine --> Voters
+Engine --> Behavior
+Engine --> Scandal
+Engine --> Impact
+Engine --> Random
+
+' Utility connections
+Registry --> CSV
+Scandal --> CSV
+Engine --> Config
+
+' Data connections
+CSV --> PartyCSV : <<read>>
+CSV --> ScandalCSV : <<read>>
+
+' Interfaces
+interface "ISimulationControl" as IControl
+interface "IDataVisualization" as IViz
+
+SimCtrl -up- IControl
+Dashboard -up- IViz
+
+note right of Engine
+    Kernkomponente:
+    Orchestriert alle
+    Simulationsprozesse
+end note
+
+note bottom of CSV
+    Lädt Parteien und
+    Skandaldaten aus
+    externen Dateien
+end note
+
+@enduml

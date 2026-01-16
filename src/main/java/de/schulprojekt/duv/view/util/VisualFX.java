@@ -3,41 +3,46 @@ package de.schulprojekt.duv.view.util;
 import javafx.animation.*;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Control;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextInputControl;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import java.util.Locale;
-import java.util.Random;
 
 /**
  * Utility class for global visual effects and responsive UI scaling.
- * Cannot be instantiated.
+ * @author Nico Hoffmann
+ * @version 1.0
  */
 public final class VisualFX {
 
-    // --- Constants: Glitch Effect ---
+    // ========================================
+    // Static Variables
+    // ========================================
+
     private static final String CSS_GLITCH_CLASS = "glitch-active";
     private static final int GLITCH_DURATION_MS = 50;
     private static final int GLITCH_OFFSET_X = 5;
     private static final int GLITCH_CYCLES = 6;
 
-    // --- Constants: Responsive Scaling ---
     private static final double FONT_BASE_SIZE = 12.0;
     private static final double FONT_REF_WIDTH = 1280.0;
     private static final double FONT_MIN_SIZE = 11.0;
     private static final double FONT_MAX_SIZE = 18.0;
 
-    // --- Key for storing animation in Node properties ---
     private static final String KEY_PULSE_ANIMATION = "duv.visualfx.pulse";
+
+    // ========================================
+    // Constructors
+    // ========================================
 
     private VisualFX() {
         // Prevent instantiation
     }
 
-    // --- Public API ---
+    // ========================================
+    // Business Logic Methods
+    // ========================================
 
     public static void triggerSidebarGlitch(Node leftNode, Node rightNode) {
         if (leftNode == null || rightNode == null) return;
@@ -69,8 +74,6 @@ public final class VisualFX {
         );
     }
 
-    // --- 1. Typewriter Effect ---
-
     public static void playTypewriterAnimation(Label label, String content, int delayMillis) {
         if (label == null || content == null) return;
 
@@ -96,11 +99,10 @@ public final class VisualFX {
         timeline.play();
     }
 
-    // --- 2. Pulse Effect (Improved) ---
-
     /**
-     * Startet ein Pulsieren in der angegebenen Farbe.
-     * Speichert die Animation im Node, damit sie sauber gestoppt werden kann.
+     * Starts a pulsing effect in the specified color.
+     * @param node the target node
+     * @param color the pulse color
      */
     public static void startPulse(Node node, Color color) {
         if (node == null) return;
@@ -127,7 +129,8 @@ public final class VisualFX {
     }
 
     /**
-     * Stoppt das Pulsieren und setzt den Node zurück.
+     * Stops the pulsing effect and resets the node.
+     * @param node the target node
      */
     public static void stopPulse(Node node) {
         if (node == null) return;
@@ -146,36 +149,9 @@ public final class VisualFX {
         node.setOpacity(1.0);
     }
 
-    // --- 3. Decryption Effect ---
-
-    public static Timeline animateDecryption(Control control, String finalValue) {
-        if (control == null) return null;
-
-        Timeline timeline = new Timeline();
-        Random random = new Random();
-        int iterations = 15;
-        int delay = 40;
-
-        for (int i = 0; i < iterations; i++) {
-            timeline.getKeyFrames().add(new KeyFrame(
-                    Duration.millis(i * delay),
-                    _ -> {
-                        String fake = generateRandomString(finalValue.length(), random);
-                        setTextOnControl(control, fake);
-                    }
-            ));
-        }
-
-        timeline.getKeyFrames().add(new KeyFrame(
-                Duration.millis(iterations * delay),
-                _ -> setTextOnControl(control, finalValue)
-        ));
-
-        timeline.play();
-        return timeline;
-    }
-
-    // --- Private Helpers ---
+    // ========================================
+    // Utility Methods
+    // ========================================
 
     private static TranslateTransition createShakeTransition(Node node, double byX) {
         TranslateTransition tt = new TranslateTransition(Duration.millis(GLITCH_DURATION_MS), node);
@@ -185,23 +161,4 @@ public final class VisualFX {
         return tt;
     }
 
-    private static String generateRandomString(int length, Random random) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < length; i++) {
-            if (random.nextBoolean()) {
-                sb.append(random.nextInt(10));
-            } else {
-                sb.append((char) ('A' + random.nextInt(26)));
-            }
-        }
-        return sb.toString();
-    }
-
-    private static void setTextOnControl(Control control, String text) {
-        if (control instanceof Label l) {
-            l.setText(text);
-        } else if (control instanceof TextInputControl t) {
-            t.setText(text);
-        }
-    }
 }

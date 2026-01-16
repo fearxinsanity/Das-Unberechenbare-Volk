@@ -6,22 +6,42 @@ import java.util.List;
 
 /**
  * Manages the mutable runtime state of the simulation.
- * Tracks the current time step (tick) and the list of currently active scandals.
- * This class is purely a data holder for the engine.
+ * @author Nico Hoffmann
+ * @version 1.0
  */
 public class SimulationState {
 
-    // --- FIELDS ---
+    // ========================================
+    // Instance Variables
+    // ========================================
+
     private int currentStep = 0;
     private final List<ScandalEvent> activeScandals = new ArrayList<>();
     private ScandalEvent lastScandal = null;
 
-    // --- CONSTRUCTOR ---
+    // ========================================
+    // Constructors
+    // ========================================
+
     public SimulationState() {
         // Default constructor
     }
 
-    // --- MAIN LOGIC ---
+    // ========================================
+    // Getter Methods
+    // ========================================
+
+    public int getCurrentStep() {
+        return currentStep;
+    }
+
+    public List<ScandalEvent> getActiveScandals() {
+        return activeScandals;
+    }
+
+    // ========================================
+    // Business Logic Methods
+    // ========================================
 
     public void incrementStep() {
         currentStep++;
@@ -34,7 +54,7 @@ public class SimulationState {
 
     /**
      * Retrieves the most recent scandal and clears the reference.
-     * Used by the UI/Controller to show "News Flash" notifications only once.
+     * @return the last occurred scandal event
      */
     public ScandalEvent consumeLastScandal() {
         ScandalEvent s = lastScandal;
@@ -46,15 +66,5 @@ public class SimulationState {
         currentStep = 0;
         activeScandals.clear();
         lastScandal = null;
-    }
-
-    // --- GETTERS ---
-
-    public int getCurrentStep() {
-        return currentStep;
-    }
-
-    public List<ScandalEvent> getActiveScandals() {
-        return activeScandals;
     }
 }

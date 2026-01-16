@@ -1,0 +1,319 @@
+@startuml DasUnberechenbare Volk
+
+' Styling
+skinparam classAttributeIconSize 0
+skinparam classFontSize 11
+skinparam packageStyle rectangle
+
+' ====== PACKAGES ======
+
+package "de.schulprojekt.duv.model.core" #DDDDDD {
+    class SimulationEngine {
+        - state : SimulationState
+        - voterPopulation : VoterPopulation
+        - partyRegistry : PartyRegistry
+        - scandalScheduler : ScandalScheduler
+        + SimulationEngine(parameters : SimulationParameters)
+        + advanceToNextDay() : void
+        + getState() : SimulationState
+        + getVoterPopulation() : VoterPopulation
+        + getPartyRegistry() : PartyRegistry
+    }
+
+    class SimulationState {
+        - currentDay : int
+        - isRunning : boolean
+        - lastEventDescription : String
+        + SimulationState()
+        + getCurrentDay() : int
+        + setCurrentDay(day : int) : void
+        + isRunning() : boolean
+        + setRunning(running : boolean) : void
+        + getLastEventDescription() : String
+        + setLastEventDescription(desc : String) : void
+    }
+
+    class SimulationParameters {
+        - totalPopulation : int
+        - numberOfDays : int
+        - scandalProbability : double
+        + SimulationParameters(population : int, days : int, probability : double)
+        + getTotalPopulation() : int
+        + getNumberOfDays() : int
+        + getScandalProbability() : double
+    }
+}
+
+package "de.schulprojekt.duv.model.party" #DDFFDD {
+    class Party {
+        - {static} LIMIT_FAR_LEFT : double = 20.0
+        - {static} LIMIT_LEFT : double = 40.0
+        - {static} LIMIT_CENTER : double = 60.0
+        - {static} LIMIT_RIGHT : double = 80.0
+        - name : String
+        - abbreviation : String
+        - colorCode : String
+        - politicalPosition : double
+        - campaignBudget : double
+        - currentSupporterCount : int
+        - scandalCount : int
+        + Party(name : String, abbreviation : String, colorCode : String, position : double, budget : double, supporters : int)
+        + getName() : String
+        + getAbbreviation() : String
+        + getColorCode() : String
+        + getPoliticalPosition() : double
+        + getCampaignBudget() : double
+        + getCurrentSupporterCount() : int
+        + getScandalCount() : int
+        + setCurrentSupporterCount(count : int) : void
+        + getPoliticalOrientationName() : String
+        + incrementScandalCount() : void
+    }
+
+    class PartyTemplate {
+        - name : String
+        - abbreviation : String
+        - colorCode : String
+        - politicalPosition : double
+        - campaignBudget : double
+        - initialSupportPercentage : double
+        + PartyTemplate(name : String, abbreviation : String, colorCode : String, position : double, budget : double, supportPercentage : double)
+        + toParty(totalPopulation : int) : Party
+    }
+
+    class PartyRegistry {
+        - parties : List<Party>
+        + PartyRegistry()
+        + registerParty(party : Party) : void
+        + getAllParties() : List<Party>
+        + getPartyByName(name : String) : Party
+        + getTotalSupporters() : int
+    }
+}
+
+package "de.schulprojekt.duv.model.voter" #DDFFFF {
+    class VoterBehavior {
+        - loyaltyFactor : double
+        - volatilityFactor : double
+        + VoterBehavior(loyalty : double, volatility : double)
+        + calculateTransitionProbability(fromParty : Party, toParty : Party) : double
+        + getLoyaltyFactor() : double
+        + getVolatilityFactor() : double
+    }
+
+    class VoterTransition {
+        - fromParty : Party
+        - toParty : Party
+        - transitionProbability : double
+        - numberOfVoters : int
+        + VoterTransition(from : Party, to : Party, probability : double, voters : int)
+        + execute() : void
+    }
+
+    class VoterPopulation {
+        - totalPopulation : int
+        - voterBehavior : VoterBehavior
+        - distributionProvider : DistributionProvider
+        + VoterPopulation(population : int, behavior : VoterBehavior)
+        + simulateVoterTransitions(parties : List<Party>) : void
+        + getTotalPopulation() : int
+    }
+}
+
+package "de.schulprojekt.duv.model.scandal" #FFDDDD {
+    class Scandal {
+        - name : String
+        - description : String
+        - severity : int
+        - targetParty : Party
+        + Scandal(name : String, description : String, severity : int, target : Party)
+        + getName() : String
+        + getDescription() : String
+        + getSeverity() : int
+        + getTargetParty() : Party
+    }
+
+    class ScandalEvent {
+        - scandal : Scandal
+        - occurenceDay : int
+        + ScandalEvent(scandal : Scandal, day : int)
+        + getScandal() : Scandal
+        + getOccurenceDay() : int
+    }
+
+    class ScandalImpactCalculator {
+        + {static} calculateImpact(scandal : Scandal, population : VoterPopulation) : int
+        + {static} applyImpact(scandal : Scandal, impact : int) : void
+    }
+
+    class ScandalScheduler {
+        - scheduledEvents : Queue<ScandalEvent>
+        - config : SimulationConfig
+        + ScandalScheduler(config : SimulationConfig)
+        + scheduleScandal(scandal : Scandal, day : int) : void
+        + processEventsForDay(day : int) : List<ScandalEvent>
+        + hasEventsForDay(day : int) : boolean
+    }
+}
+
+package "de.schulprojekt.duv.model.random" #FFFFDD {
+    class DistributionProvider {
+        - random : Random
+        + DistributionProvider()
+        + getGaussianValue(mean : double, stdDev : double) : double
+        + getUniformValue(min : double, max : double) : double
+        + nextBoolean(probability : double) : boolean
+    }
+}
+
+package "de.schulprojekt.duv.controller" #DDFFEE {
+    class SimulationController {
+        - engine : SimulationEngine
+        - dashboardController : DashboardController
+        + SimulationController(params : SimulationParameters)
+        + startSimulation() : void
+        + pauseSimulation() : void
+        + resetSimulation() : void
+        + stepSimulation() : void
+    }
+}
+
+package "de.schulprojekt.duv.view" #EEDDFF {
+    class Main {
+        + {static} main(args : String[]) : void
+        + start(stage : Stage) : void
+    }
+
+    class DashboardController {
+        - simulationController : SimulationController
+        - feedManager : FeedManager
+        - parliamentRenderer : ParliamentRenderer
+        + initialize() : void
+        + updateDashboard() : void
+    }
+
+    class StatisticsController {
+        - chartManager : ChartManager
+        + initialize() : void
+        + updateStatistics(state : SimulationState) : void
+    }
+
+    class ParliamentController {
+        - parliamentRenderer : ParliamentRenderer
+        + initialize() : void
+        + renderParliament(parties : List<Party>) : void
+    }
+
+    class StartController {
+        + initialize() : void
+        + onStartButtonClick() : void
+        + loadSimulationParameters() : SimulationParameters
+    }
+}
+
+package "de.schulprojekt.duv.view.components" #FFEEEE {
+    class FeedManager {
+        - feedItems : ObservableList<String>
+        + addFeedItem(message : String) : void
+        + clearFeed() : void
+        + getFeedItems() : ObservableList<String>
+    }
+
+    class ParliamentRenderer {
+        - canvas : Canvas
+        + ParliamentRenderer(canvas : Canvas)
+        + renderSeats(parties : List<Party>) : void
+        + calculateSeatPositions(totalSeats : int) : List<Point2D>
+    }
+
+    class ChartManager {
+        - lineChart : LineChart
+        + ChartManager(chart : LineChart)
+        + addDataPoint(day : int, party : Party, value : double) : void
+        + clearChart() : void
+    }
+
+    class TooltipManager {
+        + {static} installTooltip(node : Node, text : String) : void
+        + {static} createCustomTooltip(content : String) : Tooltip
+    }
+
+    class CanvasRenderer {
+        + {static} clearCanvas(canvas : Canvas) : void
+        + {static} drawCircle(gc : GraphicsContext, x : double, y : double, radius : double, color : Color) : void
+        + {static} drawText(gc : GraphicsContext, text : String, x : double, y : double) : void
+    }
+}
+
+package "de.schulprojekt.duv.util" #EEFFEE {
+    class CSVLoader {
+        + {static} loadPartyTemplates(filePath : String) : List<PartyTemplate>
+        + {static} loadScandalData(filePath : String) : List<Scandal>
+    }
+
+    class SimulationConfig {
+        - {static} instance : SimulationConfig
+        - properties : Properties
+        - SimulationConfig()
+        + {static} getInstance() : SimulationConfig
+        + getProperty(key : String) : String
+        + getIntProperty(key : String) : int
+        + getDoubleProperty(key : String) : double
+    }
+}
+
+package "de.schulprojekt.duv.view.util" #EEEEFF {
+    class VisualFX {
+        + {static} fadeIn(node : Node, duration : Duration) : void
+        + {static} fadeOut(node : Node, duration : Duration) : void
+        + {static} slideIn(node : Node, direction : Direction) : void
+    }
+}
+
+' ====== RELATIONSHIPS ======
+
+' Core relationships
+SimulationEngine --> SimulationState : has
+SimulationEngine --> VoterPopulation : manages
+SimulationEngine --> PartyRegistry : uses
+SimulationEngine --> ScandalScheduler : uses
+SimulationEngine ..> SimulationParameters : creates from
+
+' Party relationships
+PartyRegistry "1" o-- "*" Party : contains
+PartyTemplate ..> Party : creates
+
+' Voter relationships
+VoterPopulation --> VoterBehavior : uses
+VoterPopulation --> DistributionProvider : uses
+VoterTransition --> Party : from/to
+
+' Scandal relationships
+ScandalScheduler "1" o-- "*" ScandalEvent : schedules
+ScandalEvent --> Scandal : contains
+Scandal --> Party : targets
+ScandalImpactCalculator ..> Scandal : calculates
+ScandalImpactCalculator ..> VoterPopulation : affects
+ScandalScheduler --> SimulationConfig : uses
+
+' Controller relationships
+SimulationController --> SimulationEngine : controls
+SimulationController --> DashboardController : updates
+
+' View relationships
+Main ..> StartController : launches
+StartController ..> SimulationController : creates
+DashboardController --> FeedManager : uses
+DashboardController --> ParliamentRenderer : uses
+StatisticsController --> ChartManager : uses
+ParliamentController --> ParliamentRenderer : uses
+
+' Component relationships
+ParliamentRenderer ..> Party : renders
+ChartManager ..> Party : visualizes
+
+' Utility relationships
+CSVLoader ..> PartyTemplate : loads
+CSVLoader ..> Scandal : loads
+
+@enduml

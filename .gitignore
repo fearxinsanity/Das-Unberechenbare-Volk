@@ -45,7 +45,6 @@ replay_pid*
 *.iml
 *.iws
 *.ipr
-workspace.xml
 out/
 
 # IntelliJ IDEA specific
@@ -124,3 +123,4 @@ application-dev.properties
 # Temporary files
 *.tmp
 *.temp
+.idea/workspace.xml

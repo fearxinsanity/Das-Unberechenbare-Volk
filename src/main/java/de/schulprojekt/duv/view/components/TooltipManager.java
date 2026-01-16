@@ -19,43 +19,53 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Manages tooltips for BOTH views:
- * 1. Dashboard: Dynamic via Mouse-Hover (handleMouseMove)
- * 2. Parliament: Static via Click (showStaticTooltip)
+ * Manages tooltips for both Dashboard (Hover) and Parliament (Click) views.
+ * @author Nico Hoffmann
+ * @version 1.1
  */
 public class TooltipManager {
 
-    // --- Constants: Styling ---
+    // ========================================
+    // Static Variables
+    // ========================================
+
     private static final String STYLE_HEADER_LABEL = "-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-font-family: 'Consolas';";
     private static final String STYLE_SUBHEADER_LABEL = "-fx-text-fill: rgba(255,255,255,0.8); -fx-font-size: 11px; -fx-font-family: 'Consolas';";
     private static final String STYLE_INFO_LABEL = "-fx-text-fill: #e0e0e0; -fx-font-size: 12px; -fx-font-family: 'Consolas';";
     private static final String STYLE_CONTENT_BOX = "-fx-background-color: rgba(20, 20, 25, 0.95);";
     private static final String STYLE_SCANDAL_LABEL = "-fx-font-size: 12px; -fx-font-family: 'Consolas'; -fx-font-weight: bold;";
 
-    // --- UI Components ---
+    // ========================================
+    // Instance Variables
+    // ========================================
+
     private final Pane overlayPane;
     private final VBox tooltipBox;
-    private final Label nameLabel, abbrLabel, votersLabel, posLabel, scandalsLabel;
+    private final Label nameLabel;
+    private final Label abbrLabel;
+    private final Label votersLabel;
+    private final Label posLabel;
+    private final Label scandalsLabel;
     private final Line connectionLine;
     private final Circle anchorPoint;
-
-    // --- State ---
     private Party currentActiveParty = null;
 
-    // --- Constructor ---
+    // ========================================
+    // Constructors
+    // ========================================
 
+    /**
+     * Initializes the tooltip system and adds it to the provided pane.
+     * @param animationPane the parent pane for the overlay
+     */
     public TooltipManager(Pane animationPane) {
-        // 1. Overlay Layer
         this.overlayPane = new Pane();
         this.overlayPane.setPickOnBounds(false);
         this.overlayPane.setMouseTransparent(true);
-
-        // Bind size to parent
         this.overlayPane.prefWidthProperty().bind(animationPane.widthProperty());
         this.overlayPane.prefHeightProperty().bind(animationPane.heightProperty());
         animationPane.getChildren().add(overlayPane);
 
-        // 2. Connection Elements (Line & Anchor)
         this.connectionLine = new Line();
         this.connectionLine.setStrokeWidth(1.5);
         this.connectionLine.getStrokeDashArray().addAll(5d, 5d);
@@ -64,16 +74,14 @@ public class TooltipManager {
         this.anchorPoint = new Circle(3);
         this.anchorPoint.setVisible(false);
 
-        // 3. Tooltip Container
         this.tooltipBox = new VBox(0);
         this.tooltipBox.setPadding(Insets.EMPTY);
         this.tooltipBox.setVisible(false);
         this.tooltipBox.setEffect(new DropShadow(15, Color.BLACK));
 
-        // 4. Build Content Structure
         VBox headerBox = new VBox(2);
         headerBox.setPadding(new Insets(8, 10, 8, 10));
-        headerBox.setId("headerBox"); // For CSS lookup
+        headerBox.setId("headerBox");
 
         nameLabel = new Label();
         nameLabel.setStyle(STYLE_HEADER_LABEL);
@@ -87,7 +95,6 @@ public class TooltipManager {
 
         votersLabel = new Label();
         votersLabel.setStyle(STYLE_INFO_LABEL);
-
         posLabel = new Label();
         posLabel.setStyle(STYLE_INFO_LABEL);
 
@@ -100,42 +107,37 @@ public class TooltipManager {
         contentBox.getChildren().addAll(votersLabel, posLabel, sep, scandalsLabel);
         tooltipBox.getChildren().addAll(headerBox, contentBox);
 
-        // Add everything to overlay
         overlayPane.getChildren().addAll(connectionLine, anchorPoint, tooltipBox);
     }
 
-    // --- Mode 1: Dashboard (Dynamic Hover) ---
+    // ========================================
+    // Business Logic Methods
+    // ========================================
 
+    /**
+     * Handles dynamic tooltip movement on the dashboard.
+     */
     public void handleMouseMove(double mx, double my, List<Party> parties, Map<String, CanvasRenderer.Point> positions, int total) {
         if (parties == null || positions == null) return;
 
         boolean foundAny = false;
-
         for (Party p : parties) {
             CanvasRenderer.Point pt = positions.get(p.getName());
             if (pt != null) {
-                // Determine Hit-Radius based on party size
                 double share = (double) p.getCurrentSupporterCount() / Math.max(1, total);
                 double r = 40.0 + (share * 60.0);
-
-                // FIX: Access record fields via method calls pt.x() / pt.y()
                 double px = pt.x();
                 double py = pt.y();
 
-                // Hit-Test (Euclidean Distance)
                 if (Math.sqrt(Math.pow(mx - px, 2) + Math.pow(my - py, 2)) <= r) {
                     foundAny = true;
-
-                    // Calculate target position (offset from mouse)
                     double targetBoxX = mx + 30;
                     double targetBoxY = my - 20;
 
-                    // New party or just movement?
                     if (!tooltipBox.isVisible() || currentActiveParty != p) {
                         currentActiveParty = p;
                         showCallout(p, px, py, targetBoxX, targetBoxY);
                     } else {
-                        // Just update position (no animation)
                         updateCalloutPosition(px, py, targetBoxX, targetBoxY);
                     }
                     break;
@@ -148,20 +150,19 @@ public class TooltipManager {
         }
     }
 
-    // --- Mode 2: Parliament (Static Click) ---
-
+    /**
+     * Shows a static tooltip for the parliament view.
+     */
     public void showStaticTooltip(Party p, double anchorX, double anchorY) {
         currentActiveParty = p;
-
-        // Simulate "preferred" box position relative to anchor
         double targetBoxX = anchorX + 40;
         double targetBoxY = anchorY - 60;
-
         showCallout(p, anchorX, anchorY, targetBoxX, targetBoxY);
     }
 
-    // --- Public Control ---
-
+    /**
+     * Hides the current tooltip and its connection elements.
+     */
     public void hideTooltip() {
         if (tooltipBox.isVisible()) {
             tooltipBox.setVisible(false);
@@ -171,10 +172,11 @@ public class TooltipManager {
         }
     }
 
-    // --- Private Helper: Rendering & Logic ---
+    // ========================================
+    // Utility Methods
+    // ========================================
 
     private void showCallout(Party p, double anchorX, double anchorY, double boxX, double boxY) {
-        // 1. Dynamic Styling based on Party Color
         Color pColor;
         try {
             pColor = Color.web(p.getColorCode());
@@ -188,7 +190,6 @@ public class TooltipManager {
         connectionLine.setStroke(pColor);
         anchorPoint.setFill(pColor);
 
-        // 2. Set Text Content
         nameLabel.setText(p.getName().toUpperCase());
         abbrLabel.setText(">> " + p.getAbbreviation());
         votersLabel.setText(String.format("STIMMEN: %,d", p.getCurrentSupporterCount()));
@@ -203,17 +204,14 @@ public class TooltipManager {
             scandalsLabel.setTextFill(Color.web("#55ff55"));
         }
 
-        // 3. Make Visible & Layout
         tooltipBox.setVisible(true);
         connectionLine.setVisible(true);
         anchorPoint.setVisible(true);
         tooltipBox.applyCss();
         tooltipBox.layout();
 
-        // Initial Position
         updateCalloutPosition(anchorX, anchorY, boxX, boxY);
 
-        // 4. "Tech Unfold" Animation
         ScaleTransition st = new ScaleTransition(Duration.millis(200), tooltipBox);
         st.setFromY(0);
         st.setToY(1);
@@ -230,7 +228,6 @@ public class TooltipManager {
         double finalBoxX = desiredBoxX;
         double finalBoxY = desiredBoxY;
 
-        // Boundary Check: Keep inside overlay
         if (finalBoxX + 220 > overlayPane.getWidth()) {
             finalBoxX = anchorX - 230;
         }
@@ -238,19 +235,14 @@ public class TooltipManager {
             finalBoxY = anchorY - 160;
         }
 
-        // Apply Box Position
         tooltipBox.setLayoutX(finalBoxX);
         tooltipBox.setLayoutY(finalBoxY);
 
-        // Draw Connection Line
         connectionLine.setStartX(anchorX);
         connectionLine.setStartY(anchorY);
-
-        // Connect line to the nearest edge of the box
         connectionLine.setEndX(finalBoxX > anchorX ? finalBoxX : finalBoxX + tooltipBox.getWidth());
         connectionLine.setEndY(finalBoxY > anchorY ? finalBoxY : finalBoxY + tooltipBox.getHeight());
 
-        // Update Anchor Point
         anchorPoint.setCenterX(anchorX);
         anchorPoint.setCenterY(anchorY);
     }
