@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 
 /**
  * Utility class for loading game data from CSV files.
- * * @author Nico Hoffmann
+ * @author Nico Hoffmann
  * @version 1.1
  */
 public class CSVLoader {
@@ -44,7 +44,7 @@ public class CSVLoader {
 
     /**
      * Retrieves a set of random party templates.
-     * * @param count number of templates to return
+     * @param count number of templates to return
      * @return list of party templates
      */
     public List<PartyTemplate> getRandomPartyTemplates(int count) {
@@ -66,7 +66,7 @@ public class CSVLoader {
 
     /**
      * Retrieves a random scandal, utilizing a cache.
-     * * @return a random scandal object
+     * @return a random scandal object
      */
     public Scandal getRandomScandal() {
         if (cachedScandals == null) {
@@ -119,7 +119,7 @@ public class CSVLoader {
         if (is == null) is = Thread.currentThread().getContextClassLoader().getResourceAsStream(filePath);
 
         if (is == null) {
-            LOGGER.log(Level.SEVERE, "CSV file missing: {0}", filePath);
+            LOGGER.log(Level.SEVERE, "CSV file not found in classpath: {0}. Check resources folder.", filePath);
             return resultList;
         }
 
@@ -137,7 +137,13 @@ public class CSVLoader {
                 if (item != null) resultList.add(item);
             }
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Error reading CSV", e);
+            LOGGER.log(Level.SEVERE, "Error reading CSV: " + filePath, e);
+        } finally {
+            try {
+                is.close();
+            } catch (IOException e) {
+                LOGGER.log(Level.WARNING, "Failed to close InputStream", e);
+            }
         }
         return resultList;
     }

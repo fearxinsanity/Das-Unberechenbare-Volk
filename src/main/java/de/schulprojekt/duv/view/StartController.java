@@ -32,7 +32,7 @@ import java.util.logging.Logger;
 
 /**
  * Controller for the application start screen and login visuals.
- * * @author Nico Hoffmann
+ * @author Nico Hoffmann
  * @version 1.1
  */
 public class StartController {

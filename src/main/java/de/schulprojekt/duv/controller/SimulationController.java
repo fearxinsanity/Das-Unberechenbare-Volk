@@ -14,12 +14,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * Controller connecting the UI with the simulation engine.
- * * @author Nico Hoffmann
+ * @author Nico Hoffmann
  * @version 1.1
  */
 public class SimulationController {
@@ -48,7 +49,7 @@ public class SimulationController {
     private final DashboardController view;
     private final ScheduledExecutorService executorService;
     private ScheduledFuture<?> simulationTask;
-    private volatile boolean isRunning = false;
+    private final AtomicBoolean isRunning = new AtomicBoolean(false);
 
     // ========================================
     // Constructors
@@ -56,7 +57,7 @@ public class SimulationController {
 
     /**
      * Initializes the controller with default simulation values.
-     * * @param view the dashboard controller for UI updates
+     * @param view the dashboard controller for UI updates
      */
     public SimulationController(DashboardController view) {
         this.view = view;
@@ -96,7 +97,7 @@ public class SimulationController {
     }
 
     public boolean isRunning() {
-        return isRunning;
+        return isRunning.get();
     }
 
     // ========================================
@@ -105,8 +106,7 @@ public class SimulationController {
 
     public void startSimulation() {
         executorService.execute(() -> {
-            if (isRunning) return;
-            isRunning = true;
+            if (!isRunning.compareAndSet(false, true)) return;
             scheduleTask();
             LOGGER.info("Simulation started.");
         });
@@ -114,7 +114,7 @@ public class SimulationController {
 
     public void pauseSimulation() {
         executorService.execute(() -> {
-            isRunning = false;
+            isRunning.set(false);
             stopCurrentTask();
             LOGGER.info("Simulation paused.");
         });
@@ -122,7 +122,7 @@ public class SimulationController {
 
     public void resetSimulation() {
         executorService.execute(() -> {
-            isRunning = false;
+            isRunning.set(false);
             stopCurrentTask();
             engine.resetState();
 
@@ -134,11 +134,14 @@ public class SimulationController {
     }
 
     public void updateSimulationSpeed(int factor) {
+        if (factor <= 0 || factor > 100) {
+            throw new IllegalArgumentException("Speed factor must be between 1 and 100, got: " + factor);
+        }
         executorService.execute(() -> {
             SimulationParameters current = engine.getParameters();
             engine.updateParameters(current.withTickRate(factor));
 
-            if (isRunning) {
+            if (isRunning.get()) {
                 scheduleTask();
             }
         });
@@ -153,7 +156,7 @@ public class SimulationController {
 
             Platform.runLater(() -> view.updateDashboard(partySnapshot, List.of(), null, currentStep));
 
-            if (isRunning) {
+            if (isRunning.get()) {
                 scheduleTask();
             }
         });
@@ -186,7 +189,7 @@ public class SimulationController {
 
     private void runLoopStep() {
         try {
-            if (!isRunning) return;
+            if (!isRunning.get()) return;
 
             List<VoterTransition> transitions = engine.runSimulationStep();
             ScandalEvent scandal = engine.getLastScandal();
@@ -194,9 +197,10 @@ public class SimulationController {
             List<Party> partySnapshot = new ArrayList<>(engine.getParties());
 
             Platform.runLater(() -> view.updateDashboard(partySnapshot, transitions, scandal, step));
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Critical error in simulation loop", e);
-            isRunning = false;
+        } catch (RuntimeException e) {
+            LOGGER.log(Level.SEVERE, "Runtime error in simulation loop", e);
+            isRunning.set(false);
+            throw e; // Re-throw to ensure errors aren't silently swallowed
         }
     }
 }

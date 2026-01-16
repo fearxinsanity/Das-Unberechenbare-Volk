@@ -4,7 +4,7 @@ import de.schulprojekt.duv.model.random.DistributionProvider;
 
 /**
  * Schedules the occurrence of scandals based on probability distributions.
- * * @author Nico Hoffmann
+ * @author Nico Hoffmann
  * @version 1.1
  */
 public class ScandalScheduler {
@@ -31,7 +31,7 @@ public class ScandalScheduler {
 
     /**
      * Checks if a new scandal should be triggered in the current step.
-     * * @return true if a scandal occurs
+     * @return true if a scandal occurs
      */
     public boolean shouldScandalOccur() {
         timeUntilNextScandal -= 1.0;

@@ -6,7 +6,7 @@ import java.util.List;
 
 /**
  * Calculates the impact of scandals on voters and parties.
- * * @author Nico Hoffmann
+ * @author Nico Hoffmann
  * @version 1.1
  */
 public class ScandalImpactCalculator {
@@ -34,7 +34,7 @@ public class ScandalImpactCalculator {
 
     /**
      * Initializes the calculator with a fixed size for party tracking.
-     * * @param maxParties maximum number of expected parties
+     * @param maxParties maximum number of expected parties
      */
     public ScandalImpactCalculator(int maxParties) {
         this.partyPermanentDamage = new double[maxParties + 10];

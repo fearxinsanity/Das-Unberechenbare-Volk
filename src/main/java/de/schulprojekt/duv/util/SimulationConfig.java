@@ -4,7 +4,7 @@ import javafx.scene.paint.Color;
 
 /**
  * Global configuration constants for the simulation.
- * * @author Nico Hoffmann
+ * @author Nico Hoffmann
  * @version 1.1
  */
 public class SimulationConfig {
@@ -19,6 +19,8 @@ public class SimulationConfig {
     public static final double CAMPAIGN_BUDGET_FACTOR = 100000.0;
     public static final String UNDECIDED_NAME = "Unsicher";
     public static final Color UNDECIDED_COLOR = Color.web("#6c757d");
+    // Number of ticks before old scandals are removed from active list
+    public static final int SCANDAL_MAX_AGE_TICKS = 200;
 
     // ========================================
     // Constructors

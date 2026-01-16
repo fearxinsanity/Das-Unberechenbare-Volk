@@ -16,7 +16,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Manages the news feed visualizations in the UI.
- * * @author Nico Hoffmann
+ * @author Nico Hoffmann
  * @version 1.1
  */
 public class FeedManager {
@@ -49,7 +49,7 @@ public class FeedManager {
 
     /**
      * Initializes the manager with UI components.
-     * * @param tickerBox horizontal ticker box
+     * @param tickerBox horizontal ticker box
      * @param tickerScroll ticker scroll pane
      * @param eventFeedPane vertical event feed pane
      */

@@ -2,10 +2,10 @@ package de.schulprojekt.duv.model.party;
 
 /**
  * A blueprint for a party loaded from a CSV file.
- * * @param name the full name of the party
+ * @param name the full name of the party
  * @param abbreviation the short identifier
  * @param colorCode hex color for UI representation
- * * @author Nico Hoffmann
+ * @author Nico Hoffmann
  * @version 1.1
  * @since Java 16
  */
@@ -21,7 +21,7 @@ public record PartyTemplate(
 
     /**
      * Creates a fully-fledged Party instance from this template.
-     * * @param politicalPosition assigned position (0-100)
+     * @param politicalPosition assigned position (0-100)
      * @param campaignBudget initial budget
      * @return a new Party instance
      */

@@ -8,7 +8,7 @@ import org.apache.commons.math3.distribution.UniformRealDistribution;
 
 /**
  * Manages the statistical distributions used in the simulation.
- * * @author Nico Hoffmann
+ * @author Nico Hoffmann
  * @version 1.1
  */
 public class DistributionProvider {
@@ -45,7 +45,7 @@ public class DistributionProvider {
 
     /**
      * Sets up mathematical distributions based on simulation parameters.
-     * * @param params the simulation settings
+     * @param params the simulation settings
      */
     public void initialize(SimulationParameters params) {
         this.loyaltyDistribution = new NormalDistribution(

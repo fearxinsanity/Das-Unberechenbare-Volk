@@ -14,7 +14,7 @@ import java.util.stream.IntStream;
 
 /**
  * Controls the behavior and decision-making of the voter population.
- * * @author Nico Hoffmann
+ * @author Nico Hoffmann
  * @version 1.1
  */
 public class VoterBehavior {
@@ -23,25 +23,39 @@ public class VoterBehavior {
     // Static Variables
     // ========================================
 
+    // Maximum voter opinion drift per tick (0-100 scale)
     private static final double OPINION_DRIFT_FACTOR = 0.25;
+    // Divisor to dampen loyalty effect on switching probability (higher = less impact)
     private static final double LOYALTY_DAMPING_FACTOR = 180.0;
+    // Maximum probability a voter will consider switching parties
     private static final double MAX_SWITCH_PROBABILITY = 0.65;
+    // Multiplier for undecided voters' mobility (they switch more easily)
     private static final double UNDECIDED_MOBILITY_BONUS = 1.3;
+    // Probability a dissatisfied voter becomes undecided instead of choosing another party
     private static final double RESIGNATION_PROBABILITY = 0.15;
+    // Divisor converting scandal penalty to switch probability increase
     private static final double PENALTY_PRESSURE_DIVISOR = 1800.0;
+    // Scandal pressure threshold triggering panic-mode party switching
     private static final double DISASTER_FLIGHT_THRESHOLD = 25.0;
+    // Weight multiplier for permanent scandal damage in decision calculation
     private static final double PERMANENT_DAMAGE_WEIGHT = 1.5;
+    // Base attractiveness score before distance penalty (0-100 scale)
     private static final double DISTANCE_SCORE_BASE = 40.0;
+    // Sensitivity factor for political distance penalty (higher = distance matters more)
     private static final double DISTANCE_SENSITIVITY = 0.04;
+    // Random noise amplitude added to party selection scores
     private static final double DECISION_NOISE_FACTOR = 12.0;
+    // Maximum change in global trend (Zeitgeist) per tick
     private static final double ZEITGEIST_DRIFT_STRENGTH = 0.15;
+    // Maximum absolute value for global political trend
     private static final double ZEITGEIST_MAX_AMPLITUDE = 8.0;
 
     // ========================================
     // Instance Variables
     // ========================================
 
-    private double currentZeitgeist;
+    // Volatile ensures visibility across parallel streams in processVoterDecisions()
+    private volatile double currentZeitgeist;
 
     // ========================================
     // Constructors
@@ -63,11 +77,11 @@ public class VoterBehavior {
             ScandalImpactCalculator impactCalculator
     ) {
         ConcurrentLinkedQueue<VoterTransition> visualTransitions = new ConcurrentLinkedQueue<>();
-        int pSize = parties.size();
+        int partyCount = parties.size();
 
         updateZeitgeist();
 
-        AtomicInteger[] partyDeltas = initDeltas(pSize);
+        AtomicInteger[] partyDeltas = initDeltas(partyCount);
         PartyCalculationCache cache = createPartyCache(parties, params);
 
         final double activeZeitgeist = this.currentZeitgeist;
@@ -78,7 +92,7 @@ public class VoterBehavior {
             applyOpinionDrift(population, i, rnd, activeZeitgeist);
 
             int currentIdx = population.getPartyIndex(i);
-            if (currentIdx >= pSize) {
+            if (currentIdx >= partyCount) {
                 currentIdx = 0;
                 population.setPartyIndex(i, (byte) 0);
             }
@@ -91,7 +105,7 @@ public class VoterBehavior {
                         population.getPosition(i),
                         population.getMediaInfluence(i),
                         currentIdx,
-                        pSize,
+                        partyCount,
                         totalPenalty,
                         cache,
                         acutePressures,
@@ -120,10 +134,15 @@ public class VoterBehavior {
     // ========================================
 
     private void updateZeitgeist() {
+        double nextZeitgeist = this.currentZeitgeist;
         double change = (ThreadLocalRandom.current().nextDouble() - 0.5) * ZEITGEIST_DRIFT_STRENGTH;
-        this.currentZeitgeist += change;
-        if (this.currentZeitgeist > ZEITGEIST_MAX_AMPLITUDE) this.currentZeitgeist = ZEITGEIST_MAX_AMPLITUDE;
-        if (this.currentZeitgeist < -ZEITGEIST_MAX_AMPLITUDE) this.currentZeitgeist = -ZEITGEIST_MAX_AMPLITUDE;
+        nextZeitgeist += change;
+        if (nextZeitgeist > ZEITGEIST_MAX_AMPLITUDE) {
+            nextZeitgeist = ZEITGEIST_MAX_AMPLITUDE;
+        } else if (nextZeitgeist < -ZEITGEIST_MAX_AMPLITUDE) {
+            nextZeitgeist = -ZEITGEIST_MAX_AMPLITUDE;
+        }
+        this.currentZeitgeist = nextZeitgeist;
     }
 
     private void applyOpinionDrift(VoterPopulation population, int index, ThreadLocalRandom rnd, double globalTrend) {
@@ -141,6 +160,15 @@ public class VoterBehavior {
         return acutePressures[partyIdx] + calc.getPermanentDamage(partyIdx);
     }
 
+    /**
+     * Calculates the probability of a voter switching their current party.
+     * @param pop voter population
+     * @param idx voter index
+     * @param params simulation settings
+     * @param penalty current scandal pressure
+     * @param currentIdx index of the voter's current party
+     * @return calculated switch probability
+     */
     private double calculateSwitchProbability(VoterPopulation pop, int idx, SimulationParameters params, double penalty, int currentIdx) {
         double baseMobility = params.volatilityRate() / 100.0;
 

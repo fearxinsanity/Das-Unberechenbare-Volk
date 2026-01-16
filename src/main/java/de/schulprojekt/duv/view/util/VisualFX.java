@@ -11,7 +11,7 @@ import java.util.Locale;
 
 /**
  * Utility class for global visual effects and responsive UI scaling.
- * * @author Nico Hoffmann
+ * @author Nico Hoffmann
  * @version 1.0
  */
 public final class VisualFX {
@@ -101,7 +101,7 @@ public final class VisualFX {
 
     /**
      * Starts a pulsing effect in the specified color.
-     * * @param node the target node
+     * @param node the target node
      * @param color the pulse color
      */
     public static void startPulse(Node node, Color color) {
@@ -130,7 +130,7 @@ public final class VisualFX {
 
     /**
      * Stops the pulsing effect and resets the node.
-     * * @param node the target node
+     * @param node the target node
      */
     public static void stopPulse(Node node) {
         if (node == null) return;

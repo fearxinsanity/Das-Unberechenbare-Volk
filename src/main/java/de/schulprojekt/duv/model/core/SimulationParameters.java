@@ -2,7 +2,7 @@ package de.schulprojekt.duv.model.core;
 
 /**
  * Immutable Data Transfer Object for simulation settings.
- * * @param populationSize total number of simulated voters
+ * @param populationSize total number of simulated voters
  * @param mediaInfluence influence of media on voters (0.0 - 100.0)
  * @param volatilityRate willingness of voters to change parties (0.0 - 100.0)
  * @param scandalProbability probability of a scandal per tick (0.0 - 60.0)
@@ -11,7 +11,7 @@ package de.schulprojekt.duv.model.core;
  * @param chaosFactor random deviation factor for variance
  * @param partyCount number of active political parties
  * @param budgetEffectiveness multiplier for campaign budget impact
- * * @author Nico Hoffmann
+ * @author Nico Hoffmann
  * @version 1.1
  * @since Java 16
  */
@@ -45,7 +45,7 @@ public record SimulationParameters(
 
     /**
      * Creates a copy of the parameters with an updated tick rate.
-     * * @param newTickRate the new simulation speed
+     * @param newTickRate the new simulation speed
      * @return a new SimulationParameters instance
      */
     public SimulationParameters withTickRate(int newTickRate) {

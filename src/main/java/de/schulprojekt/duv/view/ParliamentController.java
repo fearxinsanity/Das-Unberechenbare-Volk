@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  * Controller for the Parliament View (Semicircle Seating).
- * * @author Nico Hoffmann
+ * @author Nico Hoffmann
  * @version 1.1
  */
 public class ParliamentController {
@@ -33,7 +33,7 @@ public class ParliamentController {
 
     /**
      * Initializes the view with party data and a reference to the previous view.
-     * * @param parties list of parties to render
+     * @param parties list of parties to render
      * @param previousView the dashboard root for navigation back
      */
     public void initData(List<Party> parties, Parent previousView) {

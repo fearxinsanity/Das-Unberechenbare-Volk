@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 
 /**
  * Entry point of the JavaFX application.
- * * @author Nico Hoffmann
+ * @author Nico Hoffmann
  * @version 1.1
  */
 public class Main extends Application {
@@ -80,7 +80,7 @@ public class Main extends Application {
 
     /**
      * Loads a stylesheet into the scene if it exists.
-     * * @param scene the target scene
+     * @param scene the target scene
      * @param resourcePath the path to the CSS file
      */
     private void loadStylesheet(Scene scene, String resourcePath) {

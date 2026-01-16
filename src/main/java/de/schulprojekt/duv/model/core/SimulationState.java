@@ -6,7 +6,7 @@ import java.util.List;
 
 /**
  * Manages the mutable runtime state of the simulation.
- * * @author Nico Hoffmann
+ * @author Nico Hoffmann
  * @version 1.0
  */
 public class SimulationState {
@@ -54,7 +54,7 @@ public class SimulationState {
 
     /**
      * Retrieves the most recent scandal and clears the reference.
-     * * @return the last occurred scandal event
+     * @return the last occurred scandal event
      */
     public ScandalEvent consumeLastScandal() {
         ScandalEvent s = lastScandal;

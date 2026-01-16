@@ -9,17 +9,34 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Manages the live charts and historical data visualization.
+ * @author Nico Hoffmann
+ * @version 1.1
+ */
 public class ChartManager {
 
-    // --- Constants ---
+    // ========================================
+    // Static Variables
+    // ========================================
+
     private static final int UPDATE_INTERVAL = 5;
 
-    // --- Fields ---
+    // ========================================
+    // Instance Variables
+    // ========================================
+
     private final LineChart<Number, Number> historyChart;
     private final Map<String, XYChart.Series<Number, Number>> historySeriesMap = new HashMap<>();
 
-    // --- Constructor ---
+    // ========================================
+    // Constructors
+    // ========================================
 
+    /**
+     * Initializes the manager with a reference to the UI chart.
+     * @param historyChart the line chart for history visualization
+     */
     public ChartManager(LineChart<Number, Number> historyChart) {
         this.historyChart = historyChart;
 
@@ -30,7 +47,9 @@ public class ChartManager {
         }
     }
 
-    // --- Public API ---
+    // ========================================
+    // Business Logic Methods
+    // ========================================
 
     public void clear() {
         historySeriesMap.clear();
@@ -45,7 +64,6 @@ public class ChartManager {
         for (Party p : parties) {
             if (p.getName().equals(SimulationConfig.UNDECIDED_NAME)) continue;
 
-            // FIX: Renamed unused parameter 'k' to 'ignored'
             XYChart.Series<Number, Number> series = historySeriesMap.computeIfAbsent(
                     p.getName(),
                     ignored -> createSeries(p)
@@ -54,13 +72,14 @@ public class ChartManager {
             series.getData().add(new XYChart.Data<>(step, p.getCurrentSupporterCount()));
 
             if (series.getData().size() > SimulationConfig.HISTORY_LENGTH) {
-                // FIX: Used Java 21 removeFirst() instead of remove(0)
                 series.getData().removeFirst();
             }
         }
     }
 
-    // --- Private Helper Methods ---
+    // ========================================
+    // Utility Methods
+    // ========================================
 
     private XYChart.Series<Number, Number> createSeries(Party p) {
         XYChart.Series<Number, Number> s = new XYChart.Series<>();
@@ -68,7 +87,6 @@ public class ChartManager {
 
         historyChart.getData().add(s);
 
-        // Apply styling if the node is already available (depends on JavaFX layout pass)
         if (s.getNode() != null) {
             s.getNode().setStyle("-fx-stroke: #" + p.getColorCode() + "; -fx-stroke-width: 2px;");
         }

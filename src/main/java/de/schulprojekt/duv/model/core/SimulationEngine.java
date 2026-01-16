@@ -18,16 +18,11 @@ import java.util.Random;
 
 /**
  * Orchestrator class for the simulation logic.
- * * @author Nico Hoffmann
+ * @author Nico Hoffmann
  * @version 1.1
  */
 public class SimulationEngine {
 
-    // ========================================
-    // Static Variables
-    // ========================================
-
-    private static final int SCANDAL_MAX_AGE_TICKS = 200;
 
     // ========================================
     // Instance Variables
@@ -50,7 +45,7 @@ public class SimulationEngine {
 
     /**
      * Constructs a new SimulationEngine with the given parameters.
-     * * @param params the initial simulation parameters
+     * @param params the initial simulation parameters
      */
     public SimulationEngine(SimulationParameters params) {
         this.parameters = params;
@@ -111,7 +106,7 @@ public class SimulationEngine {
     public List<VoterTransition> runSimulationStep() {
         state.incrementStep();
 
-        state.getActiveScandals().removeIf(e -> state.getCurrentStep() - e.occurredAtStep() > SCANDAL_MAX_AGE_TICKS);
+        state.getActiveScandals().removeIf(e -> state.getCurrentStep() - e.occurredAtStep() > SimulationConfig.SCANDAL_MAX_AGE_TICKS);
 
         if (scandalScheduler.shouldScandalOccur() && partyRegistry.getParties().size() > 1) {
             triggerNewScandal();

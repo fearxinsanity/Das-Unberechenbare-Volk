@@ -6,7 +6,7 @@ import java.util.stream.IntStream;
 
 /**
  * Stores voter data in a memory-efficient Structure of Arrays (SoA) format.
- * * @author Nico Hoffmann
+ * @author Nico Hoffmann
  * @version 1.1
  */
 public class VoterPopulation {
@@ -71,7 +71,7 @@ public class VoterPopulation {
 
     /**
      * Initializes the population with randomized values.
-     * * @param totalVoters total count of voters to generate
+     * @param totalVoters total count of voters to generate
      * @param partyCount number of active parties
      * @param distProvider provider for statistical distributions
      */

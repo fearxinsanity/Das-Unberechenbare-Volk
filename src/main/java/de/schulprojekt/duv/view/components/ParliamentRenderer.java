@@ -22,7 +22,7 @@ import java.util.List;
 
 /**
  * Renders the parliament seating distribution in a semicircle.
- * * @author Nico Hoffmann
+ * @author Nico Hoffmann
  * @version 1.1
  */
 public class ParliamentRenderer {
@@ -62,7 +62,7 @@ public class ParliamentRenderer {
 
     /**
      * Initializes the renderer and binds it to the parent pane.
-     * * @param parentPane the pane for the canvas
+     * @param parentPane the pane for the canvas
      */
     public ParliamentRenderer(Pane parentPane) {
         this.canvas = new Canvas(0, 0);

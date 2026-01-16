@@ -2,7 +2,7 @@ package de.schulprojekt.duv.model.party;
 
 /**
  * Represents a political party in the simulation.
- * * @author Nico Hoffmann
+ * @author Nico Hoffmann
  * @version 1.0
  */
 public class Party {
@@ -33,6 +33,15 @@ public class Party {
     // ========================================
 
     public Party(String name, String abbreviation, String colorCode, double politicalPosition, double campaignBudget, int currentSupporterCount) {
+        if (politicalPosition < 0 || politicalPosition > 100) {
+            throw new IllegalArgumentException("Political position must be between 0 and 100, got: " + politicalPosition);
+        }
+        if (campaignBudget < 0) {
+            throw new IllegalArgumentException("Campaign budget cannot be negative, got: " + campaignBudget);
+        }
+        if (currentSupporterCount < 0) {
+            throw new IllegalArgumentException("Supporter count cannot be negative, got: " + currentSupporterCount);
+        }
         this.name = name;
         this.abbreviation = abbreviation;
         this.colorCode = colorCode;
@@ -88,7 +97,8 @@ public class Party {
 
     /**
      * Returns the political orientation name based on position.
-     * * @return orientation description
+     * @return "Linksextrem" (< 20), "Links" (20-40), "Zentristisch" (40-60),
+     * "Rechts" (60-80), or "Rechtsextrem" (80-100)
      */
     public String getPoliticalOrientationName() {
         if (politicalPosition < LIMIT_FAR_LEFT) return "Linksextrem";

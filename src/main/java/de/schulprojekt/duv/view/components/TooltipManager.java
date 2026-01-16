@@ -20,7 +20,7 @@ import java.util.Map;
 
 /**
  * Manages tooltips for both Dashboard (Hover) and Parliament (Click) views.
- * * @author Nico Hoffmann
+ * @author Nico Hoffmann
  * @version 1.1
  */
 public class TooltipManager {
@@ -56,7 +56,7 @@ public class TooltipManager {
 
     /**
      * Initializes the tooltip system and adds it to the provided pane.
-     * * @param animationPane the parent pane for the overlay
+     * @param animationPane the parent pane for the overlay
      */
     public TooltipManager(Pane animationPane) {
         this.overlayPane = new Pane();

@@ -26,7 +26,7 @@ import java.util.function.Consumer;
 /**
  * Controller for the post-simulation statistics view.
  * Displays history, distribution, and real-time telemetry.
- * * @author Nico Hoffmann
+ * @author Nico Hoffmann
  * @version 1.1
  */
 public class StatisticsController {
@@ -87,7 +87,7 @@ public class StatisticsController {
 
     /**
      * Initializes the controller with data from the simulation.
-     * * @param parties list of participating parties
+     * @param parties list of participating parties
      * @param historyData recorded simulation history
      * @param currentTick final tick count
      * @param dashboardRoot reference to return to dashboard

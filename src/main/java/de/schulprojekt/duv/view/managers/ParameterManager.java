@@ -30,7 +30,7 @@ public class ParameterManager {
     private static final double MIN_SCANDAL_PROB = 0.0;
     private static final double MAX_SCANDAL_PROB = 60.0;
     private static final int MIN_POPULATION = 10_000;
-    private static final int MAX_POPULATION = 500_000;
+    private static final int MAX_POPULATION = 2_000_000;
     private static final double MAX_BUDGET_FACTOR = 1000.0;
     private static final double DEFAULT_BUDGET = 500000.0;
 

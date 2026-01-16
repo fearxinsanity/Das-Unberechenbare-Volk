@@ -11,7 +11,7 @@ import java.util.Random;
 
 /**
  * Manages the list of active parties in the simulation.
- * * @author Nico Hoffmann
+ * @author Nico Hoffmann
  * @version 1.0
  */
 public class PartyRegistry {
@@ -58,7 +58,7 @@ public class PartyRegistry {
 
     /**
      * Initializes parties based on parameters and templates.
-     * * @param params current simulation parameters
+     * @param params current simulation parameters
      * @param distribution provider for random sampling
      */
     public void initializeParties(SimulationParameters params, DistributionProvider distribution) {
