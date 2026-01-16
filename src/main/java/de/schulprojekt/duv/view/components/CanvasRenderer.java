@@ -3,6 +3,7 @@ package de.schulprojekt.duv.view.components;
 import de.schulprojekt.duv.model.party.Party;
 import de.schulprojekt.duv.model.voter.VoterTransition;
 import de.schulprojekt.duv.util.SimulationConfig;
+import de.schulprojekt.duv.view.managers.AdaptiveParticleManager;
 import javafx.animation.AnimationTimer;
 import javafx.beans.InvalidationListener;
 import javafx.scene.canvas.Canvas;
@@ -18,8 +19,9 @@ import java.util.*;
 
 /**
  * Handles the graphical visualization of the simulation on a canvas.
- * * @author Nico Hoffmann
- * @version 1.1
+ *
+ * @author Nico Hoffmann
+ * @version 1.2
  */
 public class CanvasRenderer {
 
@@ -30,7 +32,7 @@ public class CanvasRenderer {
     private static final double ROTATION_SPEED = 1.5;
     private static final int PARTICLE_SPAWN_LIMIT_PER_TICK = 50;
     private static final double TARGET_LOCK_SCALE = 1.3;
-    private static final int MAX_ACTIVE_PARTICLES = 1200;
+    private static final int INITIAL_POOL_SIZE = 300;
 
     private static final Color GRID_COLOR = Color.web("#D4AF37", 0.1);
     private static final Color TEXT_COLOR = Color.web("#e0e0e0");
@@ -44,6 +46,7 @@ public class CanvasRenderer {
     private final Canvas canvas;
     private final GraphicsContext gc;
     private final AnimationTimer visualTimer;
+    private final AdaptiveParticleManager adaptiveManager;
 
     private final Map<String, Point> partyPositions = new HashMap<>();
     private List<Party> currentParties = new ArrayList<>();
@@ -51,7 +54,7 @@ public class CanvasRenderer {
     private double currentScaleFactor = 1.0;
     private double targetRotationAngle = 0;
 
-    private final Stack<MovingVoter> particlePool = new Stack<>();
+    private final ArrayDeque<MovingVoter> particlePool = new ArrayDeque<>(INITIAL_POOL_SIZE);
     private final List<MovingVoter> activeParticles = new ArrayList<>();
 
     // ========================================
@@ -60,17 +63,24 @@ public class CanvasRenderer {
 
     /**
      * Initializes the renderer and binds it to the provided pane.
-     * * @param animationPane the pane containing the canvas
+     *
+     * @param animationPane the pane containing the canvas
      */
     public CanvasRenderer(Pane animationPane) {
         this.canvas = new Canvas(0, 0);
         this.canvas.setManaged(true);
+
+        this.adaptiveManager = new AdaptiveParticleManager();
 
         this.canvas.widthProperty().bind(animationPane.widthProperty());
         this.canvas.heightProperty().bind(animationPane.heightProperty());
 
         animationPane.getChildren().addFirst(canvas);
         this.gc = canvas.getGraphicsContext2D();
+
+        for (int i = 0; i < INITIAL_POOL_SIZE; i++) {
+            particlePool.push(new MovingVoter());
+        }
 
         InvalidationListener resizeListener = ignored -> {
             if (canvas.getWidth() > 0 && canvas.getHeight() > 0 && !currentParties.isEmpty()) {
@@ -108,6 +118,7 @@ public class CanvasRenderer {
     // ========================================
 
     public void startVisualTimer() {
+        adaptiveManager.reset();
         visualTimer.start();
     }
 
@@ -139,6 +150,8 @@ public class CanvasRenderer {
     // ========================================
 
     private void renderCanvas() {
+        adaptiveManager.updateFrame();
+
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         if (currentParties.isEmpty()) return;
 
@@ -307,10 +320,13 @@ public class CanvasRenderer {
     }
 
     private void spawnParticles(List<VoterTransition> transitions) {
-        if (activeParticles.size() >= MAX_ACTIVE_PARTICLES) return;
+        int maxParticles = adaptiveManager.getMaxParticles();
+
+        if (activeParticles.size() >= maxParticles) return;
+
         int spawned = 0;
         for (VoterTransition t : transitions) {
-            if (spawned >= PARTICLE_SPAWN_LIMIT_PER_TICK || activeParticles.size() >= MAX_ACTIVE_PARTICLES) break;
+            if (spawned >= PARTICLE_SPAWN_LIMIT_PER_TICK || activeParticles.size() >= maxParticles) break;
 
             Point start = partyPositions.get(t.from().getName());
             Point end = partyPositions.get(t.to().getName());
@@ -330,7 +346,8 @@ public class CanvasRenderer {
 
     /**
      * Represents a point in 2D space.
-     * * @param x the x coordinate
+     *
+     * @param x the x coordinate
      * @param y the y coordinate
      */
     public record Point(double x, double y) {}
