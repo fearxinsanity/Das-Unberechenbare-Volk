@@ -1,20 +1,13 @@
 package de.schulprojekt.duv.model.party;
 
+import de.schulprojekt.duv.util.config.PartyConfig;
+
 /**
  * Represents a political party in the simulation.
  * @author Nico Hoffmann
- * @version 1.0
+ * @version 1.1
  */
 public class Party {
-
-    // ========================================
-    // Static Variables
-    // ========================================
-
-    private static final double LIMIT_FAR_LEFT = 20.0;
-    private static final double LIMIT_LEFT = 40.0;
-    private static final double LIMIT_CENTER = 60.0;
-    private static final double LIMIT_RIGHT = 80.0;
 
     // ========================================
     // Instance Variables
@@ -33,13 +26,18 @@ public class Party {
     // ========================================
 
     public Party(String name, String abbreviation, String colorCode, double politicalPosition, double campaignBudget, int currentSupporterCount) {
-        if (politicalPosition < 0 || politicalPosition > 100) {
-            throw new IllegalArgumentException("Political position must be between 0 and 100, got: " + politicalPosition);
+        if (!PartyConfig.isValidPosition(politicalPosition)) {
+            throw new IllegalArgumentException(String.format(
+                    "Political position must be between %.0f and %.0f, got: %.1f",
+                    PartyConfig.MIN_POSITION,
+                    PartyConfig.MAX_POSITION,
+                    politicalPosition
+            ));
         }
-        if (campaignBudget < 0) {
+        if (campaignBudget < PartyConfig.MIN_BUDGET) {
             throw new IllegalArgumentException("Campaign budget cannot be negative, got: " + campaignBudget);
         }
-        if (currentSupporterCount < 0) {
+        if (currentSupporterCount < PartyConfig.MIN_SUPPORTERS) {
             throw new IllegalArgumentException("Supporter count cannot be negative, got: " + currentSupporterCount);
         }
         this.name = name;
@@ -88,7 +86,7 @@ public class Party {
     // ========================================
 
     public void setCurrentSupporterCount(int currentSupporterCount) {
-        if (currentSupporterCount < 0) {
+        if (currentSupporterCount < PartyConfig.MIN_SUPPORTERS) {
             throw new IllegalArgumentException("Supporter count cannot be negative, got: " + currentSupporterCount);
         }
         this.currentSupporterCount = currentSupporterCount;
@@ -100,15 +98,10 @@ public class Party {
 
     /**
      * Returns the political orientation name based on position.
-     * @return "Linksextrem" (< 20), "Links" (20-40), "Zentristisch" (40-60),
-     * "Rechts" (60-80), or "Rechtsextrem" (80-100)
+     * @return political orientation classification
      */
     public String getPoliticalOrientationName() {
-        if (politicalPosition < LIMIT_FAR_LEFT) return "Linksextrem";
-        if (politicalPosition < LIMIT_LEFT) return "Links";
-        if (politicalPosition < LIMIT_CENTER) return "Zentristisch";
-        if (politicalPosition < LIMIT_RIGHT) return "Rechts";
-        return "Rechtsextrem";
+        return PartyConfig.getOrientationName(politicalPosition);
     }
 
     public void incrementScandalCount() {

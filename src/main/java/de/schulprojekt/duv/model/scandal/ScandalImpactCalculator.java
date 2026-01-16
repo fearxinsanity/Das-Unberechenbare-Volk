@@ -1,26 +1,17 @@
 package de.schulprojekt.duv.model.scandal;
 
 import de.schulprojekt.duv.model.party.Party;
+import de.schulprojekt.duv.util.config.ScandalConfig;
+
 import java.util.Arrays;
 import java.util.List;
 
 /**
  * Calculates the impact of scandals on voters and parties.
  * @author Nico Hoffmann
- * @version 1.1
+ * @version 1.2
  */
 public class ScandalImpactCalculator {
-
-    // ========================================
-    // Static Variables
-    // ========================================
-
-    private static final int SCANDAL_DURATION = 300;
-    private static final int FADE_IN_TICKS = 90;
-    private static final double ACUTE_PRESSURE_FACTOR = 4.0;
-    private static final double PERMANENT_DAMAGE_FACTOR = 2.0;
-    private static final double BASE_RECOVERY_RATE = 0.005;
-    private static final double VOTER_SHARE_RECOVERY_FACTOR = 0.04;
 
     // ========================================
     // Instance Variables
@@ -65,12 +56,12 @@ public class ScandalImpactCalculator {
             if (pIndex == -1 || pIndex >= acutePressure.length) continue;
 
             int age = currentStep - event.occurredAtStep();
-            if (age > SCANDAL_DURATION) continue;
+            if (age > ScandalConfig.SCANDAL_DURATION) continue;
 
             double strength = event.scandal().strength();
-            double timeFactor = calculateTimeFactor(age);
+            double timeFactor = ScandalConfig.calculateTimeFactor(age);
 
-            acutePressure[pIndex] += strength * ACUTE_PRESSURE_FACTOR * timeFactor;
+            acutePressure[pIndex] += strength * ScandalConfig.ACUTE_PRESSURE_FACTOR * timeFactor;
             accumulatePermanentDamage(pIndex, strength);
         }
         return acutePressure;
@@ -82,7 +73,7 @@ public class ScandalImpactCalculator {
                 Party p = parties.get(i);
                 double voterShare = (double) p.getCurrentSupporterCount() / Math.max(1, totalVoters);
 
-                double recoveryRate = BASE_RECOVERY_RATE + (voterShare * VOTER_SHARE_RECOVERY_FACTOR);
+                double recoveryRate = ScandalConfig.calculateRecoveryRate(voterShare);
 
                 partyPermanentDamage[i] -= recoveryRate;
                 if (partyPermanentDamage[i] < 0) {
@@ -100,17 +91,9 @@ public class ScandalImpactCalculator {
     // Utility Methods
     // ========================================
 
-    private double calculateTimeFactor(int age) {
-        if (age < FADE_IN_TICKS) {
-            double progress = (double) age / FADE_IN_TICKS;
-            return progress * progress;
-        }
-        return 1.0 - ((double) (age - FADE_IN_TICKS) / (SCANDAL_DURATION - FADE_IN_TICKS));
-    }
-
     private void accumulatePermanentDamage(int index, double strength) {
         if (isValidIndex(index)) {
-            double damageBuildUp = (strength * PERMANENT_DAMAGE_FACTOR) / (double) SCANDAL_DURATION;
+            double damageBuildUp = ScandalConfig.calculatePermanentDamagePerTick(strength);
             partyPermanentDamage[index] += damageBuildUp;
         }
     }
