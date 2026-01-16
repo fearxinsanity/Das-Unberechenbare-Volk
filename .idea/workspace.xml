@@ -4,6 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
+<<<<<<< Updated upstream
     <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="Changed Code Structure">
       <change afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/controller/package-info.java" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/calculation/PartyEvaluationResult.java" afterDir="false" />
@@ -51,6 +52,9 @@
       <change beforePath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/view/StartView.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/view/StartView.fxml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/view/StatisticsView.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/view/StatisticsView.fxml" afterDir="false" />
     </list>
+=======
+    <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="" />
+>>>>>>> Stashed changes
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

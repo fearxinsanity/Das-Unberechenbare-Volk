@@ -124,3 +124,4 @@ application-dev.properties
 # Temporary files
 *.tmp
 *.temp
+.idea/workspace.xml
