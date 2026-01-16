@@ -11,7 +11,6 @@ class ParameterValidatorTest {
 
     /**
      * Hilfsmethode, um schnell valide Parameter zu erzeugen.
-     * Nutzt den normalen Konstruktor statt Mocks.
      */
     private SimulationParameters createValidParams() {
         return new SimulationParameters(
@@ -40,8 +39,6 @@ class ParameterValidatorTest {
     @DisplayName("Sollte Fehler werfen, wenn Population außerhalb der Grenzen liegt")
     void testPopulationBoundary() {
         // Test: Zu klein (Min ist 100). Wir testen 99.
-        // Hinweis: Der Record-Konstruktor erlaubt >= 0, also können wir 99 erstellen,
-        // aber der Validator sollte es ablehnen.
         SimulationParameters invalidPop = new SimulationParameters(
                 99, 50.0, 20.0, 10.0, 50.0, 50, 1.0, 5, 2.5
         );
@@ -64,7 +61,10 @@ class ParameterValidatorTest {
                 1000, -0.1, 20.0, 10.0, 50.0, 50, 1.0, 5, 2.5
         );
         String errorMsg = ParameterValidator.getValidationError(lowMedia);
-        assertTrue(errorMsg.contains("Medieneinfluss"), "Sollte Fehler für Medieneinfluss zurückgeben");
+
+        // KORREKTUR: Wir prüfen auf den englischen Text "Media influence" statt "Medieneinfluss"
+        assertTrue(errorMsg.contains("Media influence"),
+                "Fehlermeldung sollte 'Media influence' enthalten. Aktuell: " + errorMsg);
 
         // Zu hoch (100.1)
         SimulationParameters highMedia = new SimulationParameters(

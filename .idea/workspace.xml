@@ -5,12 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="created configs and removed magic numbers">
-      <change afterPath="$PROJECT_DIR$/src/test/java/de/schulprojekt/duv/model/calculation/StatisticsCalculatorTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/de/schulprojekt/duv/model/random/DistributionProviderTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/de/schulprojekt/duv/model/voter/VoterBehaviorTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/de/schulprojekt/duv/util/ParameterValidatorTest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/test/java/de/schulprojekt/duv/model/scandal/ScandalImpactCalculatorTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/util/validation/ParameterValidator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/util/validation/ParameterValidator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/de/schulprojekt/duv/model/calculation/StatisticsCalculatorTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/de/schulprojekt/duv/model/random/DistributionProviderTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/de/schulprojekt/duv/model/random/DistributionProviderTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/de/schulprojekt/duv/model/voter/VoterBehaviorTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/de/schulprojekt/duv/model/voter/VoterBehaviorTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/de/schulprojekt/duv/util/ParameterValidatorTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/de/schulprojekt/duv/util/ParameterValidatorTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,21 +44,21 @@
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory">{
-    &quot;lastFilter&quot;: {
-    &quot;state&quot;: &quot;OPEN&quot;,
-    &quot;assignee&quot;: &quot;fearxinsanity&quot;
-    }
-    }</component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "fearxinsanity"
+  }
+}]]></component>
   <component name="GitRewordedCommitMessages">
     <option name="onto" value="62f560bd00925e796afa88a1e5d464dca42d37c1" />
   </component>
-  <component name="GithubPullRequestsUISettings">{
-    &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/fearxinsanity/Das-Unberechenbare-Volk.git&quot;,
-    &quot;accountId&quot;: &quot;10a031bf-ee9a-44ba-8807-923d19b7784a&quot;
-    }
-    }</component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/fearxinsanity/Das-Unberechenbare-Volk.git",
+    "accountId": "10a031bf-ee9a-44ba-8807-923d19b7784a"
+  }
+}]]></component>
   <component name="MavenRunner">
     <option name="vmOptions" value="--enable-native-access=ALL-UNNAMED" />
   </component>
@@ -78,14 +81,20 @@
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "Application.Main.executor": "Run",
     "DefaultPlantUmlFileTemplate": "UML Object",
+    "JUnit.All in Das-Unberechenbare-Volk.executor": "Coverage",
+    "JUnit.DistributionProviderTest.executor": "Run",
+    "JUnit.ParameterValidatorTest.executor": "Run",
     "JUnit.ParameterValidatorTest.testClampingMethods.executor": "Run",
     "JUnit.ParameterValidatorTest.testPopulationBoundary.executor": "Run",
     "JUnit.ParameterValidatorTest.testValidParameters.executor": "Run",
+    "JUnit.ScandalImpactCalculatorTest.executor": "Run",
+    "JUnit.VoterBehaviorTest.executor": "Run",
     "Maven.Build EXE.executor": "Run",
     "Maven.DUV - run.executor": "Run",
     "Maven.Das-Unberechenbare-Volk [clean].executor": "Run",
     "Maven.Das-Unberechenbare-Volk [install].executor": "Run",
     "Maven.Das-Unberechenbare-Volk [package].executor": "Run",
+    "Maven.Das-Unberechenbare-Volk [test].executor": "Run",
     "Maven.Package & Install.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -93,7 +102,7 @@
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "code__optimization",
+    "git-widget-placeholder": "testing/UnitTest",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "D:/4_Projekte/IntelliJ/Das-Unberechenbare-Volk",
@@ -118,7 +127,30 @@
       <recent name="C:\Projekt\BS-Projekt\src\main\resources\de.schulprojekt.duv\" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.ParameterValidatorTest">
+  <component name="RunManager" selected="Maven.DUV - run">
+    <configuration name="All in Das-Unberechenbare-Volk" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="Das-Unberechenbare-Volk" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="TEST_OBJECT" value="package" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="DistributionProviderTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="Das-Unberechenbare-Volk" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="de.schulprojekt.duv.model.random.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="de.schulprojekt.duv.model.random" />
+      <option name="MAIN_CLASS_NAME" value="de.schulprojekt.duv.model.random.DistributionProviderTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="ParameterValidatorTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="Das-Unberechenbare-Volk" />
       <extension name="coverage">
@@ -134,50 +166,32 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="ParameterValidatorTest.testClampingMethods" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="ScandalImpactCalculatorTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="Das-Unberechenbare-Volk" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="de.schulprojekt.duv.util.*" />
+          <option name="PATTERN" value="de.schulprojekt.duv.model.scandal.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
-      <option name="PACKAGE_NAME" value="de.schulprojekt.duv.util" />
-      <option name="MAIN_CLASS_NAME" value="de.schulprojekt.duv.util.ParameterValidatorTest" />
-      <option name="METHOD_NAME" value="testClampingMethods" />
-      <option name="TEST_OBJECT" value="method" />
+      <option name="PACKAGE_NAME" value="de.schulprojekt.duv.model.scandal" />
+      <option name="MAIN_CLASS_NAME" value="de.schulprojekt.duv.model.scandal.ScandalImpactCalculatorTest" />
+      <option name="TEST_OBJECT" value="class" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="ParameterValidatorTest.testPopulationBoundary" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="VoterBehaviorTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="Das-Unberechenbare-Volk" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="de.schulprojekt.duv.util.*" />
+          <option name="PATTERN" value="de.schulprojekt.duv.model.voter.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
-      <option name="PACKAGE_NAME" value="de.schulprojekt.duv.util" />
-      <option name="MAIN_CLASS_NAME" value="de.schulprojekt.duv.util.ParameterValidatorTest" />
-      <option name="METHOD_NAME" value="testPopulationBoundary" />
-      <option name="TEST_OBJECT" value="method" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="ParameterValidatorTest.testValidParameters" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="Das-Unberechenbare-Volk" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="de.schulprojekt.duv.util.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="de.schulprojekt.duv.util" />
-      <option name="MAIN_CLASS_NAME" value="de.schulprojekt.duv.util.ParameterValidatorTest" />
-      <option name="METHOD_NAME" value="testValidParameters" />
-      <option name="TEST_OBJECT" value="method" />
+      <option name="PACKAGE_NAME" value="de.schulprojekt.duv.model.voter" />
+      <option name="MAIN_CLASS_NAME" value="de.schulprojekt.duv.model.voter.VoterBehaviorTest" />
+      <option name="TEST_OBJECT" value="class" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -246,19 +260,21 @@
       <method v="2" />
     </configuration>
     <list>
+      <item itemvalue="JUnit.All in Das-Unberechenbare-Volk" />
+      <item itemvalue="JUnit.DistributionProviderTest" />
+      <item itemvalue="JUnit.ScandalImpactCalculatorTest" />
+      <item itemvalue="JUnit.VoterBehaviorTest" />
       <item itemvalue="JUnit.ParameterValidatorTest" />
-      <item itemvalue="JUnit.ParameterValidatorTest.testClampingMethods" />
-      <item itemvalue="JUnit.ParameterValidatorTest.testPopulationBoundary" />
-      <item itemvalue="JUnit.ParameterValidatorTest.testValidParameters" />
       <item itemvalue="Maven.Build EXE" />
       <item itemvalue="Maven.DUV - run" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.All in Das-Unberechenbare-Volk" />
         <item itemvalue="JUnit.ParameterValidatorTest" />
-        <item itemvalue="JUnit.ParameterValidatorTest.testValidParameters" />
-        <item itemvalue="JUnit.ParameterValidatorTest.testClampingMethods" />
-        <item itemvalue="JUnit.ParameterValidatorTest.testPopulationBoundary" />
+        <item itemvalue="JUnit.VoterBehaviorTest" />
+        <item itemvalue="JUnit.ScandalImpactCalculatorTest" />
+        <item itemvalue="JUnit.DistributionProviderTest" />
       </list>
     </recent_temporary>
   </component>
@@ -297,6 +313,7 @@
       <workItem from="1768502477113" duration="364000" />
       <workItem from="1768502852653" duration="249000" />
       <workItem from="1768503116630" duration="1700000" />
+      <workItem from="1768588437771" duration="2351000" />
     </task>
     <task id="LOCAL-00001" summary="workspace.xml changed">
       <option name="closed" value="true" />
@@ -635,5 +652,8 @@
     <MESSAGE value="Created Enum with all error Messages" />
     <MESSAGE value="created configs and removed magic numbers" />
     <option name="LAST_COMMIT_MESSAGE" value="created configs and removed magic numbers" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/Das_Unberechenbare_Volk$All_in_Das_Unberechenbare_Volk.ic" NAME="All in Das-Unberechenbare-Volk Coverage Results" MODIFIED="1768590102165" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
   </component>
 </project>

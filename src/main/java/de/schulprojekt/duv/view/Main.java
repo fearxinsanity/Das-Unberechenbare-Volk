@@ -6,9 +6,11 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,6 +34,7 @@ public class Main extends Application {
     private static final String FXML_START_VIEW = "/de/schulprojekt/duv/view/StartView.fxml";
     private static final String CSS_COMMON = "/de/schulprojekt/duv/common.css";
     private static final String CSS_START = "/de/schulprojekt/duv/start.css";
+    private static final String ICON_PATH = "/de/schulprojekt/duv/Pictures/DUV_Logo.png";
 
     // ========================================
     // Business Logic Methods
@@ -56,6 +59,8 @@ public class Main extends Application {
             Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
             loadStylesheet(scene, CSS_COMMON);
             loadStylesheet(scene, CSS_START);
+
+            setAppIcon(primaryStage);
 
             primaryStage.setTitle(APP_TITLE);
             primaryStage.setScene(scene);
@@ -90,6 +95,22 @@ public class Main extends Application {
             scene.getStylesheets().add(url.toExternalForm());
         } else {
             LOGGER.log(Level.WARNING, "CSS resource not found: {0}", resourcePath);
+        }
+    }
+
+    /**
+     * Sets the application icon.
+     * @param stage the primary stage
+     */
+    private void setAppIcon(Stage stage) {
+        try (InputStream iconStream = getClass().getResourceAsStream(ICON_PATH)) {
+            if (iconStream != null) {
+                stage.getIcons().add(new Image(iconStream));
+            } else {
+                LOGGER.log(Level.WARNING, "App icon resource not found at: {0}", ICON_PATH);
+            }
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Failed to load app icon.", e);
         }
     }
 }
