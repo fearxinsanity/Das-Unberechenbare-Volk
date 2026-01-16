@@ -1,4 +1,4 @@
-package de.schulprojekt.duv.model.voter;
+package de.schulprojekt.duv.model.dto;
 
 import de.schulprojekt.duv.model.party.Party;
 

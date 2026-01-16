@@ -1,4 +1,4 @@
-package de.schulprojekt.duv.model.voter;
+package de.schulprojekt.duv.model.calculation;
 
 /**
  * Cache object holding pre-calculated party attributes for voter decisions.

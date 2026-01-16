@@ -1,7 +1,7 @@
-package de.schulprojekt.duv.view;
+package de.schulprojekt.duv.view.controllers;
 
 import de.schulprojekt.duv.model.party.Party;
-import de.schulprojekt.duv.util.SimulationConfig;
+import de.schulprojekt.duv.util.config.SimulationConfig;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;

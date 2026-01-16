@@ -9,9 +9,9 @@ import de.schulprojekt.duv.model.scandal.ScandalImpactCalculator;
 import de.schulprojekt.duv.model.scandal.ScandalScheduler;
 import de.schulprojekt.duv.model.voter.VoterBehavior;
 import de.schulprojekt.duv.model.voter.VoterPopulation;
-import de.schulprojekt.duv.model.voter.VoterTransition;
-import de.schulprojekt.duv.util.CSVLoader;
-import de.schulprojekt.duv.util.SimulationConfig;
+import de.schulprojekt.duv.model.dto.VoterTransition;
+import de.schulprojekt.duv.util.io.CSVLoader;
+import de.schulprojekt.duv.util.config.SimulationConfig;
 
 import java.util.List;
 import java.util.Random;

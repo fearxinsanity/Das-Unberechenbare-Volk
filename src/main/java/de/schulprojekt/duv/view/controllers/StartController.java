@@ -1,4 +1,4 @@
-package de.schulprojekt.duv.view;
+package de.schulprojekt.duv.view.controllers;
 
 import javafx.animation.AnimationTimer;
 import javafx.animation.FadeTransition;

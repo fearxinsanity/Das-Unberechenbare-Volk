@@ -1,5 +1,6 @@
 package de.schulprojekt.duv.view;
 
+import de.schulprojekt.duv.view.controllers.DashboardController;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;

@@ -1,7 +1,7 @@
 package de.schulprojekt.duv.view.components;
 
 import de.schulprojekt.duv.model.party.Party;
-import de.schulprojekt.duv.util.SimulationConfig;
+import de.schulprojekt.duv.util.config.SimulationConfig;
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;

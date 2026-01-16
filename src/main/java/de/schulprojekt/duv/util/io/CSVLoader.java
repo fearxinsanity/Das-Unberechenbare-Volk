@@ -1,4 +1,4 @@
-package de.schulprojekt.duv.util;
+package de.schulprojekt.duv.util.io;
 
 import de.schulprojekt.duv.model.party.PartyTemplate;
 import de.schulprojekt.duv.model.scandal.Scandal;

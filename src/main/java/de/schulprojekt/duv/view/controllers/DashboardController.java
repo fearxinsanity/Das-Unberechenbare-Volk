@@ -1,10 +1,10 @@
-package de.schulprojekt.duv.view;
+package de.schulprojekt.duv.view.controllers;
 
 import de.schulprojekt.duv.controller.SimulationController;
 import de.schulprojekt.duv.model.core.SimulationParameters;
 import de.schulprojekt.duv.model.party.Party;
 import de.schulprojekt.duv.model.scandal.ScandalEvent;
-import de.schulprojekt.duv.model.voter.VoterTransition;
+import de.schulprojekt.duv.model.dto.VoterTransition;
 import de.schulprojekt.duv.view.components.CanvasRenderer;
 import de.schulprojekt.duv.view.components.ChartManager;
 import de.schulprojekt.duv.view.components.FeedManager;

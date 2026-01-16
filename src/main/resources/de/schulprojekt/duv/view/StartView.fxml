@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane fx:id="rootPane" stylesheets="@../start.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.schulprojekt.duv.view.StartController">
+<StackPane fx:id="rootPane" stylesheets="@../start.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.schulprojekt.duv.view.controllers.StartController">
 
     <Region fx:id="gridRegion" styleClass="grid-region" />
 
@@ -25,9 +25,7 @@
         <Region prefHeight="15.0" />
 
         <ImageView fx:id="logoImageView" fitHeight="120.0" fitWidth="350.0" pickOnBounds="true" preserveRatio="true">
-            <image>
-                <Image url="@../Pictures/DUV_Logo.png" />
-            </image>
+            <Image url="@../Pictures/DUV_Logo.png"/>
         </ImageView>
 
         <Region prefHeight="30.0" />

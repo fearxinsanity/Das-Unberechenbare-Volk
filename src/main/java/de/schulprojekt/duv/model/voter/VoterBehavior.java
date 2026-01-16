@@ -1,9 +1,11 @@
 package de.schulprojekt.duv.model.voter;
 
+import de.schulprojekt.duv.model.calculation.PartyCalculationCache;
 import de.schulprojekt.duv.model.core.SimulationParameters;
+import de.schulprojekt.duv.model.dto.VoterTransition;
 import de.schulprojekt.duv.model.party.Party;
 import de.schulprojekt.duv.model.scandal.ScandalImpactCalculator;
-import de.schulprojekt.duv.util.SimulationConfig;
+import de.schulprojekt.duv.util.config.SimulationConfig;
 
 import java.util.ArrayList;
 import java.util.List;

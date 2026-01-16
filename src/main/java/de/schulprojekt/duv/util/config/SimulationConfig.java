@@ -1,4 +1,4 @@
-package de.schulprojekt.duv.util;
+package de.schulprojekt.duv.util.config;
 
 import javafx.scene.paint.Color;
 

@@ -2,8 +2,8 @@ package de.schulprojekt.duv.model.party;
 
 import de.schulprojekt.duv.model.core.SimulationParameters;
 import de.schulprojekt.duv.model.random.DistributionProvider;
-import de.schulprojekt.duv.util.CSVLoader;
-import de.schulprojekt.duv.util.SimulationConfig;
+import de.schulprojekt.duv.util.io.CSVLoader;
+import de.schulprojekt.duv.util.config.SimulationConfig;
 
 import java.util.ArrayList;
 import java.util.List;

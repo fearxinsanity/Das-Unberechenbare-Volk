@@ -1,7 +1,7 @@
 package de.schulprojekt.duv.model.random;
 
 import de.schulprojekt.duv.model.core.SimulationParameters;
-import de.schulprojekt.duv.util.SimulationConfig;
+import de.schulprojekt.duv.util.config.SimulationConfig;
 import org.apache.commons.math3.distribution.ExponentialDistribution;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.distribution.UniformRealDistribution;

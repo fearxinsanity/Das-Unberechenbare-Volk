@@ -4,8 +4,8 @@ import de.schulprojekt.duv.model.core.SimulationEngine;
 import de.schulprojekt.duv.model.core.SimulationParameters;
 import de.schulprojekt.duv.model.party.Party;
 import de.schulprojekt.duv.model.scandal.ScandalEvent;
-import de.schulprojekt.duv.model.voter.VoterTransition;
-import de.schulprojekt.duv.view.DashboardController;
+import de.schulprojekt.duv.model.dto.VoterTransition;
+import de.schulprojekt.duv.view.controllers.DashboardController;
 import javafx.application.Platform;
 
 import java.util.ArrayList;
