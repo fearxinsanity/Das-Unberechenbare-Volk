@@ -45,7 +45,6 @@ replay_pid*
 *.iml
 *.iws
 *.ipr
-workspace.xml
 out/
 
 # IntelliJ IDEA specific
