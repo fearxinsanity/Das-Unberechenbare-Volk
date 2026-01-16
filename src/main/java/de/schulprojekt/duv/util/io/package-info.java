@@ -1,9 +1,6 @@
 /**
- * Input/Output operations for external data sources.
- *
- * <p>Handles loading of CSV files, configuration files,
- * and potential future export functionality.
- *
+ * Input/Output utilities for loading external data.
+ * Handles CSV file parsing for parties and scandal data.
  * @author Nico Hoffmann
  * @version 1.0
  */

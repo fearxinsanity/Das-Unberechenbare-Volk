@@ -1,12 +1,6 @@
 /**
- * Controller layer mediating between Model and View.
- *
- * <p>Implements the Controller part of the MVC pattern. Handles user actions,
- * updates the model, and notifies the view of state changes.
- *
- * <p>Uses thread-safe operations to coordinate between the JavaFX Application
- * Thread and the simulation thread.
- *
+ * MVC Controller layer connecting the UI with the simulation model.
+ * Manages simulation lifecycle, parameter updates, and UI synchronization.
  * @author Nico Hoffmann
  * @version 1.0
  */

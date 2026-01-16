@@ -5,6 +5,7 @@ import de.schulprojekt.duv.model.core.SimulationParameters;
 import de.schulprojekt.duv.model.party.Party;
 import de.schulprojekt.duv.model.scandal.ScandalEvent;
 import de.schulprojekt.duv.model.dto.VoterTransition;
+import de.schulprojekt.duv.util.validation.ParameterValidator;
 import de.schulprojekt.duv.view.components.CanvasRenderer;
 import de.schulprojekt.duv.view.components.ChartManager;
 import de.schulprojekt.duv.view.components.FeedManager;
@@ -307,22 +308,42 @@ public class DashboardController {
 
     @FXML
     public void handleVoterCountIncrement() {
-        parameterManager.adjustIntField(voterCountField, 10000, 10000, 500000);
+        parameterManager.adjustIntField(
+                voterCountField,
+                10000,
+                ParameterValidator.getMinPopulation(),
+                ParameterValidator.getMaxPopulation()
+        );
     }
 
     @FXML
     public void handleVoterCountDecrement() {
-        parameterManager.adjustIntField(voterCountField, -10000, 10000, 500000);
+        parameterManager.adjustIntField(
+                voterCountField,
+                -10000,
+                ParameterValidator.getMinPopulation(),
+                ParameterValidator.getMaxPopulation()
+        );
     }
 
     @FXML
     public void handlePartyCountIncrement() {
-        parameterManager.adjustIntField(partyCountField, 1, 2, 8);
+        parameterManager.adjustIntField(
+                partyCountField,
+                1,
+                ParameterValidator.getMinParties(),
+                ParameterValidator.getMaxParties()
+        );
     }
 
     @FXML
     public void handlePartyCountDecrement() {
-        parameterManager.adjustIntField(partyCountField, -1, 2, 8);
+        parameterManager.adjustIntField(
+                partyCountField,
+                -1,
+                ParameterValidator.getMinParties(),
+                ParameterValidator.getMaxParties()
+        );
     }
 
     @FXML

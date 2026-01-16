@@ -5,6 +5,7 @@ import de.schulprojekt.duv.model.core.SimulationParameters;
 import de.schulprojekt.duv.model.party.Party;
 import de.schulprojekt.duv.model.scandal.ScandalEvent;
 import de.schulprojekt.duv.model.dto.VoterTransition;
+import de.schulprojekt.duv.util.validation.ParameterValidator;
 import de.schulprojekt.duv.view.controllers.DashboardController;
 import javafx.application.Platform;
 
@@ -21,7 +22,7 @@ import java.util.logging.Logger;
 /**
  * Controller connecting the UI with the simulation engine.
  * @author Nico Hoffmann
- * @version 1.1
+ * @version 1.0
  */
 public class SimulationController {
 
@@ -73,6 +74,8 @@ public class SimulationController {
                 DEFAULT_PARTIES,
                 DEFAULT_BUDGET_WEIGHT
         );
+
+        ParameterValidator.validate(params);
 
         this.engine = new SimulationEngine(params);
         this.engine.initializeSimulation();
@@ -139,7 +142,11 @@ public class SimulationController {
         }
         executorService.execute(() -> {
             SimulationParameters current = engine.getParameters();
-            engine.updateParameters(current.withTickRate(factor));
+            SimulationParameters updated = current.withTickRate(factor);
+
+            ParameterValidator.validate(updated);
+
+            engine.updateParameters(updated);
 
             if (isRunning.get()) {
                 scheduleTask();
@@ -149,6 +156,12 @@ public class SimulationController {
 
     public void updateAllParameters(SimulationParameters p) {
         executorService.execute(() -> {
+            String validationError = ParameterValidator.getValidationError(p);
+            if (!validationError.isEmpty()) {
+                LOGGER.warning("Invalid parameters rejected: " + validationError);
+                return;
+            }
+
             engine.updateParameters(p);
 
             List<Party> partySnapshot = new ArrayList<>(engine.getParties());
@@ -200,7 +213,6 @@ public class SimulationController {
         } catch (RuntimeException e) {
             LOGGER.log(Level.SEVERE, "Runtime error in simulation loop - stopping simulation", e);
             isRunning.set(false);
-            // Do not re-throw in scheduled task - it would silently stop the executor
         }
     }
 }

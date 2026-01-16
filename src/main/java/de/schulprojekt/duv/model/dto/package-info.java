@@ -1,9 +1,6 @@
 /**
- * Data Transfer Objects for interlayer communication.
- *
- * <p>Immutable records used to pass data between Model, View, and Controller
- * layers without exposing internal implementation details.
- *
+ * Data Transfer Objects for simulation visualization and data exchange.
+ * Contains immutable records for transferring data between layers.
  * @author Nico Hoffmann
  * @version 1.0
  */

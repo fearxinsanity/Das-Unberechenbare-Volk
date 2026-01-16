@@ -1,9 +1,6 @@
 /**
- * Global configuration and constants.
- *
- * <p>Centralized configuration to avoid magic numbers and
- * ensure consistency across the application.
- *
+ * Configuration constants and global settings for the simulation.
+ * Contains magic numbers, thresholds, and system-wide parameters.
  * @author Nico Hoffmann
  * @version 1.0
  */

@@ -1,9 +1,6 @@
 /**
- * JavaFX FXML controllers for different views.
- *
- * <p>Controllers handle user input, delegate to the business logic layer,
- * and update the view accordingly.
- *
+ * FXML controllers for JavaFX views.
+ * Handles user interactions and binds UI elements to model data.
  * @author Nico Hoffmann
  * @version 1.0
  */

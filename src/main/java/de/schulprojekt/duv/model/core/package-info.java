@@ -1,9 +1,6 @@
 /**
- * Core simulation engine and central orchestration logic.
- *
- * <p>Contains the main simulation loop, parameter management,
- * and state tracking.
- *
+ * Core simulation components including the main engine and state management.
+ * Orchestrates all subsystems (voters, parties, scandals) and manages the simulation lifecycle.
  * @author Nico Hoffmann
  * @version 1.0
  */

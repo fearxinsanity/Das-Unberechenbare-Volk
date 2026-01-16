@@ -1,9 +1,6 @@
 /**
- * Calculation helper classes and caching structures.
- *
- * <p>Contains immutable cache objects and context records used during
- * parallel voter processing to avoid redundant calculations.
- *
+ * Calculation utilities and data structures for voter decision-making and party evaluation.
+ * Contains caching mechanisms and context records for performance optimization.
  * @author Nico Hoffmann
  * @version 1.0
  */

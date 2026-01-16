@@ -1,9 +1,6 @@
 /**
- * Reusable UI components for visualization and interaction.
- *
- * <p>Self-contained components that can be used across different views.
- * Includes canvas renderers, chart managers, and custom controls.
- *
+ * Reusable custom JavaFX UI components.
+ * Contains specialized controls and widgets for the simulation dashboard.
  * @author Nico Hoffmann
  * @version 1.0
  */

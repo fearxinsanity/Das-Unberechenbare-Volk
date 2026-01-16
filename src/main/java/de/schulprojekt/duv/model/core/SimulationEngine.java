@@ -19,7 +19,7 @@ import java.util.Random;
 /**
  * Orchestrator class for the simulation logic.
  * @author Nico Hoffmann
- * @version 1.1
+ * @version 1.0
  */
 public class SimulationEngine {
 
@@ -126,6 +126,7 @@ public class SimulationEngine {
                 acutePressures,
                 impactCalculator
         );
+
         recalculateCounts();
 
         return transitions;

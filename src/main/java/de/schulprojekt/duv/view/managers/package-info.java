@@ -1,9 +1,6 @@
 /**
- * UI state and lifecycle managers.
- *
- * <p>Manages UI state, parameter validation, timer controls, and responsive
- * layout adjustments. Separates UI management logic from controller logic.
- *
+ * Visualization managers for rendering simulation state.
+ * Handles particle systems, network graphs, and real-time charts.
  * @author Nico Hoffmann
  * @version 1.0
  */
