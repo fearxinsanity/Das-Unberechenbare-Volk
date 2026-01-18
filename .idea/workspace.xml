@@ -4,10 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="Unittests">
+    <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="changed party limit back to 8">
+      <change afterPath="$PROJECT_DIR$/Documentation/UMLs/Klassendiagramm_gesamt.puml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Documentation/UMLs/Sequenzdiagramm_Skandal.puml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/util/validation/ParameterValidator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/util/validation/ParameterValidator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/managers/ParameterManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/managers/ParameterManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/UMLs/Aktivitätsdiagramm.puml" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/UMLs/Aktivitätsdiagramm.puml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/UMLs/Klassendiagramm.puml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/UMLs/Komponentendiagramm.puml" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/UMLs/Komponentendiagramm.puml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/UMLs/Sequenzdiagramm_Skandale.puml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/UMLs/Use-Case.puml" beforeDir="false" afterPath="$PROJECT_DIR$/Documentation/UMLs/Use-Case.puml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -18,15 +23,15 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="FxmlFile" />
-        <option value="UML Class" />
-        <option value="UML Sequence" />
-        <option value="UML Use Case" />
-        <option value="UML Activity" />
         <option value="UML State" />
-        <option value="UML Component" />
         <option value="UML Object" />
         <option value="Enum" />
         <option value="Class" />
+        <option value="UML Activity" />
+        <option value="UML Class" />
+        <option value="UML Component" />
+        <option value="UML Sequence" />
+        <option value="UML Use Case" />
       </list>
     </option>
   </component>
@@ -38,21 +43,21 @@
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "fearxinsanity"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;fearxinsanity&quot;
   }
-}]]></component>
+}</component>
   <component name="GitRewordedCommitMessages">
     <option name="onto" value="62f560bd00925e796afa88a1e5d464dca42d37c1" />
   </component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/fearxinsanity/Das-Unberechenbare-Volk.git",
-    "accountId": "10a031bf-ee9a-44ba-8807-923d19b7784a"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/fearxinsanity/Das-Unberechenbare-Volk.git&quot;,
+    &quot;accountId&quot;: &quot;10a031bf-ee9a-44ba-8807-923d19b7784a&quot;
   }
-}]]></component>
+}</component>
   <component name="MavenRunner">
     <option name="vmOptions" value="--enable-native-access=ALL-UNNAMED" />
   </component>
@@ -74,7 +79,7 @@
   "keyToString": {
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "Application.Main.executor": "Run",
-    "DefaultPlantUmlFileTemplate": "UML Object",
+    "DefaultPlantUmlFileTemplate": "UML Use Case",
     "JUnit.All in Das-Unberechenbare-Volk.executor": "Coverage",
     "JUnit.DistributionProviderTest.executor": "Run",
     "JUnit.ParameterValidatorTest.executor": "Run",
@@ -307,7 +312,8 @@
       <workItem from="1768502477113" duration="364000" />
       <workItem from="1768502852653" duration="249000" />
       <workItem from="1768503116630" duration="1700000" />
-      <workItem from="1768588437771" duration="2860000" />
+      <workItem from="1768588437771" duration="2909000" />
+      <workItem from="1768691509027" duration="3335000" />
     </task>
     <task id="LOCAL-00001" summary="workspace.xml changed">
       <option name="closed" value="true" />
@@ -621,14 +627,21 @@
       <option name="project" value="LOCAL" />
       <updated>1768590843803</updated>
     </task>
-    <option name="localTasksCounter" value="40" />
+    <task id="LOCAL-00040" summary="changed party limit back to 8">
+      <option name="closed" value="true" />
+      <created>1768591340076</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1768591340076</updated>
+    </task>
+    <option name="localTasksCounter" value="41" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="changed design" />
     <MESSAGE value="changed buttons from square to round" />
     <MESSAGE value="changed particel" />
     <MESSAGE value="added necessary sliders" />
@@ -653,7 +666,8 @@
     <MESSAGE value="Created Enum with all error Messages" />
     <MESSAGE value="created configs and removed magic numbers" />
     <MESSAGE value="Unittests" />
-    <option name="LAST_COMMIT_MESSAGE" value="Unittests" />
+    <MESSAGE value="changed party limit back to 8" />
+    <option name="LAST_COMMIT_MESSAGE" value="changed party limit back to 8" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Das_Unberechenbare_Volk$All_in_Das_Unberechenbare_Volk.ic" NAME="All in Das-Unberechenbare-Volk Coverage Results" MODIFIED="1768590102165" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />

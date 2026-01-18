@@ -1,109 +1,154 @@
-@startuml ComponentDiagram
-title Komponentendiagramm: Systemarchitektur
+@startuml
+skinparam componentStyle rectangle
+skinparam linetype polyline
+skinparam nodesep 120
+skinparam ranksep 140
+skinparam packagePadding 25
+skinparam ArrowFontSize 10
 
-package "View Layer" {
-    component [Main\nJavaFX Application] as Main
-    component [DashboardController] as Dashboard
-    component [StatisticsController] as Stats
-    component [ParliamentController] as Parliament
-    component [StartController] as Start
+' ===== PRESENTATION LAYER =====
+package "Presentation Layer" #LIGHTPINK {
+    component [JavaFX Application\n<<Main>>] as MainApp #LIGHTCORAL
 
-    package "UI Components" {
-        component [FeedManager] as Feed
-        component [ParliamentRenderer] as Renderer
-        component [ChartManager] as Charts
+    package "View Controllers" {
+        component [Dashboard\nController] as Dashboard #PLUM
+        component [Start\nController] as Start #PLUM
+        component [Statistics\nController] as Statistics #PLUM
+        component [Parliament\nController] as Parliament #PLUM
+    }
+
+    package "View Components" {
+        component [FXML\nViews] as FXML #THISTLE
+        component [CSS\nStylesheets] as CSS #THISTLE
     }
 }
 
-package "Controller Layer" {
-    component [SimulationController] as SimCtrl
+'---------------------------------------------------
+
+' ===== APPLICATION LAYER =====
+package "Application Layer" #LIGHTSALMON {
+    component [Simulation\nController] as SimController #CORAL
 }
 
-package "Model Layer" {
+'---------------------------------------------------
 
-    package "Core" {
-        component [SimulationEngine] as Engine
-        component [SimulationState] as State
+' ===== BUSINESS LOGIC LAYER =====
+package "Business Logic Layer" #LIGHTBLUE {
+
+    package "Core Engine" {
+        component [Simulation\nEngine] as Engine #DEEPSKYBLUE
+        component [Simulation\nState] as State #DEEPSKYBLUE
+        component [Simulation\nParameters] as Params #DEEPSKYBLUE
     }
 
-    package "Party Management" {
-        component [PartyRegistry] as Registry
-        component [Party] as Party
+    package "Domain Models" #E6F3FF {
+        component [Party\nManagement] as PartyMgmt #LIGHTGREEN
+        component [Voter\nManagement] as VoterMgmt #LIGHTCORAL
+        component [Scandal\nSystem] as ScandalSys #LIGHTYELLOW
+        component [Voter\nBehavior] as VoterBehavior #LIGHTCORAL
+        component [Impact\nCalculator] as ImpactCalc #LIGHTYELLOW
     }
 
-    package "Voter Management" {
-        component [VoterPopulation] as Voters
-        component [VoterBehavior] as Behavior
-    }
-
-    package "Scandal System" {
-        component [ScandalScheduler] as Scandal
-        component [ScandalImpactCalculator] as Impact
-    }
-
-    package "Random System" {
-        component [DistributionProvider] as Random
+    package "Data Models" #E6F3FF {
+        component [Party] as PartyEntity #PALEGREEN
+        component [Scandal] as ScandalEntity #PALEGOLDENROD
+        component [VoterType] as VoterTypeEnum #PINK
     }
 }
 
-package "Utility Layer" {
-    component [CSVLoader] as CSV
-    component [SimulationConfig] as Config
+'---------------------------------------------------
+
+' ===== UTILITY & DATA LAYERS =====
+package "Utility Layer" #PALEGOLDENROD {
+    package "Configuration" {
+        component [Party\nConfig] as PartyConf #KHAKI
+        component [Simulation\nConfig] as SimConf #KHAKI
+        component [Scandal\nConfig] as ScandalConf #KHAKI
+        component [Voter\nConfig] as VoterConf #KHAKI
+    }
+
+    package "Validation" {
+        component [Parameter\nValidator] as Validator #LIGHTGOLDENRODYELLOW
+        component [Validation\nMessage] as ValMsg #LIGHTGOLDENRODYELLOW
+    }
 }
 
-database "CSV-Dateien" {
-    file [parteien.csv] as PartyCSV
-    file [skandale.csv] as ScandalCSV
+package "Data Access Layer" #WHEAT {
+    component [CSV\nLoader] as CSVLoader #KHAKI
+    component [Distribution\nProvider] as DistProvider #LIGHTCYAN
 }
 
-' View connections
-Main --> Start
-Start --> SimCtrl
-Dashboard --> SimCtrl
-Dashboard --> Feed
-Dashboard --> Renderer
-Stats --> Charts
-Parliament --> Renderer
+'---------------------------------------------------
 
-' Controller connections
-SimCtrl --> Engine
-SimCtrl --> Dashboard
+' ===== EXTERNAL RESOURCES =====
+package "External Resources" #LIGHTGRAY {
+    database "CSV\nFiles" as CSVFiles
+    database "FXML\nResources" as FXMLResources
+    database "Style\nResources" as StyleResources
+}
 
-' Engine connections
-Engine --> State
-Engine --> Registry
-Engine --> Voters
-Engine --> Behavior
-Engine --> Scandal
-Engine --> Impact
-Engine --> Random
+'===================================================
+' ===== RELATIONSHIPS =====
+'===================================================
 
-' Utility connections
-Registry --> CSV
-Scandal --> CSV
-Engine --> Config
+' Presentation Layer
+MainApp -down-> Dashboard : creates
+MainApp -down-> Start : creates
+MainApp -right-> FXML : loads
+MainApp -right-> CSS : applies
 
-' Data connections
-CSV --> PartyCSV : <<read>>
-CSV --> ScandalCSV : <<read>>
+Dashboard -down-> Statistics : delegates
+Dashboard -down-> Parliament : delegates
+Dashboard .down.> FXML : binds
+Start .down.> FXML : binds
 
-' Interfaces
-interface "ISimulationControl" as IControl
-interface "IDataVisualization" as IViz
+' Application Layer
+Dashboard -down-> SimController : invokes
 
-SimCtrl -up- IControl
-Dashboard -up- IViz
+SimController -down-> Engine : orchestrates
+SimController -right-> Validator : validates
+SimController .right.> ValMsg : uses
 
-note right of Engine
-    Kernkomponente:
-    Orchestriert alle
-    Simulationsprozesse
-end note
+' Core Engine
+Engine -down-> State : manages
+Engine -down-> Params : uses
 
-note bottom of CSV
-    Lädt Parteien und
-    Skandaldaten aus
-    externen Dateien
-end note
+' Core to Domain (separate lines for clarity)
+Engine -[hidden]down-> PartyMgmt
+Engine -down-> PartyMgmt : coordinates
+Engine -down-> VoterMgmt : coordinates
+Engine -down-> ScandalSys : coordinates
+Engine -down-> VoterBehavior : invokes
+Engine -down-> ImpactCalc : uses
+
+' Core to Data Access
+Engine -right-> DistProvider : uses
+Engine -right-> CSVLoader : loads
+
+' Domain to Entities
+PartyMgmt -down-> PartyEntity : manages
+ScandalSys -down-> ScandalEntity : schedules
+VoterMgmt -down-> VoterTypeEnum : uses
+
+' Domain to Data Access
+VoterMgmt .right.> DistProvider : initializes
+ScandalSys .right.> DistProvider : uses
+PartyMgmt .down.> CSVLoader : loads
+
+' Domain Internal
+VoterBehavior .left.> VoterMgmt : processes
+VoterBehavior .down.> PartyEntity : evaluates
+ImpactCalc .left.> ScandalEntity : calculates
+
+' Configuration Usage
+PartyEntity .up.> PartyConf : validates
+Engine .right.> SimConf : uses
+ImpactCalc .right.> ScandalConf : uses
+VoterBehavior .right.> VoterConf : uses
+
+' External Resources
+CSVLoader -down-> CSVFiles : reads
+FXML -down-> FXMLResources : loads
+CSS -down-> StyleResources : loads
 
 @enduml
