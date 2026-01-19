@@ -86,7 +86,7 @@ public final class VisualFX {
             final int index = i;
             KeyFrame frame = new KeyFrame(
                     Duration.millis(i * delayMillis),
-                    _ -> {
+                    e -> {
                         currentText.append(content.charAt(index));
                         String cursor = (index < content.length() - 1) ? "█" : "";
                         label.setText(currentText + cursor);
@@ -95,7 +95,7 @@ public final class VisualFX {
             timeline.getKeyFrames().add(frame);
         }
 
-        timeline.setOnFinished(_ -> label.setText(content));
+        timeline.setOnFinished(e -> label.setText(content));
         timeline.play();
     }
 

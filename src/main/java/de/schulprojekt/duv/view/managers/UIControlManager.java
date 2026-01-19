@@ -120,7 +120,7 @@ public class UIControlManager {
             if (scene == null) return;
 
             // Responsive scaling based on window width
-            scene.widthProperty().addListener((_, _, newValue) ->
+            scene.widthProperty().addListener((obs, nbr, newValue) ->
                     VisualFX.adjustResponsiveScale(scene, newValue.doubleValue())
             );
             VisualFX.adjustResponsiveScale(scene, scene.getWidth());

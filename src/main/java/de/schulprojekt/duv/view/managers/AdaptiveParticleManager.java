@@ -56,15 +56,6 @@ public class AdaptiveParticleManager {
         return currentMaxParticles;
     }
 
-    /**
-     * Gets the current measured FPS.
-     *
-     * @return smoothed FPS value
-     */
-    public double getCurrentFPS() {
-        return smoothedFPS;
-    }
-
     // ========================================
     // Business Logic Methods
     // ========================================

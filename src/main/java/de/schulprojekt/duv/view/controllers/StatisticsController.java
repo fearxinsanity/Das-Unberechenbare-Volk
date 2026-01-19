@@ -299,7 +299,7 @@ public class StatisticsController {
 
         if (property != null) {
             if (property.get() != null) action.accept(property.get());
-            property.addListener((_, _, newVal) -> {
+            property.addListener((obs, nd, newVal) -> {
                 if (newVal != null) action.accept(newVal);
             });
         }

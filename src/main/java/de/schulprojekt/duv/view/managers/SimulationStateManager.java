@@ -241,7 +241,7 @@ public class SimulationStateManager {
      * Triggers completion callback and visual effects when time reaches zero.
      */
     public void setupTimer() {
-        simulationTimer = new Timeline(new KeyFrame(Duration.seconds(1), _ -> {
+        simulationTimer = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
             remainingSeconds--;
             updateStatusDisplay(true);
 

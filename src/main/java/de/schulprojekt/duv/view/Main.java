@@ -66,7 +66,7 @@ public class Main extends Application {
             primaryStage.setScene(scene);
             primaryStage.setResizable(true);
 
-            primaryStage.setOnCloseRequest(_ -> {
+            primaryStage.setOnCloseRequest(e -> {
                 if (controller instanceof DashboardController) {
                     ((DashboardController) controller).shutdown();
                 }
