@@ -5,18 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="changed party limit back to 8">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/create_submit.bat" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/MainLauncher.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/Pictures/DUV_Logo.ico" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/controllers/DashboardController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/controllers/DashboardController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/controllers/StartController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/controllers/StartController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/controllers/StatisticsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/controllers/StatisticsController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/managers/AdaptiveParticleManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/managers/AdaptiveParticleManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/managers/ParameterManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/managers/ParameterManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/managers/SimulationStateManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/managers/SimulationStateManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/managers/UIControlManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/managers/UIControlManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/util/VisualFX.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/util/VisualFX.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -30,12 +23,12 @@
         <option value="UML State" />
         <option value="UML Object" />
         <option value="Enum" />
-        <option value="Class" />
         <option value="UML Activity" />
         <option value="UML Class" />
         <option value="UML Component" />
         <option value="UML Sequence" />
         <option value="UML Use Case" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -62,6 +55,14 @@
     &quot;accountId&quot;: &quot;10a031bf-ee9a-44ba-8807-923d19b7784a&quot;
   }
 }</component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="customMavenHome" value="C:\Program Files\Java\apache-maven-3.9.12" />
+        <option name="mavenHomeTypeForPersistence" value="CUSTOM" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
   <component name="MavenRunner">
     <option name="vmOptions" value="--enable-native-access=ALL-UNNAMED" />
   </component>
@@ -83,6 +84,7 @@
   "keyToString": {
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "Application.Main.executor": "Run",
+    "Batch.create_submit.executor": "Run",
     "DefaultPlantUmlFileTemplate": "UML Use Case",
     "JUnit.All in Das-Unberechenbare-Volk.executor": "Coverage",
     "JUnit.DistributionProviderTest.executor": "Run",
@@ -118,39 +120,35 @@
     "project.structure.last.edited": "Project",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "settings.editor.selected.configurable": "MavenSettings",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="D:\4_Projekte\IntelliJ\Das-Unberechenbare-Volk\src\main\resources\de\schulprojekt\duv" />
       <recent name="D:\4_Projekte\IntelliJ\Das-Unberechenbare-Volk\src\main\resources\de\schulprojekt\duv\Pictures" />
+      <recent name="D:\4_Projekte\IntelliJ\Das-Unberechenbare-Volk\src\main\resources\de\schulprojekt\duv" />
       <recent name="C:\Projekt\BS-Projekt\src\main\resources\de.schulprojekt.duv\data" />
       <recent name="C:\Projekt\BS-Projekt\src\main\resources\de.schulprojekt.duv" />
       <recent name="C:\Projekt\BS-Projekt\src\main\resources\de.schulprojekt.duv\" />
     </key>
   </component>
-  <component name="RunManager" selected="Maven.DUV - run">
-    <configuration name="All in Das-Unberechenbare-Volk" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Batch.create_submit">
+    <configuration name="create_submit" type="BatchConfigurationType" factoryName="Batch" temporary="true">
       <module name="Das-Unberechenbare-Volk" />
-      <option name="PACKAGE_NAME" value="" />
-      <option name="TEST_OBJECT" value="package" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="WORKING_DIRECTORY" value="D:\4_Projekte\IntelliJ\Das-Unberechenbare-Volk" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SCRIPT_NAME" value="create_submit.bat" />
+      <option name="PARAMETERS" value="" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="DistributionProviderTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="All in Das-Unberechenbare-Volk" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="Das-Unberechenbare-Volk" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="de.schulprojekt.duv.model.random.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="de.schulprojekt.duv.model.random" />
-      <option name="MAIN_CLASS_NAME" value="de.schulprojekt.duv.model.random.DistributionProviderTest" />
-      <option name="TEST_OBJECT" value="class" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="TEST_OBJECT" value="package" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -264,8 +262,8 @@
       <method v="2" />
     </configuration>
     <list>
+      <item itemvalue="Batch.create_submit" />
       <item itemvalue="JUnit.All in Das-Unberechenbare-Volk" />
-      <item itemvalue="JUnit.DistributionProviderTest" />
       <item itemvalue="JUnit.ScandalImpactCalculatorTest" />
       <item itemvalue="JUnit.VoterBehaviorTest" />
       <item itemvalue="JUnit.ParameterValidatorTest" />
@@ -274,11 +272,11 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Batch.create_submit" />
         <item itemvalue="JUnit.All in Das-Unberechenbare-Volk" />
         <item itemvalue="JUnit.ParameterValidatorTest" />
         <item itemvalue="JUnit.VoterBehaviorTest" />
         <item itemvalue="JUnit.ScandalImpactCalculatorTest" />
-        <item itemvalue="JUnit.DistributionProviderTest" />
       </list>
     </recent_temporary>
   </component>
@@ -319,7 +317,7 @@
       <workItem from="1768503116630" duration="1700000" />
       <workItem from="1768588437771" duration="2909000" />
       <workItem from="1768691509027" duration="3335000" />
-      <workItem from="1768825357244" duration="560000" />
+      <workItem from="1768825357244" duration="4654000" />
     </task>
     <task id="LOCAL-00001" summary="workspace.xml changed">
       <option name="closed" value="true" />
