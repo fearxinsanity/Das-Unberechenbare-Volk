@@ -180,9 +180,13 @@
                             <Button text="4x" onAction="#handleSpeed4x" prefWidth="50"/>
                         </HBox>
                     </VBox>
-
-                    <Button text="[ RANDOMIZE DATA ]" onAction="#handleRandomize" maxWidth="Infinity"
-                            style="-fx-base: #333; -fx-margin-bottom: 5;"/>
+                    <StackPane>
+                        <VBox fx:id="randomBox">
+                            <Button text="[ RANDOMIZE DATA ]" onAction="#handleRandomize" maxWidth="Infinity"
+                                    style="-fx-base: #333; -fx-margin-bottom: 5;"/>
+                        </VBox>
+                        <Label fx:id="randomOverlay" text="[ LOCKED ]" visible="false" styleClass="locked-overlay-label"/>
+                    </StackPane>
                     <Button text="[ APPLY UPDATE ]" onAction="#handleParameterChange" maxWidth="Infinity"
                             style="-fx-base: #222;"/>
                 </VBox>

@@ -59,11 +59,13 @@ public class DashboardController {
     @FXML private VBox partyBox;
     @FXML private VBox budgetBox;
     @FXML private VBox durationBox;
+    @FXML private VBox randomBox;
 
     @FXML private Label populationOverlay;
     @FXML private Label partyOverlay;
     @FXML private Label budgetOverlay;
     @FXML private Label durationOverlay;
+    @FXML private Label randomOverlay;
 
     // ========================================
     // FXML: Visualization
@@ -427,8 +429,8 @@ public class DashboardController {
         stateManager.setDurationField(durationField);
         stateManager.setButtons(startButton, pauseButton, resetButton, intelButton, parliamentButton);
         stateManager.setLockingContainers(
-                populationBox, partyBox, budgetBox, durationBox,
-                populationOverlay, partyOverlay, budgetOverlay, durationOverlay
+                populationBox, partyBox, budgetBox, durationBox, randomBox,
+                populationOverlay, partyOverlay, budgetOverlay, durationOverlay, randomOverlay
         );
         stateManager.setSidebars(leftSidebar, rightSidebar);
         stateManager.setOnPauseCallback(this::handlePauseSimulation);

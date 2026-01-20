@@ -57,11 +57,13 @@ public class SimulationStateManager {
     private VBox partyBox;
     private VBox budgetBox;
     private VBox durationBox;
+    private VBox randomBox;
 
     private Label populationOverlay;
     private Label partyOverlay;
     private Label budgetOverlay;
     private Label durationOverlay;
+    private Label randomOverlay;
 
     private VBox leftSidebar;
     private VBox rightSidebar;
@@ -192,23 +194,27 @@ public class SimulationStateManager {
      * @param partyBox the party count parameter box
      * @param budgetBox the budget parameter box
      * @param durationBox the duration parameter box
+     * @param randomBox the random button box
      * @param popOverlay the population lock overlay
      * @param partyOverlay the party lock overlay
      * @param budgetOverlay the budget lock overlay
      * @param durationOverlay the duration lock overlay
+     * @param randomOverlay the random lock overlay
      */
     public void setLockingContainers(
-            VBox popBox, VBox partyBox, VBox budgetBox, VBox durationBox,
-            Label popOverlay, Label partyOverlay, Label budgetOverlay, Label durationOverlay
+            VBox popBox, VBox partyBox, VBox budgetBox, VBox durationBox, VBox randomBox,
+            Label popOverlay, Label partyOverlay, Label budgetOverlay, Label durationOverlay, Label randomOverlay
     ) {
         this.populationBox = popBox;
         this.partyBox = partyBox;
         this.budgetBox = budgetBox;
         this.durationBox = durationBox;
+        this.randomBox = randomBox;
         this.populationOverlay = popOverlay;
         this.partyOverlay = partyOverlay;
         this.budgetOverlay = budgetOverlay;
         this.durationOverlay = durationOverlay;
+        this.randomOverlay = randomOverlay;
     }
 
     /**
@@ -416,6 +422,7 @@ public class SimulationStateManager {
         toggleBoxLockState(partyBox, partyOverlay, locked);
         toggleBoxLockState(budgetBox, budgetOverlay, locked);
         toggleBoxLockState(durationBox, durationOverlay, locked);
+        toggleBoxLockState(randomBox, randomOverlay, locked);
     }
 
     /**
