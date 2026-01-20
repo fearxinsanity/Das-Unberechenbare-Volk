@@ -5,12 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="created configs and removed magic numbers">
-      <change afterPath="$PROJECT_DIR$/src/test/java/de/schulprojekt/duv/model/calculation/StatisticsCalculatorTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/de/schulprojekt/duv/model/random/DistributionProviderTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/de/schulprojekt/duv/model/voter/VoterBehaviorTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/de/schulprojekt/duv/util/ParameterValidatorTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Documentation/UMLs/UML" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,20 +38,20 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
-    &quot;lastFilter&quot;: {
+  &quot;lastFilter&quot;: {
     &quot;state&quot;: &quot;OPEN&quot;,
     &quot;assignee&quot;: &quot;fearxinsanity&quot;
-    }
-    }</component>
+  }
+}</component>
   <component name="GitRewordedCommitMessages">
     <option name="onto" value="62f560bd00925e796afa88a1e5d464dca42d37c1" />
   </component>
   <component name="GithubPullRequestsUISettings">{
-    &quot;selectedUrlAndAccountId&quot;: {
+  &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/fearxinsanity/Das-Unberechenbare-Volk.git&quot;,
-    &quot;accountId&quot;: &quot;10a031bf-ee9a-44ba-8807-923d19b7784a&quot;
-    }
-    }</component>
+    &quot;accountId&quot;: &quot;06ef9d97-6c87-46d0-901d-70dd835ea932&quot;
+  }
+}</component>
   <component name="MavenRunner">
     <option name="vmOptions" value="--enable-native-access=ALL-UNNAMED" />
   </component>
@@ -78,6 +74,7 @@
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "Application.Main.executor": "Run",
     "DefaultPlantUmlFileTemplate": "UML Object",
+    "JUnit.All in Das-Unberechenbare-Volk.executor": "Run",
     "JUnit.ParameterValidatorTest.testClampingMethods.executor": "Run",
     "JUnit.ParameterValidatorTest.testPopulationBoundary.executor": "Run",
     "JUnit.ParameterValidatorTest.testValidParameters.executor": "Run",
@@ -93,7 +90,7 @@
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "code__optimization",
+    "git-widget-placeholder": "testing/UnitTest",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "D:/4_Projekte/IntelliJ/Das-Unberechenbare-Volk",
@@ -118,7 +115,15 @@
       <recent name="C:\Projekt\BS-Projekt\src\main\resources\de.schulprojekt.duv\" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.ParameterValidatorTest">
+  <component name="RunManager" selected="JUnit.All in Das-Unberechenbare-Volk">
+    <configuration name="All in Das-Unberechenbare-Volk" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="Das-Unberechenbare-Volk" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="TEST_OBJECT" value="package" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="ParameterValidatorTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="Das-Unberechenbare-Volk" />
       <extension name="coverage">
@@ -246,6 +251,7 @@
       <method v="2" />
     </configuration>
     <list>
+      <item itemvalue="JUnit.All in Das-Unberechenbare-Volk" />
       <item itemvalue="JUnit.ParameterValidatorTest" />
       <item itemvalue="JUnit.ParameterValidatorTest.testClampingMethods" />
       <item itemvalue="JUnit.ParameterValidatorTest.testPopulationBoundary" />
@@ -255,6 +261,7 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.All in Das-Unberechenbare-Volk" />
         <item itemvalue="JUnit.ParameterValidatorTest" />
         <item itemvalue="JUnit.ParameterValidatorTest.testValidParameters" />
         <item itemvalue="JUnit.ParameterValidatorTest.testClampingMethods" />
@@ -265,8 +272,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-30f59d01ecdd-26cb7f24e5b0-intellij.indexing.shared.core-IU-253.29346.138" />
-        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.29346.138" />
+        <option value="bundled-jdk-30f59d01ecdd-26cb7f24e5b0-intellij.indexing.shared.core-IU-253.29346.240" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.29346.240" />
       </set>
     </attachedChunks>
   </component>
@@ -297,6 +304,8 @@
       <workItem from="1768502477113" duration="364000" />
       <workItem from="1768502852653" duration="249000" />
       <workItem from="1768503116630" duration="1700000" />
+      <workItem from="1768891557806" duration="67000" />
+      <workItem from="1768891634884" duration="433000" />
     </task>
     <task id="LOCAL-00001" summary="workspace.xml changed">
       <option name="closed" value="true" />

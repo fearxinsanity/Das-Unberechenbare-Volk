@@ -329,15 +329,15 @@ public class ParameterManager {
 
         applyInputFilter(field);
 
-        field.setOnAction(_ -> formatAndApply(field));
+        field.setOnAction(e -> formatAndApply(field));
 
-        field.focusedProperty().addListener((_, _, isNowFocused) -> {
+        field.focusedProperty().addListener((obs, bool, isNowFocused) -> {
             if (!isNowFocused) {
                 formatAndApply(field);
             }
         });
 
-        field.setOnKeyPressed(_ -> field.setStyle(""));
+        field.setOnKeyPressed(e -> field.setStyle(""));
     }
 
     /**
@@ -402,6 +402,12 @@ public class ParameterManager {
                             (int) val,
                             ParameterValidator.getMinPopulation(),
                             ParameterValidator.getMaxPopulation()
+                    );
+                } else if (field == partyCountField) {
+                    val = ParameterValidator.clampInt(
+                            (int) val,
+                            ParameterValidator.getMinParties(),
+                            ParameterValidator.getMaxParties()
                     );
                 }
 

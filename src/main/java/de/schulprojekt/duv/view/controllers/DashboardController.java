@@ -465,10 +465,10 @@ public class DashboardController {
         }
 
         if (intelButton != null) {
-            intelButton.setOnMouseEntered(_ -> VisualFX.stopPulse(intelButton));
+            intelButton.setOnMouseEntered(e -> VisualFX.stopPulse(intelButton));
         }
         if (parliamentButton != null) {
-            parliamentButton.setOnMouseEntered(_ -> VisualFX.stopPulse(parliamentButton));
+            parliamentButton.setOnMouseEntered(e -> VisualFX.stopPulse(parliamentButton));
         }
     }
 

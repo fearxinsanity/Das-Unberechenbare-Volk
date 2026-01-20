@@ -7,7 +7,7 @@ pom.xml.releaseBackup
 pom.xml.versionsBackup
 pom.xml.next
 release.properties
-dependency-reduced-pom.xml
+pom.xml
 buildNumber.properties
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
@@ -123,4 +123,8 @@ application-dev.properties
 # Temporary files
 *.tmp
 *.temp
-.idea/workspace.xml
+dependency-reduced-pom.xml
+/target/
+
+# Folder
+/hoffmann_nico/

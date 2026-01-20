@@ -88,7 +88,7 @@ public class StartController {
                 initParticles();
                 startNetworkAnimation();
 
-                scene.widthProperty().addListener((_, _, newVal) -> adjustScale(newVal.doubleValue()));
+                scene.widthProperty().addListener((obs, nbr, newVal) -> adjustScale(newVal.doubleValue()));
                 adjustScale(scene.getWidth());
 
                 logoImageView.fitWidthProperty().bind(Bindings.min(500, scene.widthProperty().multiply(0.4)));

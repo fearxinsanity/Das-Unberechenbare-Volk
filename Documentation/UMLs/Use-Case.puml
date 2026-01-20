@@ -1,91 +1,121 @@
-@startuml UseCaseDiagram
-title Use-Case-Diagramm: Wahlsimulation "Das Unberechenbare Volk"
-
-left to right direction
+@startuml
+skinparam actorStyle awesome
 skinparam packageStyle rectangle
+skinparam usecaseBackgroundColor #E8F4F8
+skinparam usecaseBorderColor #4A90A4
+skinparam actorBackgroundColor #FFE6CC
+skinparam actorBorderColor #D79B00
+skinparam linetype ortho
+skinparam nodesep 60
+skinparam ranksep 80
 
-actor "Benutzer" as User
-actor "System-Administrator" as Admin
+top to bottom direction
 
-rectangle "Wahlsimulation" {
+' ===== AKTEURE LINKS =====
+actor "Benutzer" as User #LIGHTBLUE
 
-    package "Simulationssteuerung" {
-        usecase "Simulation starten" as UC1
-        usecase "Simulation pausieren" as UC2
-        usecase "Simulation zurücksetzen" as UC3
-        usecase "Simulationsgeschwindigkeit\nanpassen" as UC4
-        usecase "Einzelschritt ausführen" as UC5
+' ===== SYSTEM BOUNDARY =====
+rectangle "Das Unberechenbare Volk - Wahlsimulations-System" #LIGHTYELLOW {
+
+    together {
+        ' === SIMULATIONSVERWALTUNG ===
+        rectangle "Simulationsverwaltung" #LIGHTSALMON {
+            usecase (Simulation\nstarten) as UC1
+            usecase (Simulation\npausieren) as UC2
+            usecase (Simulation\nzurücksetzen) as UC3
+            usecase (Geschwindigkeit\nanpassen) as UC4
+        }
+
+        ' === PARAMETERKONFIGURATION ===
+        rectangle "Parameterkonfiguration" #LIGHTGREEN {
+            usecase (Parameter\neinstellen) as UC5
+            usecase (Anzahl\nParteien) as UC6
+            usecase (Populations-\ngröße) as UC7
+            usecase (Skandal-\nwahrschein-\nlichkeit) as UC8
+            usecase (Medien-\neinfluss) as UC9
+        }
     }
 
-    package "Parameterverwaltung" {
-        usecase "Bevölkerungsgröße\neinstellen" as UC6
-        usecase "Medieneinfluss\nkonfigurieren" as UC7
-        usecase "Volatilität anpassen" as UC8
-        usecase "Skandalwahrscheinlichkeit\nfestlegen" as UC9
-        usecase "Loyalitätsfaktor\neinstellen" as UC10
-        usecase "Chaosfaktor anpassen" as UC11
-        usecase "Parteianzahl festlegen" as UC12
-    }
+    together {
+        ' === VISUALISIERUNG ===
+        rectangle "Visualisierung & Analyse" #LIGHTBLUE {
+            usecase (Wahl-\nergebnisse) as UC10
+            usecase (Parlaments-\nverteilung) as UC11
+            usecase (Statistiken) as UC12
+            usecase (Wähler-\nbewegungen) as UC13
+            usecase (Skandal-\nEvents) as UC14
+        }
 
-    package "Visualisierung" {
-        usecase "Parlamentsverteilung\nanzeigen" as UC13
-        usecase "Statistiken anzeigen" as UC14
-        usecase "Wählerwanderung\nvisualisieren" as UC15
-        usecase "Skandale anzeigen" as UC16
-        usecase "Zeitverlauf darstellen" as UC17
-    }
-
-    package "Datenverwaltung" {
-        usecase "Parteien laden" as UC18
-        usecase "Skandaldaten laden" as UC19
-        usecase "Ergebnisse exportieren" as UC20
-    }
-
-    package "Hilfefunktionen" {
-        usecase "Benutzerhandbuch\naufrufen" as UC21
-        usecase "Tooltips anzeigen" as UC22
+        ' === AUTOMATISCHE PROZESSE ===
+        rectangle "Automatische Prozesse" #WHEAT {
+            usecase (Simulations-\nschritt) as UC15
+            usecase (Skandal\nerzeugen) as UC16
+            usecase (Wähler-\nentscheidungen) as UC17
+            usecase (Unterstützung\naktualisieren) as UC18
+            usecase (Auswirkungen\nberechnen) as UC19
+        }
     }
 }
 
-' Benutzer-Beziehungen
+' ===== AKTEUR RECHTS =====
+actor "System\n(Scheduler)" as System #LIGHTGRAY
+
+' ===== BENUTZER-BEZIEHUNGEN =====
 User --> UC1
 User --> UC2
 User --> UC3
 User --> UC4
+
 User --> UC5
 
-User --> UC6
-User --> UC7
-User --> UC8
-User --> UC9
 User --> UC10
 User --> UC11
 User --> UC12
-
 User --> UC13
 User --> UC14
-User --> UC15
-User --> UC16
-User --> UC17
 
-User --> UC21
-User --> UC22
+' ===== SYSTEM-BEZIEHUNGEN =====
+System --> UC15
 
-' Administrator-Beziehungen
-Admin --> UC18
-Admin --> UC19
-Admin --> UC20
+' ===== INCLUDE BEZIEHUNGEN (innerhalb Packages) =====
+UC5 ..> UC6 : <<include>>
+UC5 ..> UC7 : <<include>>
+UC5 ..> UC8 : <<include>>
+UC5 ..> UC9 : <<include>>
 
-' Include-Beziehungen
-UC1 ..> UC13 : <<include>>
-UC1 ..> UC14 : <<include>>
-UC4 ..> UC1 : <<extend>>
-UC5 ..> UC1 : <<extend>>
+UC15 ..> UC17 : <<include>>
+UC15 ..> UC18 : <<include>>
 
-UC14 ..> UC17 : <<include>>
-UC15 ..> UC14 : <<include>>
+UC16 ..> UC19 : <<include>>
 
-' Extend-Beziehungen
-UC16 ..> UC14 : <<extend>>
+' ===== EXTEND BEZIEHUNGEN =====
+UC16 ..> UC15 : <<extend>>\n[Skandal\ntritt auf]
+
+UC5 ..> UC1 : <<extend>>\n[Vor Start]
+
+' ===== GENERALISIERUNG =====
+UC11 --|> UC10
+UC12 --|> UC10
+
+' ===== NOTIZEN =====
+note right of UC1
+  Startet automatischen
+  Simulationsablauf
+end note
+
+note right of UC15
+  Periodische Ausführung
+  durch Scheduler
+end note
+
+note left of UC16
+  Zufälliges Event
+  beeinflusst Partei
+end note
+
+note bottom of UC5
+  Anpassung aller
+  Simulationsparameter
+end note
 
 @enduml

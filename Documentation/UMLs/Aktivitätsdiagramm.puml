@@ -1,76 +1,61 @@
-@startuml ActivityDiagram
-title Aktivitätsdiagramm: Simulationsschritt
+@startuml
+skinparam ActivityFontSize 11
+skinparam ActivityDiamondFontSize 11
 
-|Benutzer|
 start
-:Simulation starten;
 
-|SimulationController|
-:Parameter laden;
-:SimulationEngine initialisieren;
+:updateParameters(newParams);
 
-|SimulationEngine|
-repeat
-    :Schritt-Zähler erhöhen;
+if (Strukturelle Änderung?) then (ja)
+  :Parameter aktualisieren;
+  :DistributionProvider initialisieren;
+  partition Initialisierung {
+    :State zurücksetzen;
+    :ScandalScheduler zurücksetzen;
+    :ImpactCalculator zurücksetzen;
+    :Parteien initialisieren;
+    :Wählerpopulation initialisieren;
+    :Unterstützerzahlen neu berechnen;
+  }
+else (nein)
+  :Parameter aktualisieren;
+  :DistributionProvider initialisieren;
+endif
 
-    :Alte Skandale entfernen\n(älter als 200 Ticks);
+:runSimulationStep() aufrufen;
 
-    fork
-        :Zeitgeist aktualisieren;
-    fork again
-        if (Skandal auslösen?) then (ja)
-            :Zufällige Partei wählen;
-            :Skandal aus CSV laden;
-            :Skandal-Event erstellen;
-            :Skandalzähler erhöhen;
-        else (nein)
-        endif
-    end fork
+partition "Simulationsschritt durchführen" {
+  :Schrittzähler erhöhen;
 
-    :Akute Skandaldrücke\nberechnen;
+  :Abgelaufene Skandale entfernen;
 
-    :Permanente Schäden\nverarbeiten (Recovery);
-
-    |VoterBehavior|
-    partition "Parallele Wählerverarbeitung" {
-        fork
-            :Wähler 1 verarbeiten;
-            :Meinungsdrift anwenden;
-            if (Wechsel?) then (ja)
-                :Beste Partei finden;
-                :Partei wechseln;
-            else (nein)
-            endif
-        fork again
-            :Wähler 2 verarbeiten;
-        fork again
-            :Wähler 3 verarbeiten;
-        fork again
-            :Wähler N verarbeiten;
-        end fork
+  if (Skandal soll auftreten UND\nmehr als 1 Partei?) then (ja)
+    partition "Neuen Skandal auslösen" {
+      :Echte Parteien filtern;
+      :Zielpartei zufällig auswählen;
+      :Zufälligen Skandal laden;
+      :ScandalEvent erstellen;
+      :Skandal zu State hinzufügen;
+      :Skandalzähler der Partei erhöhen;
     }
+  else (nein)
+  endif
 
-    |SimulationEngine|
-    :Unterstützerzahlen\nneu berechnen;
+  :Akuten Druck für alle Parteien berechnen;
 
-    |DashboardController|
-    :Visualisierung\naktualisieren;
+  :Recovery-Prozess für Parteien durchführen;
 
-    fork
-        :Parlamentsverteilung\nzeichnen;
-    fork again
-        :Statistiken\naktualisieren;
-    fork again
-        :Feed-Events\nanzeigen;
-    end fork
+  :Wählerentscheidungen verarbeiten;
+  note right
+    Gibt Liste von
+    VoterTransitions zurück
+  end note
 
-    |Benutzer|
-    note right: Benutzer kann jederzeit\npausieren oder Parameter ändern
+  :Unterstützerzahlen neu berechnen;
+}
 
-repeat while (Simulation läuft?) is (ja)
--> nein;
+:VoterTransitions zurückgeben;
 
-:Endergebnisse anzeigen;
 stop
 
 @enduml
