@@ -44,7 +44,7 @@ public final class ScandalConfig {
      * but not overwhelming short-term effects that dominate voter thinking during
      * the scandal's peak.</p>
      */
-    public static final double ACUTE_PRESSURE_FACTOR = 4.0;
+    public static final double ACUTE_PRESSURE_FACTOR = 6.0;
 
     /**
      * Multiplier for permanent (long-term) reputation damage accumulation.
@@ -53,7 +53,7 @@ public final class ScandalConfig {
      * of acute pressure, but persists after the scandal fades. This models reputation
      * damage that outlasts news cycles (e.g., "the party that had the corruption scandal").</p>
      */
-    public static final double PERMANENT_DAMAGE_FACTOR = 2.0;
+    public static final double PERMANENT_DAMAGE_FACTOR = 1.5;
 
     // ========================================
     // Recovery Mechanics
@@ -66,7 +66,7 @@ public final class ScandalConfig {
      * recovers 0.05 per tick, taking 200 ticks to fully recover. This models gradual
      * public forgiveness as scandals fade from collective memory.</p>
      */
-    public static final double BASE_RECOVERY_RATE = 0.005;
+    public static final double BASE_RECOVERY_RATE = 0.003;
 
     /**
      * Additional recovery rate bonus based on voter support share.
