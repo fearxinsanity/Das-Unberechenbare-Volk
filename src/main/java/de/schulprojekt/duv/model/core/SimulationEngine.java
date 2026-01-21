@@ -9,6 +9,7 @@ import de.schulprojekt.duv.model.scandal.ScandalImpactCalculator;
 import de.schulprojekt.duv.model.scandal.ScandalScheduler;
 import de.schulprojekt.duv.model.voter.VoterBehavior;
 import de.schulprojekt.duv.model.voter.VoterPopulation;
+import de.schulprojekt.duv.model.voter.ZeitgeistManager;
 import de.schulprojekt.duv.model.dto.VoterTransition;
 import de.schulprojekt.duv.util.io.CSVLoader;
 import de.schulprojekt.duv.util.config.SimulationConfig;
@@ -18,7 +19,7 @@ import java.util.List;
 /**
  * Orchestrator class for the simulation logic.
  * @author Nico Hoffmann
- * @version 1.0
+ * @version 1.1
  */
 public class SimulationEngine {
 
@@ -33,6 +34,7 @@ public class SimulationEngine {
     private final PartyRegistry partyRegistry;
     private final VoterPopulation voterPopulation;
     private final VoterBehavior voterBehavior;
+    private final ZeitgeistManager zeitgeistManager;
     private final ScandalScheduler scandalScheduler;
     private final ScandalImpactCalculator impactCalculator;
 
@@ -55,6 +57,7 @@ public class SimulationEngine {
         this.partyRegistry = new PartyRegistry(csvLoader);
         this.voterPopulation = new VoterPopulation();
         this.voterBehavior = new VoterBehavior();
+        this.zeitgeistManager = new ZeitgeistManager();
 
         this.scandalScheduler = new ScandalScheduler(distributionProvider);
         this.impactCalculator = new ScandalImpactCalculator(params.partyCount() + 10);
@@ -90,7 +93,7 @@ public class SimulationEngine {
         impactCalculator.reset();
 
         double initialZeitgeist = (distributionProvider.getRandomGenerator().nextDouble() - 0.5) * 2.0;
-        voterBehavior.setZeitgeist(initialZeitgeist);
+        zeitgeistManager.setZeitgeist(initialZeitgeist);
 
         partyRegistry.initializeParties(parameters, distributionProvider);
 
@@ -112,6 +115,8 @@ public class SimulationEngine {
             triggerNewScandal();
         }
 
+        zeitgeistManager.updateZeitgeist(parameters, state.getCurrentStep());
+
         double[] acutePressures = impactCalculator.calculateAcutePressure(
                 state.getActiveScandals(),
                 partyRegistry.getParties(),
@@ -126,7 +131,8 @@ public class SimulationEngine {
                 parameters,
                 acutePressures,
                 impactCalculator,
-                state.getCurrentStep()
+                state.getCurrentStep(),
+                zeitgeistManager.getCurrentZeitgeist()
         );
 
         recalculateCounts();

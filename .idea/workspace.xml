@@ -5,17 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="created configs and removed magic numbers">
+      <change afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/voter/ZeitgeistManager.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/controller/SimulationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/controller/SimulationController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/core/SimulationEngine.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/core/SimulationEngine.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/core/SimulationParameters.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/core/SimulationParameters.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/random/DistributionProvider.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/random/DistributionProvider.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/voter/VoterBehavior.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/voter/VoterBehavior.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/controllers/DashboardController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/controllers/DashboardController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/managers/ParameterManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/managers/ParameterManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/managers/SimulationStateManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/managers/SimulationStateManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/view/DashboardUI.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/view/DashboardUI.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/de/schulprojekt/duv/model/random/DistributionProviderTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/de/schulprojekt/duv/model/random/DistributionProviderTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/de/schulprojekt/duv/model/voter/VoterBehaviorTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/de/schulprojekt/duv/model/voter/VoterBehaviorTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/de/schulprojekt/duv/util/ParameterValidatorTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/de/schulprojekt/duv/util/ParameterValidatorTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,12 +51,12 @@
   <component name="GitRewordedCommitMessages">
     <option name="onto" value="62f560bd00925e796afa88a1e5d464dca42d37c1" />
   </component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/fearxinsanity/Das-Unberechenbare-Volk.git&quot;,
-    &quot;accountId&quot;: &quot;06ef9d97-6c87-46d0-901d-70dd835ea932&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/fearxinsanity/Das-Unberechenbare-Volk.git",
+    "accountId": "10a031bf-ee9a-44ba-8807-923d19b7784a"
   }
-}</component>
+}]]></component>
   <component name="MavenRunner">
     <option name="vmOptions" value="--enable-native-access=ALL-UNNAMED" />
   </component>
@@ -78,43 +74,43 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "Application.Main.executor": "Run",
-    "DefaultPlantUmlFileTemplate": "UML Object",
-    "JUnit.All in Das-Unberechenbare-Volk.executor": "Run",
-    "JUnit.ParameterValidatorTest.testClampingMethods.executor": "Run",
-    "JUnit.ParameterValidatorTest.testPopulationBoundary.executor": "Run",
-    "JUnit.ParameterValidatorTest.testValidParameters.executor": "Run",
-    "Maven.Build EXE.executor": "Run",
-    "Maven.DUV - run.executor": "Run",
-    "Maven.Das-Unberechenbare-Volk [clean].executor": "Run",
-    "Maven.Das-Unberechenbare-Volk [install].executor": "Run",
-    "Maven.Das-Unberechenbare-Volk [package].executor": "Run",
-    "Maven.Package & Install.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "optimization/better__Code__Quality",
-    "ignore.virus.scanning.warn.message": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/4_Projekte/IntelliJ/Das-Unberechenbare-Volk",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Project",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;Application.Main.executor&quot;: &quot;Run&quot;,
+    &quot;DefaultPlantUmlFileTemplate&quot;: &quot;UML Object&quot;,
+    &quot;JUnit.All in Das-Unberechenbare-Volk.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ParameterValidatorTest.testClampingMethods.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ParameterValidatorTest.testPopulationBoundary.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ParameterValidatorTest.testValidParameters.executor&quot;: &quot;Run&quot;,
+    &quot;Maven.Build EXE.executor&quot;: &quot;Run&quot;,
+    &quot;Maven.DUV - run.executor&quot;: &quot;Run&quot;,
+    &quot;Maven.Das-Unberechenbare-Volk [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.Das-Unberechenbare-Volk [install].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.Das-Unberechenbare-Volk [package].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.Package &amp; Install.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;optimization/better__Code__Quality&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/4_Projekte/IntelliJ/Das-Unberechenbare-Volk&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\4_Projekte\IntelliJ\Das-Unberechenbare-Volk\src\main\resources\de\schulprojekt\duv" />
@@ -124,7 +120,7 @@
       <recent name="C:\Projekt\BS-Projekt\src\main\resources\de.schulprojekt.duv\" />
     </key>
   </component>
-  <component name="RunManager" selected="Maven.DUV - run">
+  <component name="RunManager" selected="JUnit.All in Das-Unberechenbare-Volk">
     <configuration name="All in Das-Unberechenbare-Volk" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="Das-Unberechenbare-Volk" />
       <option name="PACKAGE_NAME" value="" />
@@ -281,8 +277,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-30f59d01ecdd-26cb7f24e5b0-intellij.indexing.shared.core-IU-253.29346.240" />
-        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.29346.240" />
+        <option value="bundled-jdk-30f59d01ecdd-26cb7f24e5b0-intellij.indexing.shared.core-IU-253.29346.138" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.29346.138" />
       </set>
     </attachedChunks>
   </component>
@@ -315,6 +311,7 @@
       <workItem from="1768503116630" duration="1700000" />
       <workItem from="1768891557806" duration="67000" />
       <workItem from="1768891634884" duration="433000" />
+      <workItem from="1768998073951" duration="1359000" />
     </task>
     <task id="LOCAL-00001" summary="workspace.xml changed">
       <option name="closed" value="true" />

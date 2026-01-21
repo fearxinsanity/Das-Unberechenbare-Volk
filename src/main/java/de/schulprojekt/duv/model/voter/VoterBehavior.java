@@ -14,14 +14,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 /**
  * Controls the behavior and decision-making of the voter population.
  * @author Nico Hoffmann
- * @version 1.3
+ * @version 1.4
  */
 public class VoterBehavior {
 
@@ -29,23 +28,16 @@ public class VoterBehavior {
     // Instance Variables
     // ========================================
 
-    private volatile double currentZeitgeist;
-
     // ========================================
     // Constructors
     // ========================================
 
     public VoterBehavior() {
-        this.currentZeitgeist = (ThreadLocalRandom.current().nextDouble() - 0.5) * 2.0;
     }
 
     // ========================================
     // Getter & Setter Methods
     // ========================================
-
-    public void setZeitgeist(double zeitgeist) {
-        this.currentZeitgeist = zeitgeist;
-    }
 
     // ========================================
     // Business Logic Methods
@@ -57,17 +49,14 @@ public class VoterBehavior {
             SimulationParameters params,
             double[] acutePressures,
             ScandalImpactCalculator impactCalculator,
-            int currentStep
+            int currentStep,
+            double activeZeitgeist
     ) {
         ConcurrentLinkedQueue<VoterTransition> visualTransitions = new ConcurrentLinkedQueue<>();
         int partyCount = parties.size();
 
-        updateZeitgeist(params, currentStep);
-
         AtomicInteger[] partyDeltas = initDeltas(partyCount);
         PartyCalculationCache cache = createPartyCache(parties, params, currentStep);
-
-        final double activeZeitgeist = this.currentZeitgeist;
 
         IntStream.range(0, population.size()).parallel().forEach(i -> {
             Random rnd = new Random(params.seed() + i + (long) population.size() * currentStep);
@@ -123,21 +112,6 @@ public class VoterBehavior {
     // ========================================
     // Utility Methods
     // ========================================
-
-    private void updateZeitgeist(SimulationParameters params, int currentStep) {
-        Random rnd = new Random(params.seed() + currentStep + 1);
-        double nextZeitgeist = this.currentZeitgeist;
-        double change = (rnd.nextDouble() - 0.5) * VoterBehaviorConfig.ZEITGEIST_DRIFT_STRENGTH;
-        nextZeitgeist += change;
-
-        if (nextZeitgeist > VoterBehaviorConfig.ZEITGEIST_MAX_AMPLITUDE) {
-            nextZeitgeist = VoterBehaviorConfig.ZEITGEIST_MAX_AMPLITUDE;
-        } else if (nextZeitgeist < -VoterBehaviorConfig.ZEITGEIST_MAX_AMPLITUDE) {
-            nextZeitgeist = -VoterBehaviorConfig.ZEITGEIST_MAX_AMPLITUDE;
-        }
-
-        this.currentZeitgeist = nextZeitgeist;
-    }
 
     private void applyOpinionDrift(VoterPopulation population, int index, Random rnd, double globalTrend) {
         double individualDrift = (rnd.nextDouble() - 0.5) * VoterBehaviorConfig.OPINION_DRIFT_FACTOR;
