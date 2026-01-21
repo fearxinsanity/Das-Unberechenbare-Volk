@@ -8,7 +8,6 @@ import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 
-import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Random;
 import java.util.logging.Level;
@@ -18,9 +17,10 @@ import java.util.logging.Logger;
  * Manages all parameter input fields, validation, and formatting.
  * Handles text fields, sliders, and parameter synchronization with the simulation engine.
  * Provides input validation, formatting with locale support, and randomization features.
+ * Automatically clamps values to allowed ranges on input.
  *
  * @author Nico Hoffmann
- * @version 1.0
+ * @version 1.5
  */
 public class ParameterManager {
 
@@ -35,30 +35,23 @@ public class ParameterManager {
     // Instance Variables
     // ========================================
 
-    private TextField voterCountField;
-    private TextField partyCountField;
-    private TextField budgetField;
-    private TextField scandalChanceField;
-    private TextField seedField;
+    // Fields are final as they are initialized in the constructor and never reassigned
+    private final TextField voterCountField;
+    private final TextField partyCountField;
+    private final TextField budgetField;
+    private final TextField scandalChanceField;
+    private final TextField seedField;
 
-    private Slider mediaInfluenceSlider;
-    private Slider mobilityRateSlider;
-    private Slider loyaltyMeanSlider;
-    private Slider randomRangeSlider;
+    private final Slider mediaInfluenceSlider;
+    private final Slider mobilityRateSlider;
+    private final Slider loyaltyMeanSlider;
+    private final Slider randomRangeSlider;
 
     private boolean isUpdatingInternal = false;
 
     // ========================================
     // Constructors
     // ========================================
-
-    /**
-     * Default constructor for ParameterManager.
-     * Creates an empty manager that must be configured with setters.
-     */
-    @SuppressWarnings("unused")
-    public ParameterManager() {
-    }
 
     /**
      * Constructs a ParameterManager with all required UI components.
@@ -105,12 +98,20 @@ public class ParameterManager {
      * Also configures slider bounds from ParameterValidator.
      */
     public void initializeFields() {
-        setupInteractiveField(voterCountField);
-        setupInteractiveField(partyCountField);
-        setupInteractiveField(budgetField);
-        setupInteractiveField(scandalChanceField);
+        // Berechne maximale Längen basierend auf ParameterValidator + Puffer für Formatierung
+        int maxPopLength = String.valueOf(ParameterValidator.getMaxPopulation()).length() + 3; // +3 für Trennzeichen
+        int maxPartyLength = String.valueOf(ParameterValidator.getMaxParties()).length();
+        // Erhöht für 500 Mio. Limit (ca. 11 Ziffern + Punkte = 15 Zeichen Puffer)
+        int maxBudgetLength = 15;
+        int maxScandalLength = 5;
+        int maxSeedLength = 20;
 
-        applyInputFilter(seedField);
+        setupInteractiveField(voterCountField, maxPopLength);
+        setupInteractiveField(partyCountField, maxPartyLength);
+        setupInteractiveField(budgetField, maxBudgetLength); // Hier wird das Budget-Feld eingerichtet
+        setupInteractiveField(scandalChanceField, maxScandalLength);
+
+        applyInputFilter(seedField, maxSeedLength);
         seedField.setOnAction(e -> applyMasterSeed());
         seedField.focusedProperty().addListener((obs, old, isNowFocused) -> {
             if (!isNowFocused) applyMasterSeed();
@@ -174,12 +175,6 @@ public class ParameterManager {
         }
     }
 
-    /**
-     * Synchronizes UI fields with given simulation parameters.
-     * Updates all text fields and sliders to reflect the current parameter values.
-     *
-     * @param params the simulation parameters to display
-     */
     public void synchronizeWithParameters(SimulationParameters params) {
         isUpdatingInternal = true;
         voterCountField.setText(String.format(Main.getLocale(), "%,d", params.populationSize()));
@@ -196,13 +191,6 @@ public class ParameterManager {
         isUpdatingInternal = false;
     }
 
-    /**
-     * Reads current UI values and constructs a SimulationParameters object.
-     * Validates and clamps all input values to acceptable ranges from ParameterValidator.
-     *
-     * @param currentTickRate the current tick rate to preserve
-     * @return the constructed SimulationParameters, or null if validation fails
-     */
     public SimulationParameters buildParametersFromUI(int currentTickRate) {
         try {
             int popSize = parseIntSafe(voterCountField.getText(), 100000);
@@ -221,13 +209,6 @@ public class ParameterManager {
         }
     }
 
-    /**
-     * Applies initial settings from StartController.
-     * Used when transitioning from the start screen to the dashboard.
-     *
-     * @param population the initial population size
-     * @param budget the initial budget value
-     */
     public void applyInitialSettings(long population, long budget) {
         if (voterCountField != null) {
             int safePop = ParameterValidator.clampInt((int) population, ParameterValidator.getMinPopulation(), ParameterValidator.getMaxPopulation());
@@ -239,10 +220,6 @@ public class ParameterManager {
         updateSeedOnly();
     }
 
-    /**
-     * Randomizes all parameter values with safe bounds from ParameterValidator.
-     * Generates random values within acceptable ranges for all parameters.
-     */
     public void randomizeParameters() {
         long newSeed = new Random().nextLong(1_000_000_000L);
         isUpdatingInternal = true;
@@ -251,14 +228,6 @@ public class ParameterManager {
         applyMasterSeed();
     }
 
-    /**
-     * Adjusts an integer field by a delta value with bounds checking.
-     *
-     * @param field the text field to adjust
-     * @param delta the amount to add or subtract
-     * @param min the minimum allowed value
-     * @param max the maximum allowed value
-     */
     public void adjustIntField(TextField field, int delta, int min, int max) {
         int val = parseIntSafe(field.getText(), min);
         int newVal = ParameterValidator.clampInt(val + delta, min, max);
@@ -266,12 +235,6 @@ public class ParameterManager {
         updateSeedOnly();
     }
 
-    /**
-     * Adjusts a double field by a delta value with bounds checking.
-     *
-     * @param field the text field to adjust
-     * @param delta the amount to add or subtract
-     */
     public void adjustDoubleField(TextField field, double delta) {
         double val = parseDoubleSafe(field.getText(), 0.0);
         double newVal = ParameterValidator.clampDouble(val + delta, ParameterValidator.getMinScandalProb(), ParameterValidator.getMaxScandalProb());
@@ -279,37 +242,66 @@ public class ParameterManager {
         updateSeedOnly();
     }
 
-    // ========================================
-    // Utility Methods
-    // ========================================
-
-    private void setupInteractiveField(TextField field) {
+    private void setupInteractiveField(TextField field, int maxLength) {
         if (field == null) return;
-        applyInputFilter(field);
+        applyInputFilter(field, maxLength);
         field.setOnAction(e -> { formatAndApply(field); updateSeedOnly(); });
         field.focusedProperty().addListener((obs, bool, isNowFocused) -> {
             if (!isNowFocused) { formatAndApply(field); updateSeedOnly(); }
         });
     }
 
-    private void applyInputFilter(TextField field) {
+    private void applyInputFilter(TextField field, int maxLength) {
         if (field == null) return;
         boolean isDecimal = (field == scandalChanceField);
         String regex = isDecimal ? "[0-9.,]*" : "[0-9.]*";
-        field.setTextFormatter(new TextFormatter<>(change -> change.getControlNewText().matches(regex) ? change : null));
+
+        field.setTextFormatter(new TextFormatter<>(change -> {
+            String newText = change.getControlNewText();
+            if (newText.length() > maxLength) {
+                return null;
+            }
+            return newText.matches(regex) ? change : null;
+        }));
     }
 
+    /**
+     * Formats the field's content and ensures it's within valid bounds.
+     * Automatically clamps excessive values to the defined maximums.
+     *
+     * @param field the text field to validate and format
+     */
     private void formatAndApply(TextField field) {
         String text = field.getText();
         if (text == null || text.isEmpty()) return;
+
         try {
-            if (field == scandalChanceField) {
-                field.setText(String.format(Locale.US, "%.1f", parseDoubleSafe(text, 0.0)));
-            } else if (field != seedField) {
-                long val = parseLongSafe(text);
-                field.setText(NumberFormat.getInstance(Main.getLocale()).format(val));
+            if (field == voterCountField) {
+                int val = (int) parseLongSafe(text);
+                int clamped = ParameterValidator.clampInt(val, ParameterValidator.getMinPopulation(), ParameterValidator.getMaxPopulation());
+                field.setText(String.format(Main.getLocale(), "%,d", clamped));
+
+            } else if (field == partyCountField) {
+                int val = (int) parseLongSafe(text);
+                int clamped = ParameterValidator.clampInt(val, ParameterValidator.getMinParties(), ParameterValidator.getMaxParties());
+                field.setText(String.format(Main.getLocale(), "%,d", clamped));
+
+            } else if (field == budgetField) {
+                // HIER IST DIE BUDGET-VALIDIERUNG
+                double val = parseBudgetSafe(text);
+                double maxBudget = ParameterValidator.getMaxBudgetEffectiveness() * DEFAULT_BUDGET;
+                double clamped = Math.max(0, Math.min(maxBudget, val));
+                field.setText(String.format(Main.getLocale(), "%,.0f", clamped));
+
+            } else if (field == scandalChanceField) {
+                double val = parseDoubleSafe(text, 0.0);
+                double clamped = ParameterValidator.clampDouble(val, ParameterValidator.getMinScandalProb(), ParameterValidator.getMaxScandalProb());
+                field.setText(String.format(Locale.US, "%.1f", clamped));
+
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+            // Fehlerhafte Eingaben werden ignoriert
+        }
     }
 
     private long parseLongSafe(String text) {

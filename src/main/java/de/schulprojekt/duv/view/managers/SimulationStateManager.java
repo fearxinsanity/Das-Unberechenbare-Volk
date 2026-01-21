@@ -1,6 +1,7 @@
 package de.schulprojekt.duv.view.managers;
 
 import de.schulprojekt.duv.view.Main;
+import de.schulprojekt.duv.view.util.VisualFX;
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
@@ -10,10 +11,10 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
-import de.schulprojekt.duv.view.util.VisualFX;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,9 +25,10 @@ import java.util.logging.Logger;
  * Manages simulation state, timer, locking mechanisms, and UI status display.
  * Handles the complete simulation lifecycle including running, paused, and reset states.
  * Provides visual feedback through button states, blinking effects, and status labels.
+ * Now includes input validation for the duration field.
  *
  * @author Nico Hoffmann
- * @version 1.1
+ * @version 1.2
  */
 public class SimulationStateManager {
 
@@ -35,7 +37,11 @@ public class SimulationStateManager {
     // ========================================
 
     private static final Logger LOGGER = Logger.getLogger(SimulationStateManager.class.getName());
+
+    // Duration Constraints
     private static final int DEFAULT_DURATION_SECONDS = 30;
+    private static final int MIN_DURATION_SECONDS = 30;
+    private static final int MAX_DURATION_SECONDS = 300; // 5 Minutes Max
 
     // ========================================
     // Instance Variables
@@ -158,12 +164,16 @@ public class SimulationStateManager {
     }
 
     /**
-     * Sets the duration input field.
+     * Sets the duration input field and initializes validation.
      *
      * @param field the text field for duration display
      */
     public void setDurationField(TextField field) {
         this.durationField = field;
+        if (this.durationField != null) {
+            setupDurationInputValidation();
+            updateDurationDisplay(); // Ensure initial display is correct
+        }
     }
 
     /**
@@ -280,6 +290,8 @@ public class SimulationStateManager {
             } else {
                 updateStatusDisplay(true);
             }
+            // Update the display tick-by-tick to show countdown
+            updateDurationDisplay();
         }));
         simulationTimer.setCycleCount(Timeline.INDEFINITE);
         updateDurationDisplay();
@@ -342,11 +354,12 @@ public class SimulationStateManager {
 
     /**
      * Increments the configured simulation duration by 30 seconds.
-     * Maximum duration is capped at 300 seconds (5 minutes).
+     * Maximum duration is capped at MAX_DURATION_SECONDS.
      */
     public void incrementDuration() {
-        if (configDurationSeconds < 300) {
+        if (configDurationSeconds < MAX_DURATION_SECONDS) {
             configDurationSeconds += 30;
+            if (configDurationSeconds > MAX_DURATION_SECONDS) configDurationSeconds = MAX_DURATION_SECONDS;
             remainingSeconds = configDurationSeconds;
             updateDurationDisplay();
         }
@@ -354,11 +367,12 @@ public class SimulationStateManager {
 
     /**
      * Decrements the configured simulation duration by 30 seconds.
-     * Minimum duration is capped at 30 seconds.
+     * Minimum duration is capped at MIN_DURATION_SECONDS.
      */
     public void decrementDuration() {
-        if (configDurationSeconds > 30) {
+        if (configDurationSeconds > MIN_DURATION_SECONDS) {
             configDurationSeconds -= 30;
+            if (configDurationSeconds < MIN_DURATION_SECONDS) configDurationSeconds = MIN_DURATION_SECONDS;
             remainingSeconds = configDurationSeconds;
             updateDurationDisplay();
         }
@@ -377,6 +391,7 @@ public class SimulationStateManager {
         String statusKey = isRunning ? "state.running" : "state.paused";
         String color = isRunning ? "#55ff55" : "#ff5555";
 
+        // Display remaining time in status
         int m = remainingSeconds / 60;
         int s = remainingSeconds % 60;
         String timeText = String.format("%02d:%02d", m, s);
@@ -422,12 +437,87 @@ public class SimulationStateManager {
 
     /**
      * Updates the duration display field with formatted time.
+     * If simulation is running, shows remaining time.
+     * If stopped, shows configured duration.
      */
     private void updateDurationDisplay() {
         if (durationField == null) return;
-        int m = configDurationSeconds / 60;
-        int s = configDurationSeconds % 60;
+
+        // Decide what to show: Configured time (when editing) or Remaining time (when running)
+        int secondsToShow = (simulationTimer != null && simulationTimer.getStatus() == Animation.Status.RUNNING)
+                ? remainingSeconds
+                : configDurationSeconds;
+
+        int m = secondsToShow / 60;
+        int s = secondsToShow % 60;
         durationField.setText(String.format("%02d:%02d", m, s));
+    }
+
+    /**
+     * Sets up input validation for the duration field.
+     * Allows only numbers and colons.
+     * Validates and clamps value on Enter or Loss of Focus.
+     */
+    private void setupDurationInputValidation() {
+        // 1. Filter: Allow only digits and colon, max 5 chars (e.g. "05:00")
+        durationField.setTextFormatter(new TextFormatter<>(change -> {
+            String newText = change.getControlNewText();
+            if (newText.length() > 5) {
+                return null;
+            }
+            return newText.matches("[0-9:]*") ? change : null;
+        }));
+
+        // 2. Commit on Action (Enter key)
+        durationField.setOnAction(e -> validateAndApplyDurationInput());
+
+        // 3. Commit on Focus Loss
+        durationField.focusedProperty().addListener((obs, oldVal, isFocused) -> {
+            if (!isFocused) {
+                validateAndApplyDurationInput();
+            }
+        });
+    }
+
+    /**
+     * Parses the user input, clamps it to [MIN, MAX], updates config and refreshes display.
+     */
+    private void validateAndApplyDurationInput() {
+        String text = durationField.getText();
+        if (text == null || text.isEmpty()) {
+            updateDurationDisplay(); // Revert to current value
+            return;
+        }
+
+        int seconds = parseDurationString(text);
+
+        // Clamp logic: e.g. 9999 becomes 300
+        seconds = Math.max(MIN_DURATION_SECONDS, Math.min(MAX_DURATION_SECONDS, seconds));
+
+        this.configDurationSeconds = seconds;
+        this.remainingSeconds = seconds; // Update remaining time as well since we are in setup mode
+        updateDurationDisplay();
+    }
+
+    /**
+     * Helper to parse "MM:SS" or just "SS" into total seconds.
+     */
+    private int parseDurationString(String text) {
+        try {
+            if (text.contains(":")) {
+                String[] parts = text.split(":");
+                if (parts.length == 2) {
+                    int m = Integer.parseInt(parts[0]);
+                    int s = Integer.parseInt(parts[1]);
+                    return m * 60 + s;
+                }
+            } else {
+                return Integer.parseInt(text);
+            }
+        } catch (NumberFormatException ignored) {
+            // Fallback handled by caller/revert
+        }
+        return configDurationSeconds; // Default fallback
     }
 
     /**

@@ -1,13 +1,15 @@
 package de.schulprojekt.duv.model.voter;
 
+import de.schulprojekt.duv.model.core.SimulationParameters;
 import de.schulprojekt.duv.model.random.DistributionProvider;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
 /**
  * Stores voter data in a memory-efficient Structure of Arrays (SoA) format.
+ * Manages data access and dynamic evolution of voter attributes.
  * @author Nico Hoffmann
- * @version 1.2
+ * @version 1.3
  */
 public class VoterPopulation {
 
@@ -19,6 +21,11 @@ public class VoterPopulation {
     private static final double POS_MEAN = 50.0;
     private static final double POS_STD_DEV = 25.0;
     private static final double MEDIA_INFLUENCE_EXPONENT = 0.7;
+
+    // Dynamics constants
+    private static final double TYPE_CHANGE_PROBABILITY = 0.0001; // 0.01% chance per tick
+    private static final float LOYALTY_FLUCTUATION = 2.0f;        // Max +/- 2.0 change per tick
+    private static final float MEDIA_INFLUENCE_DRIFT = 0.05f;     // Max +/- 0.05 change per tick
 
     // Voter type distribution probabilities (must sum to 1.0)
     private static final double PROB_PRAGMATIC = 0.25;
@@ -85,6 +92,21 @@ public class VoterPopulation {
         voterPositions[i] = pos;
     }
 
+    public void setVoterType(int i, VoterType type) {
+        validateIndex(i);
+        voterTypes[i] = (byte) type.ordinal();
+    }
+
+    public void setLoyalty(int i, float loyalty) {
+        validateIndex(i);
+        voterLoyalties[i] = loyalty;
+    }
+
+    public void setMediaInfluence(int i, float influence) {
+        validateIndex(i);
+        voterMediaInfluence[i] = influence;
+    }
+
     // ========================================
     // Business Logic Methods
     // ========================================
@@ -123,16 +145,49 @@ public class VoterPopulation {
         });
     }
 
+    /**
+     * Evolves voter attributes (loyalty, media influence, type) based on simulation parameters.
+     * Uses parallel processing for performance.
+     * @param params current simulation parameters (provides volatility rate)
+     */
+    public void updateVoterAttributes(SimulationParameters params) {
+        double volatilityFactor = params.volatilityRate() / 50.0;
+
+        IntStream.range(0, size()).parallel().forEach(i -> {
+            ThreadLocalRandom rnd = ThreadLocalRandom.current();
+
+            float currentLoyalty = voterLoyalties[i];
+            float deltaLoyalty = (float) ((rnd.nextDouble() - 0.5) * LOYALTY_FLUCTUATION * volatilityFactor);
+            float newLoyalty = Math.max(0, Math.min(100, currentLoyalty + deltaLoyalty));
+
+            if (Math.abs(newLoyalty - currentLoyalty) > 0.01f) {
+                voterLoyalties[i] = newLoyalty;
+            }
+
+            float currentMedia = voterMediaInfluence[i];
+            float deltaMedia = (float) ((rnd.nextDouble() - 0.5) * MEDIA_INFLUENCE_DRIFT * volatilityFactor);
+            float newMedia = Math.max(0.0f, Math.min(1.0f, currentMedia + deltaMedia));
+
+            if (Math.abs(newMedia - currentMedia) > 0.001f) {
+                voterMediaInfluence[i] = newMedia;
+            }
+
+            if (rnd.nextDouble() < (TYPE_CHANGE_PROBABILITY * volatilityFactor)) {
+                VoterType[] allTypes = VoterType.values();
+                byte newType = (byte) allTypes[rnd.nextInt(allTypes.length)].ordinal();
+                if (newType != voterTypes[i]) {
+                    voterTypes[i] = newType;
+                }
+            }
+        });
+    }
+
     // ========================================
     // Utility Methods
     // ========================================
 
     /**
      * Selects a voter type based on weighted probability distribution.
-     * Uses cumulative probability matching to ensure all types sum to 1.0.
-     * POLITIKFERN voters get the remaining probability (implicit).
-     * @param rnd thread-local random instance
-     * @return ordinal value of selected VoterType
      */
     private int selectVoterType(ThreadLocalRandom rnd) {
         double roll = rnd.nextDouble();
@@ -153,14 +208,11 @@ public class VoterPopulation {
         cumulative += PROB_HEURISTIC;
         if (roll < cumulative) return VoterType.HEURISTIC.ordinal();
 
-        // Remaining probability (0.10) implicitly goes to POLITIKFERN
         return VoterType.POLITIKFERN.ordinal();
     }
 
     /**
      * Validates that the given index is within bounds.
-     * @param index the index to validate
-     * @throws IndexOutOfBoundsException if index is invalid
      */
     private void validateIndex(int index) {
         if (index < 0 || index >= size()) {

@@ -13,14 +13,14 @@ import de.schulprojekt.duv.model.voter.ZeitgeistManager;
 import de.schulprojekt.duv.model.dto.VoterTransition;
 import de.schulprojekt.duv.util.io.CSVLoader;
 import de.schulprojekt.duv.util.config.SimulationConfig;
-import de.schulprojekt.duv.view.Main; // WICHTIG: Import für den Zugriff auf die Sprache
+import de.schulprojekt.duv.view.Main;
 
 import java.util.List;
 
 /**
  * Orchestrator class for the simulation logic.
  * @author Nico Hoffmann
- * @version 1.2
+ * @version 1.3
  */
 public class SimulationEngine {
 
@@ -43,10 +43,6 @@ public class SimulationEngine {
     // Constructors
     // ========================================
 
-    /**
-     * Constructs a new SimulationEngine with the given parameters.
-     * @param params the initial simulation parameters
-     */
     public SimulationEngine(SimulationParameters params) {
         this.parameters = params;
         this.state = new SimulationState();
@@ -117,6 +113,8 @@ public class SimulationEngine {
         }
 
         zeitgeistManager.updateZeitgeist(parameters, state.getCurrentStep());
+
+        voterPopulation.updateVoterAttributes(parameters);
 
         double[] acutePressures = impactCalculator.calculateAcutePressure(
                 state.getActiveScandals(),
