@@ -168,6 +168,9 @@
     -fx-background-color: #D4AF37;
     -fx-effect:           dropshadow(gaussian, #D4AF37, 5, 0, 0, 0);
 }
+.speed-button {
+    -fx-min-width: 50px;
+}
 
 .speed-button-active {
     -fx-background-color: #D4AF37 !important;
