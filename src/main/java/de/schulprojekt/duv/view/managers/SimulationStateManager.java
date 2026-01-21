@@ -330,6 +330,11 @@ public class SimulationStateManager {
         }
 
         updateButtonStates(false);
+
+        if (resetButton != null) {
+            resetButton.setDisable(true);
+        }
+
         updateStatusDisplay(false);
     }
 

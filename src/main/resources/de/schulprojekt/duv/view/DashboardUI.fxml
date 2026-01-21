@@ -67,7 +67,7 @@
 
 
         <left>
-            <ScrollPane fitToWidth="true" hbarPolicy="NEVER"
+            <ScrollPane fitToWidth="true" fitToHeight="true" hbarPolicy="NEVER"
                         style="-fx-background-color: transparent; -fx-background: transparent; -fx-padding: 0;">
                 <BorderPane.margin>
                     <Insets top="15" left="15" bottom="15"/>

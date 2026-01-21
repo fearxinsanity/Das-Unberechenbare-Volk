@@ -5,13 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="created configs and removed magic numbers">
-      <change afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/voter/ZeitgeistManager.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/core/SimulationEngine.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/core/SimulationEngine.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/voter/VoterBehavior.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/model/voter/VoterBehavior.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/de/schulprojekt/duv/model/random/DistributionProviderTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/de/schulprojekt/duv/model/random/DistributionProviderTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/de/schulprojekt/duv/model/voter/VoterBehaviorTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/de/schulprojekt/duv/model/voter/VoterBehaviorTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/de/schulprojekt/duv/util/ParameterValidatorTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/de/schulprojekt/duv/util/ParameterValidatorTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/managers/SimulationStateManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/managers/SimulationStateManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/view/DashboardUI.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/view/DashboardUI.fxml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -120,7 +116,7 @@
       <recent name="C:\Projekt\BS-Projekt\src\main\resources\de.schulprojekt.duv\" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.All in Das-Unberechenbare-Volk">
+  <component name="RunManager" selected="Maven.DUV - run">
     <configuration name="All in Das-Unberechenbare-Volk" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="Das-Unberechenbare-Volk" />
       <option name="PACKAGE_NAME" value="" />
@@ -311,7 +307,7 @@
       <workItem from="1768503116630" duration="1700000" />
       <workItem from="1768891557806" duration="67000" />
       <workItem from="1768891634884" duration="433000" />
-      <workItem from="1768998073951" duration="1359000" />
+      <workItem from="1768998073951" duration="2513000" />
     </task>
     <task id="LOCAL-00001" summary="workspace.xml changed">
       <option name="closed" value="true" />
