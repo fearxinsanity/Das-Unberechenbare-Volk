@@ -1,6 +1,5 @@
 /* =========================================================================
    === DASHBOARD.CSS - SECRET SERVICE / MILITARY EDITION ===
-   === FIXED: NO SPOTLIGHT / FLAT DARK BACKGROUND ===
    ========================================================================= */
 
 /* =========================================================================
@@ -13,14 +12,13 @@
     -fx-background-color: #050508 !important;
 }
 
-/* --- FIX: Falls noch eine "glow-region" im FXML ist -> unsichtbar machen --- */
 .glow-region {
     -fx-background-color: transparent !important;
     -fx-effect:           none !important;
     -fx-opacity:          0 !important;
 }
 
-/* --- Taktisches Hintergrund-Gitter (Bleibt erhalten, da gewünschtes Design) --- */
+/* --- Taktisches Hintergrund-Gitter --- */
 .grid-background {
     -fx-background-color:
             linear-gradient(from 0px 0px to 40px 0px, repeat, rgba(212, 175, 55, 0.05) 0%, rgba(212, 175, 55, 0.05) 1px, transparent 1px, transparent 100%),
@@ -335,4 +333,18 @@
 .alert-dialog .button-bar .button:hover {
     -fx-background-color: #ff3333;
     -fx-text-fill:        #000000;
+}
+
+/* =========================================================================
+   9. SCROLLBARS
+   ========================================================================= */
+
+.scroll-pane .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-width: 5px;
+}
+
+.scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: #D4AF37;
+    -fx-background-radius: 0;
 }
