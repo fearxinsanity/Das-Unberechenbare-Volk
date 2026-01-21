@@ -47,8 +47,7 @@ public class SimulationStateManager {
     private Label timeStepLabel;
     private TextField durationField;
 
-    private Button startButton;
-    private Button pauseButton;
+    private Button executeToggleButton;
     private Button resetButton;
     private Button intelButton;
     private Button parliamentButton;
@@ -57,11 +56,13 @@ public class SimulationStateManager {
     private VBox partyBox;
     private VBox budgetBox;
     private VBox durationBox;
+    private VBox randomBox;
 
     private Label populationOverlay;
     private Label partyOverlay;
     private Label budgetOverlay;
     private Label durationOverlay;
+    private Label randomOverlay;
 
     private VBox leftSidebar;
     private VBox rightSidebar;
@@ -164,15 +165,13 @@ public class SimulationStateManager {
     /**
      * Sets all control buttons for state management.
      *
-     * @param start the start simulation button
-     * @param pause the pause simulation button
+     * @param executeToggle the start/pause simulation button
      * @param reset the reset simulation button
      * @param intel the intelligence report button
      * @param parliament the parliament view button
      */
-    public void setButtons(Button start, Button pause, Button reset, Button intel, Button parliament) {
-        this.startButton = start;
-        this.pauseButton = pause;
+    public void setButtons(Button executeToggle, Button reset, Button intel, Button parliament) {
+        this.executeToggleButton = executeToggle;
         this.resetButton = reset;
         this.intelButton = intel;
         this.parliamentButton = parliament;
@@ -192,23 +191,27 @@ public class SimulationStateManager {
      * @param partyBox the party count parameter box
      * @param budgetBox the budget parameter box
      * @param durationBox the duration parameter box
+     * @param randomBox the random button box
      * @param popOverlay the population lock overlay
      * @param partyOverlay the party lock overlay
      * @param budgetOverlay the budget lock overlay
      * @param durationOverlay the duration lock overlay
+     * @param randomOverlay the random lock overlay
      */
     public void setLockingContainers(
-            VBox popBox, VBox partyBox, VBox budgetBox, VBox durationBox,
-            Label popOverlay, Label partyOverlay, Label budgetOverlay, Label durationOverlay
+            VBox popBox, VBox partyBox, VBox budgetBox, VBox durationBox, VBox randomBox,
+            Label popOverlay, Label partyOverlay, Label budgetOverlay, Label durationOverlay, Label randomOverlay
     ) {
         this.populationBox = popBox;
         this.partyBox = partyBox;
         this.budgetBox = budgetBox;
         this.durationBox = durationBox;
+        this.randomBox = randomBox;
         this.populationOverlay = popOverlay;
         this.partyOverlay = partyOverlay;
         this.budgetOverlay = budgetOverlay;
         this.durationOverlay = durationOverlay;
+        this.randomOverlay = randomOverlay;
     }
 
     /**
@@ -243,17 +246,31 @@ public class SimulationStateManager {
     public void setupTimer() {
         simulationTimer = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
             remainingSeconds--;
-            updateStatusDisplay(true);
 
             if (remainingSeconds <= 0) {
+                remainingSeconds = 0;
+                simulationTimer.stop();
+
                 if (onPauseCallback != null) {
                     onPauseCallback.run();
                 }
+
+                if (executeToggleButton != null) {
+                    executeToggleButton.setDisable(true);
+                }
+
+                if (resetButton != null) {
+                    resetButton.setDisable(false);
+                }
+
+                updateStatusDisplay(false);
                 lockResultButtons(false);
                 VisualFX.triggerSidebarGlitch(leftSidebar, rightSidebar);
                 VisualFX.startPulse(intelButton, Color.LIME);
                 VisualFX.startPulse(parliamentButton, Color.LIME);
                 LOGGER.info("Simulation finished. Access granted.");
+            } else {
+                updateStatusDisplay(true);
             }
         }));
         simulationTimer.setCycleCount(Timeline.INDEFINITE);
@@ -301,6 +318,11 @@ public class SimulationStateManager {
         updateDurationDisplay();
         setSimulationLocked(false);
         lockResultButtons(true);
+
+        if (executeToggleButton != null) {
+            executeToggleButton.setDisable(false);
+        }
+
         updateButtonStates(false);
         updateStatusDisplay(false);
     }
@@ -401,9 +423,12 @@ public class SimulationStateManager {
      * @param isRunning true if simulation is running
      */
     private void updateButtonStates(boolean isRunning) {
-        if (startButton != null) startButton.setDisable(isRunning);
-        if (pauseButton != null) pauseButton.setDisable(!isRunning);
-        if (resetButton != null) resetButton.setDisable(isRunning);
+        if (executeToggleButton != null) {
+            executeToggleButton.setText(isRunning ? "⏸ FREEZE" : "▶ EXECUTE");
+        }
+        if (resetButton != null) {
+            resetButton.setDisable(isRunning);
+        }
     }
 
     /**
@@ -416,6 +441,7 @@ public class SimulationStateManager {
         toggleBoxLockState(partyBox, partyOverlay, locked);
         toggleBoxLockState(budgetBox, budgetOverlay, locked);
         toggleBoxLockState(durationBox, durationOverlay, locked);
+        toggleBoxLockState(randomBox, randomOverlay, locked);
     }
 
     /**

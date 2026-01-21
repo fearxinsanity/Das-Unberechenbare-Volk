@@ -44,6 +44,7 @@ public class TooltipManager {
     private final Label nameLabel;
     private final Label abbrLabel;
     private final Label votersLabel;
+    private final Label seatsLabel;
     private final Label posLabel;
     private final Label scandalsLabel;
     private final Line connectionLine;
@@ -95,6 +96,10 @@ public class TooltipManager {
 
         votersLabel = new Label();
         votersLabel.setStyle(STYLE_INFO_LABEL);
+
+        seatsLabel = new Label();
+        seatsLabel.setStyle(STYLE_INFO_LABEL);
+
         posLabel = new Label();
         posLabel.setStyle(STYLE_INFO_LABEL);
 
@@ -104,7 +109,7 @@ public class TooltipManager {
         scandalsLabel = new Label();
         scandalsLabel.setStyle(STYLE_SCANDAL_LABEL);
 
-        contentBox.getChildren().addAll(votersLabel, posLabel, sep, scandalsLabel);
+        contentBox.getChildren().addAll(votersLabel, seatsLabel, posLabel, sep, scandalsLabel);
         tooltipBox.getChildren().addAll(headerBox, contentBox);
 
         overlayPane.getChildren().addAll(connectionLine, anchorPoint, tooltipBox);
@@ -136,7 +141,8 @@ public class TooltipManager {
 
                     if (!tooltipBox.isVisible() || currentActiveParty != p) {
                         currentActiveParty = p;
-                        showCallout(p, px, py, targetBoxX, targetBoxY);
+                        int partySeats = (int) Math.round(share * 400);
+                        showCallout(p, partySeats, px, py, targetBoxX, targetBoxY);
                     } else {
                         updateCalloutPosition(px, py, targetBoxX, targetBoxY);
                     }
@@ -153,11 +159,11 @@ public class TooltipManager {
     /**
      * Shows a static tooltip for the parliament view.
      */
-    public void showStaticTooltip(Party p, double anchorX, double anchorY) {
+    public void showStaticTooltip(Party p, int seats, double anchorX, double anchorY) {
         currentActiveParty = p;
         double targetBoxX = anchorX + 40;
         double targetBoxY = anchorY - 60;
-        showCallout(p, anchorX, anchorY, targetBoxX, targetBoxY);
+        showCallout(p, seats, anchorX, anchorY, targetBoxX, targetBoxY);
     }
 
     /**
@@ -176,7 +182,7 @@ public class TooltipManager {
     // Utility Methods
     // ========================================
 
-    private void showCallout(Party p, double anchorX, double anchorY, double boxX, double boxY) {
+    private void showCallout(Party p, int seats, double anchorX, double anchorY, double boxX, double boxY) {
         Color pColor;
         try {
             pColor = Color.web(p.getColorCode());
@@ -193,6 +199,7 @@ public class TooltipManager {
         nameLabel.setText(p.getName().toUpperCase());
         abbrLabel.setText(">> " + p.getAbbreviation());
         votersLabel.setText(String.format("STIMMEN: %,d", p.getCurrentSupporterCount()));
+        seatsLabel.setText(String.format("SITZE: %d", seats));
         posLabel.setText("POL. SPEKTRUM: " + p.getPoliticalOrientationName());
 
         int sCount = p.getScandalCount();

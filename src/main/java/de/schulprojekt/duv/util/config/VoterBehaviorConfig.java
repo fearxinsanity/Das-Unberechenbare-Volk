@@ -101,41 +101,37 @@ public final class VoterBehaviorConfig {
     public static final double RESIGNATION_PROBABILITY = 0.15;
 
     // ========================================
-    // Scandal Impact Constants
-    // ========================================
+// Scandal Impact Constants
+// ========================================
 
     /**
-     * Divisor converting scandal penalty to switch probability increase.
-     *
-     * <p><b>Rationale:</b> Scandal penalties range 0-100+. Dividing by 1800 means:
-     * <ul>
-     *   <li>Penalty 20: +1.1% switch probability</li>
-     *   <li>Penalty 50: +2.8% switch probability</li>
-     *   <li>Penalty 100: +5.6% switch probability</li>
-     * </ul>
-     * This creates measurable but not overwhelming scandal effects unless penalties
-     * accumulate to disaster levels.</p>
+     * Multiplier for acute scandal impact on switch probability.
+     * Higher = more immediate voter flight during scandal.
      */
-    public static final double PENALTY_PRESSURE_DIVISOR = 1800.0;
+    public static final double ACUTE_SCANDAL_MULTIPLIER = 0.018;
+
+    /**
+     * Maximum boost to switch probability from acute scandals.
+     * Prevents unrealistic 100% switching.
+     */
+    public static final double MAX_ACUTE_SCANDAL_BOOST = 0.35;
+
+    /**
+     * Weight for acute scandal penalty in party evaluation.
+     * Higher = stronger immediate negative impact.
+     */
+    public static final double ACUTE_SCANDAL_PENALTY_WEIGHT = 2.5;
+
+    /**
+     * Weight for permanent scandal damage in party evaluation.
+     * Lower than acute = less immediate impact but persistent.
+     */
+    public static final double PERMANENT_SCANDAL_PENALTY_WEIGHT = 0.8;
 
     /**
      * Scandal pressure threshold triggering panic-mode party switching.
-     *
-     * <p><b>Rationale:</b> When total scandal damage exceeds 25 (combination of
-     * acute + permanent), voters panic and switch immediately without considering
-     * alternatives carefully. This models major scandals like Watergate or
-     * corruption revelations that cause mass defections.</p>
      */
     public static final double DISASTER_FLIGHT_THRESHOLD = 25.0;
-
-    /**
-     * Weight multiplier for permanent scandal damage in decision calculation.
-     *
-     * <p><b>Rationale:</b> Permanent damage (reputation loss) weighs 1.5x more than
-     * acute scandals because voters remember long-term character issues more than
-     * temporary controversies. Matches framing theory from political psychology.</p>
-     */
-    public static final double PERMANENT_DAMAGE_WEIGHT = 1.5;
 
     // ========================================
     // Party Evaluation Constants

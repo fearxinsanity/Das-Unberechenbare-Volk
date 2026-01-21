@@ -153,7 +153,10 @@ public class VoterBehavior {
                 context.voterType().getMediaModifier();
 
         if (context.currentPenalty() > 0) {
-            switchProb += (context.currentPenalty() / VoterBehaviorConfig.PENALTY_PRESSURE_DIVISOR);
+            double acuteScandalImpact = Math.min(context.currentPenalty() *
+                            VoterBehaviorConfig.ACUTE_SCANDAL_MULTIPLIER,
+                    VoterBehaviorConfig.MAX_ACUTE_SCANDAL_BOOST);
+            switchProb += acuteScandalImpact;
         }
 
         if (context.currentPartyIndex() == 0) {
@@ -162,6 +165,7 @@ public class VoterBehavior {
 
         return Math.min(switchProb, VoterBehaviorConfig.MAX_SWITCH_PROBABILITY);
     }
+
 
     private int findBestTargetParty(
             VoterDecisionContext context,
@@ -226,9 +230,13 @@ public class VoterBehavior {
 
         double score = distScore + (budgetScore * cache.dailyMomentum()[partyIdx]);
 
-        double targetPenalty = acutePressures[partyIdx] +
-                (impactCalc.getPermanentDamage(partyIdx) * VoterBehaviorConfig.PERMANENT_DAMAGE_WEIGHT);
-        score -= targetPenalty;
+        double acutePenalty = acutePressures[partyIdx];
+        double permanentDamage = impactCalc.getPermanentDamage(partyIdx);
+
+        score -= acutePenalty * VoterBehaviorConfig.ACUTE_SCANDAL_PENALTY_WEIGHT;
+
+        double permanentPenalty = permanentDamage * VoterBehaviorConfig.PERMANENT_SCANDAL_PENALTY_WEIGHT;
+        score -= permanentPenalty;
 
         double noise = (rnd.nextDouble() - 0.5) * VoterBehaviorConfig.DECISION_NOISE_FACTOR * cache.uniformRange();
 
@@ -236,10 +244,11 @@ public class VoterBehavior {
                 partyIdx,
                 distScore,
                 budgetScore,
-                targetPenalty,
+                acutePenalty + permanentPenalty,
                 score + noise
         );
     }
+
 
     private AtomicInteger[] initDeltas(int size) {
         AtomicInteger[] deltas = new AtomicInteger[size];

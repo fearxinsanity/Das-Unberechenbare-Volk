@@ -35,39 +35,39 @@
                     <Label text="SECURE_CONN_ESTABLISHED" styleClass="hud-text"/>
                 </HBox>
                 <VBox styleClass="top-bar">
-                    <HBox alignment="CENTER_LEFT" spacing="20">
-                        <ImageView fitHeight="40.0" preserveRatio="true" opacity="0.9">
-                            <Image url="@../Pictures/DUV_Logo.png"/>
-                        </ImageView>
+                    <ScrollPane fitToHeight="true" fitToWidth="true" vbarPolicy="NEVER"
+                                style="-fx-background-color: transparent; -fx-background: transparent; -fx-padding: 0;">
+                        <HBox alignment="CENTER_LEFT" spacing="10" minWidth="1100">
+                            <ImageView fitHeight="35.0" preserveRatio="true" opacity="0.9">
+                                <Image url="@../Pictures/DUV_Logo.png"/>
+                            </ImageView>
 
-                        <Label text="[ SYSTEM: DAS UNBERECHENBARE VOLK ]" styleClass="app-title"/>
-                        <Region HBox.hgrow="ALWAYS"/>
-                        <Label fx:id="timeStepLabel" text="Status: STANDBY" styleClass="status-label"/>
-                        <Separator orientation="VERTICAL" />
-                        <Button fx:id="startButton" text="▶ EXECUTE" onAction="#handleStartSimulation"/>
-                        <Button fx:id="pauseButton" text="⏸ FREEZE" onAction="#handlePauseSimulation" disable="true"/>
-                        <Button fx:id="resetButton" text="↺ REBOOT" onAction="#handleResetSimulation" disable="true"/>
+                            <Label text="[ SYS: DUV ]" styleClass="app-title"/>
 
-                        <Button fx:id="intelButton" text="📊 INTEL" onAction="#handleShowStatistics"
-                                style="-fx-base: #222;" disable="true"/>
+                            <Region HBox.hgrow="ALWAYS"/>
 
-                        <Button fx:id="parliamentButton" text="PARLIAMENT"
-                                onAction="#handleShowParliament"
-                                styleClass="action-button" disable="true">
-                        </Button>
+                            <Label fx:id="timeStepLabel" text="Status: STANDBY" styleClass="status-label" minWidth="140" alignment="CENTER_RIGHT"/>
 
-                        <Separator orientation="VERTICAL" />
+                            <Separator orientation="VERTICAL" />
 
-                        <Button text="⏻ LOGOUT" onAction="#handleLogout"
-                                style="-fx-base: #500; -fx-text-fill: #ffcccc; -fx-font-weight: bold;"/>
-                    </HBox>
+                            <Button fx:id="executeToggleButton" text="▶ EXECUTE" onAction="#handleToggleSimulation"/>
+                            <Button fx:id="resetButton" text="↺ REBOOT" onAction="#handleResetSimulation" disable="true"/>
+                            <Button fx:id="intelButton" text="📊 INTEL" onAction="#handleShowStatistics" style="-fx-base: #222;" disable="true"/>
+                            <Button fx:id="parliamentButton" text="PARLIAMENT" onAction="#handleShowParliament" styleClass="action-button" disable="true"/>
+
+                            <Separator orientation="VERTICAL" />
+
+                            <Button text="⏻ LOGOUT" onAction="#handleLogout"
+                                    style="-fx-base: #500; -fx-text-fill: #ffcccc; -fx-font-weight: bold;"/>
+                        </HBox>
+                    </ScrollPane>
                 </VBox>
             </VBox>
         </top>
 
 
         <left>
-            <ScrollPane fitToWidth="true" fitToHeight="true" hbarPolicy="NEVER"
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER"
                         style="-fx-background-color: transparent; -fx-background: transparent; -fx-padding: 0;">
                 <BorderPane.margin>
                     <Insets top="15" left="15" bottom="15"/>
@@ -169,20 +169,24 @@
                         </VBox>
                     </VBox>
 
-                    <Region VBox.vgrow="ALWAYS"/>
+                    <Region prefHeight="20"/>
                     <Separator style="-fx-opacity: 0.2;"/>
 
                     <VBox spacing="5">
                         <Label text="SIMULATION SPEED" styleClass="control-label"/>
                         <HBox spacing="5" alignment="CENTER">
-                            <Button text="1x" onAction="#handleSpeed1x" prefWidth="50"/>
-                            <Button text="2x" onAction="#handleSpeed2x" prefWidth="50"/>
-                            <Button text="4x" onAction="#handleSpeed4x" prefWidth="50"/>
+                            <Button fx:id="speed1xBtn" text="1x" onAction="#handleSpeed1x" prefWidth="50" styleClass="button, speed-button"/>
+                            <Button fx:id="speed2xBtn" text="2x" onAction="#handleSpeed2x" prefWidth="50" styleClass="button, speed-button"/>
+                            <Button fx:id="speed4xBtn" text="4x" onAction="#handleSpeed4x" prefWidth="50" styleClass="button, speed-button"/>
                         </HBox>
                     </VBox>
-
-                    <Button text="[ RANDOMIZE DATA ]" onAction="#handleRandomize" maxWidth="Infinity"
-                            style="-fx-base: #333; -fx-margin-bottom: 5;"/>
+                    <StackPane>
+                        <VBox fx:id="randomBox">
+                            <Button text="[ RANDOMIZE DATA ]" onAction="#handleRandomize" maxWidth="Infinity"
+                                    style="-fx-base: #333; -fx-margin-bottom: 5;"/>
+                        </VBox>
+                        <Label fx:id="randomOverlay" text="[ LOCKED ]" visible="false" styleClass="locked-overlay-label"/>
+                    </StackPane>
                     <Button text="[ APPLY UPDATE ]" onAction="#handleParameterChange" maxWidth="Infinity"
                             style="-fx-base: #222;"/>
                 </VBox>

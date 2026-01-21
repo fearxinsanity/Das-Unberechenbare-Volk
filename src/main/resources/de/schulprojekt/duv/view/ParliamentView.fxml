@@ -20,6 +20,13 @@
                     </Label>
                     <Label text="LIVE_SIMULATION_FEED::VOTER_MAPPING" styleClass="sub-header-label"/>
                 </VBox>
+
+                <Region HBox.hgrow="ALWAYS" />
+
+                <VBox alignment="CENTER_RIGHT" style="-fx-padding: 0 20 0 0;">
+                    <Label text="TOTAL_SEAT_CAPACITY" styleClass="sub-header-label" style="-fx-text-fill: #888888;"/>
+                    <Label fx:id="totalSeatsLabel" text="--- SEATS" styleClass="header-label" style="-fx-text-fill: #D4AF37; -fx-font-size: 20px;"/>
+                </VBox>
             </HBox>
         </top>
 

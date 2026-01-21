@@ -59,11 +59,13 @@ public class DashboardController {
     @FXML private VBox partyBox;
     @FXML private VBox budgetBox;
     @FXML private VBox durationBox;
+    @FXML private VBox randomBox;
 
     @FXML private Label populationOverlay;
     @FXML private Label partyOverlay;
     @FXML private Label budgetOverlay;
     @FXML private Label durationOverlay;
+    @FXML private Label randomOverlay;
 
     // ========================================
     // FXML: Visualization
@@ -91,11 +93,14 @@ public class DashboardController {
     // FXML: Buttons
     // ========================================
 
-    @FXML private Button startButton;
-    @FXML private Button pauseButton;
+    @FXML private Button executeToggleButton;
     @FXML private Button resetButton;
     @FXML private Button intelButton;
     @FXML private Button parliamentButton;
+
+    @FXML private Button speed1xBtn;
+    @FXML private Button speed2xBtn;
+    @FXML private Button speed4xBtn;
 
     // ========================================
     // Instance Variables - Managers
@@ -212,21 +217,18 @@ public class DashboardController {
     // ========================================
 
     @FXML
-    public void handleStartSimulation() {
+    public void handleToggleSimulation() {
         if (controller == null) return;
 
-        if (stateManager.getRemainingSeconds() > 0) {
-            handleParameterChange();
-            controller.startSimulation();
-            stateManager.startTimer();
-        }
-    }
-
-    @FXML
-    public void handlePauseSimulation() {
-        if (controller != null) {
+        if (controller.isRunning()) {
             controller.pauseSimulation();
             stateManager.pauseTimer();
+        } else {
+            if (stateManager.getRemainingSeconds() > 0) {
+                handleParameterChange();
+                controller.startSimulation();
+                stateManager.startTimer();
+            }
         }
     }
 
@@ -241,7 +243,8 @@ public class DashboardController {
     @FXML
     public void handleLogout() {
         if (controller != null && controller.isRunning()) {
-            handlePauseSimulation();
+            controller.pauseSimulation();
+            stateManager.pauseTimer();
         }
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -364,6 +367,7 @@ public class DashboardController {
     public void handleSpeed1x() {
         if (controller != null) {
             controller.updateSimulationSpeed(1);
+            updateSpeedSelectionUI(1);
         }
     }
 
@@ -371,6 +375,7 @@ public class DashboardController {
     public void handleSpeed2x() {
         if (controller != null) {
             controller.updateSimulationSpeed(2);
+            updateSpeedSelectionUI(2);
         }
     }
 
@@ -378,6 +383,7 @@ public class DashboardController {
     public void handleSpeed4x() {
         if (controller != null) {
             controller.updateSimulationSpeed(4);
+            updateSpeedSelectionUI(4);
         }
     }
 
@@ -389,7 +395,7 @@ public class DashboardController {
     public void handleShowStatistics() {
         navigate("/de/schulprojekt/duv/view/StatisticsView.fxml", (loader, ignoredRoot) -> {
             StatisticsController statsCtrl = loader.getController();
-            Parent dashboardRoot = startButton.getScene().getRoot();
+            Parent dashboardRoot = executeToggleButton.getScene().getRoot();
             statsCtrl.initData(
                     controller.getParties(),
                     historyChart.getData(),
@@ -403,7 +409,7 @@ public class DashboardController {
     public void handleShowParliament() {
         navigate("/de/schulprojekt/duv/view/ParliamentView.fxml", (loader, ignoredRoot) -> {
             ParliamentController parliamentController = loader.getController();
-            Parent dashboardView = startButton.getScene().getRoot();
+            Parent dashboardView = executeToggleButton.getScene().getRoot();
             parliamentController.initData(controller.getParties(), dashboardView);
         });
     }
@@ -425,13 +431,17 @@ public class DashboardController {
         stateManager = new SimulationStateManager();
         stateManager.setTimeStepLabel(timeStepLabel);
         stateManager.setDurationField(durationField);
-        stateManager.setButtons(startButton, pauseButton, resetButton, intelButton, parliamentButton);
+        stateManager.setButtons(executeToggleButton, resetButton, intelButton, parliamentButton);
         stateManager.setLockingContainers(
-                populationBox, partyBox, budgetBox, durationBox,
-                populationOverlay, partyOverlay, budgetOverlay, durationOverlay
+                populationBox, partyBox, budgetBox, durationBox, randomBox,
+                populationOverlay, partyOverlay, budgetOverlay, durationOverlay, randomOverlay
         );
         stateManager.setSidebars(leftSidebar, rightSidebar);
-        stateManager.setOnPauseCallback(this::handlePauseSimulation);
+        stateManager.setOnPauseCallback(() -> {
+            if (controller != null && controller.isRunning()) {
+                controller.pauseSimulation();
+            }
+        });
         stateManager.setupTimer();
 
         // UI Manager
@@ -476,6 +486,20 @@ public class DashboardController {
         controller = new SimulationController(this);
         parameterManager.synchronizeWithParameters(controller.getCurrentParameters());
         stateManager.updateStatusDisplay(false);
+        handleSpeed1x();
+    }
+
+    private void updateSpeedSelectionUI(int selectedSpeed) {
+        List<Button> speedButtons = List.of(speed1xBtn, speed2xBtn, speed4xBtn);
+        speedButtons.forEach(btn -> {
+            if (btn != null) {
+                btn.getStyleClass().remove("speed-button-active");
+            }
+        });
+
+        if (selectedSpeed == 1 && speed1xBtn != null) speed1xBtn.getStyleClass().add("speed-button-active");
+        else if (selectedSpeed == 2 && speed2xBtn != null) speed2xBtn.getStyleClass().add("speed-button-active");
+        else if (selectedSpeed == 4 && speed4xBtn != null) speed4xBtn.getStyleClass().add("speed-button-active");
     }
 
     private void navigate(
@@ -484,7 +508,8 @@ public class DashboardController {
     ) {
         if (controller == null) return;
         if (controller.isRunning()) {
-            handlePauseSimulation();
+            controller.pauseSimulation();
+            stateManager.pauseTimer();
         }
 
         try {
@@ -497,7 +522,7 @@ public class DashboardController {
             FXMLLoader loader = new FXMLLoader(resource);
             Parent root = loader.load();
             initAction.accept(loader, root);
-            startButton.getScene().setRoot(root);
+            executeToggleButton.getScene().setRoot(root);
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Navigation failed", e);
         }
@@ -505,9 +530,9 @@ public class DashboardController {
 
     private void applyAlertStyling(Alert alert) {
         try {
-            if (startButton != null && startButton.getScene() != null) {
+            if (executeToggleButton != null && executeToggleButton.getScene() != null) {
                 alert.getDialogPane().getStylesheets().addAll(
-                        startButton.getScene().getStylesheets()
+                        executeToggleButton.getScene().getStylesheets()
                 );
                 alert.getDialogPane().getStyleClass().add("alert-dialog");
             }
