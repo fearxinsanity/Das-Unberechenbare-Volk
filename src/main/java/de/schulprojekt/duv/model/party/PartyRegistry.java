@@ -6,8 +6,10 @@ import de.schulprojekt.duv.util.io.CSVLoader;
 import de.schulprojekt.duv.util.config.SimulationConfig;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 /**
  * Manages the list of active parties in the simulation.
@@ -65,6 +67,9 @@ public class PartyRegistry {
         partyList.clear();
         int partyCount = params.partyCount();
 
+        Set<String> usedColors = new HashSet<>();
+        usedColors.add(UNDECIDED_COLOR_CODE.toLowerCase());
+
         Party undecided = new Party(
                 SimulationConfig.UNDECIDED_NAME,
                 UNDECIDED_ABBREVIATION,
@@ -89,7 +94,13 @@ public class PartyRegistry {
             double budgetVariance = BASE_BUDGET_VARIANCE * randomFactor;
             double budget = (BASE_BUDGET_MIN + budgetVariance) * params.budgetEffectiveness();
 
-            partyList.add(template.toParty(position, budget));
+            String color = template.colorCode();
+            while (usedColors.contains(color.toLowerCase())) {
+                color = String.format("#%06x", random.nextInt(0xffffff + 1));
+            }
+            usedColors.add(color.toLowerCase());
+
+            partyList.add(new Party(template.name(), template.abbreviation(), color, position, budget, 0));
         }
     }
 

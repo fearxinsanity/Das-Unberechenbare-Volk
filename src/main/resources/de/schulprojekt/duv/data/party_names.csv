@@ -1,21 +1,21 @@
-name,abbreviation,color
-Bürgerliche Volkspartei,BVP,007bff
-Soziale Fortschrittsunion,SFU,dc3545
-Grüne Zukunftsallianz,GZA,28a745
-Liberale Demokraten,LD,ffc107
-Konservative Mitte,KM,6f42c1
-Arbeitersolidarität,AS,fd7e14
-Christlich-Soziale Bewegung,CSB,20c997
-Freie Wählergemeinschaft,FWG,17a2b8
-Nationale Erneuerung,NE,6c757d
-Progressive Alternative,PA,e83e8c
-Ökologische Liste,ÖL,218838
-Bündnis für Gerechtigkeit,BfG,c82333
-Wirtschaftspartei,WP,f0ad4e
-Heimatverbundene,HV,5a6268
-Digitale Zukunft,DZ,007bff
-Sozialdemokratische Kraft,SDK,dc3545
-Bürgerrechtspartei,BRP,28a745
-Föderale Union,FU,ffc107
-Kulturelle Vielfalt,KV,6f42c1
-Reformbewegung,RB,fd7e14
+Name,Abbreviation,ColorCode
+Bürgerliche Volkspartei,BVP,#007bff
+Soziale Fortschrittsunion,SFU,#dc3545
+Grüne Zukunftsallianz,GZA,#28a745
+Liberale Demokraten,LD,#ffc107
+Konservative Mitte,KM,#6f42c1
+Arbeitersolidarität,AS,#fd7e14
+Christlich-Soziale Bewegung,CSB,#20c997
+Freie Wählergemeinschaft,FWG,#17a2b8
+Nationale Erneuerung,NE,#6c757d
+Progressive Alternative,PA,#e83e8c
+Ökologische Liste,ÖL,#218838
+Bündnis für Gerechtigkeit,BfG,#c82333
+Wirtschaftspartei,WP,#f0ad4e
+Heimatverbundene,HV,#5a6268
+Digitale Zukunft,DZ,#0056b3
+Sozialdemokratische Kraft,SDK,#bd2130
+Bürgerrechtspartei,BRP,#1e7e34
+Föderale Union,FU,#e0a800
+Kulturelle Vielfalt,KV,#5a32a3
+Reformbewegung,RB,#e67300
