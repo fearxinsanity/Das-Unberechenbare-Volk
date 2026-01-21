@@ -238,14 +238,17 @@
 .locked-overlay-label {
     -fx-text-fill:        #ff3333;
     -fx-font-family:      "Impact", "Arial Black", sans-serif;
-    -fx-font-size:        24px;
+    -fx-font-size:        20px;
     -fx-font-weight:      bold;
     -fx-effect:           dropshadow(gaussian, black, 10, 0.8, 0, 0);
-    -fx-background-color: rgba(0, 0, 0, 0.7);
+    -fx-background-color: rgba(0, 0, 0, 0.8);
     -fx-padding:          5px 10px;
     -fx-border-color:     #ff3333;
     -fx-border-width:     2px;
     -fx-rotate:           -5;
+    -fx-min-width:        140px;
+    -fx-text-overrun:     clip;
+    -fx-alignment:        center;
 }
 
 .locked-zone {

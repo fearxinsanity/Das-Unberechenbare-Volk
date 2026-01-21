@@ -4,8 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="created configs and removed magic numbers">
+    <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="Added scrollbar to left sidebar">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/dashboard.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/dashboard.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/view/DashboardUI.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/view/DashboardUI.fxml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -610,14 +612,21 @@
       <option name="project" value="LOCAL" />
       <updated>1768581702621</updated>
     </task>
-    <option name="localTasksCounter" value="39" />
+    <task id="LOCAL-00039" summary="Added scrollbar to left sidebar">
+      <option name="closed" value="true" />
+      <created>1768978478245</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1768978478245</updated>
+    </task>
+    <option name="localTasksCounter" value="40" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="changed math related to voter transition" />
     <MESSAGE value="changed design" />
     <MESSAGE value="changed buttons from square to round" />
     <MESSAGE value="changed particel" />
@@ -642,6 +651,7 @@
     <MESSAGE value="Zischenstand 2" />
     <MESSAGE value="Created Enum with all error Messages" />
     <MESSAGE value="created configs and removed magic numbers" />
-    <option name="LAST_COMMIT_MESSAGE" value="created configs and removed magic numbers" />
+    <MESSAGE value="Added scrollbar to left sidebar" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added scrollbar to left sidebar" />
   </component>
 </project>

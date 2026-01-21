@@ -35,32 +35,33 @@
                     <Label text="SECURE_CONN_ESTABLISHED" styleClass="hud-text"/>
                 </HBox>
                 <VBox styleClass="top-bar">
-                    <HBox alignment="CENTER_LEFT" spacing="20">
-                        <ImageView fitHeight="40.0" preserveRatio="true" opacity="0.9">
-                            <Image url="@../Pictures/DUV_Logo.png"/>
-                        </ImageView>
+                    <ScrollPane fitToHeight="true" fitToWidth="true" vbarPolicy="NEVER" hbarPolicy="AS_NEEDED"
+                                style="-fx-background-color: transparent; -fx-background: transparent; -fx-padding: 0;">
+                        <HBox alignment="CENTER_LEFT" spacing="10" minWidth="1100">
+                            <ImageView fitHeight="35.0" preserveRatio="true" opacity="0.9">
+                                <Image url="@../Pictures/DUV_Logo.png"/>
+                            </ImageView>
 
-                        <Label text="[ SYSTEM: DAS UNBERECHENBARE VOLK ]" styleClass="app-title"/>
-                        <Region HBox.hgrow="ALWAYS"/>
-                        <Label fx:id="timeStepLabel" text="Status: STANDBY" styleClass="status-label"/>
-                        <Separator orientation="VERTICAL" />
-                        <Button fx:id="startButton" text="▶ EXECUTE" onAction="#handleStartSimulation"/>
-                        <Button fx:id="pauseButton" text="⏸ FREEZE" onAction="#handlePauseSimulation" disable="true"/>
-                        <Button fx:id="resetButton" text="↺ REBOOT" onAction="#handleResetSimulation" disable="true"/>
+                            <Label text="[ SYS: DUV ]" styleClass="app-title"/>
 
-                        <Button fx:id="intelButton" text="📊 INTEL" onAction="#handleShowStatistics"
-                                style="-fx-base: #222;" disable="true"/>
+                            <Region HBox.hgrow="ALWAYS"/>
 
-                        <Button fx:id="parliamentButton" text="PARLIAMENT"
-                                onAction="#handleShowParliament"
-                                styleClass="action-button" disable="true">
-                        </Button>
+                            <Label fx:id="timeStepLabel" text="Status: STANDBY" styleClass="status-label" minWidth="140" alignment="CENTER_RIGHT"/>
 
-                        <Separator orientation="VERTICAL" />
+                            <Separator orientation="VERTICAL" />
 
-                        <Button text="⏻ LOGOUT" onAction="#handleLogout"
-                                style="-fx-base: #500; -fx-text-fill: #ffcccc; -fx-font-weight: bold;"/>
-                    </HBox>
+                            <Button fx:id="startButton" text="▶ EXECUTE" onAction="#handleStartSimulation"/>
+                            <Button fx:id="pauseButton" text="⏸ FREEZE" onAction="#handlePauseSimulation" disable="true"/>
+                            <Button fx:id="resetButton" text="↺ REBOOT" onAction="#handleResetSimulation" disable="true"/>
+                            <Button fx:id="intelButton" text="📊 INTEL" onAction="#handleShowStatistics" style="-fx-base: #222;" disable="true"/>
+                            <Button fx:id="parliamentButton" text="PARLIAMENT" onAction="#handleShowParliament" styleClass="action-button" disable="true"/>
+
+                            <Separator orientation="VERTICAL" />
+
+                            <Button text="⏻ LOGOUT" onAction="#handleLogout"
+                                    style="-fx-base: #500; -fx-text-fill: #ffcccc; -fx-font-weight: bold;"/>
+                        </HBox>
+                    </ScrollPane>
                 </VBox>
             </VBox>
         </top>
