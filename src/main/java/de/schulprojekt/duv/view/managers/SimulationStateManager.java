@@ -47,8 +47,7 @@ public class SimulationStateManager {
     private Label timeStepLabel;
     private TextField durationField;
 
-    private Button startButton;
-    private Button pauseButton;
+    private Button executeToggleButton;
     private Button resetButton;
     private Button intelButton;
     private Button parliamentButton;
@@ -166,15 +165,13 @@ public class SimulationStateManager {
     /**
      * Sets all control buttons for state management.
      *
-     * @param start the start simulation button
-     * @param pause the pause simulation button
+     * @param executeToggle the start/pause simulation button
      * @param reset the reset simulation button
      * @param intel the intelligence report button
      * @param parliament the parliament view button
      */
-    public void setButtons(Button start, Button pause, Button reset, Button intel, Button parliament) {
-        this.startButton = start;
-        this.pauseButton = pause;
+    public void setButtons(Button executeToggle, Button reset, Button intel, Button parliament) {
+        this.executeToggleButton = executeToggle;
         this.resetButton = reset;
         this.intelButton = intel;
         this.parliamentButton = parliament;
@@ -307,7 +304,7 @@ public class SimulationStateManager {
         updateDurationDisplay();
         setSimulationLocked(false);
         lockResultButtons(true);
-        updateButtonStates(false);
+        updateButtonStates(false); // Setzt Text auf "▶ EXECUTE"
         updateStatusDisplay(false);
     }
 
@@ -407,9 +404,12 @@ public class SimulationStateManager {
      * @param isRunning true if simulation is running
      */
     private void updateButtonStates(boolean isRunning) {
-        if (startButton != null) startButton.setDisable(isRunning);
-        if (pauseButton != null) pauseButton.setDisable(!isRunning);
-        if (resetButton != null) resetButton.setDisable(isRunning);
+        if (executeToggleButton != null) {
+            executeToggleButton.setText(isRunning ? "⏸ FREEZE" : "▶ EXECUTE");
+        }
+        if (resetButton != null) {
+            resetButton.setDisable(isRunning);
+        }
     }
 
     /**

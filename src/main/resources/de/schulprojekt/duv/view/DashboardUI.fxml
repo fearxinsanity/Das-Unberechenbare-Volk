@@ -50,8 +50,7 @@
 
                             <Separator orientation="VERTICAL" />
 
-                            <Button fx:id="startButton" text="▶ EXECUTE" onAction="#handleStartSimulation"/>
-                            <Button fx:id="pauseButton" text="⏸ FREEZE" onAction="#handlePauseSimulation" disable="true"/>
+                            <Button fx:id="executeToggleButton" text="▶ EXECUTE" onAction="#handleToggleSimulation"/>
                             <Button fx:id="resetButton" text="↺ REBOOT" onAction="#handleResetSimulation" disable="true"/>
                             <Button fx:id="intelButton" text="📊 INTEL" onAction="#handleShowStatistics" style="-fx-base: #222;" disable="true"/>
                             <Button fx:id="parliamentButton" text="PARLIAMENT" onAction="#handleShowParliament" styleClass="action-button" disable="true"/>
