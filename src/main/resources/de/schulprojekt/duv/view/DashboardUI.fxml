@@ -116,6 +116,14 @@
                     </StackPane>
 
                     <StackPane>
+                        <VBox fx:id="seedBox" spacing="5">
+                            <Label text="SIMULATION SEED" styleClass="control-label"/>
+                            <TextField fx:id="seedField" text="42" onAction="#handleParameterChange" alignment="CENTER"/>
+                        </VBox>
+                        <Label fx:id="seedOverlay" text="[ LOCKED ]" visible="false" styleClass="locked-overlay-label"/>
+                    </StackPane>
+
+                    <StackPane>
                         <VBox fx:id="durationBox" spacing="5">
                             <Label text="SIMULATION DURATION" styleClass="control-label"/>
                             <HBox spacing="5" alignment="CENTER_LEFT">

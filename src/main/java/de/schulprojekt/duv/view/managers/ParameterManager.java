@@ -38,6 +38,7 @@ public class ParameterManager {
     private TextField partyCountField;
     private TextField budgetField;
     private TextField scandalChanceField;
+    private TextField seedField;
 
     private Slider mediaInfluenceSlider;
     private Slider mobilityRateSlider;
@@ -65,6 +66,7 @@ public class ParameterManager {
      * @param partyCountField the text field for party count input
      * @param budgetField the text field for budget input
      * @param scandalChanceField the text field for scandal probability input
+     * @param seedField the text field for simulation seed input
      * @param mediaInfluenceSlider the slider for media influence adjustment
      * @param mobilityRateSlider the slider for voter mobility adjustment
      * @param loyaltyMeanSlider the slider for loyalty average adjustment
@@ -75,6 +77,7 @@ public class ParameterManager {
             TextField partyCountField,
             TextField budgetField,
             TextField scandalChanceField,
+            TextField seedField,
             Slider mediaInfluenceSlider,
             Slider mobilityRateSlider,
             Slider loyaltyMeanSlider,
@@ -84,6 +87,7 @@ public class ParameterManager {
         this.partyCountField = partyCountField;
         this.budgetField = budgetField;
         this.scandalChanceField = scandalChanceField;
+        this.seedField = seedField;
         this.mediaInfluenceSlider = mediaInfluenceSlider;
         this.mobilityRateSlider = mobilityRateSlider;
         this.loyaltyMeanSlider = loyaltyMeanSlider;
@@ -117,6 +121,7 @@ public class ParameterManager {
         setupInteractiveField(partyCountField);
         setupInteractiveField(budgetField);
         setupInteractiveField(scandalChanceField);
+        setupInteractiveField(seedField);
 
         // Configure slider bounds from Validator
         mediaInfluenceSlider.setMin(ParameterValidator.getMinPercentage());
@@ -142,6 +147,7 @@ public class ParameterManager {
         voterCountField.setText(String.format(Locale.GERMANY, "%,d", params.populationSize()));
         partyCountField.setText(String.valueOf(params.partyCount()));
         scandalChanceField.setText(String.format(Locale.US, "%.1f", params.scandalProbability()));
+        seedField.setText(String.valueOf(params.seed()));
         mediaInfluenceSlider.setValue(params.mediaInfluence());
         mobilityRateSlider.setValue(params.volatilityRate());
         loyaltyMeanSlider.setValue(params.loyaltyAverage());
@@ -187,6 +193,8 @@ public class ParameterManager {
                     ParameterValidator.getMaxBudgetEffectiveness()
             );
 
+            long seed = parseLongSafe(seedField.getText());
+
             SimulationParameters params = new SimulationParameters(
                     popSize,
                     mediaInfluenceSlider.getValue(),
@@ -196,7 +204,8 @@ public class ParameterManager {
                     currentTickRate,
                     randomRangeSlider.getValue(),
                     parties,
-                    budgetEffectiveness
+                    budgetEffectiveness,
+                    seed
             );
 
             if (ParameterValidator.isInvalid(params)) {
@@ -266,10 +275,13 @@ public class ParameterManager {
         double rChaos = ParameterValidator.getMinChaos() +
                 rand.nextDouble() * (ParameterValidator.getMaxChaos() - ParameterValidator.getMinChaos());
 
+        long rSeed = rand.nextLong(1_000_000_000L);
+
         voterCountField.setText(String.format(Locale.GERMANY, "%,d", rPop));
         partyCountField.setText(String.valueOf(rParties));
         budgetField.setText(String.format(Locale.GERMANY, "%,.0f", rBudget));
         scandalChanceField.setText(String.format(Locale.US, "%.1f", rScandal));
+        seedField.setText(String.valueOf(Math.abs(rSeed)));
 
         mediaInfluenceSlider.setValue(rMedia);
         mobilityRateSlider.setValue(rVolatility);
@@ -365,6 +377,7 @@ public class ParameterManager {
         applyInputFilter(partyCountField);
         applyInputFilter(budgetField);
         applyInputFilter(scandalChanceField);
+        applyInputFilter(seedField);
     }
 
     /**
@@ -376,6 +389,7 @@ public class ParameterManager {
         if (partyCountField != null) partyCountField.setTextFormatter(null);
         if (budgetField != null) budgetField.setTextFormatter(null);
         if (scandalChanceField != null) scandalChanceField.setTextFormatter(null);
+        if (seedField != null) seedField.setTextFormatter(null);
     }
 
     /**
@@ -411,8 +425,12 @@ public class ParameterManager {
                     );
                 }
 
-                NumberFormat formatter = NumberFormat.getInstance(Locale.GERMANY);
-                field.setText(formatter.format(val));
+                if (field == seedField) {
+                    field.setText(String.valueOf(val));
+                } else {
+                    NumberFormat formatter = NumberFormat.getInstance(Locale.GERMANY);
+                    field.setText(formatter.format(val));
+                }
             }
 
             triggerParameterChange();

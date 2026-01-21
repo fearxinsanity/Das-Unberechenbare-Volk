@@ -35,7 +35,8 @@ class VoterBehaviorTest {
                 50,     // tickRate
                 1.0,    // chaosFactor
                 3,      // partyCount
-                2.5     // budgetEffectiveness
+                2.5,    // budgetEffectiveness
+                42L     // seed
         );
 
         // 2. Initialize Random Distribution Provider
@@ -79,7 +80,8 @@ class VoterBehaviorTest {
                 parties,
                 params,
                 acutePressures,
-                impactCalculator
+                impactCalculator,
+                0
         );
 
         // Assertions
@@ -99,7 +101,7 @@ class VoterBehaviorTest {
     void testHighVolatility() {
         // Create parameters with 100% volatility to force changes
         SimulationParameters highVolParams = new SimulationParameters(
-                1000, 50.0, 100.0, 10.0, 50.0, 50, 1.0, 3, 2.5
+                1000, 50.0, 100.0, 10.0, 50.0, 50, 1.0, 3, 2.5, 42L
         );
 
         // Important: Re-initialize distribution so it uses the new params
@@ -112,7 +114,8 @@ class VoterBehaviorTest {
                 parties,
                 highVolParams,
                 acutePressures,
-                impactCalculator
+                impactCalculator,
+                1
         );
 
         assertNotNull(transitions);
@@ -132,7 +135,8 @@ class VoterBehaviorTest {
                 parties,
                 params,
                 acutePressures,
-                impactCalculator
+                impactCalculator,
+                0
         );
 
         // Check internal consistency

@@ -5,6 +5,8 @@ import de.schulprojekt.duv.util.config.SimulationConfig;
 import org.apache.commons.math3.distribution.ExponentialDistribution;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.distribution.UniformRealDistribution;
+import org.apache.commons.math3.random.JDKRandomGenerator;
+import org.apache.commons.math3.random.RandomGenerator;
 
 /**
  * Manages the statistical distributions used in the simulation.
@@ -30,6 +32,7 @@ public class DistributionProvider {
     private NormalDistribution loyaltyDistribution;
     private UniformRealDistribution uniformDistribution;
     private ExponentialDistribution scandalDistribution;
+    private RandomGenerator randomGenerator;
 
     // ========================================
     // Constructors
@@ -48,19 +51,24 @@ public class DistributionProvider {
      * @param params the simulation settings
      */
     public void initialize(SimulationParameters params) {
+        this.randomGenerator = new JDKRandomGenerator();
+        this.randomGenerator.setSeed(params.seed());
+
         this.loyaltyDistribution = new NormalDistribution(
+                randomGenerator,
                 params.loyaltyAverage(),
                 SimulationConfig.DEFAULT_LOYALTY_STD_DEV
         );
 
         this.uniformDistribution = new UniformRealDistribution(
+                randomGenerator,
                 UNIFORM_MIN,
                 params.chaosFactor()
         );
 
         double scandalProb = params.scandalProbability();
         double scandalLambda = Math.max(MIN_SCANDAL_LAMBDA, scandalProb / SCANDAL_PROBABILITY_DIVISOR);
-        this.scandalDistribution = new ExponentialDistribution(1.0 / scandalLambda);
+        this.scandalDistribution = new ExponentialDistribution(randomGenerator, 1.0 / scandalLambda);
     }
 
     public double sampleLoyalty() {
@@ -73,5 +81,9 @@ public class DistributionProvider {
 
     public double sampleTimeUntilNextScandal() {
         return scandalDistribution.sample();
+    }
+
+    public RandomGenerator getRandomGenerator() {
+        return randomGenerator;
     }
 }

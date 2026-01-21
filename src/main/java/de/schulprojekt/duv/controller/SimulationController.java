@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 /**
  * Controller connecting the UI with the simulation engine.
  * @author Nico Hoffmann
- * @version 1.0
+ * @version 1.1
  */
 public class SimulationController {
 
@@ -42,6 +42,7 @@ public class SimulationController {
     private static final double DEFAULT_CHAOS = 1.0;
     private static final int DEFAULT_PARTIES = 4;
     private static final double DEFAULT_BUDGET_WEIGHT = 1.0;
+    private static final long DEFAULT_SEED = 42L;
 
     // ========================================
     // Instance Variables
@@ -73,7 +74,8 @@ public class SimulationController {
                 DEFAULT_TICK_RATE,
                 DEFAULT_CHAOS,
                 DEFAULT_PARTIES,
-                DEFAULT_BUDGET_WEIGHT
+                DEFAULT_BUDGET_WEIGHT,
+                DEFAULT_SEED
         );
 
         ParameterValidator.validate(params);

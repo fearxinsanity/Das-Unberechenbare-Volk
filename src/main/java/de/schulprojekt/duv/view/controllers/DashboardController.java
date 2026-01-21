@@ -34,7 +34,7 @@ import java.util.logging.Logger;
  * Coordinates between managers and handles user interactions.
  *
  * @author Nico Hoffmann
- * @version 1.0
+ * @version 1.1
  */
 public class DashboardController {
 
@@ -58,12 +58,14 @@ public class DashboardController {
     @FXML private VBox populationBox;
     @FXML private VBox partyBox;
     @FXML private VBox budgetBox;
+    @FXML private VBox seedBox;
     @FXML private VBox durationBox;
     @FXML private VBox randomBox;
 
     @FXML private Label populationOverlay;
     @FXML private Label partyOverlay;
     @FXML private Label budgetOverlay;
+    @FXML private Label seedOverlay;
     @FXML private Label durationOverlay;
     @FXML private Label randomOverlay;
 
@@ -82,6 +84,7 @@ public class DashboardController {
     @FXML private TextField partyCountField;
     @FXML private TextField budgetField;
     @FXML private TextField scandalChanceField;
+    @FXML private TextField seedField;
     @FXML private TextField durationField;
 
     @FXML private Slider mediaInfluenceSlider;
@@ -421,7 +424,7 @@ public class DashboardController {
     private void initializeManagers() {
         // Parameter Manager
         parameterManager = new ParameterManager(
-                voterCountField, partyCountField, budgetField, scandalChanceField,
+                voterCountField, partyCountField, budgetField, scandalChanceField, seedField,
                 mediaInfluenceSlider, mobilityRateSlider, loyaltyMeanSlider, randomRangeSlider
         );
         parameterManager.setOnParameterChangeCallback(this::handleParameterChange);
@@ -433,8 +436,8 @@ public class DashboardController {
         stateManager.setDurationField(durationField);
         stateManager.setButtons(executeToggleButton, resetButton, intelButton, parliamentButton);
         stateManager.setLockingContainers(
-                populationBox, partyBox, budgetBox, durationBox, randomBox,
-                populationOverlay, partyOverlay, budgetOverlay, durationOverlay, randomOverlay
+                populationBox, partyBox, budgetBox, seedBox, durationBox, randomBox,
+                populationOverlay, partyOverlay, budgetOverlay, seedOverlay, durationOverlay, randomOverlay
         );
         stateManager.setSidebars(leftSidebar, rightSidebar);
         stateManager.setOnPauseCallback(() -> {

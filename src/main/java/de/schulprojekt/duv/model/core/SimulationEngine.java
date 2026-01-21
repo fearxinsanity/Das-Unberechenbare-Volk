@@ -14,7 +14,6 @@ import de.schulprojekt.duv.util.io.CSVLoader;
 import de.schulprojekt.duv.util.config.SimulationConfig;
 
 import java.util.List;
-import java.util.Random;
 
 /**
  * Orchestrator class for the simulation logic.
@@ -30,7 +29,6 @@ public class SimulationEngine {
     private final SimulationState state;
     private SimulationParameters parameters;
     private final CSVLoader csvLoader;
-    private final Random random = new Random();
     private final DistributionProvider distributionProvider;
     private final PartyRegistry partyRegistry;
     private final VoterPopulation voterPopulation;
@@ -91,6 +89,9 @@ public class SimulationEngine {
         scandalScheduler.reset();
         impactCalculator.reset();
 
+        double initialZeitgeist = (distributionProvider.getRandomGenerator().nextDouble() - 0.5) * 2.0;
+        voterBehavior.setZeitgeist(initialZeitgeist);
+
         partyRegistry.initializeParties(parameters, distributionProvider);
 
         voterPopulation.initialize(
@@ -124,7 +125,8 @@ public class SimulationEngine {
                 partyRegistry.getParties(),
                 parameters,
                 acutePressures,
-                impactCalculator
+                impactCalculator,
+                state.getCurrentStep()
         );
 
         recalculateCounts();
@@ -158,7 +160,8 @@ public class SimulationEngine {
                 .toList();
 
         if (!realParties.isEmpty()) {
-            Party target = realParties.get(random.nextInt(realParties.size()));
+            int index = distributionProvider.getRandomGenerator().nextInt(realParties.size());
+            Party target = realParties.get(index);
             Scandal s = csvLoader.getRandomScandal();
 
             ScandalEvent event = new ScandalEvent(s, target, state.getCurrentStep());
