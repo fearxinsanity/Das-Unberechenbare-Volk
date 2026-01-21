@@ -4,13 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="added style class to remove warning">
+    <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="created configs and removed magic numbers">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/components/ParliamentRenderer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/components/ParliamentRenderer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/components/TooltipManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/components/TooltipManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/controllers/ParliamentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/controllers/ParliamentController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/managers/SimulationStateManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/view/managers/SimulationStateManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/view/ParliamentView.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/de/schulprojekt/duv/view/ParliamentView.fxml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -73,43 +68,43 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;Application.Main.executor&quot;: &quot;Run&quot;,
-    &quot;DefaultPlantUmlFileTemplate&quot;: &quot;UML Object&quot;,
-    &quot;JUnit.All in Das-Unberechenbare-Volk.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.ParameterValidatorTest.testClampingMethods.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.ParameterValidatorTest.testPopulationBoundary.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.ParameterValidatorTest.testValidParameters.executor&quot;: &quot;Run&quot;,
-    &quot;Maven.Build EXE.executor&quot;: &quot;Run&quot;,
-    &quot;Maven.DUV - run.executor&quot;: &quot;Run&quot;,
-    &quot;Maven.Das-Unberechenbare-Volk [clean].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.Das-Unberechenbare-Volk [install].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.Das-Unberechenbare-Volk [package].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.Package &amp; Install.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;last-optimization&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/4_Projekte/IntelliJ/Das-Unberechenbare-Volk&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Application.Main.executor": "Run",
+    "DefaultPlantUmlFileTemplate": "UML Object",
+    "JUnit.All in Das-Unberechenbare-Volk.executor": "Run",
+    "JUnit.ParameterValidatorTest.testClampingMethods.executor": "Run",
+    "JUnit.ParameterValidatorTest.testPopulationBoundary.executor": "Run",
+    "JUnit.ParameterValidatorTest.testValidParameters.executor": "Run",
+    "Maven.Build EXE.executor": "Run",
+    "Maven.DUV - run.executor": "Run",
+    "Maven.Das-Unberechenbare-Volk [clean].executor": "Run",
+    "Maven.Das-Unberechenbare-Volk [install].executor": "Run",
+    "Maven.Das-Unberechenbare-Volk [package].executor": "Run",
+    "Maven.Package & Install.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "language__configuration",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/4_Projekte/IntelliJ/Das-Unberechenbare-Volk",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\4_Projekte\IntelliJ\Das-Unberechenbare-Volk\src\main\resources\de\schulprojekt\duv" />
@@ -119,7 +114,7 @@
       <recent name="C:\Projekt\BS-Projekt\src\main\resources\de.schulprojekt.duv\" />
     </key>
   </component>
-  <component name="RunManager" selected="Maven.DUV - run">
+  <component name="RunManager" selected="JUnit.All in Das-Unberechenbare-Volk">
     <configuration name="All in Das-Unberechenbare-Volk" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="Das-Unberechenbare-Volk" />
       <option name="PACKAGE_NAME" value="" />
@@ -615,53 +610,18 @@
       <option name="project" value="LOCAL" />
       <updated>1768581702621</updated>
     </task>
-    <task id="LOCAL-00039" summary="Added scrollbar to left sidebar">
-      <option name="closed" value="true" />
-      <created>1768978478245</created>
-      <option name="number" value="00039" />
-      <option name="presentableId" value="LOCAL-00039" />
-      <option name="project" value="LOCAL" />
-      <updated>1768978478245</updated>
-    </task>
-    <task id="LOCAL-00040" summary="changed topbar to fit all display sizes">
-      <option name="closed" value="true" />
-      <created>1768979618704</created>
-      <option name="number" value="00040" />
-      <option name="presentableId" value="LOCAL-00040" />
-      <option name="project" value="LOCAL" />
-      <updated>1768979618704</updated>
-    </task>
-    <task id="LOCAL-00041" summary="removed redundant default value">
-      <option name="closed" value="true" />
-      <created>1768979644922</created>
-      <option name="number" value="00041" />
-      <option name="presentableId" value="LOCAL-00041" />
-      <option name="project" value="LOCAL" />
-      <updated>1768979644922</updated>
-    </task>
-    <task id="LOCAL-00042" summary="visualized active speed button">
-      <option name="closed" value="true" />
-      <created>1768980184892</created>
-      <option name="number" value="00042" />
-      <option name="presentableId" value="LOCAL-00042" />
-      <option name="project" value="LOCAL" />
-      <updated>1768980184892</updated>
-    </task>
-    <task id="LOCAL-00043" summary="added style class to remove warning">
-      <option name="closed" value="true" />
-      <created>1768980338749</created>
-      <option name="number" value="00043" />
-      <option name="presentableId" value="LOCAL-00043" />
-      <option name="project" value="LOCAL" />
-      <updated>1768980338750</updated>
-    </task>
-    <option name="localTasksCounter" value="44" />
+    <option name="localTasksCounter" value="39" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
   <component name="VcsManagerConfiguration">
+    <MESSAGE value="changed math related to voter transition" />
+    <MESSAGE value="changed design" />
+    <MESSAGE value="changed buttons from square to round" />
+    <MESSAGE value="changed particel" />
+    <MESSAGE value="added necessary sliders" />
     <MESSAGE value="changed buttons and fixed error with css" />
     <MESSAGE value="added Timeline for the scandal" />
     <MESSAGE value="changed scandal intensity" />
@@ -682,11 +642,6 @@
     <MESSAGE value="Zischenstand 2" />
     <MESSAGE value="Created Enum with all error Messages" />
     <MESSAGE value="created configs and removed magic numbers" />
-    <MESSAGE value="Added scrollbar to left sidebar" />
-    <MESSAGE value="changed topbar to fit all display sizes" />
-    <MESSAGE value="removed redundant default value" />
-    <MESSAGE value="visualized active speed button" />
-    <MESSAGE value="added style class to remove warning" />
-    <option name="LAST_COMMIT_MESSAGE" value="added style class to remove warning" />
+    <option name="LAST_COMMIT_MESSAGE" value="created configs and removed magic numbers" />
   </component>
 </project>
