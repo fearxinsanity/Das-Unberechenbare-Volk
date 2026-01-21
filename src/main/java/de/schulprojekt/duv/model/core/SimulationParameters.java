@@ -25,7 +25,7 @@ public record SimulationParameters(
         double chaosFactor,
         int partyCount,
         double budgetEffectiveness,
-        long seed // Das 10. Feld
+        long seed
 ) {
     public SimulationParameters {
         if (populationSize < 0) throw new IllegalArgumentException("Population cannot be negative");

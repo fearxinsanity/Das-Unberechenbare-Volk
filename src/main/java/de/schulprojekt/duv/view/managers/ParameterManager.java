@@ -45,7 +45,7 @@ public class ParameterManager {
     private Slider loyaltyMeanSlider;
     private Slider randomRangeSlider;
 
-    private Runnable onParameterChangeCallback;
+    private boolean isUpdatingInternal = false;
 
     // ========================================
     // Constructors
@@ -95,19 +95,6 @@ public class ParameterManager {
     }
 
     // ========================================
-    // Setter Methods
-    // ========================================
-
-    /**
-     * Sets the callback to be invoked when parameters change.
-     *
-     * @param callback the runnable to execute on parameter change
-     */
-    public void setOnParameterChangeCallback(Runnable callback) {
-        this.onParameterChangeCallback = callback;
-    }
-
-    // ========================================
     // Business Logic Methods
     // ========================================
 
@@ -121,20 +108,69 @@ public class ParameterManager {
         setupInteractiveField(partyCountField);
         setupInteractiveField(budgetField);
         setupInteractiveField(scandalChanceField);
-        setupInteractiveField(seedField);
 
-        // Configure slider bounds from Validator
+        applyInputFilter(seedField);
+        seedField.setOnAction(e -> applyMasterSeed());
+        seedField.focusedProperty().addListener((obs, old, isNowFocused) -> {
+            if (!isNowFocused) applyMasterSeed();
+        });
+
         mediaInfluenceSlider.setMin(ParameterValidator.getMinPercentage());
         mediaInfluenceSlider.setMax(ParameterValidator.getMaxPercentage());
+        mediaInfluenceSlider.valueProperty().addListener((obs, old, val) -> updateSeedOnly());
 
         mobilityRateSlider.setMin(ParameterValidator.getMinPercentage());
         mobilityRateSlider.setMax(ParameterValidator.getMaxPercentage());
+        mobilityRateSlider.valueProperty().addListener((obs, old, val) -> updateSeedOnly());
 
         loyaltyMeanSlider.setMin(ParameterValidator.getMinPercentage());
         loyaltyMeanSlider.setMax(ParameterValidator.getMaxPercentage());
+        loyaltyMeanSlider.valueProperty().addListener((obs, old, val) -> updateSeedOnly());
 
         randomRangeSlider.setMin(ParameterValidator.getMinChaos());
         randomRangeSlider.setMax(ParameterValidator.getMaxChaos());
+        randomRangeSlider.valueProperty().addListener((obs, old, val) -> updateSeedOnly());
+    }
+
+    private void updateSeedOnly() {
+        if (isUpdatingInternal) return;
+        long newSeed = java.util.Objects.hash(
+                voterCountField.getText(),
+                partyCountField.getText(),
+                mediaInfluenceSlider.getValue(),
+                mobilityRateSlider.getValue(),
+                loyaltyMeanSlider.getValue(),
+                scandalChanceField.getText(),
+                randomRangeSlider.getValue()
+        );
+        isUpdatingInternal = true;
+        seedField.setText(String.valueOf(Math.abs(newSeed)));
+        isUpdatingInternal = false;
+    }
+
+    private void applyMasterSeed() {
+        if (isUpdatingInternal) return;
+        try {
+            isUpdatingInternal = true;
+            long seed = parseLongSafe(seedField.getText());
+            Random masterRand = new Random(seed);
+
+            int rPop = ParameterValidator.getMinPopulation() +
+                    masterRand.nextInt(ParameterValidator.getMaxPopulation() - ParameterValidator.getMinPopulation());
+            int rParties = ParameterValidator.getMinParties() +
+                    masterRand.nextInt(ParameterValidator.getMaxParties() - ParameterValidator.getMinParties());
+
+            voterCountField.setText(String.format(Locale.GERMANY, "%,d", rPop));
+            partyCountField.setText(String.valueOf(rParties));
+            mediaInfluenceSlider.setValue(masterRand.nextDouble() * 100.0);
+            mobilityRateSlider.setValue(masterRand.nextDouble() * 100.0);
+            loyaltyMeanSlider.setValue(masterRand.nextDouble() * 100.0);
+            scandalChanceField.setText(String.format(Locale.US, "%.1f", masterRand.nextDouble() * 20.0));
+            randomRangeSlider.setValue(masterRand.nextDouble() * 10.0);
+
+        } finally {
+            isUpdatingInternal = false;
+        }
     }
 
     /**
@@ -144,6 +180,7 @@ public class ParameterManager {
      * @param params the simulation parameters to display
      */
     public void synchronizeWithParameters(SimulationParameters params) {
+        isUpdatingInternal = true;
         voterCountField.setText(String.format(Locale.GERMANY, "%,d", params.populationSize()));
         partyCountField.setText(String.valueOf(params.partyCount()));
         scandalChanceField.setText(String.format(Locale.US, "%.1f", params.scandalProbability()));
@@ -155,6 +192,7 @@ public class ParameterManager {
 
         double displayBudget = params.budgetEffectiveness() * DEFAULT_BUDGET;
         budgetField.setText(String.format(Locale.GERMANY, "%,.0f", displayBudget));
+        isUpdatingInternal = false;
     }
 
     /**
@@ -167,62 +205,20 @@ public class ParameterManager {
     public SimulationParameters buildParametersFromUI(int currentTickRate) {
         try {
             int popSize = parseIntSafe(voterCountField.getText(), 100000);
-            popSize = ParameterValidator.clampInt(
-                    popSize,
-                    ParameterValidator.getMinPopulation(),
-                    ParameterValidator.getMaxPopulation()
-            );
-
+            popSize = ParameterValidator.clampInt(popSize, ParameterValidator.getMinPopulation(), ParameterValidator.getMaxPopulation());
             int parties = parseIntSafe(partyCountField.getText(), 5);
-            parties = ParameterValidator.clampInt(
-                    parties,
-                    ParameterValidator.getMinParties(),
-                    ParameterValidator.getMaxParties()
-            );
-
-            double scandalProb = ParameterValidator.clampDouble(
-                    parseDoubleSafe(scandalChanceField.getText(), 5.0),
-                    ParameterValidator.getMinScandalProb(),
-                    ParameterValidator.getMaxScandalProb()
-            );
-
+            parties = ParameterValidator.clampInt(parties, ParameterValidator.getMinParties(), ParameterValidator.getMaxParties());
+            double scandalProb = ParameterValidator.clampDouble(parseDoubleSafe(scandalChanceField.getText(), 5.0), ParameterValidator.getMinScandalProb(), ParameterValidator.getMaxScandalProb());
             double budgetInput = parseBudgetSafe(budgetField.getText());
-            double budgetEffectiveness = ParameterValidator.clampDouble(
-                    budgetInput / DEFAULT_BUDGET,
-                    ParameterValidator.getMinBudgetEffectiveness(),
-                    ParameterValidator.getMaxBudgetEffectiveness()
-            );
-
+            double budgetEffectiveness = ParameterValidator.clampDouble(budgetInput / DEFAULT_BUDGET, ParameterValidator.getMinBudgetEffectiveness(), ParameterValidator.getMaxBudgetEffectiveness());
             long seed = parseLongSafe(seedField.getText());
 
-            SimulationParameters params = new SimulationParameters(
-                    popSize,
-                    mediaInfluenceSlider.getValue(),
-                    mobilityRateSlider.getValue(),
-                    scandalProb,
-                    loyaltyMeanSlider.getValue(),
-                    currentTickRate,
-                    randomRangeSlider.getValue(),
-                    parties,
-                    budgetEffectiveness,
-                    seed
-            );
-
-            if (ParameterValidator.isInvalid(params)) {
-                LOGGER.warning(ValidationMessage.BUILT_PARAMETERS_INVALID.format(
-                        ParameterValidator.getValidationError(params)
-                ));
-                return null;
-            }
-
-            return params;
-
+            return new SimulationParameters(popSize, mediaInfluenceSlider.getValue(), mobilityRateSlider.getValue(), scandalProb, loyaltyMeanSlider.getValue(), currentTickRate, randomRangeSlider.getValue(), parties, budgetEffectiveness, seed);
         } catch (Exception e) {
             LOGGER.log(Level.WARNING, ValidationMessage.INVALID_PARAMETER_INPUT.toString(), e);
             return null;
         }
     }
-
 
     /**
      * Applies initial settings from StartController.
@@ -233,65 +229,25 @@ public class ParameterManager {
      */
     public void applyInitialSettings(long population, long budget) {
         if (voterCountField != null) {
-            long safePop = ParameterValidator.clampInt(
-                    (int) population,
-                    ParameterValidator.getMinPopulation(),
-                    ParameterValidator.getMaxPopulation()
-            );
+            int safePop = ParameterValidator.clampInt((int) population, ParameterValidator.getMinPopulation(), ParameterValidator.getMaxPopulation());
             voterCountField.setText(String.format(Locale.GERMANY, "%,d", safePop));
         }
         if (budgetField != null) {
             budgetField.setText(String.format(Locale.GERMANY, "%,d", budget));
         }
-        triggerParameterChange();
+        updateSeedOnly();
     }
 
     /**
      * Randomizes all parameter values with safe bounds from ParameterValidator.
      * Generates random values within acceptable ranges for all parameters.
-     *
-     * @param animationCallback callback to handle animation completion (optional)
      */
-    public void randomizeParameters(Runnable animationCallback) {
-        removeInputFilters();
-
-        Random rand = new Random();
-
-        int rPop = ParameterValidator.getMinPopulation() +
-                rand.nextInt(ParameterValidator.getMaxPopulation() - ParameterValidator.getMinPopulation());
-
-        int rParties = ParameterValidator.getMinParties() +
-                rand.nextInt(ParameterValidator.getMaxParties() - ParameterValidator.getMinParties());
-
-        double rMedia = ParameterValidator.clampPercentage(rand.nextDouble() * 100.0);
-        double rVolatility = ParameterValidator.clampPercentage(rand.nextDouble() * 100.0);
-        double rLoyalty = ParameterValidator.clampPercentage(rand.nextDouble() * 100.0);
-
-        double rBudget = 50000.0 + rand.nextDouble() * 1950000.0;
-
-        double rScandal = ParameterValidator.getMinScandalProb() +
-                rand.nextDouble() * (ParameterValidator.getMaxScandalProb() - ParameterValidator.getMinScandalProb());
-
-        double rChaos = ParameterValidator.getMinChaos() +
-                rand.nextDouble() * (ParameterValidator.getMaxChaos() - ParameterValidator.getMinChaos());
-
-        long rSeed = rand.nextLong(1_000_000_000L);
-
-        voterCountField.setText(String.format(Locale.GERMANY, "%,d", rPop));
-        partyCountField.setText(String.valueOf(rParties));
-        budgetField.setText(String.format(Locale.GERMANY, "%,.0f", rBudget));
-        scandalChanceField.setText(String.format(Locale.US, "%.1f", rScandal));
-        seedField.setText(String.valueOf(Math.abs(rSeed)));
-
-        mediaInfluenceSlider.setValue(rMedia);
-        mobilityRateSlider.setValue(rVolatility);
-        loyaltyMeanSlider.setValue(rLoyalty);
-        randomRangeSlider.setValue(rChaos);
-
-        applyInputFilters();
-        if (animationCallback != null) {
-            animationCallback.run();
-        }
+    public void randomizeParameters() {
+        long newSeed = new Random().nextLong(1_000_000_000L);
+        isUpdatingInternal = true;
+        seedField.setText(String.valueOf(Math.abs(newSeed)));
+        isUpdatingInternal = false;
+        applyMasterSeed();
     }
 
     /**
@@ -306,7 +262,7 @@ public class ParameterManager {
         int val = parseIntSafe(field.getText(), min);
         int newVal = ParameterValidator.clampInt(val + delta, min, max);
         field.setText(String.format(Locale.GERMANY, "%,d", newVal));
-        triggerParameterChange();
+        updateSeedOnly();
     }
 
     /**
@@ -317,191 +273,58 @@ public class ParameterManager {
      */
     public void adjustDoubleField(TextField field, double delta) {
         double val = parseDoubleSafe(field.getText(), 0.0);
-        double newVal = ParameterValidator.clampDouble(
-                val + delta,
-                ParameterValidator.getMinScandalProb(),
-                ParameterValidator.getMaxScandalProb()
-        );
+        double newVal = ParameterValidator.clampDouble(val + delta, ParameterValidator.getMinScandalProb(), ParameterValidator.getMaxScandalProb());
         field.setText(String.format(Locale.US, "%.1f", newVal));
-        triggerParameterChange();
+        updateSeedOnly();
     }
 
     // ========================================
     // Utility Methods
     // ========================================
 
-    /**
-     * Sets up interactive behavior for a text field.
-     * Adds input filtering, formatting, and event handlers.
-     *
-     * @param field the text field to configure
-     */
     private void setupInteractiveField(TextField field) {
         if (field == null) return;
-
         applyInputFilter(field);
-
-        field.setOnAction(e -> formatAndApply(field));
-
+        field.setOnAction(e -> { formatAndApply(field); updateSeedOnly(); });
         field.focusedProperty().addListener((obs, bool, isNowFocused) -> {
-            if (!isNowFocused) {
-                formatAndApply(field);
-            }
+            if (!isNowFocused) { formatAndApply(field); updateSeedOnly(); }
         });
-
-        field.setOnKeyPressed(e -> field.setStyle(""));
     }
 
-    /**
-     * Applies input validation filter to a text field.
-     * Restricts input to valid numeric characters based on field type.
-     *
-     * @param field the text field to filter
-     */
     private void applyInputFilter(TextField field) {
         if (field == null) return;
         boolean isDecimal = (field == scandalChanceField);
         String regex = isDecimal ? "[0-9.,]*" : "[0-9.]*";
-
-        field.setTextFormatter(new TextFormatter<>(change -> {
-            String newText = change.getControlNewText();
-            return newText.matches(regex) ? change : null;
-        }));
+        field.setTextFormatter(new TextFormatter<>(change -> change.getControlNewText().matches(regex) ? change : null));
     }
 
-    /**
-     * Applies input filters to all text fields.
-     */
-    private void applyInputFilters() {
-        applyInputFilter(voterCountField);
-        applyInputFilter(partyCountField);
-        applyInputFilter(budgetField);
-        applyInputFilter(scandalChanceField);
-        applyInputFilter(seedField);
-    }
-
-    /**
-     * Temporarily removes input filters from all text fields.
-     * Used during randomization to bypass validation.
-     */
-    private void removeInputFilters() {
-        if (voterCountField != null) voterCountField.setTextFormatter(null);
-        if (partyCountField != null) partyCountField.setTextFormatter(null);
-        if (budgetField != null) budgetField.setTextFormatter(null);
-        if (scandalChanceField != null) scandalChanceField.setTextFormatter(null);
-        if (seedField != null) seedField.setTextFormatter(null);
-    }
-
-    /**
-     * Formats and validates a text field's content.
-     * Applies locale-specific number formatting and triggers parameter change callback.
-     *
-     * @param field the text field to format
-     */
     private void formatAndApply(TextField field) {
         String text = field.getText();
         if (text == null || text.isEmpty()) return;
-
         try {
-            boolean isDecimal = (field == scandalChanceField);
-
-            if (isDecimal) {
-                double val = parseDoubleSafe(text, 0.0);
-                field.setText(String.format(Locale.US, "%.1f", val));
-            } else {
+            if (field == scandalChanceField) {
+                field.setText(String.format(Locale.US, "%.1f", parseDoubleSafe(text, 0.0)));
+            } else if (field != seedField) {
                 long val = parseLongSafe(text);
-
-                if (field == voterCountField) {
-                    val = ParameterValidator.clampInt(
-                            (int) val,
-                            ParameterValidator.getMinPopulation(),
-                            ParameterValidator.getMaxPopulation()
-                    );
-                } else if (field == partyCountField) {
-                    val = ParameterValidator.clampInt(
-                            (int) val,
-                            ParameterValidator.getMinParties(),
-                            ParameterValidator.getMaxParties()
-                    );
-                }
-
-                if (field == seedField) {
-                    field.setText(String.valueOf(val));
-                } else {
-                    NumberFormat formatter = NumberFormat.getInstance(Locale.GERMANY);
-                    field.setText(formatter.format(val));
-                }
+                field.setText(NumberFormat.getInstance(Locale.GERMANY).format(val));
             }
-
-            triggerParameterChange();
-
-        } catch (Exception e) {
-            field.setStyle("-fx-border-color: red;");
-        }
+        } catch (Exception ignored) {}
     }
 
-    /**
-     * Safely parses a long value from text, removing non-numeric characters.
-     *
-     * @param text the text to parse
-     * @return the parsed long value, or 0 if parsing fails
-     */
     private long parseLongSafe(String text) {
         String clean = text.replaceAll("[^0-9]", "");
         return clean.isEmpty() ? 0 : Long.parseLong(clean);
     }
 
-    /**
-     * Safely parses an integer value from text with a default fallback.
-     *
-     * @param text the text to parse
-     * @param defaultValue the value to return if parsing fails
-     * @return the parsed integer value, or defaultValue if parsing fails
-     */
     private int parseIntSafe(String text, int defaultValue) {
-        try {
-            return Integer.parseInt(text.replaceAll("[^0-9]", ""));
-        } catch (Exception e) {
-            return defaultValue;
-        }
+        try { return Integer.parseInt(text.replaceAll("[^0-9]", "")); } catch (Exception e) { return defaultValue; }
     }
 
-    /**
-     * Safely parses a double value from text with a default fallback.
-     *
-     * @param text the text to parse
-     * @param defaultValue the value to return if parsing fails
-     * @return the parsed double value, or defaultValue if parsing fails
-     */
     private double parseDoubleSafe(String text, double defaultValue) {
-        try {
-            return Double.parseDouble(text.replace(",", "."));
-        } catch (Exception e) {
-            return defaultValue;
-        }
+        try { return Double.parseDouble(text.replace(",", ".")); } catch (Exception e) { return defaultValue; }
     }
 
-    /**
-     * Safely parses budget value from German formatted text.
-     *
-     * @param text the text to parse
-     * @return the parsed budget value, or DEFAULT_BUDGET if parsing fails
-     */
     private double parseBudgetSafe(String text) {
-        try {
-            String clean = text.replace(".", "").replace(",", ".");
-            return Double.parseDouble(clean);
-        } catch (Exception e) {
-            return DEFAULT_BUDGET;
-        }
-    }
-
-    /**
-     * Triggers the parameter change callback if set.
-     */
-    private void triggerParameterChange() {
-        if (onParameterChangeCallback != null) {
-            onParameterChangeCallback.run();
-        }
+        try { return Double.parseDouble(text.replace(".", "").replace(",", ".")); } catch (Exception e) { return DEFAULT_BUDGET; }
     }
 }

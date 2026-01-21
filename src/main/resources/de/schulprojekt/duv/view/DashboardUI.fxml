@@ -86,8 +86,7 @@
                             <Label text="POPULATION SIZE" styleClass="control-label"/>
                             <HBox spacing="5" alignment="CENTER_LEFT">
                                 <Button text="-" onAction="#handleVoterCountDecrement" prefWidth="35"/>
-                                <TextField fx:id="voterCountField" text="100000" HBox.hgrow="ALWAYS"
-                                           onAction="#handleParameterChange" alignment="CENTER"/>
+                                <TextField fx:id="voterCountField" text="100000" HBox.hgrow="ALWAYS" alignment="CENTER"/>
                                 <Button text="+" onAction="#handleVoterCountIncrement" prefWidth="35"/>
                             </HBox>
                         </VBox>
@@ -110,7 +109,7 @@
                     <StackPane>
                         <VBox fx:id="budgetBox" spacing="5">
                             <Label text="CAMPAIGN BUDGET (€)" styleClass="control-label"/>
-                            <TextField fx:id="budgetField" text="500000" onAction="#handleParameterChange"/>
+                            <TextField fx:id="budgetField" text="500000" />
                         </VBox>
                         <Label fx:id="budgetOverlay" text="[ LOCKED ]" visible="false" styleClass="locked-overlay-label"/>
                     </StackPane>
@@ -118,7 +117,7 @@
                     <StackPane>
                         <VBox fx:id="seedBox" spacing="5">
                             <Label text="SIMULATION SEED" styleClass="control-label"/>
-                            <TextField fx:id="seedField" text="42" onAction="#handleParameterChange" alignment="CENTER"/>
+                            <TextField fx:id="seedField" text="42" alignment="CENTER"/>
                         </VBox>
                         <Label fx:id="seedOverlay" text="[ LOCKED ]" visible="false" styleClass="locked-overlay-label"/>
                     </StackPane>
@@ -144,34 +143,29 @@
                     <VBox spacing="12">
                         <VBox spacing="2">
                             <Label text="MEDIA INFLUENCE (%)" styleClass="control-label"/>
-                            <Slider fx:id="mediaInfluenceSlider" value="65"
-                                    onMouseReleased="#handleParameterChange"/>
+                            <Slider fx:id="mediaInfluenceSlider" value="65" />
                         </VBox>
 
                         <VBox spacing="2">
                             <Label text="VOTER VOLATILITY (%)" styleClass="control-label"/>
-                            <Slider fx:id="mobilityRateSlider" value="35"
-                                    onMouseReleased="#handleParameterChange"/>
+                            <Slider fx:id="mobilityRateSlider" value="35" />
                         </VBox>
 
                         <VBox spacing="2">
                             <Label text="PARTY LOYALTY (AVG)" styleClass="control-label"/>
-                            <Slider fx:id="loyaltyMeanSlider" value="50"
-                                    onMouseReleased="#handleParameterChange"/>
+                            <Slider fx:id="loyaltyMeanSlider" value="50" />
                         </VBox>
 
                         <VBox spacing="2">
                             <Label text="CHAOS FACTOR (Variance)" styleClass="control-label"/>
-                            <Slider fx:id="randomRangeSlider" min="0.1" max="5.0" value="1.0"
-                                    onMouseReleased="#handleParameterChange"/>
+                            <Slider fx:id="randomRangeSlider" min="0.1" max="5.0" value="1.0" />
                         </VBox>
 
                         <VBox spacing="2">
                             <Label text="SCANDAL RISK (%)" styleClass="terminal-value-alert"/>
                             <HBox spacing="5" alignment="CENTER_LEFT">
                                 <Button text="-" onAction="#handleScandalChanceDecrement" prefWidth="35"/>
-                                <TextField fx:id="scandalChanceField" text="5.0" HBox.hgrow="ALWAYS" alignment="CENTER"
-                                           onAction="#handleParameterChange"/>
+                                <TextField fx:id="scandalChanceField" text="5.0" HBox.hgrow="ALWAYS" alignment="CENTER" />
                                 <Button text="+" onAction="#handleScandalChanceIncrement" prefWidth="35"/>
                             </HBox>
                         </VBox>
