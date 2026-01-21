@@ -35,7 +35,7 @@
                     <Label text="SECURE_CONN_ESTABLISHED" styleClass="hud-text"/>
                 </HBox>
                 <VBox styleClass="top-bar">
-                    <ScrollPane fitToHeight="true" fitToWidth="true" vbarPolicy="NEVER" hbarPolicy="AS_NEEDED"
+                    <ScrollPane fitToHeight="true" fitToWidth="true" vbarPolicy="NEVER"
                                 style="-fx-background-color: transparent; -fx-background: transparent; -fx-padding: 0;">
                         <HBox alignment="CENTER_LEFT" spacing="10" minWidth="1100">
                             <ImageView fitHeight="35.0" preserveRatio="true" opacity="0.9">
