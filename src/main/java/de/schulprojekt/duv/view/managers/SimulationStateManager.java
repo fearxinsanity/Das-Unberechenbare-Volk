@@ -246,17 +246,31 @@ public class SimulationStateManager {
     public void setupTimer() {
         simulationTimer = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
             remainingSeconds--;
-            updateStatusDisplay(true);
 
             if (remainingSeconds <= 0) {
+                remainingSeconds = 0;
+                simulationTimer.stop();
+
                 if (onPauseCallback != null) {
                     onPauseCallback.run();
                 }
+
+                if (executeToggleButton != null) {
+                    executeToggleButton.setDisable(true);
+                }
+
+                if (resetButton != null) {
+                    resetButton.setDisable(false);
+                }
+
+                updateStatusDisplay(false);
                 lockResultButtons(false);
                 VisualFX.triggerSidebarGlitch(leftSidebar, rightSidebar);
                 VisualFX.startPulse(intelButton, Color.LIME);
                 VisualFX.startPulse(parliamentButton, Color.LIME);
                 LOGGER.info("Simulation finished. Access granted.");
+            } else {
+                updateStatusDisplay(true);
             }
         }));
         simulationTimer.setCycleCount(Timeline.INDEFINITE);
@@ -304,7 +318,12 @@ public class SimulationStateManager {
         updateDurationDisplay();
         setSimulationLocked(false);
         lockResultButtons(true);
-        updateButtonStates(false); // Setzt Text auf "▶ EXECUTE"
+
+        if (executeToggleButton != null) {
+            executeToggleButton.setDisable(false);
+        }
+
+        updateButtonStates(false);
         updateStatusDisplay(false);
     }
 

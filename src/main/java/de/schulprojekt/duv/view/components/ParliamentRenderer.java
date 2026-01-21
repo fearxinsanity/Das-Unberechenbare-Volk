@@ -107,6 +107,17 @@ public class ParliamentRenderer {
         return count == 0 ? new double[]{lastCx, lastCy} : new double[]{sumX / count, sumY / count};
     }
 
+    public int getSeatCountForParty(Party p) {
+        if (p == null) return 0;
+        return (int) seats.stream()
+                .filter(s -> s.party() != null && s.party().equals(p))
+                .count();
+    }
+
+    public int getTotalSeats() {
+        return TOTAL_SEATS;
+    }
+
     // ========================================
     // Setter Methods
     // ========================================
