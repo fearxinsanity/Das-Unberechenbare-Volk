@@ -1,0 +1,11 @@
+id,type,name,description,impact
+1,FINANCE,Tax Evasion,Funneled money past tax authorities,0.8
+2,MORAL,Plagiarism Scandal,PhD title was revoked,0.6
+3,CORRUPTION,Procurement Fraud,Took commissions for state contracts,0.9
+4,PERSONAL,DUI Incident,Caught driving under influence,0.5
+5,POLITICAL,Illegal Donations,Accepted illegal foreign funding,0.7
+6,DATA,Data Leak,Voter data exposed online,0.65
+7,STATEMENT,Public Insult,Publicly defamed voter groups,0.55
+8,ENV,Pollution Scandal,MP's company polluted local river,0.75
+9,RELIGION,Church Exit,Left church for tactical reasons,0.3
+10,MILITARY,Service Fraud,False claims about military service,0.4

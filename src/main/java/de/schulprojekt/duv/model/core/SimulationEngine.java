@@ -13,13 +13,14 @@ import de.schulprojekt.duv.model.voter.ZeitgeistManager;
 import de.schulprojekt.duv.model.dto.VoterTransition;
 import de.schulprojekt.duv.util.io.CSVLoader;
 import de.schulprojekt.duv.util.config.SimulationConfig;
+import de.schulprojekt.duv.view.Main; // WICHTIG: Import für den Zugriff auf die Sprache
 
 import java.util.List;
 
 /**
  * Orchestrator class for the simulation logic.
  * @author Nico Hoffmann
- * @version 1.1
+ * @version 1.2
  */
 public class SimulationEngine {
 
@@ -49,7 +50,7 @@ public class SimulationEngine {
     public SimulationEngine(SimulationParameters params) {
         this.parameters = params;
         this.state = new SimulationState();
-        this.csvLoader = new CSVLoader();
+        this.csvLoader = new CSVLoader(Main.getLocale());
 
         this.distributionProvider = new DistributionProvider();
         this.distributionProvider.initialize(params);

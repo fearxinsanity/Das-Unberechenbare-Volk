@@ -8,9 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 import java.util.logging.Level;
@@ -18,8 +16,9 @@ import java.util.logging.Logger;
 
 /**
  * Utility class for loading game data from CSV files.
+ * Supports localization and ensures unique colors.
  * @author Nico Hoffmann
- * @version 1.1
+ * @version 1.3
  */
 public class CSVLoader {
 
@@ -28,15 +27,29 @@ public class CSVLoader {
     // ========================================
 
     private static final Logger LOGGER = Logger.getLogger(CSVLoader.class.getName());
-    private static final String PARTY_FILE = "de/schulprojekt/duv/data/party_names.csv";
-    private static final String SCANDAL_FILE = "de/schulprojekt/duv/data/scandals.csv";
     private static final String CSV_SEPARATOR_REGEX = "[,;]";
+
+    private static final String PARTY_FILE_BASE = "de/schulprojekt/duv/data/party_names";
+    private static final String SCANDAL_FILE_BASE = "de/schulprojekt/duv/data/scandals";
 
     // ========================================
     // Instance Variables
     // ========================================
 
     private List<Scandal> cachedScandals = null;
+    private final Locale currentLocale;
+
+    // ========================================
+    // Constructors
+    // ========================================
+
+    /**
+     * Creates a loader for a specific locale.
+     * @param locale The locale to load data for (e.g., Locale.GERMAN, Locale.ENGLISH)
+     */
+    public CSVLoader(Locale locale) {
+        this.currentLocale = locale;
+    }
 
     // ========================================
     // Business Logic Methods
@@ -44,6 +57,7 @@ public class CSVLoader {
 
     /**
      * Retrieves a set of random party templates.
+     * Ensures that no two parties share the same color.
      * @param count number of templates to return
      * @return list of party templates
      */
@@ -55,13 +69,23 @@ public class CSVLoader {
             return new ArrayList<>();
         }
 
-        if (allTemplates.size() <= count) {
-            return allTemplates;
+        Collections.shuffle(allTemplates);
+
+        List<PartyTemplate> selection = new ArrayList<>();
+        Set<String> usedColors = new HashSet<>();
+
+        for (PartyTemplate template : allTemplates) {
+            if (selection.size() >= count) break;
+
+            if (!usedColors.contains(template.colorCode())) {
+                selection.add(template);
+                usedColors.add(template.colorCode());
+            } else {
+                LOGGER.fine("Skipping party " + template.name() + " due to duplicate color: " + template.colorCode());
+            }
         }
 
-        List<PartyTemplate> selection = new ArrayList<>(allTemplates);
-        Collections.shuffle(selection);
-        return selection.subList(0, count);
+        return selection;
     }
 
     /**
@@ -85,17 +109,33 @@ public class CSVLoader {
     // Utility Methods
     // ========================================
 
+    private String getLocalizedFilePath(String basePath) {
+        String lang = currentLocale.getLanguage().toLowerCase();
+        // Support 'de' and 'en', default to 'de' if unknown
+        if (!lang.equals("de") && !lang.equals("en")) {
+            lang = "de";
+        }
+        return basePath + "_" + lang + ".csv";
+    }
+
     private List<PartyTemplate> loadAllParties() {
-        return loadCsvFile(PARTY_FILE, line -> {
+        String filePath = getLocalizedFilePath(PARTY_FILE_BASE);
+        LOGGER.info("Loading parties from: " + filePath);
+
+        return loadCsvFile(filePath, line -> {
             String[] parts = line.split(CSV_SEPARATOR_REGEX);
             return (parts.length >= 3) ? new PartyTemplate(parts[0].trim(), parts[1].trim(), parts[2].trim()) : null;
         });
     }
 
     private List<Scandal> loadAllScandals() {
-        return loadCsvFile(SCANDAL_FILE, line -> {
+        String filePath = getLocalizedFilePath(SCANDAL_FILE_BASE);
+        LOGGER.info("Loading scandals from: " + filePath);
+
+        return loadCsvFile(filePath, line -> {
             if (line.trim().toLowerCase().startsWith("id")) return null;
-            String[] parts = line.split(",", -1);
+            String[] parts = line.split(CSV_SEPARATOR_REGEX, -1);
+
             if (parts.length >= 5) {
                 try {
                     int id = Integer.parseInt(parts[0].trim());
@@ -105,6 +145,7 @@ public class CSVLoader {
                     double str = Double.parseDouble(cleanCsvString(parts[4]).replace(",", "."));
                     return new Scandal(id, type, name, desc, str);
                 } catch (NumberFormatException e) {
+                    LOGGER.warning("Failed to parse scandal line: " + line);
                     return null;
                 }
             }
@@ -114,12 +155,13 @@ public class CSVLoader {
 
     private <T> List<T> loadCsvFile(String filePath, Function<String, T> mapper) {
         List<T> resultList = new ArrayList<>();
+
         InputStream is = getClass().getResourceAsStream("/" + filePath);
         if (is == null) is = getClass().getResourceAsStream(filePath);
         if (is == null) is = Thread.currentThread().getContextClassLoader().getResourceAsStream(filePath);
 
         if (is == null) {
-            LOGGER.log(Level.SEVERE, "CSV file not found in classpath: {0}. Check resources folder.", filePath);
+            LOGGER.log(Level.SEVERE, "CSV file not found in classpath: {0}", filePath);
             return resultList;
         }
 
@@ -145,7 +187,7 @@ public class CSVLoader {
 
     private boolean isHeader(String line) {
         return line.startsWith("id") || line.startsWith("kuerzel") || line.startsWith("name") ||
-                line.startsWith("partei") || line.contains("color") || line.contains("farbe");
+                line.startsWith("partei") || line.contains("color") || line.contains("farbe") || line.contains("Abbreviation");
     }
 
     private String cleanCsvString(String input) {
