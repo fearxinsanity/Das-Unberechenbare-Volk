@@ -3,6 +3,7 @@ package de.schulprojekt.duv.view.managers;
 import de.schulprojekt.duv.model.core.SimulationParameters;
 import de.schulprojekt.duv.util.validation.ParameterValidator;
 import de.schulprojekt.duv.util.validation.ValidationMessage;
+import de.schulprojekt.duv.view.Main;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
@@ -160,7 +161,7 @@ public class ParameterManager {
             int rParties = ParameterValidator.getMinParties() +
                     masterRand.nextInt(ParameterValidator.getMaxParties() - ParameterValidator.getMinParties());
 
-            voterCountField.setText(String.format(Locale.GERMANY, "%,d", rPop));
+            voterCountField.setText(String.format(Main.getLocale(), "%,d", rPop));
             partyCountField.setText(String.valueOf(rParties));
             mediaInfluenceSlider.setValue(masterRand.nextDouble() * 100.0);
             mobilityRateSlider.setValue(masterRand.nextDouble() * 100.0);
@@ -181,7 +182,7 @@ public class ParameterManager {
      */
     public void synchronizeWithParameters(SimulationParameters params) {
         isUpdatingInternal = true;
-        voterCountField.setText(String.format(Locale.GERMANY, "%,d", params.populationSize()));
+        voterCountField.setText(String.format(Main.getLocale(), "%,d", params.populationSize()));
         partyCountField.setText(String.valueOf(params.partyCount()));
         scandalChanceField.setText(String.format(Locale.US, "%.1f", params.scandalProbability()));
         seedField.setText(String.valueOf(params.seed()));
@@ -191,7 +192,7 @@ public class ParameterManager {
         randomRangeSlider.setValue(params.chaosFactor());
 
         double displayBudget = params.budgetEffectiveness() * DEFAULT_BUDGET;
-        budgetField.setText(String.format(Locale.GERMANY, "%,.0f", displayBudget));
+        budgetField.setText(String.format(Main.getLocale(), "%,.0f", displayBudget));
         isUpdatingInternal = false;
     }
 
@@ -230,10 +231,10 @@ public class ParameterManager {
     public void applyInitialSettings(long population, long budget) {
         if (voterCountField != null) {
             int safePop = ParameterValidator.clampInt((int) population, ParameterValidator.getMinPopulation(), ParameterValidator.getMaxPopulation());
-            voterCountField.setText(String.format(Locale.GERMANY, "%,d", safePop));
+            voterCountField.setText(String.format(Main.getLocale(), "%,d", safePop));
         }
         if (budgetField != null) {
-            budgetField.setText(String.format(Locale.GERMANY, "%,d", budget));
+            budgetField.setText(String.format(Main.getLocale(), "%,d", budget));
         }
         updateSeedOnly();
     }
@@ -261,7 +262,7 @@ public class ParameterManager {
     public void adjustIntField(TextField field, int delta, int min, int max) {
         int val = parseIntSafe(field.getText(), min);
         int newVal = ParameterValidator.clampInt(val + delta, min, max);
-        field.setText(String.format(Locale.GERMANY, "%,d", newVal));
+        field.setText(String.format(Main.getLocale(), "%,d", newVal));
         updateSeedOnly();
     }
 
@@ -306,7 +307,7 @@ public class ParameterManager {
                 field.setText(String.format(Locale.US, "%.1f", parseDoubleSafe(text, 0.0)));
             } else if (field != seedField) {
                 long val = parseLongSafe(text);
-                field.setText(NumberFormat.getInstance(Locale.GERMANY).format(val));
+                field.setText(NumberFormat.getInstance(Main.getLocale()).format(val));
             }
         } catch (Exception ignored) {}
     }

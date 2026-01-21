@@ -6,6 +6,7 @@ import de.schulprojekt.duv.model.party.Party;
 import de.schulprojekt.duv.model.scandal.ScandalEvent;
 import de.schulprojekt.duv.model.dto.VoterTransition;
 import de.schulprojekt.duv.util.validation.ParameterValidator;
+import de.schulprojekt.duv.view.Main;
 import de.schulprojekt.duv.view.components.CanvasRenderer;
 import de.schulprojekt.duv.view.components.ChartManager;
 import de.schulprojekt.duv.view.components.FeedManager;
@@ -26,6 +27,7 @@ import javafx.scene.layout.VBox;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -130,6 +132,10 @@ public class DashboardController {
             feedManager.clear();
         }
         stateManager.updateStatusDisplay(controller.isRunning());
+
+        ResourceBundle bundle = ResourceBundle.getBundle("de.schulprojekt.duv.messages", Main.getLocale());
+        executeToggleButton.setText(controller.isRunning() ? bundle.getString("dash.pause") : bundle.getString("dash.execute"));
+
         feedManager.processScandal(scandal, step);
         chartManager.update(parties, step);
         canvasRenderer.update(parties, transitions, controller.getCurrentParameters().populationSize());
@@ -172,10 +178,13 @@ public class DashboardController {
             controller.pauseSimulation();
             stateManager.pauseTimer();
         }
+
+        ResourceBundle bundle = ResourceBundle.getBundle("de.schulprojekt.duv.messages", Main.getLocale());
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("SYSTEM ABORT");
-        alert.setHeaderText("TERMINATE SESSION");
-        alert.setContentText("Are you sure you want to terminate the secure connection?");
+        alert.setTitle(bundle.getString("alert.abort"));
+        alert.setHeaderText(bundle.getString("alert.terminate"));
+        alert.setContentText(bundle.getString("alert.confirm_logout"));
+
         applyAlertStyling(alert);
         if (alert.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
             shutdown();
@@ -297,7 +306,8 @@ public class DashboardController {
         if (controller == null) return;
         if (controller.isRunning()) { controller.pauseSimulation(); stateManager.pauseTimer(); }
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            ResourceBundle bundle = ResourceBundle.getBundle("de.schulprojekt.duv.messages", Main.getLocale());
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath), bundle);
             Parent root = loader.load();
             initAction.accept(loader, root);
             executeToggleButton.getScene().setRoot(root);
@@ -310,6 +320,6 @@ public class DashboardController {
                 alert.getDialogPane().getStylesheets().addAll(executeToggleButton.getScene().getStylesheets());
                 alert.getDialogPane().getStyleClass().add("alert-dialog");
             }
-        } catch (Exception e) {}
+        } catch (Exception ignored) {}
     }
 }

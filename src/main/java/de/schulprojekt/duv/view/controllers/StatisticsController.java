@@ -2,6 +2,7 @@ package de.schulprojekt.duv.view.controllers;
 
 import de.schulprojekt.duv.model.party.Party;
 import de.schulprojekt.duv.util.config.SimulationConfig;
+import de.schulprojekt.duv.view.Main;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -18,6 +19,7 @@ import javafx.util.Duration;
 import java.lang.management.ManagementFactory;
 import java.util.List;
 import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -38,9 +40,6 @@ public class StatisticsController {
     private static final String STYLE_PIE_COLOR = "-fx-pie-color: %s;";
     private static final String STYLE_BAR_FILL = "-fx-bar-fill: %s;";
     private static final String STYLE_LEGEND_SYMBOL = "-fx-background-color: %s;";
-    private static final String FORMAT_TOOLTIP_PIE = "FACTION: %s\nSIZE: %.0f\nQUOTA: %.1f%%";
-    private static final String FORMAT_TOOLTIP_SCANDAL = "TARGET: %s\nINCIDENTS: %s";
-    private static final String FORMAT_TOOLTIP_BUDGET = "TARGET: %s\nBUDGET: %.2f M€";
 
     // ========================================
     // Instance Variables
@@ -74,14 +73,6 @@ public class StatisticsController {
     }
 
     // ========================================
-    // Getter Methods
-    // ========================================
-
-    // ========================================
-    // Setter Methods
-    // ========================================
-
-    // ========================================
     // Business Logic Methods
     // ========================================
 
@@ -94,7 +85,9 @@ public class StatisticsController {
      */
     public void initData(List<Party> parties, ObservableList<XYChart.Series<Number, Number>> historyData, int currentTick, Parent dashboardRoot) {
         this.dashboardRoot = dashboardRoot;
-        this.totalTicksLabel.setText("ANALYSIS COMPLETE (TICKS: " + currentTick + ")");
+        ResourceBundle bundle = ResourceBundle.getBundle("de.schulprojekt.duv.messages", Main.getLocale());
+
+        this.totalTicksLabel.setText(String.format(bundle.getString("stats.analysis_complete"), currentTick));
 
         setupHistoryChartAnimated(historyData);
         setupDistributionChart(parties);
@@ -143,6 +136,7 @@ public class StatisticsController {
 
     private void setupHistoryChartAnimated(ObservableList<XYChart.Series<Number, Number>> historyData) {
         historyChart.getData().clear();
+        ResourceBundle bundle = ResourceBundle.getBundle("de.schulprojekt.duv.messages", Main.getLocale());
 
         for (XYChart.Series<Number, Number> sourceSeries : historyData) {
             XYChart.Series<Number, Number> newSeries = new XYChart.Series<>();
@@ -153,7 +147,7 @@ public class StatisticsController {
                 String style = sourceSeries.getNode().getStyle();
                 runOnNode(newSeries, node -> node.setStyle(style));
             }
-            runOnNode(newSeries, node -> installTooltipOnNode(node, "TRACE: " + newSeries.getName()));
+            runOnNode(newSeries, node -> installTooltipOnNode(node, bundle.getString("tt.trace").formatted(newSeries.getName())));
 
             Timeline trace = new Timeline();
             int delayCounter = 0;
@@ -182,19 +176,20 @@ public class StatisticsController {
     }
 
     private void fetchStaticHardwareInfo() {
+        ResourceBundle bundle = ResourceBundle.getBundle("de.schulprojekt.duv.messages", Main.getLocale());
         String cpuName = System.getenv("PROCESSOR_IDENTIFIER");
         if (cpuName == null || cpuName.isBlank()) {
             cpuName = System.getProperty("os.arch") + " PROCESSOR";
         }
         if (cpuName.length() > 28) cpuName = cpuName.substring(0, 28) + "...";
-        if (cpuLabel != null) cpuLabel.setText(cpuName);
+        if (cpuLabel != null) cpuLabel.setText(cpuName.equals("ERKENNE...") ? bundle.getString("hw.detecting") : cpuName);
 
         String gpuText = "JFX DEFAULT";
         try {
             Object prism = System.getProperty("prism.order");
             if (prism != null) gpuText = "PIPELINE: " + prism.toString().toUpperCase();
         } catch (Exception ignored) {}
-        if (gpuLabel != null) gpuLabel.setText(gpuText);
+        if (gpuLabel != null) gpuLabel.setText(gpuText.equals("SCANNE...") ? bundle.getString("hw.scanning") : gpuText);
     }
 
     private void updateSystemTelemetry() {
@@ -210,37 +205,41 @@ public class StatisticsController {
     }
 
     private String getRealSystemRam() {
+        ResourceBundle bundle = ResourceBundle.getBundle("de.schulprojekt.duv.messages", Main.getLocale());
         java.lang.management.OperatingSystemMXBean osBean = ManagementFactory.getOperatingSystemMXBean();
         if (osBean instanceof com.sun.management.OperatingSystemMXBean sunOsBean) {
             long total = sunOsBean.getTotalMemorySize();
             long free = sunOsBean.getFreeMemorySize();
-            return String.format(Locale.US, "%.1f / %.1f GB (PHYSICAL)", (total - free) / 1073741824.0, total / 1073741824.0);
+            return String.format(Locale.US, "%.1f / %.1f GB %s", (total - free) / 1073741824.0, total / 1073741824.0, bundle.getString("hw.physical"));
         }
-        return String.format(Locale.US, "JVM HEAP: %.1f MB", ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed() / 1048576.0);
+        return String.format(Locale.US, bundle.getString("hw.jvm_heap"), ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed() / 1048576.0);
     }
 
     private String getRealCpuLoad() {
+        ResourceBundle bundle = ResourceBundle.getBundle("de.schulprojekt.duv.messages", Main.getLocale());
         java.lang.management.OperatingSystemMXBean osBean = ManagementFactory.getOperatingSystemMXBean();
         if (osBean instanceof com.sun.management.OperatingSystemMXBean sunOsBean) {
             double load = sunOsBean.getCpuLoad();
-            return (load < 0) ? "CALCULATING..." : String.format(Locale.US, "LOAD: %.1f%% (CORES: %d)", load * 100, osBean.getAvailableProcessors());
+            return (load < 0) ? bundle.getString("hw.calc") : String.format(Locale.US, bundle.getString("hw.load"), load * 100, osBean.getAvailableProcessors());
         }
         return "CPU ACTIVE";
     }
 
     private String getUptimeText() {
+        ResourceBundle bundle = ResourceBundle.getBundle("de.schulprojekt.duv.messages", Main.getLocale());
         long uptime = ManagementFactory.getRuntimeMXBean().getUptime() / 1000;
-        return String.format("SESSION: %02d:%02d:%02d", uptime / 3600, (uptime % 3600) / 60, uptime % 60);
+        return String.format("%s %02d:%02d:%02d", bundle.getString("stats.session"), uptime / 3600, (uptime % 3600) / 60, uptime % 60);
     }
 
     private void setupDistributionChart(List<Party> parties) {
+        ResourceBundle bundle = ResourceBundle.getBundle("de.schulprojekt.duv.messages", Main.getLocale());
         double total = parties.stream().mapToDouble(Party::getCurrentSupporterCount).sum();
         for (Party p : parties) {
             PieChart.Data data = new PieChart.Data(p.getAbbreviation(), p.getCurrentSupporterCount());
             distributionChart.getData().add(data);
             runOnNode(data, node -> {
                 double pct = (total > 0) ? (data.getPieValue() / total) * 100.0 : 0.0;
-                installTooltipOnNode(node, String.format(FORMAT_TOOLTIP_PIE, p.getName(), data.getPieValue(), pct));
+                installTooltipOnNode(node, String.format(bundle.getString("tt.faction"), p.getName(), data.getPieValue(), pct));
                 node.setStyle(String.format(STYLE_PIE_COLOR, getPartyColorString(p)));
             });
         }
@@ -248,28 +247,31 @@ public class StatisticsController {
     }
 
     private void setupScandalChart(List<Party> parties) {
+        ResourceBundle bundle = ResourceBundle.getBundle("de.schulprojekt.duv.messages", Main.getLocale());
         XYChart.Series<String, Number> series = new XYChart.Series<>();
         for (Party p : parties) {
             if (p.getName().equals(SimulationConfig.UNDECIDED_NAME)) continue;
             XYChart.Data<String, Number> data = new XYChart.Data<>(p.getAbbreviation(), p.getScandalCount());
             series.getData().add(data);
             runOnNode(data, node -> {
-                node.setStyle(String.format(STYLE_BAR_FILL, "#" + p.getColorCode()));
-                installTooltipOnNode(node, String.format(FORMAT_TOOLTIP_SCANDAL, p.getName(), data.getYValue()));
+                node.setStyle(String.format(STYLE_BAR_FILL, getPartyColorString(p)));
+                String tip = bundle.getString("tt.target").formatted(p.getName()) + "\n" + bundle.getString("tt.scandals").formatted(data.getYValue());
+                installTooltipOnNode(node, tip);
             });
         }
         scandalChart.getData().add(series);
     }
 
     private void setupBudgetChart(List<Party> parties) {
+        ResourceBundle bundle = ResourceBundle.getBundle("de.schulprojekt.duv.messages", Main.getLocale());
         XYChart.Series<String, Number> series = new XYChart.Series<>();
         for (Party p : parties) {
             if (p.getName().equals(SimulationConfig.UNDECIDED_NAME)) continue;
             XYChart.Data<String, Number> data = new XYChart.Data<>(p.getAbbreviation(), p.getCampaignBudget() / 1000000.0);
             series.getData().add(data);
             runOnNode(data, node -> {
-                node.setStyle(String.format(STYLE_BAR_FILL, "#" + p.getColorCode()));
-                installTooltipOnNode(node, String.format(FORMAT_TOOLTIP_BUDGET, p.getName(), data.getYValue().doubleValue()));
+                node.setStyle(String.format(STYLE_BAR_FILL, getPartyColorString(p)));
+                installTooltipOnNode(node, String.format(bundle.getString("tt.budget"), p.getName(), data.getYValue().doubleValue()));
             });
         }
         budgetChart.getData().add(series);
@@ -316,6 +318,8 @@ public class StatisticsController {
     }
 
     private String getPartyColorString(Party p) {
-        return p.getName().equals(SimulationConfig.UNDECIDED_NAME) ? "#666666" : "#" + p.getColorCode();
+        if (p.getName().equals(SimulationConfig.UNDECIDED_NAME)) return "#666666";
+        String code = p.getColorCode();
+        return code.startsWith("#") ? code : "#" + code;
     }
 }

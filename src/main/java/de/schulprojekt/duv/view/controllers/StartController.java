@@ -1,5 +1,6 @@
 package de.schulprojekt.duv.view.controllers;
 
+import de.schulprojekt.duv.view.Main;
 import javafx.animation.AnimationTimer;
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
@@ -19,6 +20,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.io.IOException;
@@ -27,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -100,7 +103,8 @@ public class StartController {
     @FXML
     public void handleStartSimulation(ActionEvent ignored) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(DASHBOARD_FXML));
+            ResourceBundle bundle = ResourceBundle.getBundle("de.schulprojekt.duv.messages", Main.getLocale());
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(DASHBOARD_FXML), bundle);
             Parent dashboardRoot = loader.load();
 
             DashboardController dashboardCtrl = loader.getController();
@@ -129,6 +133,18 @@ public class StartController {
     public void handleExitApplication(ActionEvent ignored) {
         Platform.exit();
         System.exit(0);
+    }
+
+    @FXML
+    public void switchToGerman() {
+        Main.setLocale(Locale.GERMAN);
+        Main.showStartView((Stage) rootPane.getScene().getWindow());
+    }
+
+    @FXML
+    public void switchToEnglish() {
+        Main.setLocale(Locale.ENGLISH);
+        Main.showStartView((Stage) rootPane.getScene().getWindow());
     }
 
     // ========================================

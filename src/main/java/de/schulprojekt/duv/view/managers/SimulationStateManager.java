@@ -1,5 +1,6 @@
 package de.schulprojekt.duv.view.managers;
 
+import de.schulprojekt.duv.view.Main;
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
@@ -16,6 +17,7 @@ import de.schulprojekt.duv.view.util.VisualFX;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
 /**
@@ -370,17 +372,17 @@ public class SimulationStateManager {
      */
     public void updateStatusDisplay(boolean isRunning) {
         if (timeStepLabel == null) return;
+        ResourceBundle bundle = ResourceBundle.getBundle("de.schulprojekt.duv.messages", Main.getLocale());
 
-        String statusText = isRunning ? "RUNNING" : "PAUSED";
+        String statusKey = isRunning ? "state.running" : "state.paused";
         String color = isRunning ? "#55ff55" : "#ff5555";
 
         int m = remainingSeconds / 60;
         int s = remainingSeconds % 60;
         String timeText = String.format("%02d:%02d", m, s);
 
-        timeStepLabel.setText(String.format(
-                "STATUS: %s | TICK: %d | T-MINUS: %s",
-                statusText, currentTick, timeText
+        timeStepLabel.setText(String.format(bundle.getString("state.status"),
+                bundle.getString(statusKey), currentTick, timeText
         ));
         timeStepLabel.setStyle(String.format(
                 "-fx-text-fill: %s; -fx-font-family: 'Consolas'; -fx-font-weight: bold;",
@@ -434,8 +436,9 @@ public class SimulationStateManager {
      * @param isRunning true if simulation is running
      */
     private void updateButtonStates(boolean isRunning) {
+        ResourceBundle bundle = ResourceBundle.getBundle("de.schulprojekt.duv.messages", Main.getLocale());
         if (executeToggleButton != null) {
-            executeToggleButton.setText(isRunning ? "⏸ FREEZE" : "▶ EXECUTE");
+            executeToggleButton.setText(isRunning ? bundle.getString("state.freeze") : bundle.getString("state.execute"));
         }
         if (resetButton != null) {
             resetButton.setDisable(isRunning);
@@ -518,13 +521,14 @@ public class SimulationStateManager {
      */
     private void setButtonLockState(Button btn, boolean locked, String originalText) {
         if (btn == null) return;
+        ResourceBundle bundle = ResourceBundle.getBundle("de.schulprojekt.duv.messages", Main.getLocale());
 
         btn.setDisable(locked);
         if (locked) {
             if (!btn.getStyleClass().contains("locked-button")) {
                 btn.getStyleClass().add("locked-button");
             }
-            btn.setText("[ LOCKED ]");
+            btn.setText(bundle.getString("state.locked"));
         } else {
             btn.getStyleClass().remove("locked-button");
             if (originalText != null) {
