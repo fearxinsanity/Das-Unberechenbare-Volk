@@ -486,7 +486,7 @@ public class DashboardController {
         controller = new SimulationController(this);
         parameterManager.synchronizeWithParameters(controller.getCurrentParameters());
         stateManager.updateStatusDisplay(false);
-        updateSpeedSelectionUI(1);
+        handleSpeed1x();
     }
 
     private void updateSpeedSelectionUI(int selectedSpeed) {
