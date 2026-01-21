@@ -176,9 +176,9 @@
                     <VBox spacing="5">
                         <Label text="SIMULATION SPEED" styleClass="control-label"/>
                         <HBox spacing="5" alignment="CENTER">
-                            <Button text="1x" onAction="#handleSpeed1x" prefWidth="50"/>
-                            <Button text="2x" onAction="#handleSpeed2x" prefWidth="50"/>
-                            <Button text="4x" onAction="#handleSpeed4x" prefWidth="50"/>
+                            <Button fx:id="speed1xBtn" text="1x" onAction="#handleSpeed1x" prefWidth="50" styleClass="button, speed-button"/>
+                            <Button fx:id="speed2xBtn" text="2x" onAction="#handleSpeed2x" prefWidth="50" styleClass="button, speed-button"/>
+                            <Button fx:id="speed4xBtn" text="4x" onAction="#handleSpeed4x" prefWidth="50" styleClass="button, speed-button"/>
                         </HBox>
                     </VBox>
                     <StackPane>

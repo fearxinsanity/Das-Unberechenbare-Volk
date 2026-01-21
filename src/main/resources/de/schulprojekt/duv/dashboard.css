@@ -169,6 +169,13 @@
     -fx-effect:           dropshadow(gaussian, #D4AF37, 5, 0, 0, 0);
 }
 
+.speed-button-active {
+    -fx-background-color: #D4AF37 !important;
+    -fx-text-fill: #050508 !important;
+    -fx-effect: dropshadow(gaussian, #D4AF37, 10, 0.5, 0, 0) !important;
+    -fx-font-weight: bold;
+}
+
 /* =========================================================================
    5. CHARTS (RADAR STYLE)
    ========================================================================= */

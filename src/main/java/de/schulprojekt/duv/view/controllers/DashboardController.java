@@ -99,6 +99,10 @@ public class DashboardController {
     @FXML private Button intelButton;
     @FXML private Button parliamentButton;
 
+    @FXML private Button speed1xBtn;
+    @FXML private Button speed2xBtn;
+    @FXML private Button speed4xBtn;
+
     // ========================================
     // Instance Variables - Managers
     // ========================================
@@ -366,6 +370,7 @@ public class DashboardController {
     public void handleSpeed1x() {
         if (controller != null) {
             controller.updateSimulationSpeed(1);
+            updateSpeedSelectionUI(1);
         }
     }
 
@@ -373,6 +378,7 @@ public class DashboardController {
     public void handleSpeed2x() {
         if (controller != null) {
             controller.updateSimulationSpeed(2);
+            updateSpeedSelectionUI(2);
         }
     }
 
@@ -380,6 +386,7 @@ public class DashboardController {
     public void handleSpeed4x() {
         if (controller != null) {
             controller.updateSimulationSpeed(4);
+            updateSpeedSelectionUI(4);
         }
     }
 
@@ -478,6 +485,20 @@ public class DashboardController {
         controller = new SimulationController(this);
         parameterManager.synchronizeWithParameters(controller.getCurrentParameters());
         stateManager.updateStatusDisplay(false);
+        updateSpeedSelectionUI(1);
+    }
+
+    private void updateSpeedSelectionUI(int selectedSpeed) {
+        List<Button> speedButtons = List.of(speed1xBtn, speed2xBtn, speed4xBtn);
+        speedButtons.forEach(btn -> {
+            if (btn != null) {
+                btn.getStyleClass().remove("speed-button-active");
+            }
+        });
+
+        if (selectedSpeed == 1 && speed1xBtn != null) speed1xBtn.getStyleClass().add("speed-button-active");
+        else if (selectedSpeed == 2 && speed2xBtn != null) speed2xBtn.getStyleClass().add("speed-button-active");
+        else if (selectedSpeed == 4 && speed4xBtn != null) speed4xBtn.getStyleClass().add("speed-button-active");
     }
 
     private void navigate(
