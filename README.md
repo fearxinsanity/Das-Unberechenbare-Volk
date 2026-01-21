@@ -1,6 +1,6 @@
 # 🗳️ Das Unberechenbare Volk
 
-![Java](https://img.shields.io/badge/Java-25-orange)
+![Java](https://img.shields.io/badge/Java-21-orange)
 ![JavaFX](https://img.shields.io/badge/GUI-JavaFX-blue)
 ![Maven](https://img.shields.io/badge/Build-Maven-C71A36)
 ![Status](https://img.shields.io/badge/Status-Active-brightgreen)
