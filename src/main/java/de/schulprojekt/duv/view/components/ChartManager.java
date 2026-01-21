@@ -88,7 +88,7 @@ public class ChartManager {
         historyChart.getData().add(s);
 
         if (s.getNode() != null) {
-            s.getNode().setStyle("-fx-stroke: #" + p.getColorCode() + "; -fx-stroke-width: 2px;");
+            s.getNode().setStyle("-fx-stroke: " + p.getColorCode() + "; -fx-stroke-width: 2px;");
         }
 
         return s;

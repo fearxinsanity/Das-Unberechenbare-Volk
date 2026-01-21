@@ -67,13 +67,13 @@
 
 
         <left>
-            <ScrollPane fitToWidth="true" fitToHeight="true" hbarPolicy="NEVER"
+            <ScrollPane fitToWidth="true" fitToHeight="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
                         style="-fx-background-color: transparent; -fx-background: transparent; -fx-padding: 0;">
                 <BorderPane.margin>
                     <Insets top="15" left="15" bottom="15"/>
                 </BorderPane.margin>
 
-                <VBox fx:id="leftSidebar" spacing="10" styleClass="sidebar" prefWidth="300" minHeight="0">
+                <VBox fx:id="leftSidebar" spacing="10" styleClass="sidebar" prefWidth="300" minHeight="-Infinity">
                     <padding>
                         <Insets top="15" right="15" bottom="15" left="15"/>
                     </padding>
@@ -188,6 +188,7 @@
                             <Button fx:id="speed4xBtn" text="4x" onAction="#handleSpeed4x" prefWidth="50" styleClass="button, speed-button"/>
                         </HBox>
                     </VBox>
+
                     <StackPane>
                         <VBox fx:id="randomBox">
                             <Button text="[ RANDOMIZE DATA ]" onAction="#handleRandomize" maxWidth="Infinity"
@@ -195,6 +196,7 @@
                         </VBox>
                         <Label fx:id="randomOverlay" text="[ LOCKED ]" visible="false" styleClass="locked-overlay-label"/>
                     </StackPane>
+
                     <Button text="[ APPLY UPDATE ]" onAction="#handleParameterChange" maxWidth="Infinity"
                             style="-fx-base: #222;"/>
                 </VBox>
