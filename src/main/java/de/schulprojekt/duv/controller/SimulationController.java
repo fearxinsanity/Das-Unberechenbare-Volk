@@ -22,14 +22,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Acts as the bridge between the user interface and the simulation logic.
+ * Agiert als Brücke zwischen GUI und der Simulationslogik
  * <p>
- * It runs the simulation in its own background thread so the UI stays responsive
- * and doesn't freeze while calculations are happening.
+ * Die Simulation läuft in einem eigenen Hintergrund-Thread,
+ * damit die UI während der Berechnungen nicht einfriert.
  * </p>
  *
  * @author Nico Hoffmann
- * @version 1.2
+ * @version 1.0
  */
 public class SimulationController {
 
@@ -54,13 +54,14 @@ public class SimulationController {
     // ========================================
 
     /**
-     * Sets up the controller and prepares the background thread.
+     * Richtet den Controller ein und bereitet den Hintergrund-Thread vor.
      * <p>
-     * I use a daemon thread here. It ensures that the simulation stops automatically when you close the application window.
-     * Without it the process could still be running in the background.
+     *     Hier wird ein Daemon-Thread verwendet,
+     *     damit die Simulation nach dem Schließen gestoppt wird.
+     *     Ohne würde die Simulation im Hintergrund weiter laufen.
      * </p>
      *
-     * @param view the dashboard controller needed to update the UI
+     * @param view der {@code DashboardController()} wird für die aktualisierung der UI benötigt.
      */
     public SimulationController(DashboardController view) {
         this.view = view;
@@ -99,13 +100,13 @@ public class SimulationController {
     }
 
     /**
-     * Gets a list of all parties.
+     * Ruft eine Liste aller Parteien ab.
      * <p>
-     * Returns a copy instead of the original list.
-     * It prevents the UI from accidentally messing up the internal data of the simulation.
+     * Gibt eine Kopie der original Liste zurück.
+     * Verhindert das verfälschen der Daten durch die UI.
      * </p>
      *
-     * @return a safe copy of the party list
+     * @return eine sichere Kopie der Parteienliste.
      */
     public List<Party> getParties() {
         return new ArrayList<>(engine.getParties());
@@ -120,10 +121,10 @@ public class SimulationController {
     // ========================================
 
     /**
-     * Starts the simulation loop.
+     * Startet die Simulationsschleife.
      * <p>
-     * Uses a special check {@code compareAndSet} to make sure I don't accidentally start
-     * the simulation twice if the user clicks the button very fast.
+     * Verwendet {@code compareAndSet} um sicherzustellen,
+     * dass die Simulation nicht doppelt gestartet wird.
      * </p>
      */
     public void startSimulation() {
@@ -156,10 +157,11 @@ public class SimulationController {
     }
 
     /**
-     * Changes how fast the simulation runs.
+     * Ändert die Simulationsgeschwindigkeit.
      *
-     * @param factor the new speed. I limit this value to make sure it doesn't
-     * become too fast or invalid like 0 or negative, which would break the loop.
+     * @param factor die neue Geschwindigkeit. Der Wert wird begrenzt, damit er nicht
+     * zu schnell oder ungültig wird, da sonst die Schleife unterbrochen wird.
+     *
      */
     public void updateSimulationSpeed(int factor) {
         executorService.execute(() -> {
@@ -230,11 +232,11 @@ public class SimulationController {
     }
 
     /**
-     * Runs a single step of the simulation.
+     * Führt einen einzelnen Simulationsschritt aus.
      * <p>
-     * <strong>Important:</strong> The whole logic is wrapped in a try-catch block.
-     * If I don't do this, any small error would silently kill the background loop without
-     * telling me why. With this I can catch and log the error.
+     * <strong>Wichtig:</strong> Die gesamte Logik ist in einem try-catch-Block gekapselt.
+     * Ohne diesen würde jeder kleine Fehler die Hintergrundschleife ohne Meldung beenden.
+     * Hiermit wird der Fehler abgefangen und protokolliert.
      * </p>
      */
     private void runLoopStep() {
