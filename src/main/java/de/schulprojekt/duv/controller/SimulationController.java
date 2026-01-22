@@ -22,9 +22,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Controller connecting the UI with the simulation engine.
+ * Acts as the bridge between the user interface and the simulation logic.
+ * <p>
+ * It runs the simulation in its own background thread so the UI stays responsive
+ * and doesn't freeze while calculations are happening.
+ * </p>
+ *
  * @author Nico Hoffmann
- * @version 1.1
+ * @version 1.2
  */
 public class SimulationController {
 
@@ -49,8 +54,13 @@ public class SimulationController {
     // ========================================
 
     /**
-     * Initializes the controller with default simulation values.
-     * @param view the dashboard controller for UI updates
+     * Sets up the controller and prepares the background thread.
+     * <p>
+     * I use a daemon thread here. It ensures that the simulation stops automatically when you close the application window.
+     * Without it the process could still be running in the background.
+     * </p>
+     *
+     * @param view the dashboard controller needed to update the UI
      */
     public SimulationController(DashboardController view) {
         this.view = view;
@@ -88,6 +98,15 @@ public class SimulationController {
         return engine.getParameters();
     }
 
+    /**
+     * Gets a list of all parties.
+     * <p>
+     * Returns a copy instead of the original list.
+     * It prevents the UI from accidentally messing up the internal data of the simulation.
+     * </p>
+     *
+     * @return a safe copy of the party list
+     */
     public List<Party> getParties() {
         return new ArrayList<>(engine.getParties());
     }
@@ -100,6 +119,13 @@ public class SimulationController {
     // Business Logic Methods
     // ========================================
 
+    /**
+     * Starts the simulation loop.
+     * <p>
+     * Uses a special check {@code compareAndSet} to make sure I don't accidentally start
+     * the simulation twice if the user clicks the button very fast.
+     * </p>
+     */
     public void startSimulation() {
         executorService.execute(() -> {
             if (!isRunning.compareAndSet(false, true)) return;
@@ -129,6 +155,12 @@ public class SimulationController {
         });
     }
 
+    /**
+     * Changes how fast the simulation runs.
+     *
+     * @param factor the new speed. I limit this value to make sure it doesn't
+     * become too fast or invalid like 0 or negative, which would break the loop.
+     */
     public void updateSimulationSpeed(int factor) {
         executorService.execute(() -> {
             int validFactor = ParameterValidator.clampInt(
@@ -197,6 +229,14 @@ public class SimulationController {
         simulationTask = executorService.scheduleAtFixedRate(this::runLoopStep, 0, period, TimeUnit.MILLISECONDS);
     }
 
+    /**
+     * Runs a single step of the simulation.
+     * <p>
+     * <strong>Important:</strong> The whole logic is wrapped in a try-catch block.
+     * If I don't do this, any small error would silently kill the background loop without
+     * telling me why. With this I can catch and log the error.
+     * </p>
+     */
     private void runLoopStep() {
         try {
             if (!isRunning.get()) return;
