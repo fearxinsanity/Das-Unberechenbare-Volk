@@ -20,9 +20,15 @@ import java.util.List;
 /**
  * Orchestrator class for the simulation logic.
  * @author Nico Hoffmann
- * @version 1.3
+ * @version 1.0
  */
 public class SimulationEngine {
+
+    // ========================================
+    // Constants
+    // ========================================
+
+    private static final int CALCULATOR_CAPACITY_BUFFER = 10;
 
     // ========================================
     // Instance Variables
@@ -57,7 +63,7 @@ public class SimulationEngine {
         this.zeitgeistManager = new ZeitgeistManager();
 
         this.scandalScheduler = new ScandalScheduler(distributionProvider);
-        this.impactCalculator = new ScandalImpactCalculator(params.partyCount() + 10);
+        this.impactCalculator = new ScandalImpactCalculator(params.partyCount() + CALCULATOR_CAPACITY_BUFFER);
     }
 
     // ========================================
@@ -161,9 +167,7 @@ public class SimulationEngine {
     // ========================================
 
     private void triggerNewScandal() {
-        List<Party> realParties = partyRegistry.getParties().stream()
-                .filter(p -> !p.getName().equals(SimulationConfig.UNDECIDED_NAME))
-                .toList();
+        List<Party> realParties = partyRegistry.getTargetableParties();
 
         if (!realParties.isEmpty()) {
             int index = distributionProvider.getRandomGenerator().nextInt(realParties.size());

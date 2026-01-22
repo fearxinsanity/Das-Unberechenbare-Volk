@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Manages the list of active parties in the simulation.
@@ -52,6 +53,12 @@ public class PartyRegistry {
 
     public List<Party> getParties() {
         return partyList;
+    }
+
+    public List<Party> getTargetableParties() {
+        return partyList.stream()
+                .filter(p -> !p.getName().equals(SimulationConfig.UNDECIDED_NAME))
+                .collect(Collectors.toList());
     }
 
     // ========================================
