@@ -5,6 +5,7 @@ import de.schulprojekt.duv.model.core.SimulationParameters;
 import de.schulprojekt.duv.model.party.Party;
 import de.schulprojekt.duv.model.scandal.ScandalEvent;
 import de.schulprojekt.duv.model.dto.VoterTransition;
+import de.schulprojekt.duv.util.config.SimulationConfig;
 import de.schulprojekt.duv.util.validation.ParameterValidator;
 import de.schulprojekt.duv.util.validation.ValidationMessage;
 import de.schulprojekt.duv.view.controllers.DashboardController;
@@ -33,17 +34,6 @@ public class SimulationController {
 
     private static final Logger LOGGER = Logger.getLogger(SimulationController.class.getName());
 
-    private static final int DEFAULT_POPULATION = 250_000;
-    private static final double DEFAULT_MEDIA_INFLUENCE = 65.0;
-    private static final double DEFAULT_VOLATILITY = 35.0;
-    private static final double DEFAULT_SCANDAL_PROB = 5.0;
-    private static final double DEFAULT_LOYALTY = 50.0;
-    private static final int DEFAULT_TICK_RATE = 5;
-    private static final double DEFAULT_CHAOS = 1.0;
-    private static final int DEFAULT_PARTIES = 4;
-    private static final double DEFAULT_BUDGET_WEIGHT = 1.0;
-    private static final long DEFAULT_SEED = 42L;
-
     // ========================================
     // Instance Variables
     // ========================================
@@ -66,16 +56,16 @@ public class SimulationController {
         this.view = view;
 
         SimulationParameters params = new SimulationParameters(
-                DEFAULT_POPULATION,
-                DEFAULT_MEDIA_INFLUENCE,
-                DEFAULT_VOLATILITY,
-                DEFAULT_SCANDAL_PROB,
-                DEFAULT_LOYALTY,
-                DEFAULT_TICK_RATE,
-                DEFAULT_CHAOS,
-                DEFAULT_PARTIES,
-                DEFAULT_BUDGET_WEIGHT,
-                DEFAULT_SEED
+                SimulationConfig.DEFAULT_POPULATION,
+                SimulationConfig.DEFAULT_MEDIA_INFLUENCE,
+                SimulationConfig.DEFAULT_VOLATILITY,
+                SimulationConfig.DEFAULT_SCANDAL_PROB,
+                SimulationConfig.DEFAULT_LOYALTY,
+                SimulationConfig.DEFAULT_TICK_RATE,
+                SimulationConfig.DEFAULT_CHAOS,
+                SimulationConfig.DEFAULT_PARTIES,
+                SimulationConfig.DEFAULT_BUDGET_WEIGHT,
+                SimulationConfig.DEFAULT_SEED
         );
 
         ParameterValidator.validate(params);

@@ -189,7 +189,7 @@ public class StatisticsController {
             Object prism = System.getProperty("prism.order");
             if (prism != null) gpuText = "PIPELINE: " + prism.toString().toUpperCase();
         } catch (Exception ignored) {}
-        if (gpuLabel != null) gpuLabel.setText(gpuText.equals("SCANNE...") ? bundle.getString("hw.scanning") : gpuText);
+        if (gpuLabel != null) gpuLabel.setText(gpuText);
     }
 
     private void updateSystemTelemetry() {
