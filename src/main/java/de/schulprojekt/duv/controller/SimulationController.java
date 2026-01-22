@@ -31,10 +31,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Agiert als Brücke zwischen GUI und der Simulationslogik
+ * Verbindet UI und Logik und agiert als Composition Root.
  * <p>
- * Die Simulation läuft in einem eigenen Hintergrund-Thread,
- * damit die UI während der Berechnungen nicht einfriert.
+ * Diese Klasse hat zwei Verantwortlichkeiten:
+ *  * 1. Sie baut den gesamten Objektgraphen auf.
+ *  * 2. Sie steuert den Simulations-Thread, damit die Berechnung die UI nicht blockiert.
  * </p>
  *
  * @author Nico Hoffmann
@@ -64,14 +65,14 @@ public class SimulationController {
     // ========================================
 
     /**
-     * Richtet den Controller ein und bereitet den Hintergrund-Thread vor.
+     * Initialisiert den Controller und die Simulationsumgebung.
      * <p>
-     * Hier wird ein Daemon-Thread verwendet,
-     * damit die Simulation nach dem Schließen gestoppt wird.
-     * Ohne würde die Simulation im Hintergrund weiter laufen.
+     * Hier werden alle notwendigen Komponenten zentral instanziiert
+     * und an die {@link SimulationEngine} übergeben.
+     * Dies stellt sicher, dass die Engine ihre Abhängigkeiten kennt, ohne selbst auf globale Zustände zugreifen zu müssen.
      * </p>
      *
-     * @param view der {@code DashboardController()} wird für die aktualisierung der UI benötigt.
+     * @param view der GUI, wird für die aktualisierung der UI benötigt.
      */
     public SimulationController(DashboardController view) {
         this.view = view;

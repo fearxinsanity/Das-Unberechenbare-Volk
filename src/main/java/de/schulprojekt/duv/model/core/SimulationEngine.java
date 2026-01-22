@@ -17,7 +17,13 @@ import de.schulprojekt.duv.util.config.SimulationConfig;
 import java.util.List;
 
 /**
- * Orchestrator class for the simulation logic.
+ * Verwaltet die gesamte Simulationslogik an einer zentralen Stelle.
+ * <p>
+ * Die Klasse kapselt den komplexen Ablauf eines Simulationsschrittes,
+ * damit der Controller nur eine einzige Methode aufrufen muss,
+ * ohne die Details der Interaktion zwischen Wählern, Parteien und Skandalen kennen zu müssen.
+ * </p>
+ *
  * @author Nico Hoffmann
  * @version 1.0
  */
