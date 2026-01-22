@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="created configs and removed magic numbers">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/util/io/CSVLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/de/schulprojekt/duv/util/io/CSVLoader.java" afterDir="false" />
-    </list>
+    <list default="true" id="940e75ed-a3fe-4fda-aab8-c6d80cc05012" name="Changes" comment="removed warnings" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -56,7 +53,7 @@
     <option name="vmOptions" value="--enable-native-access=ALL-UNNAMED" />
   </component>
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="CurrentFile" />
+    <option name="selectedTabId" value="QODANA_PROBLEMS_VIEW_TAB" />
   </component>
   <component name="ProjectColorInfo">{
     &quot;associatedIndex&quot;: 0
@@ -107,7 +104,7 @@
   }
 }]]></component>
   <component name="QodanaCloudProjectLink">
-    <option name="lastReportId" value="eor5r1" />
+    <option name="lastReportId" value="Rv8e81" />
     <option name="linkedProjectId" value="Gg2Qj" />
     <option name="linkedProjectName" value="My first project" />
     <option name="organizationId" value="Q6GRr" />
@@ -117,7 +114,7 @@
     <option name="cloudReportPersistedInfo">
       <CloudReportPersistedInfo>
         <option name="projectId" value="Gg2Qj" />
-        <option name="reportId" value="eor5r1" />
+        <option name="reportId" value="Rv8e81" />
       </CloudReportPersistedInfo>
     </option>
   </component>
@@ -629,14 +626,21 @@
       <option name="project" value="LOCAL" />
       <updated>1768581702621</updated>
     </task>
-    <option name="localTasksCounter" value="39" />
+    <task id="LOCAL-00039" summary="removed warnings">
+      <option name="closed" value="true" />
+      <created>1769067393426</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1769067393426</updated>
+    </task>
+    <option name="localTasksCounter" value="40" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="changed math related to voter transition" />
     <MESSAGE value="changed design" />
     <MESSAGE value="changed buttons from square to round" />
     <MESSAGE value="changed particel" />
@@ -661,7 +665,8 @@
     <MESSAGE value="Zischenstand 2" />
     <MESSAGE value="Created Enum with all error Messages" />
     <MESSAGE value="created configs and removed magic numbers" />
-    <option name="LAST_COMMIT_MESSAGE" value="created configs and removed magic numbers" />
+    <MESSAGE value="removed warnings" />
+    <option name="LAST_COMMIT_MESSAGE" value="removed warnings" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
