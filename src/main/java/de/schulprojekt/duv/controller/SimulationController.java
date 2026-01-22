@@ -3,11 +3,20 @@ package de.schulprojekt.duv.controller;
 import de.schulprojekt.duv.model.core.SimulationEngine;
 import de.schulprojekt.duv.model.core.SimulationParameters;
 import de.schulprojekt.duv.model.party.Party;
+import de.schulprojekt.duv.model.party.PartyRegistry;
+import de.schulprojekt.duv.model.random.DistributionProvider;
 import de.schulprojekt.duv.model.scandal.ScandalEvent;
+import de.schulprojekt.duv.model.scandal.ScandalImpactCalculator;
+import de.schulprojekt.duv.model.scandal.ScandalScheduler;
+import de.schulprojekt.duv.model.voter.VoterBehavior;
+import de.schulprojekt.duv.model.voter.VoterPopulation;
+import de.schulprojekt.duv.model.voter.ZeitgeistManager;
 import de.schulprojekt.duv.model.dto.VoterTransition;
 import de.schulprojekt.duv.util.config.SimulationConfig;
+import de.schulprojekt.duv.util.io.CSVLoader;
 import de.schulprojekt.duv.util.validation.ParameterValidator;
 import de.schulprojekt.duv.util.validation.ValidationMessage;
+import de.schulprojekt.duv.view.Main;
 import de.schulprojekt.duv.view.controllers.DashboardController;
 import javafx.application.Platform;
 
@@ -38,6 +47,7 @@ public class SimulationController {
     // ========================================
 
     private static final Logger LOGGER = Logger.getLogger(SimulationController.class.getName());
+    private static final int CALCULATOR_CAPACITY_BUFFER = 10;
 
     // ========================================
     // Instance Variables
@@ -56,9 +66,9 @@ public class SimulationController {
     /**
      * Richtet den Controller ein und bereitet den Hintergrund-Thread vor.
      * <p>
-     *     Hier wird ein Daemon-Thread verwendet,
-     *     damit die Simulation nach dem Schließen gestoppt wird.
-     *     Ohne würde die Simulation im Hintergrund weiter laufen.
+     * Hier wird ein Daemon-Thread verwendet,
+     * damit die Simulation nach dem Schließen gestoppt wird.
+     * Ohne würde die Simulation im Hintergrund weiter laufen.
      * </p>
      *
      * @param view der {@code DashboardController()} wird für die aktualisierung der UI benötigt.
@@ -81,7 +91,27 @@ public class SimulationController {
 
         ParameterValidator.validate(params);
 
-        this.engine = new SimulationEngine(params);
+        CSVLoader csvLoader = new CSVLoader(Main.getLocale());
+        DistributionProvider distributionProvider = new DistributionProvider();
+
+        PartyRegistry partyRegistry = new PartyRegistry(csvLoader);
+        VoterPopulation voterPopulation = new VoterPopulation();
+        VoterBehavior voterBehavior = new VoterBehavior();
+        ZeitgeistManager zeitgeistManager = new ZeitgeistManager();
+        ScandalScheduler scandalScheduler = new ScandalScheduler(distributionProvider);
+        ScandalImpactCalculator impactCalculator = new ScandalImpactCalculator(params.partyCount() + CALCULATOR_CAPACITY_BUFFER);
+
+        this.engine = new SimulationEngine(
+                params,
+                csvLoader,
+                distributionProvider,
+                partyRegistry,
+                voterPopulation,
+                voterBehavior,
+                zeitgeistManager,
+                scandalScheduler,
+                impactCalculator
+        );
         this.engine.initializeSimulation();
 
         this.executorService = Executors.newSingleThreadScheduledExecutor(r -> {
@@ -103,7 +133,7 @@ public class SimulationController {
      * Ruft eine Liste aller Parteien ab.
      * <p>
      * Gibt eine Kopie der original Liste zurück.
-     * Verhindert das verfälschen der Daten durch die UI.
+     * Verhindert das Verfälschen der Daten durch die UI.
      * </p>
      *
      * @return eine sichere Kopie der Parteienliste.

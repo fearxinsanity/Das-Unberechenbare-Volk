@@ -13,7 +13,6 @@ import de.schulprojekt.duv.model.voter.ZeitgeistManager;
 import de.schulprojekt.duv.model.dto.VoterTransition;
 import de.schulprojekt.duv.util.io.CSVLoader;
 import de.schulprojekt.duv.util.config.SimulationConfig;
-import de.schulprojekt.duv.view.Main;
 
 import java.util.List;
 
@@ -23,12 +22,6 @@ import java.util.List;
  * @version 1.0
  */
 public class SimulationEngine {
-
-    // ========================================
-    // Constants
-    // ========================================
-
-    private static final int CALCULATOR_CAPACITY_BUFFER = 10;
 
     // ========================================
     // Instance Variables
@@ -49,21 +42,27 @@ public class SimulationEngine {
     // Constructors
     // ========================================
 
-    public SimulationEngine(SimulationParameters params) {
+    public SimulationEngine(SimulationParameters params,
+                            CSVLoader csvLoader,
+                            DistributionProvider distributionProvider,
+                            PartyRegistry partyRegistry,
+                            VoterPopulation voterPopulation,
+                            VoterBehavior voterBehavior,
+                            ZeitgeistManager zeitgeistManager,
+                            ScandalScheduler scandalScheduler,
+                            ScandalImpactCalculator impactCalculator) {
         this.parameters = params;
         this.state = new SimulationState();
-        this.csvLoader = new CSVLoader(Main.getLocale());
+        this.csvLoader = csvLoader;
+        this.distributionProvider = distributionProvider;
+        this.partyRegistry = partyRegistry;
+        this.voterPopulation = voterPopulation;
+        this.voterBehavior = voterBehavior;
+        this.zeitgeistManager = zeitgeistManager;
+        this.scandalScheduler = scandalScheduler;
+        this.impactCalculator = impactCalculator;
 
-        this.distributionProvider = new DistributionProvider();
         this.distributionProvider.initialize(params);
-
-        this.partyRegistry = new PartyRegistry(csvLoader);
-        this.voterPopulation = new VoterPopulation();
-        this.voterBehavior = new VoterBehavior();
-        this.zeitgeistManager = new ZeitgeistManager();
-
-        this.scandalScheduler = new ScandalScheduler(distributionProvider);
-        this.impactCalculator = new ScandalImpactCalculator(params.partyCount() + CALCULATOR_CAPACITY_BUFFER);
     }
 
     // ========================================
