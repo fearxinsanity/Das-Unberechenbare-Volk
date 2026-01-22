@@ -24,16 +24,17 @@
 
     <Region styleClass="grid-background" opacity="0.6" />
 
-    <Label text="CLASSIFIED // TOP SECRET" styleClass="classified-watermark" mouseTransparent="true" opacity="0.1"/>
+    <Label text="%dash.classified" styleClass="classified-watermark" mouseTransparent="true" opacity="0.1"/>
 
     <BorderPane pickOnBounds="false">
         <top>
             <VBox>
                 <HBox alignment="CENTER_RIGHT" spacing="20" style="-fx-padding: 5 20 0 0; -fx-background-color: rgba(0,0,0,0.5);">
-                    <Label text="SIM.CORE: ONLINE" styleClass="hud-text, hud-text-highlight"/>
-                    <Label text="ENCRYPTION: AES-256" styleClass="hud-text"/>
-                    <Label text="SECURE_CONN_ESTABLISHED" styleClass="hud-text"/>
+                    <Label text="%dash.sim_core" styleClass="hud-text, hud-text-highlight"/>
+                    <Label text="%dash.encryption" styleClass="hud-text"/>
+                    <Label text="%dash.secure_conn" styleClass="hud-text"/>
                 </HBox>
+
                 <VBox styleClass="top-bar">
                     <ScrollPane fitToHeight="true" fitToWidth="true" vbarPolicy="NEVER"
                                 style="-fx-background-color: transparent; -fx-background: transparent; -fx-padding: 0;">
@@ -42,22 +43,22 @@
                                 <Image url="@../Pictures/DUV_Logo.png"/>
                             </ImageView>
 
-                            <Label text="[ SYS: DUV ]" styleClass="app-title"/>
+                            <Label text="%dash.app_title" styleClass="app-title"/>
 
                             <Region HBox.hgrow="ALWAYS"/>
 
-                            <Label fx:id="timeStepLabel" text="Status: STANDBY" styleClass="status-label" minWidth="140" alignment="CENTER_RIGHT"/>
+                            <Label fx:id="timeStepLabel" text="%dash.status_standby" styleClass="status-label" minWidth="140" alignment="CENTER_RIGHT"/>
 
                             <Separator orientation="VERTICAL" />
 
-                            <Button fx:id="executeToggleButton" text="▶ EXECUTE" onAction="#handleToggleSimulation"/>
-                            <Button fx:id="resetButton" text="↺ REBOOT" onAction="#handleResetSimulation" disable="true"/>
-                            <Button fx:id="intelButton" text="📊 INTEL" onAction="#handleShowStatistics" style="-fx-base: #222;" disable="true"/>
-                            <Button fx:id="parliamentButton" text="PARLIAMENT" onAction="#handleShowParliament" styleClass="action-button" disable="true"/>
+                            <Button fx:id="executeToggleButton" text="%dash.execute" onAction="#handleToggleSimulation"/>
+                            <Button fx:id="resetButton" text="%dash.reboot" onAction="#handleResetSimulation" disable="true"/>
+                            <Button fx:id="intelButton" text="%dash.intel" onAction="#handleShowStatistics" style="-fx-base: #222;" disable="true"/>
+                            <Button fx:id="parliamentButton" text="%dash.parliament" onAction="#handleShowParliament" styleClass="action-button" disable="true"/>
 
                             <Separator orientation="VERTICAL" />
 
-                            <Button text="⏻ LOGOUT" onAction="#handleLogout"
+                            <Button text="%dash.logout" onAction="#handleLogout"
                                     style="-fx-base: #500; -fx-text-fill: #ffcccc; -fx-font-weight: bold;"/>
                         </HBox>
                     </ScrollPane>
@@ -65,105 +66,104 @@
             </VBox>
         </top>
 
-
         <left>
-            <ScrollPane fitToWidth="true" hbarPolicy="NEVER"
+            <ScrollPane fitToWidth="true" fitToHeight="true" hbarPolicy="NEVER"
                         style="-fx-background-color: transparent; -fx-background: transparent; -fx-padding: 0;">
                 <BorderPane.margin>
                     <Insets top="15" left="15" bottom="15"/>
                 </BorderPane.margin>
 
-                <VBox fx:id="leftSidebar" spacing="10" styleClass="sidebar" prefWidth="300" minHeight="0">
+                <VBox fx:id="leftSidebar" spacing="10" styleClass="sidebar" prefWidth="300" minHeight="-Infinity">
                     <padding>
                         <Insets top="15" right="15" bottom="15" left="15"/>
                     </padding>
 
-                    <Label text=">> MISSION_CONFIG [STATIC]" styleClass="section-title"/>
+                    <Label text="%dash.mission_config" styleClass="section-title"/>
                     <Separator style="-fx-opacity: 0.3;"/>
 
                     <StackPane>
                         <VBox fx:id="populationBox" spacing="5">
-                            <Label text="POPULATION SIZE" styleClass="control-label"/>
+                            <Label text="%dash.population_size" styleClass="control-label"/>
                             <HBox spacing="5" alignment="CENTER_LEFT">
                                 <Button text="-" onAction="#handleVoterCountDecrement" prefWidth="35"/>
-                                <TextField fx:id="voterCountField" text="100000" HBox.hgrow="ALWAYS"
-                                           onAction="#handleParameterChange" alignment="CENTER"/>
+                                <TextField fx:id="voterCountField" text="100000" HBox.hgrow="ALWAYS" alignment="CENTER"/>
                                 <Button text="+" onAction="#handleVoterCountIncrement" prefWidth="35"/>
                             </HBox>
                         </VBox>
-                        <Label fx:id="populationOverlay" text="[ LOCKED ]" visible="false" styleClass="locked-overlay-label"/>
+                        <Label fx:id="populationOverlay" text="%dash.locked" visible="false" styleClass="locked-overlay-label"/>
                     </StackPane>
 
                     <StackPane>
                         <VBox fx:id="partyBox" spacing="5">
-                            <Label text="NUMBER OF PARTIES" styleClass="control-label"/>
+                            <Label text="%dash.num_parties" styleClass="control-label"/>
                             <HBox spacing="5" alignment="CENTER_LEFT">
                                 <Button text="-" onAction="#handlePartyCountDecrement" prefWidth="35"/>
-                                <TextField fx:id="partyCountField" text="5" HBox.hgrow="ALWAYS" alignment="CENTER"
-                                           editable="false"/>
+                                <TextField fx:id="partyCountField" text="5" HBox.hgrow="ALWAYS" alignment="CENTER" editable="false"/>
                                 <Button text="+" onAction="#handlePartyCountIncrement" prefWidth="35"/>
                             </HBox>
                         </VBox>
-                        <Label fx:id="partyOverlay" text="[ LOCKED ]" visible="false" styleClass="locked-overlay-label"/>
+                        <Label fx:id="partyOverlay" text="%dash.locked" visible="false" styleClass="locked-overlay-label"/>
                     </StackPane>
 
                     <StackPane>
                         <VBox fx:id="budgetBox" spacing="5">
-                            <Label text="CAMPAIGN BUDGET (€)" styleClass="control-label"/>
-                            <TextField fx:id="budgetField" text="500000" onAction="#handleParameterChange"/>
+                            <Label text="%dash.budget" styleClass="control-label"/>
+                            <TextField fx:id="budgetField" text="500000" />
                         </VBox>
-                        <Label fx:id="budgetOverlay" text="[ LOCKED ]" visible="false" styleClass="locked-overlay-label"/>
+                        <Label fx:id="budgetOverlay" text="%dash.locked" visible="false" styleClass="locked-overlay-label"/>
+                    </StackPane>
+
+                    <StackPane>
+                        <VBox fx:id="seedBox" spacing="5">
+                            <Label text="%dash.seed" styleClass="control-label"/>
+                            <TextField fx:id="seedField" text="42" alignment="CENTER"/>
+                        </VBox>
+                        <Label fx:id="seedOverlay" text="%dash.locked" visible="false" styleClass="locked-overlay-label"/>
                     </StackPane>
 
                     <StackPane>
                         <VBox fx:id="durationBox" spacing="5">
-                            <Label text="SIMULATION DURATION" styleClass="control-label"/>
+                            <Label text="%dash.duration" styleClass="control-label"/>
                             <HBox spacing="5" alignment="CENTER_LEFT">
                                 <Button text="-" onAction="#handleDurationDecrement" prefWidth="35"/>
-                                <TextField fx:id="durationField" text="00:30" editable="false"
-                                           HBox.hgrow="ALWAYS" alignment="CENTER"/>
+                                <TextField fx:id="durationField" text="00:30" editable="false" HBox.hgrow="ALWAYS" alignment="CENTER"/>
                                 <Button text="+" onAction="#handleDurationIncrement" prefWidth="35"/>
                             </HBox>
                         </VBox>
-                        <Label fx:id="durationOverlay" text="[ LOCKED ]" visible="false" styleClass="locked-overlay-label"/>
+                        <Label fx:id="durationOverlay" text="%dash.locked" visible="false" styleClass="locked-overlay-label"/>
                     </StackPane>
 
                     <Region prefHeight="10"/>
 
-                    <Label text=">> LIVE_INTERFERENCE" styleClass="section-title"/>
+                    <Label text="%dash.interference" styleClass="section-title"/>
                     <Separator style="-fx-opacity: 0.3;"/>
 
                     <VBox spacing="12">
                         <VBox spacing="2">
-                            <Label text="MEDIA INFLUENCE (%)" styleClass="control-label"/>
-                            <Slider fx:id="mediaInfluenceSlider" value="65"
-                                    onMouseReleased="#handleParameterChange"/>
+                            <Label text="%dash.media" styleClass="control-label"/>
+                            <Slider fx:id="mediaInfluenceSlider" value="65" />
                         </VBox>
 
                         <VBox spacing="2">
-                            <Label text="VOTER VOLATILITY (%)" styleClass="control-label"/>
-                            <Slider fx:id="mobilityRateSlider" value="35"
-                                    onMouseReleased="#handleParameterChange"/>
+                            <Label text="%dash.volatility" styleClass="control-label"/>
+                            <Slider fx:id="mobilityRateSlider" value="35" />
                         </VBox>
 
                         <VBox spacing="2">
-                            <Label text="PARTY LOYALTY (AVG)" styleClass="control-label"/>
-                            <Slider fx:id="loyaltyMeanSlider" value="50"
-                                    onMouseReleased="#handleParameterChange"/>
+                            <Label text="%dash.loyalty" styleClass="control-label"/>
+                            <Slider fx:id="loyaltyMeanSlider" value="50" />
                         </VBox>
 
                         <VBox spacing="2">
-                            <Label text="CHAOS FACTOR (Variance)" styleClass="control-label"/>
-                            <Slider fx:id="randomRangeSlider" min="0.1" max="5.0" value="1.0"
-                                    onMouseReleased="#handleParameterChange"/>
+                            <Label text="%dash.chaos" styleClass="control-label"/>
+                            <Slider fx:id="randomRangeSlider" min="0.1" max="5.0" value="1.0" />
                         </VBox>
 
                         <VBox spacing="2">
-                            <Label text="SCANDAL RISK (%)" styleClass="terminal-value-alert"/>
+                            <Label text="%dash.scandal_risk" styleClass="terminal-value-alert"/>
                             <HBox spacing="5" alignment="CENTER_LEFT">
                                 <Button text="-" onAction="#handleScandalChanceDecrement" prefWidth="35"/>
-                                <TextField fx:id="scandalChanceField" text="5.0" HBox.hgrow="ALWAYS" alignment="CENTER"
-                                           onAction="#handleParameterChange"/>
+                                <TextField fx:id="scandalChanceField" text="5.0" HBox.hgrow="ALWAYS" alignment="CENTER" />
                                 <Button text="+" onAction="#handleScandalChanceIncrement" prefWidth="35"/>
                             </HBox>
                         </VBox>
@@ -173,26 +173,25 @@
                     <Separator style="-fx-opacity: 0.2;"/>
 
                     <VBox spacing="5">
-                        <Label text="SIMULATION SPEED" styleClass="control-label"/>
+                        <Label text="%dash.sim_speed" styleClass="control-label"/>
                         <HBox spacing="5" alignment="CENTER">
                             <Button fx:id="speed1xBtn" text="1x" onAction="#handleSpeed1x" prefWidth="50" styleClass="button, speed-button"/>
                             <Button fx:id="speed2xBtn" text="2x" onAction="#handleSpeed2x" prefWidth="50" styleClass="button, speed-button"/>
                             <Button fx:id="speed4xBtn" text="4x" onAction="#handleSpeed4x" prefWidth="50" styleClass="button, speed-button"/>
                         </HBox>
                     </VBox>
+
                     <StackPane>
                         <VBox fx:id="randomBox">
-                            <Button text="[ RANDOMIZE DATA ]" onAction="#handleRandomize" maxWidth="Infinity"
-                                    style="-fx-base: #333; -fx-margin-bottom: 5;"/>
+                            <Button text="%dash.randomize" onAction="#handleRandomize" maxWidth="Infinity" style="-fx-base: #333;"/>
                         </VBox>
-                        <Label fx:id="randomOverlay" text="[ LOCKED ]" visible="false" styleClass="locked-overlay-label"/>
+                        <Label fx:id="randomOverlay" text="%dash.locked" visible="false" styleClass="locked-overlay-label"/>
                     </StackPane>
-                    <Button text="[ APPLY UPDATE ]" onAction="#handleParameterChange" maxWidth="Infinity"
-                            style="-fx-base: #222;"/>
+
+                    <Button text="%dash.apply" onAction="#handleParameterChange" maxWidth="Infinity" style="-fx-base: #222;"/>
                 </VBox>
             </ScrollPane>
         </left>
-
 
         <center>
             <BorderPane>
@@ -208,12 +207,11 @@
                         <BorderPane.margin>
                             <Insets top="15" left="15" right="15" bottom="15"/>
                         </BorderPane.margin>
-                        <Label text="LIVE_INTEL // SCANDAL_TICKER" styleClass="control-label" style="-fx-padding: 0 0 5 10;"/>
+                        <Label text="%dash.live_intel" styleClass="control-label" style="-fx-padding: 0 0 5 10;"/>
                         <ScrollPane fx:id="scandalTickerScroll" fitToHeight="true" vbarPolicy="NEVER"
                                     style="-fx-background-color: transparent; -fx-background: transparent;"
                                     minHeight="80.0" prefHeight="100.0">
-                            <HBox fx:id="scandalTickerBox" alignment="CENTER_LEFT" spacing="20.0"
-                                  style="-fx-padding: 10;">
+                            <HBox fx:id="scandalTickerBox" alignment="CENTER_LEFT" spacing="20.0" style="-fx-padding: 10;">
                             </HBox>
                         </ScrollPane>
                     </VBox>
@@ -228,25 +226,25 @@
                 </BorderPane.margin>
 
                 <VBox spacing="5" VBox.vgrow="NEVER">
-                    <Label text=">> INTEL_LOG" styleClass="section-title"/>
+                    <Label text="%dash.intel_log" styleClass="section-title"/>
                     <Pane fx:id="eventFeedPane" prefHeight="180" style="-fx-background-color: rgba(0,0,0,0.2);"/>
                 </VBox>
 
                 <Separator style="-fx-opacity: 0.3;"/>
 
                 <VBox VBox.vgrow="ALWAYS" spacing="5">
-                    <Label text=">> TREND_ANALYSIS" styleClass="section-title"/>
+                    <Label text="%dash.trend_analysis" styleClass="section-title"/>
                     <LineChart fx:id="historyChart" createSymbols="false" animated="false" VBox.vgrow="ALWAYS" legendVisible="false">
-                        <xAxis><NumberAxis label="TICKS" tickLabelFill="white"/></xAxis>
-                        <yAxis><NumberAxis label="VOTES" tickLabelFill="white"/></yAxis>
+                        <xAxis><NumberAxis label="%dash.ticks" tickLabelFill="white"/></xAxis>
+                        <yAxis><NumberAxis label="%dash.votes" tickLabelFill="white"/></yAxis>
                     </LineChart>
                 </VBox>
 
                 <VBox spacing="2" style="-fx-opacity: 0.6;">
-                    <Label text="KEY:" style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: #D4AF37;"/>
-                    <Label text="[■] FACTION_CORE" style="-fx-font-size: 10px; -fx-text-fill: #888;"/>
-                    <Label text="[+] CROSSHAIR: ACTIVE" style="-fx-font-size: 10px; -fx-text-fill: #888;"/>
-                    <Label text="--> DATA_PACKET: TRANSFER" style="-fx-font-size: 10px; -fx-text-fill: #888;"/>
+                    <Label text="%dash.key" style="-fx-font-size: 10px; -fx-font-weight: bold; -fx-text-fill: #D4AF37;"/>
+                    <Label text="%dash.faction_core" style="-fx-font-size: 10px; -fx-text-fill: #888;"/>
+                    <Label text="%dash.crosshair" style="-fx-font-size: 10px; -fx-text-fill: #888;"/>
+                    <Label text="%dash.data_packet" style="-fx-font-size: 10px; -fx-text-fill: #888;"/>
                 </VBox>
             </VBox>
         </right>
@@ -254,7 +252,7 @@
         <bottom>
             <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-padding: 0 0 10 20;">
                 <Label text="SYS.ID: DUV-2026-X" styleClass="hud-text"/>
-                <Label text="MODE: TACTICAL_VIEW" styleClass="hud-text, hud-text-highlight"/>
+                <Label text="%dash.mode" styleClass="hud-text, hud-text-highlight"/>
             </HBox>
         </bottom>
     </BorderPane>

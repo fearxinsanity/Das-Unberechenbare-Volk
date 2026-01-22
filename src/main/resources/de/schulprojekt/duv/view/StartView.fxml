@@ -9,6 +9,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
 
 <StackPane fx:id="rootPane" stylesheets="@../start.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.schulprojekt.duv.view.controllers.StartController">
 
@@ -20,7 +21,7 @@
 
     <VBox fx:id="cardBox" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" styleClass="login-card">
 
-        <Label text="TOP SECRET // EYES ONLY" styleClass="security-header" />
+        <Label text="%start.security_header" styleClass="security-header" />
 
         <Region prefHeight="15.0" />
 
@@ -31,25 +32,32 @@
         <Region prefHeight="30.0" />
 
         <VBox alignment="CENTER" spacing="2" styleClass="status-box">
-            <Label text="CONNECTION: SECURE (AES-256)" styleClass="status-text-green" />
-            <Label text="SERVER: GOV_MAIN_FRAME_01" styleClass="status-text" />
-            <Label text="STATUS: AWAITING AUTHENTICATION..." styleClass="status-text-blink" />
+            <Label text="%start.connection_secure" styleClass="status-text-green" />
+            <Label text="%start.server" styleClass="status-text" />
+            <Label text="%start.status_awaiting" styleClass="status-text-blink" />
         </VBox>
 
         <Region prefHeight="40.0" />
 
-        <Button text="REQUEST ACCESS" onAction="#handleStartSimulation" styleClass="login-button" defaultButton="true"/>
+        <Button text="%start.request_access" onAction="#handleStartSimulation" styleClass="login-button" defaultButton="true"/>
 
         <Region prefHeight="20.0" />
 
-        <Button text="DISCONNECT" onAction="#handleExitApplication" styleClass="abort-button" />
+        <Button text="%start.disconnect" onAction="#handleExitApplication" styleClass="abort-button" />
 
     </VBox>
 
-    <AnchorPane fx:id="hudLayer" mouseTransparent="true">
-        <Label text="SYS.VER. 2.4.1" AnchorPane.leftAnchor="20" AnchorPane.topAnchor="20" styleClass="hud-text"/>
-        <Label text="SECURE_UPLINK" AnchorPane.rightAnchor="20" AnchorPane.topAnchor="20" styleClass="hud-text-red"/>
+    <AnchorPane fx:id="hudLayer" pickOnBounds="false">
+        <Label text="%start.sys_ver" AnchorPane.leftAnchor="20" AnchorPane.topAnchor="20" styleClass="hud-text"/>
+        <Label text="2.4.1" AnchorPane.leftAnchor="85" AnchorPane.topAnchor="20" styleClass="hud-text"/>
+
+        <Label text="%start.secure_uplink" AnchorPane.rightAnchor="20" AnchorPane.topAnchor="20" styleClass="hud-text-red"/>
         <Label text="ID: 849-22-X" AnchorPane.leftAnchor="20" AnchorPane.bottomAnchor="20" styleClass="hud-text"/>
+
+        <HBox spacing="10" AnchorPane.rightAnchor="20" AnchorPane.bottomAnchor="20">
+            <Button text="DE" onAction="#switchToGerman" styleClass="speed-button" style="-fx-font-size: 10px;"/>
+            <Button text="EN" onAction="#switchToEnglish" styleClass="speed-button" style="-fx-font-size: 10px;"/>
+        </HBox>
     </AnchorPane>
 
 </StackPane>

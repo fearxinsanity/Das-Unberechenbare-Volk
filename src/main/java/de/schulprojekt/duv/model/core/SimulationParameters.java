@@ -11,9 +11,9 @@ package de.schulprojekt.duv.model.core;
  * @param chaosFactor random deviation factor for variance
  * @param partyCount number of active political parties
  * @param budgetEffectiveness multiplier for campaign budget impact
+ * @param seed the random seed for determinism
  * @author Nico Hoffmann
- * @version 1.1
- * @since Java 16
+ * @version 1.2
  */
 public record SimulationParameters(
         int populationSize,
@@ -24,41 +24,18 @@ public record SimulationParameters(
         int tickRate,
         double chaosFactor,
         int partyCount,
-        double budgetEffectiveness
+        double budgetEffectiveness,
+        long seed
 ) {
-
-    // ========================================
-    // Compact Constructor (Validation)
-    // ========================================
-
-    /**
-     * Validates that numeric constraints are met.
-     */
     public SimulationParameters {
         if (populationSize < 0) throw new IllegalArgumentException("Population cannot be negative");
         if (tickRate < 1) throw new IllegalArgumentException("Tick rate must be at least 1");
     }
 
-    // ========================================
-    // Transformation Methods
-    // ========================================
-
-    /**
-     * Creates a copy of the parameters with an updated tick rate.
-     * @param newTickRate the new simulation speed
-     * @return a new SimulationParameters instance
-     */
     public SimulationParameters withTickRate(int newTickRate) {
         return new SimulationParameters(
-                populationSize,
-                mediaInfluence,
-                volatilityRate,
-                scandalProbability,
-                loyaltyAverage,
-                newTickRate,
-                chaosFactor,
-                partyCount,
-                budgetEffectiveness
+                populationSize, mediaInfluence, volatilityRate, scandalProbability,
+                loyaltyAverage, newTickRate, chaosFactor, partyCount, budgetEffectiveness, seed
         );
     }
 }

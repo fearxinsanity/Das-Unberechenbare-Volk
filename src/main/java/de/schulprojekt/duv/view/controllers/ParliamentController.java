@@ -1,6 +1,7 @@
 package de.schulprojekt.duv.view.controllers;
 
 import de.schulprojekt.duv.model.party.Party;
+import de.schulprojekt.duv.view.Main;
 import de.schulprojekt.duv.view.components.ParliamentRenderer;
 import de.schulprojekt.duv.view.components.TooltipManager;
 import javafx.event.ActionEvent;
@@ -10,6 +11,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 
 import java.util.List;
+import java.util.ResourceBundle;
 
 /**
  * Controller for the Parliament View (Semicircle Seating).
@@ -46,7 +48,8 @@ public class ParliamentController {
         this.renderer.renderDistribution(parties);
 
         if (totalSeatsLabel != null) {
-            totalSeatsLabel.setText(renderer.getTotalSeats() + " SEATS");
+            ResourceBundle bundle = ResourceBundle.getBundle("de.schulprojekt.duv.messages", Main.getLocale());
+            totalSeatsLabel.setText(renderer.getTotalSeats() + bundle.getString("parl.seats_suffix"));
         }
 
         setupInteractions();

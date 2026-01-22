@@ -9,17 +9,18 @@ import de.schulprojekt.duv.model.scandal.ScandalImpactCalculator;
 import de.schulprojekt.duv.model.scandal.ScandalScheduler;
 import de.schulprojekt.duv.model.voter.VoterBehavior;
 import de.schulprojekt.duv.model.voter.VoterPopulation;
+import de.schulprojekt.duv.model.voter.ZeitgeistManager;
 import de.schulprojekt.duv.model.dto.VoterTransition;
 import de.schulprojekt.duv.util.io.CSVLoader;
 import de.schulprojekt.duv.util.config.SimulationConfig;
+import de.schulprojekt.duv.view.Main;
 
 import java.util.List;
-import java.util.Random;
 
 /**
  * Orchestrator class for the simulation logic.
  * @author Nico Hoffmann
- * @version 1.0
+ * @version 1.3
  */
 public class SimulationEngine {
 
@@ -30,11 +31,11 @@ public class SimulationEngine {
     private final SimulationState state;
     private SimulationParameters parameters;
     private final CSVLoader csvLoader;
-    private final Random random = new Random();
     private final DistributionProvider distributionProvider;
     private final PartyRegistry partyRegistry;
     private final VoterPopulation voterPopulation;
     private final VoterBehavior voterBehavior;
+    private final ZeitgeistManager zeitgeistManager;
     private final ScandalScheduler scandalScheduler;
     private final ScandalImpactCalculator impactCalculator;
 
@@ -42,14 +43,10 @@ public class SimulationEngine {
     // Constructors
     // ========================================
 
-    /**
-     * Constructs a new SimulationEngine with the given parameters.
-     * @param params the initial simulation parameters
-     */
     public SimulationEngine(SimulationParameters params) {
         this.parameters = params;
         this.state = new SimulationState();
-        this.csvLoader = new CSVLoader();
+        this.csvLoader = new CSVLoader(Main.getLocale());
 
         this.distributionProvider = new DistributionProvider();
         this.distributionProvider.initialize(params);
@@ -57,6 +54,7 @@ public class SimulationEngine {
         this.partyRegistry = new PartyRegistry(csvLoader);
         this.voterPopulation = new VoterPopulation();
         this.voterBehavior = new VoterBehavior();
+        this.zeitgeistManager = new ZeitgeistManager();
 
         this.scandalScheduler = new ScandalScheduler(distributionProvider);
         this.impactCalculator = new ScandalImpactCalculator(params.partyCount() + 10);
@@ -91,6 +89,9 @@ public class SimulationEngine {
         scandalScheduler.reset();
         impactCalculator.reset();
 
+        double initialZeitgeist = (distributionProvider.getRandomGenerator().nextDouble() - 0.5) * 2.0;
+        zeitgeistManager.setZeitgeist(initialZeitgeist);
+
         partyRegistry.initializeParties(parameters, distributionProvider);
 
         voterPopulation.initialize(
@@ -111,6 +112,10 @@ public class SimulationEngine {
             triggerNewScandal();
         }
 
+        zeitgeistManager.updateZeitgeist(parameters, state.getCurrentStep());
+
+        voterPopulation.updateVoterAttributes(parameters);
+
         double[] acutePressures = impactCalculator.calculateAcutePressure(
                 state.getActiveScandals(),
                 partyRegistry.getParties(),
@@ -124,7 +129,9 @@ public class SimulationEngine {
                 partyRegistry.getParties(),
                 parameters,
                 acutePressures,
-                impactCalculator
+                impactCalculator,
+                state.getCurrentStep(),
+                zeitgeistManager.getCurrentZeitgeist()
         );
 
         recalculateCounts();
@@ -134,7 +141,8 @@ public class SimulationEngine {
 
     public void updateParameters(SimulationParameters newParams) {
         boolean structuralChange = (newParams.partyCount() != parameters.partyCount()) ||
-                (newParams.populationSize() != parameters.populationSize());
+                (newParams.populationSize() != parameters.populationSize()) ||
+                (newParams.seed() != parameters.seed());
 
         this.parameters = newParams;
         distributionProvider.initialize(newParams);
@@ -158,7 +166,8 @@ public class SimulationEngine {
                 .toList();
 
         if (!realParties.isEmpty()) {
-            Party target = realParties.get(random.nextInt(realParties.size()));
+            int index = distributionProvider.getRandomGenerator().nextInt(realParties.size());
+            Party target = realParties.get(index);
             Scandal s = csvLoader.getRandomScandal();
 
             ScandalEvent event = new ScandalEvent(s, target, state.getCurrentStep());

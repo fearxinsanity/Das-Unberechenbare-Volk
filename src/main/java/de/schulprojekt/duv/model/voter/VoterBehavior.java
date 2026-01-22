@@ -12,15 +12,15 @@ import de.schulprojekt.duv.util.config.VoterBehaviorConfig;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 /**
  * Controls the behavior and decision-making of the voter population.
  * @author Nico Hoffmann
- * @version 1.3
+ * @version 1.4
  */
 public class VoterBehavior {
 
@@ -28,15 +28,16 @@ public class VoterBehavior {
     // Instance Variables
     // ========================================
 
-    private volatile double currentZeitgeist;
-
     // ========================================
     // Constructors
     // ========================================
 
     public VoterBehavior() {
-        this.currentZeitgeist = (ThreadLocalRandom.current().nextDouble() - 0.5) * 2.0;
     }
+
+    // ========================================
+    // Getter & Setter Methods
+    // ========================================
 
     // ========================================
     // Business Logic Methods
@@ -47,20 +48,18 @@ public class VoterBehavior {
             List<Party> parties,
             SimulationParameters params,
             double[] acutePressures,
-            ScandalImpactCalculator impactCalculator
+            ScandalImpactCalculator impactCalculator,
+            int currentStep,
+            double activeZeitgeist
     ) {
         ConcurrentLinkedQueue<VoterTransition> visualTransitions = new ConcurrentLinkedQueue<>();
         int partyCount = parties.size();
 
-        updateZeitgeist();
-
         AtomicInteger[] partyDeltas = initDeltas(partyCount);
-        PartyCalculationCache cache = createPartyCache(parties, params);
-
-        final double activeZeitgeist = this.currentZeitgeist;
+        PartyCalculationCache cache = createPartyCache(parties, params, currentStep);
 
         IntStream.range(0, population.size()).parallel().forEach(i -> {
-            ThreadLocalRandom rnd = ThreadLocalRandom.current();
+            Random rnd = new Random(params.seed() + i + (long) population.size() * currentStep);
 
             applyOpinionDrift(population, i, rnd, activeZeitgeist);
 
@@ -114,21 +113,7 @@ public class VoterBehavior {
     // Utility Methods
     // ========================================
 
-    private void updateZeitgeist() {
-        double nextZeitgeist = this.currentZeitgeist;
-        double change = (ThreadLocalRandom.current().nextDouble() - 0.5) * VoterBehaviorConfig.ZEITGEIST_DRIFT_STRENGTH;
-        nextZeitgeist += change;
-
-        if (nextZeitgeist > VoterBehaviorConfig.ZEITGEIST_MAX_AMPLITUDE) {
-            nextZeitgeist = VoterBehaviorConfig.ZEITGEIST_MAX_AMPLITUDE;
-        } else if (nextZeitgeist < -VoterBehaviorConfig.ZEITGEIST_MAX_AMPLITUDE) {
-            nextZeitgeist = -VoterBehaviorConfig.ZEITGEIST_MAX_AMPLITUDE;
-        }
-
-        this.currentZeitgeist = nextZeitgeist;
-    }
-
-    private void applyOpinionDrift(VoterPopulation population, int index, ThreadLocalRandom rnd, double globalTrend) {
+    private void applyOpinionDrift(VoterPopulation population, int index, Random rnd, double globalTrend) {
         double individualDrift = (rnd.nextDouble() - 0.5) * VoterBehaviorConfig.OPINION_DRIFT_FACTOR;
         double totalDrift = individualDrift + (globalTrend * VoterBehaviorConfig.GLOBAL_TREND_WEIGHT);
 
@@ -173,7 +158,7 @@ public class VoterBehavior {
             PartyCalculationCache cache,
             double[] acutePressures,
             ScandalImpactCalculator impactCalc,
-            ThreadLocalRandom rnd
+            Random rnd
     ) {
         boolean isPanicMode = context.currentPenalty() > VoterBehaviorConfig.DISASTER_FLIGHT_THRESHOLD;
 
@@ -215,7 +200,7 @@ public class VoterBehavior {
             double[] acutePressures,
             ScandalImpactCalculator impactCalc,
             double campaignEffectiveness,
-            ThreadLocalRandom rnd
+            Random rnd
     ) {
         double dist = Math.abs(context.position() - cache.positions()[partyIdx]);
         double typeAdjustedSensitivity = VoterBehaviorConfig.DISTANCE_SENSITIVITY *
@@ -231,10 +216,9 @@ public class VoterBehavior {
         double score = distScore + (budgetScore * cache.dailyMomentum()[partyIdx]);
 
         double acutePenalty = acutePressures[partyIdx];
-        double permanentDamage = impactCalc.getPermanentDamage(partyIdx);
-
         score -= acutePenalty * VoterBehaviorConfig.ACUTE_SCANDAL_PENALTY_WEIGHT;
 
+        double permanentDamage = impactCalc.getPermanentDamage(partyIdx);
         double permanentPenalty = permanentDamage * VoterBehaviorConfig.PERMANENT_SCANDAL_PENALTY_WEIGHT;
         score -= permanentPenalty;
 
@@ -266,7 +250,8 @@ public class VoterBehavior {
         }
     }
 
-    private PartyCalculationCache createPartyCache(List<Party> parties, SimulationParameters params) {
+    private PartyCalculationCache createPartyCache(List<Party> parties, SimulationParameters params, int currentStep) {
+        Random rnd = new Random(params.seed() + currentStep + 2);
         int size = parties.size();
         double[] positions = new double[size];
         double[] budgetScores = new double[size];
@@ -278,7 +263,7 @@ public class VoterBehavior {
             budgetScores[k] = (p.getCampaignBudget() / SimulationConfig.CAMPAIGN_BUDGET_FACTOR) *
                     VoterBehaviorConfig.BUDGET_SCORE_MULTIPLIER;
             momentum[k] = VoterBehaviorConfig.MOMENTUM_BASE +
-                    (ThreadLocalRandom.current().nextDouble() * VoterBehaviorConfig.MOMENTUM_VARIANCE);
+                    (rnd.nextDouble() * VoterBehaviorConfig.MOMENTUM_VARIANCE);
         }
 
         return new PartyCalculationCache(

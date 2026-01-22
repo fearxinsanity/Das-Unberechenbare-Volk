@@ -12,20 +12,20 @@
     <BorderPane styleClass="main-background">
         <top>
             <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-padding: 20;">
-                <Button text="&lt; SYSTEM_RETURN" onAction="#handleBack" styleClass="nav-button"/>
+                <Button text="%parl.back" onAction="#handleBack" styleClass="nav-button"/>
 
                 <VBox>
-                    <Label text="SEAT_DISTRIBUTION // HEMICYCLE_VIEW" styleClass="header-label">
+                    <Label text="%parl.title" styleClass="header-label">
                         <font><Font name="Consolas Bold" size="24"/></font>
                     </Label>
-                    <Label text="LIVE_SIMULATION_FEED::VOTER_MAPPING" styleClass="sub-header-label"/>
+                    <Label text="%parl.subtitle" styleClass="sub-header-label"/>
                 </VBox>
 
                 <Region HBox.hgrow="ALWAYS" />
 
                 <VBox alignment="CENTER_RIGHT" style="-fx-padding: 0 20 0 0;">
-                    <Label text="TOTAL_SEAT_CAPACITY" styleClass="sub-header-label" style="-fx-text-fill: #888888;"/>
-                    <Label fx:id="totalSeatsLabel" text="--- SEATS" styleClass="header-label" style="-fx-text-fill: #D4AF37; -fx-font-size: 20px;"/>
+                    <Label text="%parl.total_seats_cap" styleClass="sub-header-label" style="-fx-text-fill: #888888;"/>
+                    <Label fx:id="totalSeatsLabel" text="---" styleClass="header-label" style="-fx-text-fill: #D4AF37; -fx-font-size: 20px;"/>
                 </VBox>
             </HBox>
         </top>
@@ -36,7 +36,7 @@
 
         <bottom>
             <HBox alignment="CENTER" style="-fx-padding: 10;">
-                <Label text="[SECURE CONNECTION ESTABLISHED]" styleClass="footer-status"/>
+                <Label text="%parl.secure_conn" styleClass="footer-status"/>
             </HBox>
         </bottom>
     </BorderPane>

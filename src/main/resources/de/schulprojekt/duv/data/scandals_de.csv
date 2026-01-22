@@ -1,0 +1,11 @@
+id,type,name,description,impact
+1,FINANCE,Steuerhinterziehung,Hat Gelder am Fiskus vorbeigeschleust,0.8
+2,MORAL,Plagiatsaffäre,Doktortitel wurde aberkannt,0.6
+3,CORRUPTION,Maskenaffäre,Provisionen für Staatsaufträge kassiert,0.9
+4,PERSONAL,Trunkenheit am Steuer,Wurde mit 1.8 Promille erwischt,0.5
+5,POLITICAL,Wahlkampfspende,Illegale Spenden aus dem Ausland,0.7
+6,DATA,Datenschutzleck,Wählerdaten offen im Netz zugänglich,0.65
+7,STATEMENT,Beleidigung,Hat Wählergruppen öffentlich diffamiert,0.55
+8,ENV,Umweltskandal,Firma des Abgeordneten verschmutzt Fluss,0.75
+9,RELIGION,Kirchenaustritt,Aus taktischen Gründen ausgetreten,0.3
+10,MILITARY,Wehrdienst,Falsche Angaben zur Dienstzeit,0.4

@@ -23,7 +23,7 @@
 <StackPane prefHeight="800.0" prefWidth="1280.0" styleClass="root-pane" stylesheets="@../common.css, @../dashboard.css, @../statistics.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.schulprojekt.duv.view.controllers.StatisticsController">
 
     <Region opacity="0.6" styleClass="grid-background" />
-    <Label mouseTransparent="true" opacity="0.08" styleClass="classified-watermark" text="MISSION DEBRIEFING // EYES ONLY" />
+    <Label mouseTransparent="true" opacity="0.08" styleClass="classified-watermark" text="%stats.watermark" />
 
     <BorderPane>
         <top>
@@ -33,18 +33,18 @@
                         <Image url="@../Pictures/DUV_Logo.png" />
                     </ImageView>
 
-                    <Label styleClass="app-title" text="[ INTEL_HUB: OPERATION 'UNBERECHENBAR' - FINAL REPORT ]" />
+                    <Label styleClass="app-title" text="%stats.intel_hub" />
 
                     <Region HBox.hgrow="ALWAYS" />
 
                     <HBox alignment="CENTER" maxHeight="35.0" minHeight="35.0" prefHeight="35.0" spacing="5" style="-fx-border-color: #D4AF37; -fx-border-width: 1; -fx-padding: 0 10;">
-                        <Label style="-fx-font-size: 10px; -fx-text-fill: #888;" text="STATUS:" />
-                        <Label fx:id="totalTicksLabel" styleClass="status-label-ok" text="ANALYSIS COMPLETE (TICKS: 0)" />
+                        <Label style="-fx-font-size: 10px; -fx-text-fill: #888;" text="%stats.status_label" />
+                        <Label fx:id="totalTicksLabel" styleClass="status-label-ok" text="---" />
                     </HBox>
 
                     <Separator orientation="VERTICAL" />
 
-                    <Button maxHeight="35.0" minHeight="35.0" onAction="#handleBackToDashboard" prefHeight="35.0" styleClass="button" text="&lt;&lt; RÜCKKEHR ZUM DASHBOARD" />
+                    <Button maxHeight="35.0" minHeight="35.0" onAction="#handleBackToDashboard" prefHeight="35.0" styleClass="button" text="%stats.back_btn" />
                 </HBox>
             </VBox>
         </top>
@@ -57,60 +57,60 @@
 
                 <VBox styleClass="intel-panel" GridPane.columnIndex="0" GridPane.rowIndex="0" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
                     <HBox styleClass="panel-header">
-                        <Label styleClass="panel-title" text="[SEC-A1] TEMPORAL_VOTE_FLOW" />
+                        <Label styleClass="panel-title" text="%stats.panel_a_title" />
                         <Region HBox.hgrow="ALWAYS" />
-                        <Label fx:id="statusLabelArchived" styleClass="blink-indicator-ok" text="● ARCHIVED" />
+                        <Label fx:id="statusLabelArchived" styleClass="blink-indicator-ok" text="%stats.panel_a_status" />
                     </HBox>
                     <LineChart fx:id="historyChart" animated="false" createSymbols="false" legendVisible="false" VBox.vgrow="ALWAYS">
-                        <xAxis><NumberAxis label="TIME_INDEX (TICK)" styleClass="axis-label" tickLabelFill="white" /></xAxis>
-                        <yAxis><NumberAxis label="SUPPORT_COUNT" styleClass="axis-label" tickLabelFill="white" /></yAxis>
+                        <xAxis><NumberAxis label="%stats.panel_a_axis_x" styleClass="axis-label" tickLabelFill="white" /></xAxis>
+                        <yAxis><NumberAxis label="%stats.panel_a_axis_y" styleClass="axis-label" tickLabelFill="white" /></yAxis>
                     </LineChart>
                     <HBox styleClass="panel-footer">
-                        <Label text="DATA_POINTS: RESOLVED // TREND_ANALYSIS: STABLE" />
+                        <Label text="%stats.panel_a_footer" />
                         <Region HBox.hgrow="ALWAYS" />
-                        <Label text="INTEGRITY: 99.9%" />
+                        <Label text="%stats.integrity" />
                     </HBox>
                 </VBox>
 
                 <VBox styleClass="intel-panel" GridPane.columnIndex="1" GridPane.rowIndex="0" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
                     <HBox styleClass="panel-header">
-                        <Label styleClass="panel-title" text="[SEC-B2] FINAL_POWER_QUORUM" />
+                        <Label styleClass="panel-title" text="%stats.panel_b_title" />
                         <Region HBox.hgrow="ALWAYS" />
-                        <Label fx:id="statusLabelCalculated" styleClass="blink-indicator-ok" text="● CALCULATED" />
+                        <Label fx:id="statusLabelCalculated" styleClass="blink-indicator-ok" text="%stats.panel_b_status" />
                     </HBox>
                     <PieChart fx:id="distributionChart" labelsVisible="false" VBox.vgrow="ALWAYS" />
                     <HBox styleClass="panel-footer">
-                        <Label text="MAJORITY_HOLDER: IDENTIFIED // FRAGMENTATION_INDEX: LOW" />
+                        <Label text="%stats.panel_b_footer" />
                     </HBox>
                 </VBox>
 
                 <VBox styleClass="intel-panel" GridPane.columnIndex="0" GridPane.rowIndex="1" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
                     <HBox styleClass="panel-header">
-                        <Label styleClass="panel-title-alert" text="[SEC-C3] CORRUPTION_SEVERITY_INDEX" />
+                        <Label styleClass="panel-title-alert" text="%stats.panel_c_title" />
                         <Region HBox.hgrow="ALWAYS" />
-                        <Label fx:id="statusLabelReview" styleClass="blink-indicator-alert" text="● REVIEW REQ." />
+                        <Label fx:id="statusLabelReview" styleClass="blink-indicator-alert" text="%stats.panel_c_status" />
                     </HBox>
                     <BarChart fx:id="scandalChart" legendVisible="false" VBox.vgrow="ALWAYS">
-                        <xAxis><CategoryAxis label="FACTION_ID" styleClass="axis-label" tickLabelFill="white" /></xAxis>
-                        <yAxis><NumberAxis label="INCIDENT_COUNT" styleClass="axis-label" tickLabelFill="white" /></yAxis>
+                        <xAxis><CategoryAxis label="%stats.panel_c_axis_x" styleClass="axis-label" tickLabelFill="white" /></xAxis>
+                        <yAxis><NumberAxis label="%stats.panel_c_axis_y" styleClass="axis-label" tickLabelFill="white" /></yAxis>
                     </BarChart>
                     <HBox styleClass="panel-footer">
-                        <Label style="-fx-text-fill: #ff5555;" text="RISK_ASSESSMENT: MODERATE // FLAGGED_ENTITIES: MULTIPLE" />
+                        <Label style="-fx-text-fill: #ff5555;" text="%stats.panel_c_footer" />
                     </HBox>
                 </VBox>
 
                 <VBox styleClass="intel-panel" GridPane.columnIndex="1" GridPane.rowIndex="1" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
                     <HBox styleClass="panel-header">
-                        <Label styleClass="panel-title" text="[SEC-D4] FINANCIAL_RESOURCE_AUDIT (M€)" />
+                        <Label styleClass="panel-title" text="%stats.panel_d_title" />
                         <Region HBox.hgrow="ALWAYS" />
-                        <Label fx:id="statusLabelVerified" styleClass="blink-indicator-ok" text="● VERIFIED" />
+                        <Label fx:id="statusLabelVerified" styleClass="blink-indicator-ok" text="%stats.panel_d_status" />
                     </HBox>
                     <BarChart fx:id="budgetChart" legendVisible="false" VBox.vgrow="ALWAYS">
-                        <xAxis><CategoryAxis label="FACTION_ID" styleClass="axis-label" tickLabelFill="white" /></xAxis>
-                        <yAxis><NumberAxis label="REMAINING_BUDGET (M€)" styleClass="axis-label" tickLabelFill="white" /></yAxis>
+                        <xAxis><CategoryAxis label="%stats.panel_c_axis_x" styleClass="axis-label" tickLabelFill="white" /></xAxis>
+                        <yAxis><NumberAxis label="%stats.panel_d_axis_y" styleClass="axis-label" tickLabelFill="white" /></yAxis>
                     </BarChart>
                     <HBox styleClass="panel-footer">
-                        <Label text="LIQUIDITY_CHECK: COMPLETE // UNACCOUNTED_FUNDS: 0.00€" />
+                        <Label text="%stats.panel_d_footer" />
                     </HBox>
                 </VBox>
 
@@ -122,30 +122,29 @@
                     <RowConstraints minHeight="10.0" percentHeight="50.0" vgrow="SOMETIMES" />
                     <RowConstraints minHeight="10.0" percentHeight="50.0" vgrow="SOMETIMES" />
                 </rowConstraints>
-
             </GridPane>
         </center>
         <right>
             <VBox prefHeight="350.0" prefWidth="240.0" spacing="10.0" style="-fx-border-color: transparent transparent transparent rgba(212, 175, 55, 0.3); -fx-padding: 15; -fx-background-color: rgba(0,0,0,0.2);" BorderPane.alignment="CENTER">
-                <Label style="-fx-font-weight: bold; -fx-text-fill: #D4AF37;" text="SYSTEM_TELEMETRY" />
+                <Label style="-fx-font-weight: bold; -fx-text-fill: #D4AF37;" text="%stats.telemetry" />
                 <Separator style="-fx-opacity: 0.3;" />
 
                 <VBox spacing="6.0" style="-fx-opacity: 0.9;">
-                    <Label style="-fx-font-size: 9px; -fx-text-fill: #888;" text="CPU_MODEL:" />
-                    <Label fx:id="cpuLabel" style="-fx-font-size: 10px; -fx-font-family: 'Consolas';" text="DETECTING..." textFill="#e0e0e0" wrapText="true" />
+                    <Label style="-fx-font-size: 9px; -fx-text-fill: #888;" text="%stats.cpu" />
+                    <Label fx:id="cpuLabel" style="-fx-font-size: 10px; -fx-font-family: 'Consolas';" text="..." textFill="#e0e0e0" wrapText="true" />
 
-                    <Label style="-fx-font-size: 9px; -fx-text-fill: #888;" text="GPU_PIPELINE:" />
-                    <Label fx:id="gpuLabel" style="-fx-font-size: 10px; -fx-font-family: 'Consolas';" text="SCANNING..." textFill="#e0e0e0" />
+                    <Label style="-fx-font-size: 9px; -fx-text-fill: #888;" text="%stats.gpu" />
+                    <Label fx:id="gpuLabel" style="-fx-font-size: 10px; -fx-font-family: 'Consolas';" text="..." textFill="#e0e0e0" />
 
-                    <Label style="-fx-font-size: 9px; -fx-text-fill: #888;" text="CORE_LOAD:" />
-                    <Label fx:id="serverLoadLabel" style="-fx-font-size: 10px; -fx-font-family: 'Consolas';" text="CALC..." textFill="#a4a4a4" />
+                    <Label style="-fx-font-size: 9px; -fx-text-fill: #888;" text="%stats.load" />
+                    <Label fx:id="serverLoadLabel" style="-fx-font-size: 10px; -fx-font-family: 'Consolas';" text="..." textFill="#a4a4a4" />
 
-                    <Label style="-fx-font-size: 9px; -fx-text-fill: #888;" text="MEMORY_ALLOCATION (USED / TOTAL):" />
-                    <Label fx:id="ramLabel" style="-fx-font-size: 10px; -fx-font-family: 'Consolas';" text="CALC..." textFill="#a4a4a4" />
+                    <Label style="-fx-font-size: 9px; -fx-text-fill: #888;" text="%stats.mem" />
+                    <Label fx:id="ramLabel" style="-fx-font-size: 10px; -fx-font-family: 'Consolas';" text="..." textFill="#a4a4a4" />
 
                     <Label fx:id="uptimeLabel" style="-fx-font-size: 10px; -fx-font-family: 'Consolas'; -fx-padding: 5 0 0 0;" text="SESSION: 00:00:00" textFill="#a4a4a4" />
 
-                    <Label style="-fx-font-size: 10px; -fx-font-family: 'Consolas';" text="UPLINK: SECURE (SAT-4)" textFill="#55ff55" />
+                    <Label style="-fx-font-size: 10px; -fx-font-family: 'Consolas';" text="%stats.uplink" textFill="#55ff55" />
                 </VBox>
 
                 <Separator style="-fx-opacity: 0.3;">
@@ -154,19 +153,19 @@
                     </VBox.margin>
                 </Separator>
 
-                <Label style="-fx-font-weight: bold; -fx-text-fill: #D4AF37;" text="ACTIVE_PROTOCOLS" />
+                <Label style="-fx-font-weight: bold; -fx-text-fill: #D4AF37;" text="%stats.protocols" />
                 <VBox spacing="5.0" style="-fx-opacity: 0.7;">
-                    <Label maxWidth="Infinity" style="-fx-font-size: 10px; -fx-border-color: #55ff55; -fx-padding: 2;" text="[✔] DATA_RETENTION" textFill="#a4a4a4" />
-                    <Label maxWidth="Infinity" style="-fx-font-size: 10px; -fx-border-color: #55ff55; -fx-padding: 2;" text="[✔] PATTERN_MATCHING" textFill="#a4a4a4" />
-                    <Label maxWidth="Infinity" style="-fx-font-size: 10px; -fx-border-color: #888; -fx-padding: 2;" text="[X] ACTIVE_INTERFERENCE" textFill="#888888" />
+                    <Label maxWidth="Infinity" style="-fx-font-size: 10px; -fx-border-color: #55ff55; -fx-padding: 2;" text="%stats.p_retention" textFill="#a4a4a4" />
+                    <Label maxWidth="Infinity" style="-fx-font-size: 10px; -fx-border-color: #55ff55; -fx-padding: 2;" text="%stats.p_pattern" textFill="#a4a4a4" />
+                    <Label maxWidth="Infinity" style="-fx-font-size: 10px; -fx-border-color: #888; -fx-padding: 2;" text="%stats.p_interference" textFill="#888888" />
                 </VBox>
             </VBox>
         </right>
         <bottom>
             <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-padding: 5 0 10 20; -fx-background-color: rgba(0,0,0,0.6); -fx-border-color: rgba(212, 175, 55, 0.3) transparent transparent transparent;">
-                <Label style="-fx-opacity: 0.6;" styleClass="hud-text" text="SESSION_ID: XJ9-ANALYTICS-AUTH" />
+                <Label style="-fx-opacity: 0.6;" styleClass="hud-text" text="%stats.session_id" />
                 <Region HBox.hgrow="ALWAYS" />
-                <Label styleClass="hud-text, hud-text-highlight" text="SECURITY_CLEARANCE: ULTRA / EYES ONLY" />
+                <Label styleClass="hud-text, hud-text-highlight" text="%stats.security_clearance" />
             </HBox>
         </bottom>
     </BorderPane>

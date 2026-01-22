@@ -12,6 +12,8 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -36,6 +38,8 @@ public class Main extends Application {
     private static final String CSS_START = "/de/schulprojekt/duv/start.css";
     private static final String ICON_PATH = "/de/schulprojekt/duv/Pictures/DUV_Logo.png";
 
+    private static Locale currentLocale = Locale.GERMAN;
+
     // ========================================
     // Business Logic Methods
     // ========================================
@@ -46,27 +50,33 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        showStartView(primaryStage);
+    }
+
+    public static void showStartView(Stage stage) {
         try {
-            URL fxmlUrl = getClass().getResource(FXML_START_VIEW);
+            URL fxmlUrl = Main.class.getResource(FXML_START_VIEW);
             if (fxmlUrl == null) {
                 throw new IOException("FXML resource not found: " + FXML_START_VIEW);
             }
 
-            FXMLLoader loader = new FXMLLoader(fxmlUrl);
+            ResourceBundle bundle = ResourceBundle.getBundle("de.schulprojekt.duv.messages", currentLocale);
+            FXMLLoader loader = new FXMLLoader(fxmlUrl, bundle);
             Parent root = loader.load();
             Object controller = loader.getController();
 
             Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
+
             loadStylesheet(scene, CSS_COMMON);
             loadStylesheet(scene, CSS_START);
 
-            setAppIcon(primaryStage);
+            setAppIcon(stage);
 
-            primaryStage.setTitle(APP_TITLE);
-            primaryStage.setScene(scene);
-            primaryStage.setResizable(true);
+            stage.setTitle(APP_TITLE);
+            stage.setScene(scene);
+            stage.setResizable(true);
 
-            primaryStage.setOnCloseRequest(e -> {
+            stage.setOnCloseRequest(e -> {
                 if (controller instanceof DashboardController) {
                     ((DashboardController) controller).shutdown();
                 }
@@ -74,10 +84,18 @@ public class Main extends Application {
                 System.exit(0);
             });
 
-            primaryStage.show();
+            stage.show();
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Failed to start application.", e);
         }
+    }
+
+    public static Locale getLocale() {
+        return currentLocale;
+    }
+
+    public static void setLocale(Locale locale) {
+        currentLocale = locale;
     }
 
     // ========================================
@@ -89,12 +107,12 @@ public class Main extends Application {
      * @param scene the target scene
      * @param resourcePath the path to the CSS file
      */
-    private void loadStylesheet(Scene scene, String resourcePath) {
-        URL url = getClass().getResource(resourcePath);
+    private static void loadStylesheet(Scene scene, String resourcePath) {
+        URL url = Main.class.getResource(resourcePath);
         if (url != null) {
             scene.getStylesheets().add(url.toExternalForm());
         } else {
-            LOGGER.log(Level.WARNING, "CSS resource not found: {0}", resourcePath);
+            LOGGER.log(Level.WARNING, "CSS resource not found: " + resourcePath);
         }
     }
 
@@ -102,8 +120,8 @@ public class Main extends Application {
      * Sets the application icon.
      * @param stage the primary stage
      */
-    private void setAppIcon(Stage stage) {
-        try (InputStream iconStream = getClass().getResourceAsStream(ICON_PATH)) {
+    private static void setAppIcon(Stage stage) {
+        try (InputStream iconStream = Main.class.getResourceAsStream(ICON_PATH)) {
             if (iconStream != null) {
                 stage.getIcons().add(new Image(iconStream));
             } else {

@@ -32,7 +32,7 @@ public class ParameterValidator {
     private static final int MAX_PARTIES = 8;
 
     private static final double MIN_BUDGET_EFFECTIVENESS = 0.0;
-    private static final double MAX_BUDGET_EFFECTIVENESS = 5.0;
+    private static final double MAX_BUDGET_EFFECTIVENESS = 1000.0;
 
     // ========================================
     // Constructors

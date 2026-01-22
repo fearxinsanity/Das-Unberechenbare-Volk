@@ -1,6 +1,7 @@
 package de.schulprojekt.duv.view.components;
 
 import de.schulprojekt.duv.model.scandal.ScandalEvent;
+import de.schulprojekt.duv.view.Main;
 import de.schulprojekt.duv.view.util.VisualFX;
 import javafx.animation.*;
 import javafx.geometry.Insets;
@@ -12,6 +13,7 @@ import javafx.scene.layout.*;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
+import java.util.ResourceBundle;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -117,6 +119,7 @@ public class FeedManager {
     }
 
     private HBox createTickerCard(ScandalEvent scandal) {
+        ResourceBundle bundle = ResourceBundle.getBundle("de.schulprojekt.duv.messages", Main.getLocale());
         HBox alertPanel = new HBox(15);
         alertPanel.setAlignment(Pos.CENTER_LEFT);
         alertPanel.setPadding(new Insets(10, 15, 10, 15));
@@ -131,7 +134,7 @@ public class FeedManager {
 
         alertPanel.setStyle(String.format("-fx-background-color: %s; -fx-border-color: %s; -fx-border-width: 1px; -fx-background-radius: 4; -fx-border-radius: 4;", bgRgba, mainColor));
 
-        Label warningBadge = new Label(isCritical ? "⚠ ALERT" : "⚠ WARNING");
+        Label warningBadge = new Label(isCritical ? bundle.getString("feed.alert") : bundle.getString("feed.warning"));
         warningBadge.setStyle(String.format("-fx-text-fill: white; -fx-background-color: %s; -fx-font-weight: bold; -fx-padding: 2 5 2 5; -fx-font-family: '%s'; -fx-font-size: 10px;", badgeBg, FONT_CONSOLAS));
 
         VBox textBox = new VBox(2);
@@ -140,7 +143,7 @@ public class FeedManager {
 
         Label titleLabel = new Label(scandal.scandal().title());
         titleLabel.setStyle(String.format("-fx-text-fill: %s; -fx-font-weight: bold; -fx-font-size: 13px; -fx-font-family: '%s';", mainColor, FONT_CONSOLAS));
-        Label descLabel = new Label("TARGET: " + scandal.affectedParty().getAbbreviation());
+        Label descLabel = new Label(bundle.getString("feed.target") + " " + scandal.affectedParty().getAbbreviation());
         descLabel.setStyle(String.format("-fx-text-fill: #aaa; -fx-font-family: '%s';", FONT_CONSOLAS));
         textBox.getChildren().addAll(titleLabel, descLabel);
 
@@ -196,13 +199,14 @@ public class FeedManager {
     }
 
     private VBox createLogEntry(ScandalEvent event, int step) {
+        ResourceBundle bundle = ResourceBundle.getBundle("de.schulprojekt.duv.messages", Main.getLocale());
         VBox entry = new VBox(2);
         entry.setStyle("-fx-padding: 5 0 10 0; -fx-border-color: #444; -fx-border-width: 0 0 1 0; -fx-border-style: dashed;");
 
         HBox header = new HBox(10);
-        Label idLbl = new Label("[LOG: " + String.format("%04d", ThreadLocalRandom.current().nextInt(9999)) + "]");
+        Label idLbl = new Label(String.format(bundle.getString("feed.log_prefix"), String.format("%04d", ThreadLocalRandom.current().nextInt(9999))));
         idLbl.setStyle("-fx-text-fill: #555; -fx-font-family: Consolas;");
-        Label timeLbl = new Label("TICK: " + step);
+        Label timeLbl = new Label(bundle.getString("feed.tick") + " " + step);
         timeLbl.setStyle("-fx-text-fill: #888; -fx-font-family: Consolas;");
         header.getChildren().addAll(idLbl, timeLbl);
 
@@ -210,9 +214,9 @@ public class FeedManager {
         msg.setStyle("-fx-text-fill: #e0e0e0; -fx-font-family: Consolas; -fx-font-weight: bold;");
         VisualFX.playTypewriterAnimation(msg, event.scandal().title(), 15);
 
-        Label target = new Label(">>> TARGET: " + event.affectedParty().getName());
+        Label target = new Label(">>> " + bundle.getString("feed.target") + " " + event.affectedParty().getName());
         target.setStyle("-fx-text-fill: #D4AF37; -fx-font-family: Consolas;");
-        Label impact = new Label("IMPACT: -" + (int)(event.scandal().strength() * 100) + "% STABILITY");
+        Label impact = new Label(bundle.getString("feed.impact") + " -" + (int)(event.scandal().strength() * 100) + "% " + bundle.getString("feed.stability"));
         impact.setStyle(String.format("-fx-text-fill: %s; -fx-font-family: Consolas; -fx-font-weight: bold;", event.scandal().strength() > CRITICAL_THRESHOLD ? COLOR_CRITICAL_RED : COLOR_WARNING_ORANGE));
 
         entry.getChildren().addAll(header, msg, target, impact);

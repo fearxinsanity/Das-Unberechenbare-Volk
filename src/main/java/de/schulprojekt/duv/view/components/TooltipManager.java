@@ -1,6 +1,8 @@
 package de.schulprojekt.duv.view.components;
 
 import de.schulprojekt.duv.model.party.Party;
+import de.schulprojekt.duv.util.config.SimulationConfig;
+import de.schulprojekt.duv.view.Main;
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
@@ -17,6 +19,7 @@ import javafx.util.Duration;
 
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 /**
  * Manages tooltips for both Dashboard (Hover) and Parliament (Click) views.
@@ -47,6 +50,7 @@ public class TooltipManager {
     private final Label seatsLabel;
     private final Label posLabel;
     private final Label scandalsLabel;
+    private final Separator contentSeparator;
     private final Line connectionLine;
     private final Circle anchorPoint;
     private Party currentActiveParty = null;
@@ -103,13 +107,13 @@ public class TooltipManager {
         posLabel = new Label();
         posLabel.setStyle(STYLE_INFO_LABEL);
 
-        Separator sep = new Separator();
-        sep.setOpacity(0.3);
+        this.contentSeparator = new Separator();
+        this.contentSeparator.setOpacity(0.3);
 
         scandalsLabel = new Label();
         scandalsLabel.setStyle(STYLE_SCANDAL_LABEL);
 
-        contentBox.getChildren().addAll(votersLabel, seatsLabel, posLabel, sep, scandalsLabel);
+        contentBox.getChildren().addAll(votersLabel, seatsLabel, posLabel, contentSeparator, scandalsLabel);
         tooltipBox.getChildren().addAll(headerBox, contentBox);
 
         overlayPane.getChildren().addAll(connectionLine, anchorPoint, tooltipBox);
@@ -183,6 +187,7 @@ public class TooltipManager {
     // ========================================
 
     private void showCallout(Party p, int seats, double anchorX, double anchorY, double boxX, double boxY) {
+        ResourceBundle bundle = ResourceBundle.getBundle("de.schulprojekt.duv.messages", Main.getLocale());
         Color pColor;
         try {
             pColor = Color.web(p.getColorCode());
@@ -198,17 +203,39 @@ public class TooltipManager {
 
         nameLabel.setText(p.getName().toUpperCase());
         abbrLabel.setText(">> " + p.getAbbreviation());
-        votersLabel.setText(String.format("STIMMEN: %,d", p.getCurrentSupporterCount()));
-        seatsLabel.setText(String.format("SITZE: %d", seats));
-        posLabel.setText("POL. SPEKTRUM: " + p.getPoliticalOrientationName());
+        votersLabel.setText(String.format(Main.getLocale(), bundle.getString("tt.voters") + " %,d", p.getCurrentSupporterCount()));
 
-        int sCount = p.getScandalCount();
-        if (sCount > 0) {
-            scandalsLabel.setText("⚠ SKANDAL-LOG: " + sCount);
-            scandalsLabel.setTextFill(Color.web("#ff5555"));
+        if (p.getName().equals(SimulationConfig.UNDECIDED_NAME)) {
+            seatsLabel.setVisible(false);
+            seatsLabel.setManaged(false);
+            posLabel.setVisible(false);
+            posLabel.setManaged(false);
+            contentSeparator.setVisible(false);
+            contentSeparator.setManaged(false);
+            scandalsLabel.setVisible(false);
+            scandalsLabel.setManaged(false);
         } else {
-            scandalsLabel.setText("✔ KEINE VORFÄLLE");
-            scandalsLabel.setTextFill(Color.web("#55ff55"));
+            seatsLabel.setVisible(true);
+            seatsLabel.setManaged(true);
+            seatsLabel.setText(String.format(bundle.getString("tt.seats_count") + " %d", seats));
+
+            posLabel.setVisible(true);
+            posLabel.setManaged(true);
+            posLabel.setText(bundle.getString("tt.spectrum") + " " + p.getPoliticalOrientationName());
+
+            contentSeparator.setVisible(true);
+            contentSeparator.setManaged(true);
+
+            scandalsLabel.setVisible(true);
+            scandalsLabel.setManaged(true);
+            int sCount = p.getScandalCount();
+            if (sCount > 0) {
+                scandalsLabel.setText(bundle.getString("tt.scandal_log") + " " + sCount);
+                scandalsLabel.setTextFill(Color.web("#ff5555"));
+            } else {
+                scandalsLabel.setText(bundle.getString("tt.no_scandals"));
+                scandalsLabel.setTextFill(Color.web("#55ff55"));
+            }
         }
 
         tooltipBox.setVisible(true);

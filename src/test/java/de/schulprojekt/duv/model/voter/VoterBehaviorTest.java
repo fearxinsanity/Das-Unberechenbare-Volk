@@ -14,6 +14,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Tests for the VoterBehavior class focusing on decision logic and determinism.
+ */
 class VoterBehaviorTest {
 
     private VoterBehavior voterBehavior;
@@ -22,10 +25,11 @@ class VoterBehaviorTest {
     private SimulationParameters params;
     private ScandalImpactCalculator impactCalculator;
     private DistributionProvider distributionProvider;
+    private ZeitgeistManager zeitgeistManager;
 
     @BeforeEach
     void setUp() {
-        // 1. Initialize Parameters (Standard values)
+        // 1. Initialize Parameters (Standard values with seed)
         params = new SimulationParameters(
                 1000,   // populationSize
                 50.0,   // mediaInfluence
@@ -35,58 +39,54 @@ class VoterBehaviorTest {
                 50,     // tickRate
                 1.0,    // chaosFactor
                 3,      // partyCount
-                2.5     // budgetEffectiveness
+                2.5,    // budgetEffectiveness
+                42L     // seed
         );
 
         // 2. Initialize Random Distribution Provider
         distributionProvider = new DistributionProvider();
         distributionProvider.initialize(params);
 
-        // 3. Initialize Parties with CORRECT Constructor
-        // Signature: Name, Abbr, ColorCode, Position (0-100), Budget, Supporters
+        // 3. Initialize Parties
         parties = new ArrayList<>();
-
-        // Party 0: Non-Voters / Undecided (usually neutral position)
         parties.add(new Party("Non-Voters", "NV", "#808080", 50.0, 0.0, 0));
-
-        // Party 1: Left Wing (Position 20.0)
         parties.add(new Party("Party A", "PA", "#FF0000", 20.0, 1000.0, 0));
-
-        // Party 2: Right Wing (Position 80.0)
         parties.add(new Party("Party B", "PB", "#0000FF", 80.0, 1000.0, 0));
 
         // 4. Initialize Population
         population = new VoterPopulation();
-        // Assuming initialize signature: (int size, int partyCount, DistributionProvider provider)
         population.initialize(params.populationSize(), parties.size(), distributionProvider);
 
         // 5. Initialize Impact Calculator
         impactCalculator = new ScandalImpactCalculator(parties.size() + 5);
 
-        // 6. Initialize the Class Under Test
+        // 6. Initialize ZeitgeistManager
+        zeitgeistManager = new ZeitgeistManager();
+        zeitgeistManager.setZeitgeist(0.0); // Start with neutral zeitgeist for testing
+
+        // 7. Initialize the Class Under Test
         voterBehavior = new VoterBehavior();
     }
 
     @Test
-    @DisplayName("Should process voter decisions without errors")
+    @DisplayName("Should process voter decisions with zeitgeist parameter")
     void testProcessVoterDecisions_BasicFlow() {
-        // Create an empty pressure array (no active scandals)
         double[] acutePressures = new double[parties.size()];
+        int currentStep = 0;
 
-        // Execute the method
+        // Execute with explicit zeitgeist from manager
         List<VoterTransition> transitions = voterBehavior.processVoterDecisions(
                 population,
                 parties,
                 params,
                 acutePressures,
-                impactCalculator
+                impactCalculator,
+                currentStep,
+                zeitgeistManager.getCurrentZeitgeist()
         );
 
-        // Assertions
         assertNotNull(transitions, "The result list should not be null");
 
-        // Check if population indices are valid after processing
-        // We sample the first 10 voters to ensure they have valid party indices
         for (int i = 0; i < 10; i++) {
             int partyIndex = population.getPartyIndex(i);
             assertTrue(partyIndex >= 0 && partyIndex < parties.size(),
@@ -95,49 +95,67 @@ class VoterBehaviorTest {
     }
 
     @Test
-    @DisplayName("Should trigger transitions with high volatility")
-    void testHighVolatility() {
-        // Create parameters with 100% volatility to force changes
-        SimulationParameters highVolParams = new SimulationParameters(
-                1000, 50.0, 100.0, 10.0, 50.0, 50, 1.0, 3, 2.5
-        );
-
-        // Important: Re-initialize distribution so it uses the new params
-        distributionProvider.initialize(highVolParams);
-
+    @DisplayName("Should respect zeitgeist changes in decision process")
+    void testProcessWithChangedZeitgeist() {
         double[] acutePressures = new double[parties.size()];
+
+        // Test step 1: Neutral
+        voterBehavior.processVoterDecisions(population, parties, params, acutePressures, impactCalculator, 1, 0.0);
+
+        // Test step 2: Extreme Zeitgeist shift via manager update
+        zeitgeistManager.updateZeitgeist(params, 2);
+        double activeZeitgeist = zeitgeistManager.getCurrentZeitgeist();
 
         List<VoterTransition> transitions = voterBehavior.processVoterDecisions(
                 population,
                 parties,
-                highVolParams,
+                params,
                 acutePressures,
-                impactCalculator
+                impactCalculator,
+                2,
+                activeZeitgeist
         );
 
         assertNotNull(transitions);
-        // With 100% volatility, transitions are very likely, but since it's random,
-        // we mainly ensure no crash and a non-null list.
     }
 
     @Test
-    @DisplayName("Should handle acute pressure (scandals) correctly")
+    @DisplayName("Should handle acute pressure correctly in decisions")
     void testWithAcutePressure() {
         double[] acutePressures = new double[parties.size()];
-        // Apply massive pressure to Party A (Index 1)
-        acutePressures[1] = 10000.0;
+        acutePressures[1] = 10000.0; // Massive pressure on Party A
 
         voterBehavior.processVoterDecisions(
                 population,
                 parties,
                 params,
                 acutePressures,
-                impactCalculator
+                impactCalculator,
+                0,
+                0.0
         );
 
-        // Check internal consistency
         int supportersA = parties.get(1).getCurrentSupporterCount();
-        assertTrue(supportersA >= 0, "Supporter count should be non-negative");
+        assertTrue(supportersA >= 0, "Supporter count should remain non-negative");
+    }
 
+    @Test
+    @DisplayName("Should produce identical results for same seed and zeitgeist")
+    void testDeterminism() {
+        double[] acutePressures = new double[parties.size()];
+        double fixedZeitgeist = 0.5;
+
+        // Run 1
+        voterBehavior.processVoterDecisions(population, parties, params, acutePressures, impactCalculator, 5, fixedZeitgeist);
+        int result1 = parties.get(1).getCurrentSupporterCount();
+
+        // Reset and Run 2 (Simulating same initial state)
+        parties.get(1).setCurrentSupporterCount(0);
+        population.initialize(params.populationSize(), parties.size(), distributionProvider);
+
+        voterBehavior.processVoterDecisions(population, parties, params, acutePressures, impactCalculator, 5, fixedZeitgeist);
+        int result2 = parties.get(1).getCurrentSupporterCount();
+
+        assertEquals(result1, result2, "Results must be identical for deterministic inputs");
     }
 }
