@@ -94,7 +94,7 @@ public class SimulationController {
 
         CSVLoader csvLoader = new CSVLoader(Main.getLocale());
         DistributionProvider distributionProvider = new DistributionProvider();
-
+        distributionProvider.initialize(params);
         PartyRegistry partyRegistry = new PartyRegistry(csvLoader);
         VoterPopulation voterPopulation = new VoterPopulation();
         VoterBehavior voterBehavior = new VoterBehavior();
