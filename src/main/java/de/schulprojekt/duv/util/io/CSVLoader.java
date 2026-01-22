@@ -97,7 +97,7 @@ public class CSVLoader {
             cachedScandals = loadAllScandals();
         }
 
-        if (cachedScandals == null || cachedScandals.isEmpty()) {
+        if (cachedScandals.isEmpty()) {
             LOGGER.warning("No scandals loaded. Creating fallback.");
             return new Scandal(0, "SCANDAL", "Unknown", "No data loaded.", 0.5);
         }

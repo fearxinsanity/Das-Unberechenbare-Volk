@@ -10,6 +10,7 @@ import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -210,22 +211,32 @@ public class StartController {
     }
 
     private ParallelTransition buildTransitionAnimation(Parent dashboardRoot) {
-        FadeTransition ftCard = new FadeTransition(Duration.seconds(0.5), cardBox); ftCard.setToValue(0);
-        FadeTransition ftHud = new FadeTransition(Duration.seconds(0.3), hudLayer); ftHud.setToValue(0);
-        FadeTransition ftGlow = new FadeTransition(Duration.seconds(0.3), glowRegion); ftGlow.setToValue(0);
-        FadeTransition ftGrid = new FadeTransition(Duration.seconds(1.0), gridRegion); ftGrid.setToValue(0);
-        FadeTransition ftCanvas = new FadeTransition(Duration.seconds(1.0), codeCanvas); ftCanvas.setToValue(0);
+        ScaleTransition stDash = new ScaleTransition(Duration.seconds(1.0), dashboardRoot);
+        stDash.setToX(1.0);
+        stDash.setToY(1.0);
 
-        FadeTransition ftDash = new FadeTransition(Duration.seconds(1.0), dashboardRoot); ftDash.setToValue(1.0);
-        ScaleTransition stDash = new ScaleTransition(Duration.seconds(1.0), dashboardRoot); stDash.setToX(1.0); stDash.setToY(1.0);
+        ParallelTransition pt = new ParallelTransition(
+                createFade(cardBox, 0.5, 0.0),
+                createFade(hudLayer, 0.3, 0.0),
+                createFade(glowRegion, 0.3, 0.0),
+                createFade(gridRegion, 1.0, 0.0),
+                createFade(codeCanvas, 1.0, 0.0),
+                createFade(dashboardRoot, 1.0, 1.0),
+                stDash
+        );
 
-        ParallelTransition pt = new ParallelTransition(ftCard, ftHud, ftGlow, ftGrid, ftCanvas, ftDash, stDash);
         pt.setOnFinished(ignored -> {
             if (animTimer != null) animTimer.stop();
             cardBox.setVisible(false); hudLayer.setVisible(false); glowRegion.setVisible(false);
             gridRegion.setVisible(false); codeCanvas.setVisible(false);
         });
         return pt;
+    }
+
+    private FadeTransition createFade(Node node, double durationSeconds, double targetOpacity) {
+        FadeTransition ft = new FadeTransition(Duration.seconds(durationSeconds), node);
+        ft.setToValue(targetOpacity);
+        return ft;
     }
 
     // ========================================
