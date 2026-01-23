@@ -118,7 +118,7 @@ public class PartyRegistry {
             }
             usedColors.add(color.toLowerCase());
 
-            partyList.add(new Party(template.name(), template.abbreviation(), color, position, budget, 0));
+            partyList.add(template.toParty(position, budget, color));
         }
     }
 
