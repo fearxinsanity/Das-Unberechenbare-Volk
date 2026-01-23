@@ -1,47 +1,47 @@
 package de.schulprojekt.duv.model.voter;
 
 /**
- * Defines scientifically-based voter archetypes with distinct behavioral patterns.
- * Based on electoral behavior research distinguishing pragmatic, ideological,
- * rational-choice, affective, heuristic, and politically disengaged voters.
+ * Definiert Archetypen mit unterschiedlichen Verhaltensmustern.
+ * Basierend auf der Wahlverhaltensforschung, die zwischen pragmatischen, ideologischen,
+ * Rational-Choice-, affektiven, heuristischen und politikfernen Wählern unterscheidet.
  * @author Nico Hoffmann
  * @version 1.0
  */
 public enum VoterType {
 
     /**
-     * Pragmatic voters prioritize personal benefits and direct utility.
-     * Low party loyalty, high switching probability, moderate media influence.
+     * Pragmatische Wähler priorisieren persönlichen Nutzen und direkten Vorteil.
+     * Geringe Parteiloyalität, hohe Wechselwahrscheinlichkeit, moderater Medieneinfluss.
      */
     PRAGMATIC(0.3, 1.2, 0.8),
 
     /**
-     * Ideological voters have strong worldview-based convictions.
-     * High party loyalty, low switching probability, resistant to media influence.
+     * Ideologische Wähler haben starke, weltanschaulich geprägte Überzeugungen.
+     * Hohe Parteiloyalität, geringe Wechselwahrscheinlichkeit, resistent gegen Medieneinfluss.
      */
     IDEOLOGICAL(0.85, 0.5, 1.5),
 
     /**
-     * Rational-choice voters systematically evaluate policy positions and self-interest.
-     * Medium loyalty, high position-sensitivity, moderate media influence.
+     * Rational-Choice-Wähler bewerten systematisch politische Positionen und Eigeninteresse.
+     * Mittlere Loyalität, hohe Positionssensitivität, moderater Medieneinfluss.
      */
     RATIONAL_CHOICE(0.5, 0.9, 1.2),
 
     /**
-     * Affective voters decide based on emotions and gut feelings.
-     * Low loyalty, high charisma-sensitivity, strong media influence.
+     * Affektive Wähler entscheiden basierend auf Emotionen und Bauchgefühl.
+     * Geringe Loyalität, hohe Charisma-Sensitivität, starker Medieneinfluss.
      */
     AFFECTIVE(0.4, 1.4, 0.6),
 
     /**
-     * Heuristic voters use mental shortcuts (party identification, media cues).
-     * Medium loyalty, very high media influence, low position-sensitivity.
+     * Heuristische Wähler nutzen mentale Abkürzungen (Parteidentifikation, Medienhinweise).
+     * Mittlere Loyalität, sehr hoher Medieneinfluss, geringe Positionssensitivität.
      */
     HEURISTIC(0.55, 1.6, 0.7),
 
     /**
-     * Politically disengaged voters have inconsistent preferences and low knowledge.
-     * Very low loyalty, highest switching probability, moderate media influence.
+     * Politikferne Wähler haben inkonsistente Präferenzen und geringes Wissen.
+     * Sehr geringe Loyalität, höchste Wechselwahrscheinlichkeit, moderater Medieneinfluss.
      */
     POLITIKFERN(0.2, 1.1, 0.5);
 

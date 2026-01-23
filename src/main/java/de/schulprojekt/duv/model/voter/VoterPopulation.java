@@ -32,7 +32,7 @@ public class VoterPopulation {
         this.voterPositions = new float[size];
         this.voterMediaInfluence = new float[size];
     }
-    
+
     public int size() {
         return voterPartyIndices != null ? voterPartyIndices.length : 0;
     }
