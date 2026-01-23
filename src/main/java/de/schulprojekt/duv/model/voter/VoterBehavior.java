@@ -20,16 +20,24 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 /**
- * Controls the behavior and decision-making of the voter population.
- * Updated to support high-performance SoA access and separated logic.
+ * Steuert das Verhalten und die Entscheidungsfindung der Wählerpopulation.
  * @author Nico Hoffmann
- * @version 1.6
+ * @version 1.0
  */
 public class VoterBehavior {
 
-    /**
-     * Initialisiert die Population mit Werten (ehemals in VoterPopulation).
-     */
+    // ========================================
+    // Constructors
+    // ========================================
+
+    public VoterBehavior() {
+        // Standard-Konstruktor
+    }
+
+    // ========================================
+    // Public Control Methods
+    // ========================================
+
     public void initializePopulation(VoterPopulation pop, int totalVoters, int partyCount, DistributionProvider dist) {
         pop.allocate(totalVoters);
         IntStream.range(0, totalVoters).parallel().forEach(i -> {
@@ -49,7 +57,7 @@ public class VoterBehavior {
     }
 
     /**
-     * Berechnet die dynamische Entwicklung der Wählerattribute (ehemals in VoterPopulation).
+     * Berechnet die dynamische Entwicklung der Wählerattribute.
      */
     public void evolvePopulation(VoterPopulation pop, SimulationParameters params) {
         double volatilityFactor = params.volatilityRate() / 50.0;
@@ -71,6 +79,9 @@ public class VoterBehavior {
         });
     }
 
+    /**
+     * Verarbeitet die Wahlentscheidungen der gesamten Population.
+     */
     public List<VoterTransition> processVoterDecisions(
             VoterPopulation population,
             List<Party> parties,
@@ -128,6 +139,10 @@ public class VoterBehavior {
         applyPopulationChanges(parties, partyDeltas);
         return new ArrayList<>(visualTransitions);
     }
+
+    // ========================================
+    // Internal Calculation Logic
+    // ========================================
 
     private void applyOpinionDrift(VoterPopulation population, int index, Random rnd, double globalTrend) {
         double individualDrift = (rnd.nextDouble() - 0.5) * VoterBehaviorConfig.OPINION_DRIFT_FACTOR;
@@ -206,6 +221,10 @@ public class VoterBehavior {
         double noise = (rnd.nextDouble() - 0.5) * VoterBehaviorConfig.DECISION_NOISE_FACTOR * cache.uniformRange();
         return new PartyEvaluationResult(partyIdx, distScore, budgetScore, 0, score + noise);
     }
+
+    // ========================================
+    // Internal State Management
+    // ========================================
 
     private AtomicInteger[] initDeltas(int size) {
         AtomicInteger[] deltas = new AtomicInteger[size];
