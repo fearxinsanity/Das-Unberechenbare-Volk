@@ -1,8 +1,7 @@
 package de.schulprojekt.duv.util.validation;
 
 /**
- * Enumeration of all validation and logging messages for simulation parameters.
- * Provides centralized, type-safe message management for the entire application.
+ * Enum aller Validierungs- und Protokollierungsnachrichten für Simulationsparameter.
  *
  * @author Nico Hoffmann
  * @version 1.0
@@ -88,9 +87,9 @@ public enum ValidationMessage {
     // ========================================
 
     /**
-     * Constructs a validation message with the given template.
+     * Erstellt eine Validierungsnachricht mit der angegebenen Vorlage.
      *
-     * @param messageTemplate the message template with format placeholders
+     * @param messageTemplate die Nachrichtenvorlage mit Format-Platzhaltern
      */
     ValidationMessage(String messageTemplate) {
         this.messageTemplate = messageTemplate;
@@ -101,19 +100,19 @@ public enum ValidationMessage {
     // ========================================
 
     /**
-     * Formats the message template with the provided arguments.
+     * Formatiert die Nachrichtenvorlage mit den übergebenen Argumenten.
      *
-     * @param args the arguments to format into the message
-     * @return the formatted message
+     * @param args die Argumente, die in die Nachricht formatiert werden sollen
+     * @return die formatierte Nachricht
      */
     public String format(Object... args) {
         return String.format(messageTemplate, args);
     }
 
     /**
-     * Gets the message without formatting (for messages without placeholders).
+     * Ruft die Nachricht ohne Formatierung ab.
      *
-     * @return the message string
+     * @return der Nachrichtentext als String
      */
     @Override
     public String toString() {
