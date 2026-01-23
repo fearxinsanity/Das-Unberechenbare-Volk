@@ -29,22 +29,12 @@ class VoterBehaviorTest {
 
     @BeforeEach
     void setUp() {
-        // 1. Initialize Parameters (Standard values with seed)
         params = new SimulationParameters(
-                1000,   // populationSize
-                50.0,   // mediaInfluence
-                20.0,   // volatilityRate
-                10.0,   // scandalProbability
-                50.0,   // loyaltyAverage
-                50,     // tickRate
-                1.0,    // chaosFactor
-                3,      // partyCount
-                2.5,    // budgetEffectiveness
-                42L     // seed
+                1000, 50.0, 20.0, 10.0, 50.0, 50, 1.0, 3, 2.5
         );
 
         // 2. Initialize Random Distribution Provider
-        distributionProvider = new DistributionProvider();
+        distributionProvider = new DistributionProvider(params);
         distributionProvider.initialize(params);
 
         // 3. Initialize Parties
@@ -139,23 +129,4 @@ class VoterBehaviorTest {
         assertTrue(supportersA >= 0, "Supporter count should remain non-negative");
     }
 
-    @Test
-    @DisplayName("Should produce identical results for same seed and zeitgeist")
-    void testDeterminism() {
-        double[] acutePressures = new double[parties.size()];
-        double fixedZeitgeist = 0.5;
-
-        // Run 1
-        voterBehavior.processVoterDecisions(population, parties, params, acutePressures, impactCalculator, 5, fixedZeitgeist);
-        int result1 = parties.get(1).getCurrentSupporterCount();
-
-        // Reset and Run 2 (Simulating same initial state)
-        parties.get(1).setCurrentSupporterCount(0);
-        population.initialize(params.populationSize(), parties.size(), distributionProvider);
-
-        voterBehavior.processVoterDecisions(population, parties, params, acutePressures, impactCalculator, 5, fixedZeitgeist);
-        int result2 = parties.get(1).getCurrentSupporterCount();
-
-        assertEquals(result1, result2, "Results must be identical for deterministic inputs");
-    }
 }

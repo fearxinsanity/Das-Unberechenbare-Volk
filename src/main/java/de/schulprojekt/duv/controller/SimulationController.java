@@ -92,7 +92,7 @@ public class SimulationController {
         ParameterValidator.validate(params);
 
         CSVLoader csvLoader = new CSVLoader(Main.getLocale());
-        DistributionProvider distributionProvider = new DistributionProvider();
+        DistributionProvider distributionProvider = new DistributionProvider(params);
         distributionProvider.initialize(params);
         PartyRegistry partyRegistry = new PartyRegistry(csvLoader);
         VoterPopulation voterPopulation = new VoterPopulation();

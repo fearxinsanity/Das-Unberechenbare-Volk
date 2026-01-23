@@ -9,9 +9,9 @@ import org.apache.commons.math3.random.JDKRandomGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
 
 /**
- * Manages the statistical distributions used in the simulation.
+ * Verwaltet die in der Simulation verwendeten statistischen Verteilungen.
  * @author Nico Hoffmann
- * @version 1.1
+ * @version 1.0
  */
 public class DistributionProvider {
 
@@ -38,8 +38,8 @@ public class DistributionProvider {
     // Constructors
     // ========================================
 
-    public DistributionProvider() {
-        // Initialized via initialize method
+    public DistributionProvider(SimulationParameters params) {
+        initialize(params);
     }
 
     // ========================================
@@ -47,8 +47,9 @@ public class DistributionProvider {
     // ========================================
 
     /**
-     * Sets up mathematical distributions based on simulation parameters.
-     * @param params the simulation settings
+     * Konfiguriert die mathematischen Verteilungen basierend auf den Simulationsparametern.
+     * @param params Die Parameter-Objekte, die die Eingabewerte für die Verteilungen liefern.
+     * @see SimulationParameters#scandalProbability()
      */
     public void initialize(SimulationParameters params) {
         this.randomGenerator = new JDKRandomGenerator();

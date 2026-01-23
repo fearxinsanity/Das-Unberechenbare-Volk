@@ -27,8 +27,7 @@ class ParameterValidatorTest {
                 50,    // tickRate
                 1.0,   // chaosFactor
                 5,     // partyCount
-                2.5,   // budgetEffectiveness
-                42L    // seed
+                2.5   // budgetEffectiveness
         );
     }
 
@@ -45,13 +44,13 @@ class ParameterValidatorTest {
     void testPopulationBoundary() {
         // Test: Zu klein (Min ist 1000)
         SimulationParameters invalidPop = new SimulationParameters(
-                999, 50.0, 20.0, 10.0, 50.0, 50, 1.0, 5, 2.5, 42L
+                999, 50.0, 20.0, 10.0, 50.0, 50, 1.0, 5, 2.5
         );
         assertTrue(ParameterValidator.isInvalid(invalidPop), "Sollte invalid sein bei Population < 1000");
 
         // Test: Zu groß (Max ist 2.000.000)
         SimulationParameters tooBigPop = new SimulationParameters(
-                2_000_001, 50.0, 20.0, 10.0, 50.0, 50, 1.0, 5, 2.5, 42L
+                2_000_001, 50.0, 20.0, 10.0, 50.0, 50, 1.0, 5, 2.5
         );
         // KORREKTUR: Wir erwarten nun TRUE für isInvalid
         assertTrue(ParameterValidator.isInvalid(tooBigPop), "Sollte invalid sein bei Population > 2.000.000");
@@ -61,13 +60,13 @@ class ParameterValidatorTest {
     @DisplayName("Sollte Prozentwerte korrekt validieren")
     void testPercentageBoundary() {
         SimulationParameters lowMedia = new SimulationParameters(
-                1000, -0.1, 20.0, 10.0, 50.0, 50, 1.0, 5, 2.5, 42L
+                1000, -0.1, 20.0, 10.0, 50.0, 50, 1.0, 5, 2.5
         );
         String errorMsg = ParameterValidator.getValidationError(lowMedia);
         assertTrue(errorMsg.contains("Media influence"), "Fehlermeldung sollte 'Media influence' enthalten.");
 
         SimulationParameters highMedia = new SimulationParameters(
-                1000, 100.1, 20.0, 10.0, 50.0, 50, 1.0, 5, 2.5, 42L
+                1000, 100.1, 20.0, 10.0, 50.0, 50, 1.0, 5, 2.5
         );
         assertTrue(ParameterValidator.isInvalid(highMedia));
     }
