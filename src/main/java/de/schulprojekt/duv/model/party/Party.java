@@ -95,7 +95,7 @@ public class Party {
     // ========================================
     // Business Logic Methods
     // ========================================
-    
+
     public String getPoliticalOrientationName() {
         return PartyConfig.getOrientationName(politicalPosition);
     }
