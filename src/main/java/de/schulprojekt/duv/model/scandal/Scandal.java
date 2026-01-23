@@ -1,15 +1,14 @@
 package de.schulprojekt.duv.model.scandal;
 
 /**
- * Represents a scandal data record.
- * @param id unique identifier of the scandal
- * @param type category of the scandal
- * @param title display title
- * @param description short text description
- * @param strength intensity factor (0.0 to 1.0)
+ * Repräsentiert einen Skandal-Datensatz.
+ * @param id Eindeutige Kennung des Skandals
+ * @param type Kategorie des Skandals
+ * @param title Titel für die Anzeige
+ * @param description Kurze Beschreibung
+ * @param strength Intensitätsfaktor
  * @author Nico Hoffmann
- * @version 1.1
- * @since Java 16
+ * @version 1.0
  */
 public record Scandal(
         int id,
