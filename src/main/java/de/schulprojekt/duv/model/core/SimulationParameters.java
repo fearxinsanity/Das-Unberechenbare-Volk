@@ -20,7 +20,7 @@ package de.schulprojekt.duv.model.core;
  * @param seed Ermöglicht deterministische Wiederholungen.
  *
  * @author Nico Hoffmann
- * @version 1.2
+ * @version 1.0
  */
 public record SimulationParameters(
         int populationSize,

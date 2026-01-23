@@ -5,7 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Manages the mutable runtime state of the simulation.
+ * Verwaltet den Laufzeitzustand der Simulation.
+ * Die Klasse agiert als zentrales Gedächtnis für Daten, die während eines
+ * Simulationslaufs entstehen und sich in jedem Tick ändern können.
+ *
  * @author Nico Hoffmann
  * @version 1.0
  */
@@ -17,6 +20,10 @@ public class SimulationState {
 
     private int currentStep = 0;
     private final List<ScandalEvent> activeScandals = new ArrayList<>();
+
+    /** Referenz auf den aktuellsten Skandal.
+     * Ermöglicht UI direkten Trigger für Benachrichtigungen.
+     */
     private ScandalEvent lastScandal = null;
 
     // ========================================
@@ -47,15 +54,18 @@ public class SimulationState {
         currentStep++;
     }
 
+
+    /**
+     * Ruft den zuletzt aufgetretenen Skandal ab und löscht die interne Referenz darauf.
+     * Es stellt sicher, dass ein Ereignis nur genau einmal als
+     * "neu" verarbeitet wird,
+     * obwohl es in der Liste der aktiven Skandale erhalten bleibt.
+     */
     public void addScandal(ScandalEvent event) {
         activeScandals.add(event);
         lastScandal = event;
     }
 
-    /**
-     * Retrieves the most recent scandal and clears the reference.
-     * @return the last occurred scandal event
-     */
     public ScandalEvent consumeLastScandal() {
         ScandalEvent s = lastScandal;
         lastScandal = null;
