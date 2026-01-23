@@ -3,13 +3,12 @@ package de.schulprojekt.duv.model.scandal;
 import de.schulprojekt.duv.model.party.Party;
 
 /**
- * Represents an active scandal event in the simulation.
- * @param scandal the scandal data
- * @param affectedParty the party affected by the scandal
- * @param occurredAtStep the simulation step when it occurred
+ * Repräsentiert ein aktives Skandal-Ereignis in der Simulation.
+ * @param scandal Die Skandaldaten
+ * @param affectedParty Die vom Skandal betroffene Partei
+ * @param occurredAtStep Der Simulationsschritt, in dem der Skandal auftrat
  * @author Nico Hoffmann
- * @version 1.1
- * @since Java 16
+ * @version 1.0
  */
 public record ScandalEvent(
         Scandal scandal,
@@ -22,8 +21,8 @@ public record ScandalEvent(
     // ========================================
 
     /**
-     * Returns a formatted message for the event feed.
-     * @return formatted event message
+     * Gibt eine formatierte Nachricht für den Ereignis-Feed zurück
+     * @return Formatierte Ereignismeldung
      */
     public String getEventMessage() {
         return String.format("⚠ %s: %s betrifft %s",
