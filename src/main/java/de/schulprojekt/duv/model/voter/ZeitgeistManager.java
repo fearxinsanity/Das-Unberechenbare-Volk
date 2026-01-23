@@ -32,7 +32,7 @@ public class ZeitgeistManager {
     // ========================================
     // Logik-Methoden
     // ========================================
-    
+
     public void updateZeitgeist() {
         double change = (random.nextDouble() - 0.5) * VoterBehaviorConfig.ZEITGEIST_DRIFT_STRENGTH;
         double nextZeitgeist = this.currentZeitgeist + change;

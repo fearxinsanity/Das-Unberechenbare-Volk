@@ -3,9 +3,9 @@ package de.schulprojekt.duv.util.config;
 import javafx.scene.paint.Color;
 
 /**
- * Global configuration constants for the simulation.
+ * Globale KOnfiguration für Simulationskonstanten.
  * @author Nico Hoffmann
- * @version 1.1
+ * @version 1.0
  */
 public class SimulationConfig {
 
@@ -22,7 +22,6 @@ public class SimulationConfig {
     public static final double DEFAULT_CHAOS = 1.0;
     public static final int DEFAULT_PARTIES = 4;
     public static final double DEFAULT_BUDGET_WEIGHT = 1.0;
-    public static final long DEFAULT_SEED = 42L;
 
     // ========================================
     // Static Variables

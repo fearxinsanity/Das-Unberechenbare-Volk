@@ -1,11 +1,7 @@
 package de.schulprojekt.duv.util.config;
 
 /**
- * Configuration constants for voter behavior algorithms.
- * Contains all tuning parameters for the voter decision model with scientific justification.
- *
- * <p>These values are calibrated based on electoral behavior research and simulation testing.
- * Modifying these values will significantly affect simulation dynamics.</p>
+ * Konstanten Konfiguration für VoterBehavior Algorithmen.
  *
  * @author Nico Hoffmann
  * @version 1.0
@@ -17,12 +13,12 @@ public final class VoterBehaviorConfig {
     // ========================================
 
     /**
-     * Maximaler Drift der Wählermeinung pro Tick auf dem politischen Spektrum (0-100).
+     * Maximaler Drift der Wählermeinung pro Tick auf dem politischen Spektrum.
      */
     public static final double OPINION_DRIFT_FACTOR = 0.25;
 
     /**
-     * Maximaler Absolutwert für den globalen politischen Trend (Zeitgeist).
+     * Maximaler Absolutwert für den globalen politischen Trend.
      */
     public static final double ZEITGEIST_MAX_AMPLITUDE = 8.0;
 
@@ -49,7 +45,7 @@ public final class VoterBehaviorConfig {
     /** Standardabweichung für die initiale politische Positionierung. */
     public static final double POS_STD_DEV = 25.0;
 
-    /** Exponent zur Berechnung des medialen Einflusses (verteilt Werte stärker gegen Null). */
+    /** Exponent zur Berechnung des medialen Einflusses. */
     public static final double MEDIA_INFLUENCE_EXPONENT = 0.7;
 
     // ========================================
@@ -59,10 +55,10 @@ public final class VoterBehaviorConfig {
     /** Wahrscheinlichkeit für einen Wechsel des Wählertyps pro Tick. */
     public static final double TYPE_CHANGE_PROBABILITY = 0.0001;
 
-    /** Maximale Fluktuation der Loyalität pro Tick (+/-). */
+    /** Maximale Fluktuation der Loyalität pro Tick. */
     public static final float LOYALTY_FLUCTUATION = 2.0f;
 
-    /** Maximale Drift des Medieneinflusses pro Tick (+/-). */
+    /** Maximale Drift des Medieneinflusses pro Tick. */
     public static final float MEDIA_INFLUENCE_DRIFT = 0.05f;
 
     // ========================================
