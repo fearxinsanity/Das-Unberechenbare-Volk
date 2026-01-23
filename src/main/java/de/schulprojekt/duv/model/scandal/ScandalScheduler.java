@@ -28,7 +28,7 @@ public class ScandalScheduler {
     // ========================================
     // Business Logic Methods
     // ========================================
-    
+
     public boolean shouldScandalOccur() {
         timeUntilNextScandal -= 1.0;
 

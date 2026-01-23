@@ -1,12 +1,19 @@
 package de.schulprojekt.duv.model.random;
 
 import de.schulprojekt.duv.model.core.SimulationParameters;
+import de.schulprojekt.duv.model.voter.VoterType;
 import de.schulprojekt.duv.util.config.SimulationConfig;
+import de.schulprojekt.duv.util.config.VoterBehaviorConfig;
+import org.apache.commons.math3.distribution.EnumeratedDistribution;
 import org.apache.commons.math3.distribution.ExponentialDistribution;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.distribution.UniformRealDistribution;
 import org.apache.commons.math3.random.JDKRandomGenerator;
 import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.util.Pair;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Verwaltet die in der Simulation verwendeten statistischen Verteilungen.
@@ -33,6 +40,7 @@ public class DistributionProvider {
     private UniformRealDistribution uniformDistribution;
     private ExponentialDistribution scandalDistribution;
     private RandomGenerator randomGenerator;
+    private EnumeratedDistribution<VoterType> typeDistribution;
 
     // ========================================
     // Constructors
@@ -69,6 +77,18 @@ public class DistributionProvider {
         double scandalProb = params.scandalProbability();
         double scandalLambda = Math.max(MIN_SCANDAL_LAMBDA, scandalProb / SCANDAL_PROBABILITY_DIVISOR);
         this.scandalDistribution = new ExponentialDistribution(randomGenerator, 1.0 / scandalLambda);
+
+        List<Pair<VoterType, Double>> typeWeights = new ArrayList<>();
+        typeWeights.add(new Pair<>(VoterType.PRAGMATIC, VoterBehaviorConfig.PROB_PRAGMATIC));
+        typeWeights.add(new Pair<>(VoterType.IDEOLOGICAL, VoterBehaviorConfig.PROB_IDEOLOGICAL));
+        typeWeights.add(new Pair<>(VoterType.RATIONAL_CHOICE, VoterBehaviorConfig.PROB_RATIONAL_CHOICE));
+        typeWeights.add(new Pair<>(VoterType.AFFECTIVE, VoterBehaviorConfig.PROB_AFFECTIVE));
+        typeWeights.add(new Pair<>(VoterType.HEURISTIC, VoterBehaviorConfig.PROB_HEURISTIC));
+
+        double remainder = 1.0 - typeWeights.stream().mapToDouble(Pair::getSecond).sum();
+        typeWeights.add(new Pair<>(VoterType.POLITIKFERN, Math.max(0, remainder)));
+
+        this.typeDistribution = new EnumeratedDistribution<>(randomGenerator, typeWeights);
     }
 
     public double sampleLoyalty() {
@@ -85,5 +105,9 @@ public class DistributionProvider {
 
     public RandomGenerator getRandomGenerator() {
         return randomGenerator;
+    }
+
+    public VoterType sampleVoterType() {
+        return typeDistribution.sample();
     }
 }

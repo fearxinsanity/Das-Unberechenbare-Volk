@@ -105,7 +105,8 @@ public class SimulationEngine {
 
         partyRegistry.initializeParties(parameters, distributionProvider);
 
-        voterPopulation.initialize(
+        voterBehavior.initializePopulation(
+                voterPopulation,
                 parameters.populationSize(),
                 partyRegistry.getParties().size(),
                 distributionProvider
@@ -125,7 +126,7 @@ public class SimulationEngine {
 
         zeitgeistManager.updateZeitgeist();
 
-        voterPopulation.updateVoterAttributes(parameters);
+        voterBehavior.evolvePopulation(voterPopulation, parameters);
 
         double[] acutePressures = impactCalculator.calculateAcutePressure(
                 state.getActiveScandals(),
@@ -141,7 +142,6 @@ public class SimulationEngine {
                 parameters,
                 acutePressures,
                 impactCalculator,
-                state.getCurrentStep(),
                 zeitgeistManager.getCurrentZeitgeist()
         );
 
@@ -189,7 +189,7 @@ public class SimulationEngine {
         int maxIdx = counts.length - 1;
 
         for (int i = 0; i < voterPopulation.size(); i++) {
-            int idx = voterPopulation.getPartyIndex(i);
+            int idx = voterPopulation.getPartyIndexRaw(i);
             if (idx <= maxIdx) {
                 counts[idx]++;
             }
