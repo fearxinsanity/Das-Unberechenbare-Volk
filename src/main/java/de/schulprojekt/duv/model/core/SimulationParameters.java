@@ -17,7 +17,6 @@ package de.schulprojekt.duv.model.core;
  * @param chaosFactor Fügt eine Prise Unvorhersehbarkeit hinzu.
  * @param partyCount Definiert die Fragmentierung des politischen Spektrums.
  * @param budgetEffectiveness Gewichtet die Macht finanzieller Ressourcen im Wahlkampf.
- * @param seed Ermöglicht deterministische Wiederholungen.
  *
  * @author Nico Hoffmann
  * @version 1.0
@@ -31,8 +30,7 @@ public record SimulationParameters(
         int tickRate,
         double chaosFactor,
         int partyCount,
-        double budgetEffectiveness,
-        long seed
+        double budgetEffectiveness
 ) {
     public SimulationParameters {
         if (populationSize < 0) throw new IllegalArgumentException("Population cannot be negative");
@@ -42,7 +40,7 @@ public record SimulationParameters(
     public SimulationParameters withTickRate(int newTickRate) {
         return new SimulationParameters(
                 populationSize, mediaInfluence, volatilityRate, scandalProbability,
-                loyaltyAverage, newTickRate, chaosFactor, partyCount, budgetEffectiveness, seed
+                loyaltyAverage, newTickRate, chaosFactor, partyCount, budgetEffectiveness
         );
     }
 }

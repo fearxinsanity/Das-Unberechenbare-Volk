@@ -123,7 +123,7 @@ public class SimulationEngine {
             triggerNewScandal();
         }
 
-        zeitgeistManager.updateZeitgeist(parameters, state.getCurrentStep());
+        zeitgeistManager.updateZeitgeist();
 
         voterPopulation.updateVoterAttributes(parameters);
 
@@ -152,8 +152,7 @@ public class SimulationEngine {
 
     public void updateParameters(SimulationParameters newParams) {
         boolean structuralChange = (newParams.partyCount() != parameters.partyCount()) ||
-                (newParams.populationSize() != parameters.populationSize()) ||
-                (newParams.seed() != parameters.seed());
+                (newParams.populationSize() != parameters.populationSize());
 
         this.parameters = newParams;
         distributionProvider.initialize(newParams);

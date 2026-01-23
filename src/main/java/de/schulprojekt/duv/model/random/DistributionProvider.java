@@ -52,7 +52,6 @@ public class DistributionProvider {
      */
     public void initialize(SimulationParameters params) {
         this.randomGenerator = new JDKRandomGenerator();
-        this.randomGenerator.setSeed(params.seed());
 
         this.loyaltyDistribution = new NormalDistribution(
                 randomGenerator,

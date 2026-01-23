@@ -14,19 +14,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 /**
  * Controls the behavior and decision-making of the voter population.
- * @author Nico Hoffmann
- * @version 1.4
+ * Updated to support non-deterministic execution by using ThreadLocalRandom.
+ * * @author Nico Hoffmann
+ * @version 1.5
  */
 public class VoterBehavior {
-
-    // ========================================
-    // Instance Variables
-    // ========================================
 
     // ========================================
     // Constructors
@@ -34,10 +32,6 @@ public class VoterBehavior {
 
     public VoterBehavior() {
     }
-
-    // ========================================
-    // Getter & Setter Methods
-    // ========================================
 
     // ========================================
     // Business Logic Methods
@@ -56,10 +50,11 @@ public class VoterBehavior {
         int partyCount = parties.size();
 
         AtomicInteger[] partyDeltas = initDeltas(partyCount);
-        PartyCalculationCache cache = createPartyCache(parties, params, currentStep);
+        PartyCalculationCache cache = createPartyCache(parties, params);
 
         IntStream.range(0, population.size()).parallel().forEach(i -> {
-            Random rnd = new Random(params.seed() + i + (long) population.size() * currentStep);
+            // Nutzt ThreadLocalRandom für thread-sicheren, echten Zufall ohne Seed-Abhängigkeit
+            Random rnd = ThreadLocalRandom.current();
 
             applyOpinionDrift(population, i, rnd, activeZeitgeist);
 
@@ -250,8 +245,8 @@ public class VoterBehavior {
         }
     }
 
-    private PartyCalculationCache createPartyCache(List<Party> parties, SimulationParameters params, int currentStep) {
-        Random rnd = new Random(params.seed() + currentStep + 2);
+    private PartyCalculationCache createPartyCache(List<Party> parties, SimulationParameters params) {
+        Random rnd = new Random();
         int size = parties.size();
         double[] positions = new double[size];
         double[] budgetScores = new double[size];

@@ -86,8 +86,7 @@ public class SimulationController {
                 SimulationConfig.DEFAULT_TICK_RATE,
                 SimulationConfig.DEFAULT_CHAOS,
                 SimulationConfig.DEFAULT_PARTIES,
-                SimulationConfig.DEFAULT_BUDGET_WEIGHT,
-                SimulationConfig.DEFAULT_SEED
+                SimulationConfig.DEFAULT_BUDGET_WEIGHT
         );
 
         ParameterValidator.validate(params);

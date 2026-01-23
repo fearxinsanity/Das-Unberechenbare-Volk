@@ -103,7 +103,7 @@ class VoterBehaviorTest {
         voterBehavior.processVoterDecisions(population, parties, params, acutePressures, impactCalculator, 1, 0.0);
 
         // Test step 2: Extreme Zeitgeist shift via manager update
-        zeitgeistManager.updateZeitgeist(params, 2);
+        zeitgeistManager.updateZeitgeist();
         double activeZeitgeist = zeitgeistManager.getCurrentZeitgeist();
 
         List<VoterTransition> transitions = voterBehavior.processVoterDecisions(

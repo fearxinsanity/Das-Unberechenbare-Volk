@@ -252,7 +252,7 @@ public class DashboardController {
     }
 
     private void initializeManagers() {
-        parameterManager = new ParameterManager(voterCountField, partyCountField, budgetField, scandalChanceField, seedField, mediaInfluenceSlider, mobilityRateSlider, loyaltyMeanSlider, randomRangeSlider);
+        parameterManager = new ParameterManager(voterCountField, partyCountField, budgetField, scandalChanceField, mediaInfluenceSlider, mobilityRateSlider, loyaltyMeanSlider, randomRangeSlider);
         parameterManager.initializeFields();
 
         stateManager = new SimulationStateManager();
