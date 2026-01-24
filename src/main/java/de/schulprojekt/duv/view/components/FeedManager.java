@@ -198,7 +198,7 @@ public class FeedManager {
         eventFeedPane.getChildren().add(scrollWrapper);
         return contentBox;
     }
-    
+
     private VBox createLogEntry(ScandalEvent event, int step) {
         ResourceBundle bundle = ResourceBundle.getBundle("de.schulprojekt.duv.messages", Main.getLocale());
         VBox entry = new VBox(2);
