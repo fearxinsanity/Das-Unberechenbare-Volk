@@ -14,13 +14,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Manages all parameter input fields, validation, and formatting.
- * Handles text fields and sliders, and parameter synchronization with the simulation engine.
- * Provides input validation, formatting with locale support, and randomization features.
- * Automatically clamps values to allowed ranges on input.
+ * Verwaltet alle Eingabefelder, Validierungen und Formatierungen.
  *
  * @author Nico Hoffmann
- * @version 1.7
+ * @version 1.0
  */
 public class ParameterManager {
 
