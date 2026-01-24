@@ -30,18 +30,17 @@ import java.util.logging.Logger;
 public class SimulationStateManager {
 
     // ========================================
-    // Statische Variablen
+    // Static Constants
     // ========================================
 
     private static final Logger LOGGER = Logger.getLogger(SimulationStateManager.class.getName());
 
-    // Zeitbeschränkungen
     private static final int DEFAULT_DURATION_SECONDS = 30;
     private static final int MIN_DURATION_SECONDS = 30;
     private static final int MAX_DURATION_SECONDS = 300; // Maximal 5 Minuten
 
     // ========================================
-    // Instanzvariablen
+    // Instance Variables
     // ========================================
 
     private Timeline simulationTimer;
@@ -80,7 +79,7 @@ public class SimulationStateManager {
     private Runnable onPauseCallback;
 
     // ========================================
-    // Konstruktoren
+    // Constructors
     // ========================================
 
     /**
@@ -95,7 +94,7 @@ public class SimulationStateManager {
     }
 
     // ========================================
-    // Getter-Methoden
+    // Getter Methods
     // ========================================
 
     public int getCurrentTick() {
@@ -117,7 +116,7 @@ public class SimulationStateManager {
     }
 
     // ========================================
-    // Setter-Methoden
+    // Setter Methods
     // ========================================
 
     public void setCurrentTick(int tick) {
@@ -209,7 +208,7 @@ public class SimulationStateManager {
     }
 
     // ========================================
-    // Geschäftslogik-Methoden
+    // Business Logic Methods
     // ========================================
 
     public void setupTimer() {
@@ -357,7 +356,7 @@ public class SimulationStateManager {
     }
 
     // ========================================
-    // Hilfsmethoden
+    // Helper Methods
     // ========================================
 
     /**
