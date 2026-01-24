@@ -15,7 +15,8 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests for the VoterBehavior class focusing on decision logic and determinism.
+ * Tests für die Klasse VoterBehavior.
+ * Fokus auf die ausgelagerte Simulationslogik und die korrekte Nutzung der SoA-Struktur.
  */
 class VoterBehaviorTest {
 
@@ -29,101 +30,76 @@ class VoterBehaviorTest {
 
     @BeforeEach
     void setUp() {
-        // 1. Initialize Parameters (Standard values with seed)
         params = new SimulationParameters(
-                1000,   // populationSize
-                50.0,   // mediaInfluence
-                20.0,   // volatilityRate
-                10.0,   // scandalProbability
-                50.0,   // loyaltyAverage
-                50,     // tickRate
-                1.0,    // chaosFactor
-                3,      // partyCount
-                2.5,    // budgetEffectiveness
-                42L     // seed
+                1000, 50.0, 20.0, 10.0, 50.0, 50, 1.0, 3, 2.5
         );
 
-        // 2. Initialize Random Distribution Provider
-        distributionProvider = new DistributionProvider();
+        distributionProvider = new DistributionProvider(params);
         distributionProvider.initialize(params);
 
-        // 3. Initialize Parties
         parties = new ArrayList<>();
-        parties.add(new Party("Non-Voters", "NV", "#808080", 50.0, 0.0, 0));
-        parties.add(new Party("Party A", "PA", "#FF0000", 20.0, 1000.0, 0));
-        parties.add(new Party("Party B", "PB", "#0000FF", 80.0, 1000.0, 0));
+        parties.add(new Party("Non-Voters", "NV", "#808080", 50.0, 0, 0));
+        parties.add(new Party("Party A", "PA", "#FF0000", 20.0, 500, 1000));
+        parties.add(new Party("Party B", "PB", "#0000FF", 80.0, 500, 1000));
 
-        // 4. Initialize Population
         population = new VoterPopulation();
-        population.initialize(params.populationSize(), parties.size(), distributionProvider);
-
-        // 5. Initialize Impact Calculator
-        impactCalculator = new ScandalImpactCalculator(parties.size() + 5);
-
-        // 6. Initialize ZeitgeistManager
-        zeitgeistManager = new ZeitgeistManager();
-        zeitgeistManager.setZeitgeist(0.0); // Start with neutral zeitgeist for testing
-
-        // 7. Initialize the Class Under Test
         voterBehavior = new VoterBehavior();
+
+        // Refactored: Initialisierung erfolgt nun über VoterBehavior
+        voterBehavior.initializePopulation(population, params.populationSize(), parties.size(), distributionProvider);
+
+        impactCalculator = new ScandalImpactCalculator(parties.size() + 5);
+        zeitgeistManager = new ZeitgeistManager();
+        zeitgeistManager.setZeitgeist(0.0);
     }
 
     @Test
-    @DisplayName("Should process voter decisions with zeitgeist parameter")
-    void testProcessVoterDecisions_BasicFlow() {
+    @DisplayName("Sollte Wählerentscheidungen ohne den Parameter currentStep verarbeiten")
+    void testProcessVoterDecisions_Flow() {
         double[] acutePressures = new double[parties.size()];
-        int currentStep = 0;
 
-        // Execute with explicit zeitgeist from manager
+        // Refactored: Aufruf ohne currentStep
         List<VoterTransition> transitions = voterBehavior.processVoterDecisions(
                 population,
                 parties,
                 params,
                 acutePressures,
                 impactCalculator,
-                currentStep,
                 zeitgeistManager.getCurrentZeitgeist()
         );
 
-        assertNotNull(transitions, "The result list should not be null");
+        assertNotNull(transitions, "Die Ergebnisliste darf nicht null sein");
+        assertTrue(population.size() > 0);
 
+        // Nutzt Raw-Methoden für den Check
         for (int i = 0; i < 10; i++) {
-            int partyIndex = population.getPartyIndex(i);
-            assertTrue(partyIndex >= 0 && partyIndex < parties.size(),
-                    "Voter " + i + " has invalid party index: " + partyIndex);
+            int partyIndex = population.getPartyIndexRaw(i);
+            assertTrue(partyIndex >= 0 && partyIndex < parties.size());
         }
     }
 
     @Test
-    @DisplayName("Should respect zeitgeist changes in decision process")
-    void testProcessWithChangedZeitgeist() {
-        double[] acutePressures = new double[parties.size()];
+    @DisplayName("Sollte die Evolution der Wählerattribute korrekt durchführen")
+    void testEvolvePopulation() {
+        float initialLoyalty = population.getLoyaltyRaw(0);
 
-        // Test step 1: Neutral
-        voterBehavior.processVoterDecisions(population, parties, params, acutePressures, impactCalculator, 1, 0.0);
+        // Simulation von 100 Ticks Evolution
+        for (int i = 0; i < 100; i++) {
+            voterBehavior.evolvePopulation(population, params);
+        }
 
-        // Test step 2: Extreme Zeitgeist shift via manager update
-        zeitgeistManager.updateZeitgeist(params, 2);
-        double activeZeitgeist = zeitgeistManager.getCurrentZeitgeist();
-
-        List<VoterTransition> transitions = voterBehavior.processVoterDecisions(
-                population,
-                parties,
-                params,
-                acutePressures,
-                impactCalculator,
-                2,
-                activeZeitgeist
-        );
-
-        assertNotNull(transitions);
+        float finalLoyalty = population.getLoyaltyRaw(0);
+        // Es ist extrem unwahrscheinlich, dass die Loyalität bei 100 Ticks exakt gleich bleibt
+        assertNotEquals(initialLoyalty, finalLoyalty, "Attribute sollten sich über die Zeit verändern");
     }
 
     @Test
-    @DisplayName("Should handle acute pressure correctly in decisions")
-    void testWithAcutePressure() {
+    @DisplayName("Massiver Skandaldruck sollte die Wähleranzahl einer Partei reduzieren")
+    void testWithAcutePressureImpact() {
         double[] acutePressures = new double[parties.size()];
-        acutePressures[1] = 10000.0; // Massive pressure on Party A
+        acutePressures[1] = 1000.0; // Extremer Druck auf Partei A
+
+        int initialSupporters = parties.get(1).getCurrentSupporterCount();
 
         voterBehavior.processVoterDecisions(
                 population,
@@ -131,31 +107,10 @@ class VoterBehaviorTest {
                 params,
                 acutePressures,
                 impactCalculator,
-                0,
                 0.0
         );
 
-        int supportersA = parties.get(1).getCurrentSupporterCount();
-        assertTrue(supportersA >= 0, "Supporter count should remain non-negative");
-    }
-
-    @Test
-    @DisplayName("Should produce identical results for same seed and zeitgeist")
-    void testDeterminism() {
-        double[] acutePressures = new double[parties.size()];
-        double fixedZeitgeist = 0.5;
-
-        // Run 1
-        voterBehavior.processVoterDecisions(population, parties, params, acutePressures, impactCalculator, 5, fixedZeitgeist);
-        int result1 = parties.get(1).getCurrentSupporterCount();
-
-        // Reset and Run 2 (Simulating same initial state)
-        parties.get(1).setCurrentSupporterCount(0);
-        population.initialize(params.populationSize(), parties.size(), distributionProvider);
-
-        voterBehavior.processVoterDecisions(population, parties, params, acutePressures, impactCalculator, 5, fixedZeitgeist);
-        int result2 = parties.get(1).getCurrentSupporterCount();
-
-        assertEquals(result1, result2, "Results must be identical for deterministic inputs");
+        int finalSupporters = parties.get(1).getCurrentSupporterCount();
+        assertTrue(finalSupporters <= initialSupporters, "Unterstützer sollten bei Skandalen abwandern");
     }
 }

@@ -2,6 +2,7 @@ package de.schulprojekt.duv.model.party;
 
 import de.schulprojekt.duv.model.core.SimulationParameters;
 import de.schulprojekt.duv.model.random.DistributionProvider;
+import de.schulprojekt.duv.util.config.PartyConfig;
 import de.schulprojekt.duv.util.io.CSVLoader;
 import de.schulprojekt.duv.util.config.SimulationConfig;
 
@@ -10,9 +11,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
- * Manages the list of active parties in the simulation.
+ * Verwaltet die Liste der aktiven Parteien in der Simulation.
  * @author Nico Hoffmann
  * @version 1.0
  */
@@ -25,10 +27,19 @@ public class PartyRegistry {
     private static final String UNDECIDED_ABBREVIATION = "UNS";
     private static final String UNDECIDED_COLOR_CODE = "#808080";
     private static final double UNDECIDED_POSITION = 50.0;
+    private static final double UNDECIDED_BUDGET = 0.0;
+    private static final int UNDECIDED_SUPPORTERS = 0;
+
     private static final double SPECTRUM_WIDTH = 100.0;
     private static final double POSITION_JITTER = 10.0;
+    private static final double JITTER_OFFSET_FACTOR = 0.5;
+
     private static final double BASE_BUDGET_MIN = 300000.0;
     private static final double BASE_BUDGET_VARIANCE = 400000.0;
+
+    private static final int COLOR_MAX_VALUE = 0xFFFFFF;
+    private static final int COLOR_RANDOM_OFFSET = 1;
+    private static final String HEX_COLOR_FORMAT = "#%06x";
 
     // ========================================
     // Instance Variables
@@ -54,14 +65,20 @@ public class PartyRegistry {
         return partyList;
     }
 
+    public List<Party> getTargetableParties() {
+        return partyList.stream()
+                .filter(p -> !p.getName().equals(SimulationConfig.UNDECIDED_NAME))
+                .collect(Collectors.toList());
+    }
+
     // ========================================
     // Business Logic Methods
     // ========================================
 
     /**
-     * Initializes parties based on parameters and templates.
-     * @param params current simulation parameters
-     * @param distribution provider for random sampling
+     * Initialisiert die Parteien basierend auf Parametern und Vorlagen.
+     * @param params aktuelle Simulationsparameter
+     * @param distribution Provider für Zufallsverteilungen
      */
     public void initializeParties(SimulationParameters params, DistributionProvider distribution) {
         partyList.clear();
@@ -75,8 +92,8 @@ public class PartyRegistry {
                 UNDECIDED_ABBREVIATION,
                 UNDECIDED_COLOR_CODE,
                 UNDECIDED_POSITION,
-                0.0,
-                0
+                UNDECIDED_BUDGET,
+                UNDECIDED_SUPPORTERS
         );
         partyList.add(undecided);
 
@@ -87,8 +104,9 @@ public class PartyRegistry {
 
             double step = SPECTRUM_WIDTH / (partyCount + 1);
             double basePos = step * (i + 1);
-            double jitter = (random.nextDouble() - 0.5) * POSITION_JITTER;
-            double position = Math.max(0, Math.min(100, basePos + jitter));
+            double jitter = (random.nextDouble() - JITTER_OFFSET_FACTOR) * POSITION_JITTER;
+            double position = Math.max(PartyConfig.MIN_POSITION,
+                    Math.min(PartyConfig.MAX_POSITION, basePos + jitter));
 
             double randomFactor = distribution.sampleUniform();
             double budgetVariance = BASE_BUDGET_VARIANCE * randomFactor;
@@ -96,11 +114,11 @@ public class PartyRegistry {
 
             String color = template.colorCode();
             while (usedColors.contains(color.toLowerCase())) {
-                color = String.format("#%06x", random.nextInt(0xffffff + 1));
+                color = String.format(HEX_COLOR_FORMAT, random.nextInt(COLOR_MAX_VALUE + COLOR_RANDOM_OFFSET));
             }
             usedColors.add(color.toLowerCase());
 
-            partyList.add(new Party(template.name(), template.abbreviation(), color, position, budget, 0));
+            partyList.add(template.toParty(position, budget, color));
         }
     }
 

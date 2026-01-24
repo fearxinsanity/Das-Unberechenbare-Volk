@@ -35,9 +35,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Controller for the application start screen and login visuals.
+ * Controller für den Startbildschirm der Anwendung und die Login-Visualisierungen.
  * @author Nico Hoffmann
- * @version 1.1
+ * @version 1.0
  */
 public class StartController {
 

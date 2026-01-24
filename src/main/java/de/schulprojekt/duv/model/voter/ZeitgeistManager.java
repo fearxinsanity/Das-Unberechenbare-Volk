@@ -1,11 +1,25 @@
 package de.schulprojekt.duv.model.voter;
 
-import de.schulprojekt.duv.model.core.SimulationParameters;
 import de.schulprojekt.duv.util.config.VoterBehaviorConfig;
 import java.util.Random;
 
+/**
+ * Verwaltet die globale politische Stimmung in der Simulation.
+ * @author Nico Hoffmann
+ * @version 1.0
+ */
 public class ZeitgeistManager {
+
+    // ========================================
+    // Instanzvariablen
+    // ========================================
+
     private volatile double currentZeitgeist;
+    private final Random random = new Random();
+
+    // ========================================
+    // Getter & Setter Methoden
+    // ========================================
 
     public void setZeitgeist(double zeitgeist) {
         this.currentZeitgeist = zeitgeist;
@@ -15,11 +29,13 @@ public class ZeitgeistManager {
         return currentZeitgeist;
     }
 
-    public void updateZeitgeist(SimulationParameters params, int currentStep) {
-        Random rnd = new Random(params.seed() + currentStep + 1);
-        double nextZeitgeist = this.currentZeitgeist;
-        double change = (rnd.nextDouble() - 0.5) * VoterBehaviorConfig.ZEITGEIST_DRIFT_STRENGTH;
-        nextZeitgeist += change;
+    // ========================================
+    // Logik-Methoden
+    // ========================================
+
+    public void updateZeitgeist() {
+        double change = (random.nextDouble() - 0.5) * VoterBehaviorConfig.ZEITGEIST_DRIFT_STRENGTH;
+        double nextZeitgeist = this.currentZeitgeist + change;
 
         if (nextZeitgeist > VoterBehaviorConfig.ZEITGEIST_MAX_AMPLITUDE) {
             nextZeitgeist = VoterBehaviorConfig.ZEITGEIST_MAX_AMPLITUDE;

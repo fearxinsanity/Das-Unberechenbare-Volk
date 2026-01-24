@@ -3,12 +3,11 @@ package de.schulprojekt.duv.model.dto;
 import de.schulprojekt.duv.model.party.Party;
 
 /**
- * Immutable Data Transfer Object describing a voter's party change.
- * @param from the original party
- * @param to the target party
+ * Datentransferobjekt, beschreibt die Parteienwechsel eines Wählers
+ * @param from der ursprünglichen Partei
+ * @param to die Zielpartei
  * @author Nico Hoffmann
- * @version 1.1
- * @since Java 16
+ * @version 1.0
  */
 public record VoterTransition(
         Party from,
@@ -20,8 +19,8 @@ public record VoterTransition(
     // ========================================
 
     /**
-     * Returns a formatted label for the transition.
-     * @return transition arrow string
+     * Gibt eine formatierte Bezeichnung für den Wechsel zurück.
+     * @return Übergangs-Pfeil-Zeichenfolge
      */
     public String getTransitionLabel() {
         return String.format("%s ➔ %s", from.getName(), to.getName());

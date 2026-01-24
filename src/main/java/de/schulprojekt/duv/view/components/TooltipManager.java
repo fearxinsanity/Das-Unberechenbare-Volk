@@ -22,9 +22,10 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 /**
- * Manages tooltips for both Dashboard (Hover) and Parliament (Click) views.
+ * Verwaltet die Tooltips.
+ *
  * @author Nico Hoffmann
- * @version 1.1
+ * @version 1.0
  */
 public class TooltipManager {
 
@@ -60,8 +61,9 @@ public class TooltipManager {
     // ========================================
 
     /**
-     * Initializes the tooltip system and adds it to the provided pane.
-     * @param animationPane the parent pane for the overlay
+     * Initialisiert das Tooltip-System und fügt die notwendigen Ebenen dem bereitgestellten Pane hinzu.
+     *
+     * @param animationPane Das übergeordnete Pane, in das das Tooltip-Overlay eingefügt wird.
      */
     public TooltipManager(Pane animationPane) {
         this.overlayPane = new Pane();
@@ -124,7 +126,13 @@ public class TooltipManager {
     // ========================================
 
     /**
-     * Handles dynamic tooltip movement on the dashboard.
+     * Verarbeitet Mausbewegungen auf dem Dashboard, um Tooltips bei Annäherung an Parteiknoten anzuzeigen.
+     *
+     * @param mx Aktuelle X-Koordinate der Maus.
+     * @param my Aktuelle Y-Koordinate der Maus.
+     * @param parties Liste der zu prüfenden Parteien.
+     * @param positions Map der aktuellen Knoten-Positionen auf dem Canvas.
+     * @param total Gesamtanzahl der Wähler für die Prozentberechnung.
      */
     public void handleMouseMove(double mx, double my, List<Party> parties, Map<String, CanvasRenderer.Point> positions, int total) {
         if (parties == null || positions == null) return;
@@ -160,9 +168,6 @@ public class TooltipManager {
         }
     }
 
-    /**
-     * Shows a static tooltip for the parliament view.
-     */
     public void showStaticTooltip(Party p, int seats, double anchorX, double anchorY) {
         currentActiveParty = p;
         double targetBoxX = anchorX + 40;
@@ -170,9 +175,6 @@ public class TooltipManager {
         showCallout(p, seats, anchorX, anchorY, targetBoxX, targetBoxY);
     }
 
-    /**
-     * Hides the current tooltip and its connection elements.
-     */
     public void hideTooltip() {
         if (tooltipBox.isVisible()) {
             tooltipBox.setVisible(false);
@@ -186,6 +188,15 @@ public class TooltipManager {
     // Utility Methods
     // ========================================
 
+    /**
+     * Erstellt den Inhalt des Tooltips, weist Farben zu und startet die Einblend-Animation.
+     * @param p Die Zielpartei.
+     * @param seats Sitzplatzanzahl.
+     * @param anchorX X-Anker.
+     * @param anchorY Y-Anker.
+     * @param boxX Ziel-X für das Fenster.
+     * @param boxY Ziel-Y für das Fenster.
+     */
     private void showCallout(Party p, int seats, double anchorX, double anchorY, double boxX, double boxY) {
         ResourceBundle bundle = ResourceBundle.getBundle("de.schulprojekt.duv.messages", Main.getLocale());
         Color pColor;

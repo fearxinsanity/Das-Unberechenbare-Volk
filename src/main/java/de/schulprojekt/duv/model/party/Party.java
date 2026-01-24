@@ -3,9 +3,9 @@ package de.schulprojekt.duv.model.party;
 import de.schulprojekt.duv.util.config.PartyConfig;
 
 /**
- * Represents a political party in the simulation.
+ * Repräsentiert eine politische Partei in der Simulation
  * @author Nico Hoffmann
- * @version 1.1
+ * @version 1.0
  */
 public class Party {
 
@@ -96,10 +96,6 @@ public class Party {
     // Business Logic Methods
     // ========================================
 
-    /**
-     * Returns the political orientation name based on position.
-     * @return political orientation classification
-     */
     public String getPoliticalOrientationName() {
         return PartyConfig.getOrientationName(politicalPosition);
     }

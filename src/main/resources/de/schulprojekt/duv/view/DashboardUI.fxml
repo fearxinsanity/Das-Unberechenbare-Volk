@@ -114,14 +114,6 @@
                     </StackPane>
 
                     <StackPane>
-                        <VBox fx:id="seedBox" spacing="5">
-                            <Label text="%dash.seed" styleClass="control-label"/>
-                            <TextField fx:id="seedField" text="42" alignment="CENTER"/>
-                        </VBox>
-                        <Label fx:id="seedOverlay" text="%dash.locked" visible="false" styleClass="locked-overlay-label"/>
-                    </StackPane>
-
-                    <StackPane>
                         <VBox fx:id="durationBox" spacing="5">
                             <Label text="%dash.duration" styleClass="control-label"/>
                             <HBox spacing="5" alignment="CENTER_LEFT">

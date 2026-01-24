@@ -8,9 +8,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
 /**
- * Manages UI layout, responsive scaling, and visual effects.
- * Handles responsive design with dynamic sidebar width calculation
- * and provides visual effect triggers for enhanced user feedback.
+ * Verwaltet das UI-Layout, die responsive Skalierung und visuelle Effekte.
  *
  * @author Nico Hoffmann
  * @version 1.0
@@ -40,8 +38,8 @@ public class UIControlManager {
     // ========================================
 
     /**
-     * Default constructor for UIControlManager.
-     * Creates an uninitialized manager that must be configured with setters.
+     * Standardkonstruktor für den UIControlManager.
+     * Erstellt einen nicht initialisierten Manager, der über Setter konfiguriert werden muss.
      */
     @SuppressWarnings("unused")
     public UIControlManager() {
@@ -49,11 +47,11 @@ public class UIControlManager {
     }
 
     /**
-     * Constructs a UIControlManager with all required UI components.
+     * Erstellt einen UIControlManager mit allen erforderlichen UI-Komponenten.
      *
-     * @param animationPane the main animation/visualization pane
-     * @param leftSidebar the left parameter sidebar container
-     * @param rightSidebar the right control sidebar container
+     * @param animationPane das Haupt-Pane für Animationen/Visualisierungen
+     * @param leftSidebar der Container für die linke Parameter-Sidebar
+     * @param rightSidebar der Container für die rechte Steuerungs-Sidebar
      */
     public UIControlManager(Pane animationPane, VBox leftSidebar, VBox rightSidebar) {
         this.animationPane = animationPane;
@@ -66,11 +64,6 @@ public class UIControlManager {
     // Getter Methods
     // ========================================
 
-    /**
-     * Checks if the responsive layout has been initialized.
-     *
-     * @return true if layout is initialized, false otherwise
-     */
     @SuppressWarnings("unused")
     public boolean isInitialized() {
         return isInitialized;
@@ -80,22 +73,11 @@ public class UIControlManager {
     // Setter Methods
     // ========================================
 
-    /**
-     * Sets the animation pane component.
-     *
-     * @param pane the animation pane to manage
-     */
     @SuppressWarnings("unused")
     public void setAnimationPane(Pane pane) {
         this.animationPane = pane;
     }
 
-    /**
-     * Sets the sidebar components.
-     *
-     * @param left the left sidebar container
-     * @param right the right sidebar container
-     */
     @SuppressWarnings("unused")
     public void setSidebars(VBox left, VBox right) {
         this.leftSidebar = left;
@@ -106,12 +88,6 @@ public class UIControlManager {
     // Business Logic Methods
     // ========================================
 
-    /**
-     * Sets up responsive layout bindings and dynamic scaling.
-     * Binds sidebar widths to scene width with min/max constraints.
-     * Applies responsive scaling based on window size changes.
-     * Must be called after scene is attached to stage.
-     */
     public void setupResponsiveLayout() {
         if (animationPane == null) return;
 
@@ -119,14 +95,14 @@ public class UIControlManager {
             Scene scene = animationPane.getScene();
             if (scene == null) return;
 
-            // Responsive scaling based on window width
+            // Responsive Skalierung basierend auf der Fensterbreite
             scene.widthProperty().addListener((obs, nbr, newValue) ->
                     VisualFX.adjustResponsiveScale(scene, newValue.doubleValue())
             );
             VisualFX.adjustResponsiveScale(scene, scene.getWidth());
 
-            // Dynamic sidebar width calculation
-            // Formula: width = clamp(scene.width * 0.22, 250, 450)
+            // Dynamische Berechnung der Sidebar-Breite
+            // Formel: Breite = clamp(scene.width * 0.22, 250, 450)
             if (leftSidebar != null) {
                 leftSidebar.prefWidthProperty().bind(
                         Bindings.max(
@@ -155,10 +131,6 @@ public class UIControlManager {
         });
     }
 
-    /**
-     * Triggers a visual glitch effect on both sidebars.
-     * Used to provide dramatic feedback for significant events (e.g., scandal, timer completion).
-     */
     public void triggerSidebarGlitch() {
         if (leftSidebar != null && rightSidebar != null) {
             VisualFX.triggerSidebarGlitch(leftSidebar, rightSidebar);
@@ -169,11 +141,6 @@ public class UIControlManager {
     // Utility Methods
     // ========================================
 
-    /**
-     * Validates that all required UI components are properly set.
-     *
-     * @return true if all components are present and valid, false otherwise
-     */
     @SuppressWarnings("unused")
     public boolean validateComponents() {
         return animationPane != null && leftSidebar != null && rightSidebar != null;

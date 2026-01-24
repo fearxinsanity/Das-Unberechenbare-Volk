@@ -1,42 +1,14 @@
 package de.schulprojekt.duv.model.voter;
 
-import de.schulprojekt.duv.model.core.SimulationParameters;
-import de.schulprojekt.duv.model.random.DistributionProvider;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.IntStream;
-
 /**
- * Stores voter data in a memory-efficient Structure of Arrays (SoA) format.
- * Manages data access and dynamic evolution of voter attributes.
+ * Structure-of-Arrays für die Wählerpopulation.
  * @author Nico Hoffmann
- * @version 1.3
+ * @version 1.0
  */
 public class VoterPopulation {
 
     // ========================================
-    // Static Variables
-    // ========================================
-
-    private static final double UNDECIDED_RATIO = 0.20;
-    private static final double POS_MEAN = 50.0;
-    private static final double POS_STD_DEV = 25.0;
-    private static final double MEDIA_INFLUENCE_EXPONENT = 0.7;
-
-    // Dynamics constants
-    private static final double TYPE_CHANGE_PROBABILITY = 0.0001; // 0.01% chance per tick
-    private static final float LOYALTY_FLUCTUATION = 2.0f;        // Max +/- 2.0 change per tick
-    private static final float MEDIA_INFLUENCE_DRIFT = 0.05f;     // Max +/- 0.05 change per tick
-
-    // Voter type distribution probabilities (must sum to 1.0)
-    private static final double PROB_PRAGMATIC = 0.25;
-    private static final double PROB_IDEOLOGICAL = 0.15;
-    private static final double PROB_RATIONAL_CHOICE = 0.20;
-    private static final double PROB_AFFECTIVE = 0.15;
-    private static final double PROB_HEURISTIC = 0.15;
-    // PROB_POLITIKFERN is implicit (remaining probability after others)
-
-    // ========================================
-    // Instance Variables
+    // Instance Variables (SoA-Arrays)
     // ========================================
 
     private byte[] voterPartyIndices;
@@ -46,177 +18,56 @@ public class VoterPopulation {
     private float[] voterMediaInfluence;
 
     // ========================================
-    // Getter Methods
+    // Lifecycle & Memory Management
     // ========================================
+
+    /**
+     * Allokiert den benötigten Speicher für die gesamte Population.
+     * @param size Die Anzahl der zu simulierenden Wähler.
+     */
+    public void allocate(int size) {
+        this.voterPartyIndices = new byte[size];
+        this.voterTypes = new byte[size];
+        this.voterLoyalties = new float[size];
+        this.voterPositions = new float[size];
+        this.voterMediaInfluence = new float[size];
+    }
 
     public int size() {
         return voterPartyIndices != null ? voterPartyIndices.length : 0;
     }
 
-    public byte getPartyIndex(int i) {
-        validateIndex(i);
-        return voterPartyIndices[i];
-    }
-
-    public VoterType getVoterType(int i) {
-        validateIndex(i);
-        return VoterType.values()[voterTypes[i]];
-    }
-
-    public float getPosition(int i) {
-        validateIndex(i);
-        return voterPositions[i];
-    }
-
-    public float getLoyalty(int i) {
-        validateIndex(i);
-        return voterLoyalties[i];
-    }
-
-    public float getMediaInfluence(int i) {
-        validateIndex(i);
-        return voterMediaInfluence[i];
-    }
-
     // ========================================
-    // Setter Methods
+    // High-Performance Accessors (Raw)
     // ========================================
 
-    public void setPartyIndex(int i, byte idx) {
-        validateIndex(i);
-        voterPartyIndices[i] = idx;
-    }
+    /** @return Der Index der Partei, die der Wähler an Stelle i unterstützt. */
+    public byte getPartyIndexRaw(int i) { return voterPartyIndices[i]; }
 
-    public void setPosition(int i, float pos) {
-        validateIndex(i);
-        voterPositions[i] = pos;
-    }
+    /** Setzt den Parteien-Index für den Wähler an Stelle i. */
+    public void setPartyIndexRaw(int i, byte val) { voterPartyIndices[i] = val; }
 
-    public void setVoterType(int i, VoterType type) {
-        validateIndex(i);
-        voterTypes[i] = (byte) type.ordinal();
-    }
+    /** @return Der ordinale Wert des VoterType für den Wähler an Stelle i. */
+    public byte getVoterTypeRaw(int i) { return voterTypes[i]; }
 
-    public void setLoyalty(int i, float loyalty) {
-        validateIndex(i);
-        voterLoyalties[i] = loyalty;
-    }
+    /** Setzt den Wählertyp-Index für den Wähler an Stelle i. */
+    public void setVoterTypeRaw(int i, byte val) { voterTypes[i] = val; }
 
-    public void setMediaInfluence(int i, float influence) {
-        validateIndex(i);
-        voterMediaInfluence[i] = influence;
-    }
+    /** @return Die politische Position (0-100) des Wählers an Stelle i. */
+    public float getPositionRaw(int i) { return voterPositions[i]; }
 
-    // ========================================
-    // Business Logic Methods
-    // ========================================
+    /** Setzt die politische Position für den Wähler an Stelle i. */
+    public void setPositionRaw(int i, float val) { voterPositions[i] = val; }
 
-    /**
-     * Initializes the population with randomized values.
-     * @param totalVoters total count of voters to generate
-     * @param partyCount number of active parties
-     * @param distProvider provider for statistical distributions
-     */
-    public void initialize(int totalVoters, int partyCount, DistributionProvider distProvider) {
-        this.voterPartyIndices = new byte[totalVoters];
-        this.voterTypes = new byte[totalVoters];
-        this.voterLoyalties = new float[totalVoters];
-        this.voterPositions = new float[totalVoters];
-        this.voterMediaInfluence = new float[totalVoters];
+    /** @return Der Loyalitätswert des Wählers an Stelle i. */
+    public float getLoyaltyRaw(int i) { return voterLoyalties[i]; }
 
-        IntStream.range(0, totalVoters).parallel().forEach(i -> {
-            ThreadLocalRandom rnd = ThreadLocalRandom.current();
+    /** Setzt den Loyalitätswert für den Wähler an Stelle i. */
+    public void setLoyaltyRaw(int i, float val) { voterLoyalties[i] = val; }
 
-            boolean isUndecided = rnd.nextDouble() < UNDECIDED_RATIO;
-            int assignedParty = 0;
+    /** @return Der Medieneinfluss-Faktor (0.0-1.0) des Wählers an Stelle i. */
+    public float getMediaInfluenceRaw(int i) { return voterMediaInfluence[i]; }
 
-            if (!isUndecided && partyCount > 1) {
-                assignedParty = 1 + rnd.nextInt(partyCount - 1);
-            }
-            voterPartyIndices[i] = (byte) assignedParty;
-
-            voterTypes[i] = (byte) selectVoterType(rnd);
-
-            voterLoyalties[i] = (float) distProvider.sampleLoyalty();
-
-            double rawPos = POS_MEAN + (rnd.nextGaussian() * POS_STD_DEV);
-            voterPositions[i] = (float) Math.max(0, Math.min(100, rawPos));
-            voterMediaInfluence[i] = (float) Math.pow(rnd.nextDouble(), MEDIA_INFLUENCE_EXPONENT);
-        });
-    }
-
-    /**
-     * Evolves voter attributes (loyalty, media influence, type) based on simulation parameters.
-     * Uses parallel processing for performance.
-     * @param params current simulation parameters (provides volatility rate)
-     */
-    public void updateVoterAttributes(SimulationParameters params) {
-        double volatilityFactor = params.volatilityRate() / 50.0;
-
-        IntStream.range(0, size()).parallel().forEach(i -> {
-            ThreadLocalRandom rnd = ThreadLocalRandom.current();
-
-            float currentLoyalty = voterLoyalties[i];
-            float deltaLoyalty = (float) ((rnd.nextDouble() - 0.5) * LOYALTY_FLUCTUATION * volatilityFactor);
-            float newLoyalty = Math.max(0, Math.min(100, currentLoyalty + deltaLoyalty));
-
-            if (Math.abs(newLoyalty - currentLoyalty) > 0.01f) {
-                voterLoyalties[i] = newLoyalty;
-            }
-
-            float currentMedia = voterMediaInfluence[i];
-            float deltaMedia = (float) ((rnd.nextDouble() - 0.5) * MEDIA_INFLUENCE_DRIFT * volatilityFactor);
-            float newMedia = Math.max(0.0f, Math.min(1.0f, currentMedia + deltaMedia));
-
-            if (Math.abs(newMedia - currentMedia) > 0.001f) {
-                voterMediaInfluence[i] = newMedia;
-            }
-
-            if (rnd.nextDouble() < (TYPE_CHANGE_PROBABILITY * volatilityFactor)) {
-                VoterType[] allTypes = VoterType.values();
-                byte newType = (byte) allTypes[rnd.nextInt(allTypes.length)].ordinal();
-                if (newType != voterTypes[i]) {
-                    voterTypes[i] = newType;
-                }
-            }
-        });
-    }
-
-    // ========================================
-    // Utility Methods
-    // ========================================
-
-    /**
-     * Selects a voter type based on weighted probability distribution.
-     */
-    private int selectVoterType(ThreadLocalRandom rnd) {
-        double roll = rnd.nextDouble();
-        double cumulative = 0.0;
-
-        cumulative += PROB_PRAGMATIC;
-        if (roll < cumulative) return VoterType.PRAGMATIC.ordinal();
-
-        cumulative += PROB_IDEOLOGICAL;
-        if (roll < cumulative) return VoterType.IDEOLOGICAL.ordinal();
-
-        cumulative += PROB_RATIONAL_CHOICE;
-        if (roll < cumulative) return VoterType.RATIONAL_CHOICE.ordinal();
-
-        cumulative += PROB_AFFECTIVE;
-        if (roll < cumulative) return VoterType.AFFECTIVE.ordinal();
-
-        cumulative += PROB_HEURISTIC;
-        if (roll < cumulative) return VoterType.HEURISTIC.ordinal();
-
-        return VoterType.POLITIKFERN.ordinal();
-    }
-
-    /**
-     * Validates that the given index is within bounds.
-     */
-    private void validateIndex(int index) {
-        if (index < 0 || index >= size()) {
-            throw new IndexOutOfBoundsException("Voter index out of bounds: " + index + " (size: " + size() + ")");
-        }
-    }
+    /** Setzt den Medieneinfluss-Faktor für den Wähler an Stelle i. */
+    public void setMediaInfluenceRaw(int i, float val) { voterMediaInfluence[i] = val; }
 }

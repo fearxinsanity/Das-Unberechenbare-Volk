@@ -1,14 +1,17 @@
 package de.schulprojekt.duv.model.calculation;
 
 /**
- * Cache object holding pre-calculated party attributes for voter decisions.
- * Avoids redundant calculations during parallel voter processing.
+ * Zentraler Cache für Parteidaten pro Simulationsschritt
+ * <p>
+ *     Vermeidet redundante Operationen bei der parallelen Wählerverarbeitung.
+ *     Garantiert konsistente Entscheidungsgrundlagen für alle Wähler.
+ * </p>
  *
- * @param positions political position of each party (0-100 scale)
- * @param budgetScores normalized campaign budget effectiveness scores
- * @param dailyMomentum random daily performance variance per party
- * @param uniformRange chaos factor affecting decision randomness
- * @param globalMediaFactor normalized media influence (0-1 scale)
+ * @param positions Politische Ausrichtung als Referenz für die Distanzberechnung.
+ * @param budgetScores Vor genormte Budget-Werte zur direkten Gewichtung
+ * @param dailyMomentum Faktor für natürliche Beliebtheitsschwankungen.
+ * @param uniformRange Faktor für Unvorhersehbarkeit der Entscheidung.
+ * @param globalMediaFactor Aktuelle Wirksamkeit der Medien.
  *
  * @author Nico Hoffmann
  * @version 1.0

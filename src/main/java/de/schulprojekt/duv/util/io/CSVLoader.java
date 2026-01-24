@@ -15,10 +15,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Utility class for loading game data from CSV files.
- * Supports localization and ensures unique colors.
+ * Utility-Klasse zum Laden von Spieldaten aus CSV-Dateien.
+ * Unterstützt Lokalisierung und stellt eindeutige Farben sicher.
  * @author Nico Hoffmann
- * @version 1.3
+ * @version 1.0
  */
 public class CSVLoader {
 
@@ -44,8 +44,8 @@ public class CSVLoader {
     // ========================================
 
     /**
-     * Creates a loader for a specific locale.
-     * @param locale The locale to load data for (e.g., Locale.GERMAN, Locale.ENGLISH)
+     * Erstellt einen Loader für ein bestimmtes Locale.
+     * @param locale Das Locale, für das Daten geladen werden sollen.
      */
     public CSVLoader(Locale locale) {
         this.currentLocale = locale;
@@ -56,10 +56,10 @@ public class CSVLoader {
     // ========================================
 
     /**
-     * Retrieves a set of random party templates.
-     * Ensures that no two parties share the same color.
-     * @param count number of templates to return
-     * @return list of party templates
+     * Ruft eine Menge zufälliger Parteivorlagen ab.
+     * Stellt sicher, dass keine zwei Parteien die gleiche Farbe teilen.
+     * @param count Anzahl der zurückzugebenden Vorlagen
+     * @return Liste der Parteivorlagen
      */
     public List<PartyTemplate> getRandomPartyTemplates(int count) {
         List<PartyTemplate> allTemplates = loadAllParties();
@@ -88,10 +88,6 @@ public class CSVLoader {
         return selection;
     }
 
-    /**
-     * Retrieves a random scandal, utilizing a cache.
-     * @return a random scandal object
-     */
     public Scandal getRandomScandal() {
         if (cachedScandals == null) {
             cachedScandals = loadAllScandals();

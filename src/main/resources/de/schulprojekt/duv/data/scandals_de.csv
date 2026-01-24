@@ -9,3 +9,93 @@ id,type,name,description,impact
 8,ENV,Umweltskandal,Firma des Abgeordneten verschmutzt Fluss,0.75
 9,RELIGION,Kirchenaustritt,Aus taktischen Gründen ausgetreten,0.3
 10,MILITARY,Wehrdienst,Falsche Angaben zur Dienstzeit,0.4
+11,CORRUPTION,Lobby-Druck,Geheime Absprachen mit der Autoindustrie,0.85
+12,FINANCE,Schwarzgeldkonto,Konto in der Schweiz entdeckt,0.95
+13,PERSONAL,Ehebruch,Affäre mit einer Praktikantin,0.45
+14,POLITICAL,Wählerkauf,Gutscheine für Stimmen verteilt,0.88
+15,DATA,Hackerangriff,Eigene IT-Sicherheit vernachlässigt,0.6
+16,STATEMENT,Lüge,Wichtige Wahlversprechen bewusst gebrochen,0.7
+17,MORAL,Vetternwirtschaft,Sohn erhielt Beratervertrag,0.8
+18,ENV,Müllskandal,Illegale Entsorgung von Giftmüll,0.82
+19,FINANCE,Spesenbetrug,Privatreisen als Dienstgang abgerechnet,0.65
+20,POLITICAL,Postenschacherei,Freunde in hohe Ämter gehoben,0.78
+21,PERSONAL,Rauferei,Handgreiflichkeit in einer Bar,0.52
+22,CORRUPTION,Bauauftrag,Schmiergeld für Stadionbau,0.92
+23,STATEMENT,Rassismus,Fremdenfeindliche Tweets entdeckt,0.9
+24,DATA,Abhöraffäre,Konkurrenten heimlich belauscht,0.85
+25,MORAL,Sexismus,Unangemessene Sprüche gegenüber Kolleginnen,0.75
+26,FINANCE,Insiderhandel,Aktien mit Vorwissen verkauft,0.87
+27,ENV,Abgasskandal,Grenzwerte wissentlich ignoriert,0.79
+28,POLITICAL,Sitzungsgeld,Eingetragen aber nicht anwesend,0.58
+29,MILITARY,Waffendeal,Illegale Exporte in Krisengebiete,0.96
+30,PERSONAL,Drogenbesitz,Kleinstmenge bei Kontrolle gefunden,0.62
+31,CORRUPTION,Ticket-Affäre,Gratis-Karten für VIP-Events,0.48
+32,STATEMENT,Homophobie,Diskriminierende Äußerungen getätigt,0.72
+33,DATA,Cloud-Fehler,Interne Dokumente frei einsehbar,0.55
+34,FINANCE,Immobiliendeal,Haus weit unter Marktwert gekauft,0.81
+35,MORAL,Tierschutz,Pelzmantel bei Demo getragen,0.42
+36,ENV,Jagdunfall,Geschütztes Tier illegal erlegt,0.68
+37,POLITICAL,Parteibuch,Stellen nur an Mitglieder vergeben,0.73
+38,CORRUPTION,Beratervertrag,Millionen für wertlose Gutachten,0.89
+39,PERSONAL,Schulden,Privatinsolvenz verschwiegen,0.51
+40,STATEMENT,Klimaleugnung,Wissenschaftliche Fakten ignoriert,0.66
+41,FINANCE,Geldwäsche,Briefkastenfirma in Panama,0.94
+42,MORAL,Doppelleben,Geheime Zweitfamilie entdeckt,0.49
+43,CORRUPTION,Hotelkosten,Lobbyisten zahlten Luxussuite,0.76
+44,DATA,Profil-Kauf,Fake-Follower für Social Media,0.35
+45,POLITICAL,Flyer-Skandal,Druckkosten vom Staat bezahlt,0.59
+46,ENV,Rodung,Bäume ohne Genehmigung gefällt,0.63
+47,STATEMENT,Volksverhetzung,Grenzwertige Rede im Bierzelt,0.93
+48,FINANCE,Goldhandel,Gewinne nicht versteuert,0.77
+49,PERSONAL,Falschparker,Über 100 Knöllchen ignoriert,0.32
+50,CORRUPTION,Impf-Vordrängler,Privileg genutzt für Impfung,0.84
+51,DATA,Video-Leak,Heimliche Aufnahme von Strategietreffen,0.71
+52,MORAL,Prüfungsbetrug,Bei Examen geschummelt,0.56
+53,POLITICAL,Wahlfälschung,Manipulierte Stimmzettel in einer Urne,0.98
+54,ENV,Wasserverschwendung,Pool trotz Dürre gefüllt,0.44
+55,FINANCE,Erbe,Nicht deklariertes Vermögen aus Ausland,0.69
+56,PERSONAL,Mobbing,Mitarbeiter systematisch schikaniert,0.74
+57,CORRUPTION,Mietvorteil,Wohnung von Bauunternehmer geliehen,0.82
+58,STATEMENT,Fake News,Bewusst falsche Zahlen verbreitet,0.86
+59,DATA,Passwort-Skandal,Einfaches Passwort wie 12345 genutzt,0.38
+60,POLITICAL,Koalitionsbruch,Geheime Verhandlungen mit Opposition,0.72
+61,MORAL,Alkoholismus,Betrunken bei einer Parlamentssitzung,0.67
+62,FINANCE,Kredit-Affäre,Zinsloser Kredit von befreundetem Banker,0.83
+63,CORRUPTION,Olympiade,Bestechung für Standortwahl,0.91
+64,PERSONAL,Egoismus,Rettungsgasse blockiert,0.53
+65,ENV,Ölteppich,Heizöltank im Keller ausgelaufen,0.57
+66,STATEMENT,Beleidigter Beamter,Polizisten bei Kontrolle beschimpft,0.47
+67,DATA,Tracking-App,Bürger ohne Erlaubnis überwacht,0.89
+68,POLITICAL,Troll-Fabrik,Bezahlte Kommentare unter Posts,0.79
+69,FINANCE,Aufsichtsrat,Gehalt kassiert ohne Arbeit,0.81
+70,MORAL,Untreue,Parteigelder für Schmuck ausgegeben,0.88
+71,CORRUPTION,Maut-Skandal,Verträge trotz Warnung unterschrieben,0.95
+72,ENV,Flugreise,Kurzstreckenflug für 50km Strecke,0.41
+73,PERSONAL,Raser,Mit 120 km/h in der 30er Zone,0.65
+74,STATEMENT,Majestätsbeleidigung,Oberhaupt eines Nachbarstaates verhöhnt,0.62
+75,DATA,Handy-Verlust,Diensthandy mit Geheimdaten in Bahn vergessen,0.76
+76,POLITICAL,Doppelmandat,Zwei Gehälter gleichzeitig bezogen,0.64
+77,FINANCE,Zoll-Betrug,Teure Uhr nicht angemeldet,0.55
+78,MORAL,Tierquälerei,Hund im heißen Auto gelassen,0.71
+79,CORRUPTION,Visa-Affäre,Einreisegenehmigungen gegen Geld,0.92
+80,ENV,Pestizide,Verbotene Mittel im Garten genutzt,0.43
+81,PERSONAL,Spielsucht,Hohe Verluste im Casino,0.59
+82,STATEMENT,Arroganz,Bürger als dumm bezeichnet,0.75
+83,DATA,Verkauf,Adressen für Werbung verkauft,0.84
+84,POLITICAL,Schattenkabinett,Geheime Regierung hinter der Regierung,0.87
+85,FINANCE,Kryptobetrug,Werbung für Scam-Coin gemacht,0.78
+86,MORAL,Fremdgehen,Affäre mit dem Gegner,0.63
+87,CORRUPTION,Subventionen,Gelder für fiktive Projekte kassiert,0.91
+88,ENV,Heizungsgesetz,Alte Ölheizung heimlich eingebaut,0.51
+89,PERSONAL,Fahrerflucht,Spiegel abgefahren und weggegangen,0.68
+90,STATEMENT,Gotteslästerung,Religiöse Gefühle verletzt,0.45
+91,DATA,Gesichtserkennung,Kameras illegal installiert,0.82
+92,POLITICAL,Austritt,Kurz vor Wahl die Seite gewechselt,0.74
+93,FINANCE,Stiftung,Gelder für private Zwecke genutzt,0.85
+94,MORAL,Arbeitsbedingungen,Mitarbeiter unter Mindestlohn bezahlt,0.86
+95,CORRUPTION,Pharma-Lobby,Medikamentenpreise künstlich hochgehalten,0.94
+96,ENV,Wildpinkeln,In historisches Denkmal uriniert,0.31
+97,PERSONAL,Mietnomade,Eigene Miete monatelang nicht gezahlt,0.54
+98,STATEMENT,Verschwörung,An Chemtrails geglaubt,0.49
+99,DATA,KI-Deepfake,Wahlwerbung mit Fake-Videos,0.88
+100,FINANCE,Totalausfall,Gesamtes Parteivermögen verzockt,0.99

@@ -18,9 +18,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Entry point of the JavaFX application.
+ * Einstiegspunkt für die Applikation.
  * @author Nico Hoffmann
- * @version 1.1
+ * @version 1.0
  */
 public class Main extends Application {
 
@@ -103,9 +103,9 @@ public class Main extends Application {
     // ========================================
 
     /**
-     * Loads a stylesheet into the scene if it exists.
-     * @param scene the target scene
-     * @param resourcePath the path to the CSS file
+     * Laden aller Stylesheets
+     * @param scene Die Zielszene
+     * @param resourcePath Pfad zu CSS
      */
     private static void loadStylesheet(Scene scene, String resourcePath) {
         URL url = Main.class.getResource(resourcePath);
@@ -117,8 +117,8 @@ public class Main extends Application {
     }
 
     /**
-     * Sets the application icon.
-     * @param stage the primary stage
+     * Setzen des App Icons
+     * @param stage Die primär Stage
      */
     private static void setAppIcon(Stage stage) {
         try (InputStream iconStream = Main.class.getResourceAsStream(ICON_PATH)) {

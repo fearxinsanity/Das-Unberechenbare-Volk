@@ -3,7 +3,7 @@ package de.schulprojekt.duv.util.validation;
 import de.schulprojekt.duv.model.core.SimulationParameters;
 
 /**
- * Validates simulation parameters to ensure they are within acceptable ranges.
+ * Validiert Simulationsparameter, um sicherzustellen, dass sie innerhalb akzeptabler Bereiche liegen.
  * @author Nico Hoffmann
  * @version 1.0
  */
@@ -107,9 +107,9 @@ public class ParameterValidator {
     // ========================================
 
     /**
-     * Validates all simulation parameters.
-     * @param params the parameters to validate
-     * @throws IllegalArgumentException if any parameter is invalid
+     * Validiert alle Simulationsparameter.
+     * @param params die zu validierenden Parameter
+     * @throws IllegalArgumentException wenn ein Parameter ungültig ist
      */
     public static void validate(SimulationParameters params) {
         String error = getValidationError(params);
@@ -118,29 +118,18 @@ public class ParameterValidator {
         }
     }
 
-    /**
-     * Checks if parameters are valid.
-     * @param params the parameters to check
-     * @return true if valid, false otherwise
-     */
     public static boolean isValid(SimulationParameters params) {
         return getValidationError(params).isEmpty();
     }
 
-    /**
-     * Checks if parameters are invalid.
-     * Convenience method to avoid negation in calling code.
-     * @param params the parameters to check
-     * @return true if invalid, false otherwise
-     */
     public static boolean isInvalid(SimulationParameters params) {
         return !isValid(params);
     }
 
     /**
-     * Gets validation error message using centralized ValidationMessage enum.
-     * @param params the parameters to validate
-     * @return error message, or empty string if valid
+     * Ruft die Validierungs-Fehlermeldung über zentralen ValidationMessage-Enums ab.
+     * @param params die zu validierenden Parameter
+     * @return Fehlermeldung oder ein leerer String, wenn die Parameter gültig sind
      */
     public static String getValidationError(SimulationParameters params) {
         if (params.populationSize() < MIN_POPULATION || params.populationSize() > MAX_POPULATION) {
@@ -187,31 +176,22 @@ public class ParameterValidator {
     // ========================================
 
     /**
-     * Clamps a value to a percentage range (0-100).
-     * @param value the value to clamp
-     * @return clamped value
-     */
-    public static double clampPercentage(double value) {
-        return Math.max(MIN_PERCENTAGE, Math.min(MAX_PERCENTAGE, value));
-    }
-
-    /**
-     * Clamps an integer value to a specified range.
-     * @param value the value to clamp
-     * @param min minimum value
-     * @param max maximum value
-     * @return clamped value
+     * Begrenzt einen Integer-Wert auf einen angegebenen Bereich.
+     * @param value der zu begrenzende Wert
+     * @param min Minimalwert
+     * @param max Maximalwert
+     * @return der begrenzte Wert
      */
     public static int clampInt(int value, int min, int max) {
         return Math.max(min, Math.min(max, value));
     }
 
     /**
-     * Clamps a double value to a specified range.
-     * @param value the value to clamp
-     * @param min minimum value
-     * @param max maximum value
-     * @return clamped value
+     * Begrenzt einen Double-Wert auf einen angegebenen Bereich.
+     * @param value der zu begrenzende Wert
+     * @param min Minimalwert
+     * @param max Maximalwert
+     * @return der begrenzte Wert
      */
     public static double clampDouble(double value, double min, double max) {
         return Math.max(min, Math.min(max, value));

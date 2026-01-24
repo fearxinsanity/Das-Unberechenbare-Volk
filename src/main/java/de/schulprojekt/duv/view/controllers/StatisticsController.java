@@ -1,48 +1,36 @@
 package de.schulprojekt.duv.view.controllers;
 
 import de.schulprojekt.duv.model.party.Party;
-import de.schulprojekt.duv.util.config.SimulationConfig;
 import de.schulprojekt.duv.view.Main;
-import javafx.animation.*;
-import javafx.application.Platform;
+import de.schulprojekt.duv.view.managers.StatisticsChartManager;
+import de.schulprojekt.duv.view.managers.TelemetryManager;
+import javafx.animation.Animation;
+import javafx.animation.FadeTransition;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.chart.*;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.PieChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
-import javafx.scene.control.Tooltip;
-import javafx.scene.layout.Pane;
 import javafx.util.Duration;
 
-import java.lang.management.ManagementFactory;
 import java.util.List;
-import java.util.Locale;
 import java.util.ResourceBundle;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 /**
- * Controller for the post-simulation statistics view.
- * Displays history, distribution, and real-time telemetry.
+ * Controller für die Statistik-Ansicht nach der Simulation.
+ * Steuert die Interaktion und koordiniert Chart- sowie Telemetrie-Manager.
  * @author Nico Hoffmann
- * @version 1.1
+ * @version 1.0
  */
 public class StatisticsController {
 
     // ========================================
-    // Static Variables
-    // ========================================
-
-    private static final String STYLE_PIE_COLOR = "-fx-pie-color: %s;";
-    private static final String STYLE_BAR_FILL = "-fx-bar-fill: %s;";
-    private static final String STYLE_LEGEND_SYMBOL = "-fx-background-color: %s;";
-
-    // ========================================
-    // Instance Variables
+    // Instance Variables (UI Elements)
     // ========================================
 
     @FXML private LineChart<Number, Number> historyChart;
@@ -51,37 +39,22 @@ public class StatisticsController {
     @FXML private BarChart<String, Number> budgetChart;
     @FXML private Label totalTicksLabel;
 
-    @FXML private Label statusLabelArchived;
-    @FXML private Label statusLabelCalculated;
-    @FXML private Label statusLabelReview;
-    @FXML private Label statusLabelVerified;
-
-    @FXML private Label cpuLabel;
-    @FXML private Label gpuLabel;
-    @FXML private Label serverLoadLabel;
-    @FXML private Label ramLabel;
-    @FXML private Label uptimeLabel;
+    @FXML private Label statusLabelArchived, statusLabelCalculated, statusLabelReview, statusLabelVerified;
+    @FXML private Label cpuLabel, gpuLabel, serverLoadLabel, ramLabel, uptimeLabel;
 
     private Parent dashboardRoot;
-    private ScheduledExecutorService telemetryExecutor;
-
-    // ========================================
-    // Constructors
-    // ========================================
-
-    public StatisticsController() {
-    }
+    private TelemetryManager telemetryManager;
 
     // ========================================
     // Business Logic Methods
     // ========================================
 
     /**
-     * Initializes the controller with data from the simulation.
-     * @param parties list of participating parties
-     * @param historyData recorded simulation history
-     * @param currentTick final tick count
-     * @param dashboardRoot reference to return to dashboard
+     * Initialisiert den Controller und startet die Manager-Dienste.
+     * @param parties Liste der Parteien
+     * @param historyData Historische Daten
+     * @param currentTick Letzter Tick der Simulation
+     * @param dashboardRoot Rücksprungziel
      */
     public void initData(List<Party> parties, ObservableList<XYChart.Series<Number, Number>> historyData, int currentTick, Parent dashboardRoot) {
         this.dashboardRoot = dashboardRoot;
@@ -89,42 +62,20 @@ public class StatisticsController {
 
         this.totalTicksLabel.setText(String.format(bundle.getString("stats.analysis_complete"), currentTick));
 
-        setupHistoryChartAnimated(historyData);
-        setupDistributionChart(parties);
-        setupScandalChart(parties);
-        setupBudgetChart(parties);
+        // Initialize Managers
+        StatisticsChartManager chartManager = new StatisticsChartManager(historyChart, distributionChart, scandalChart, budgetChart);
+        this.telemetryManager = new TelemetryManager(cpuLabel, gpuLabel, serverLoadLabel, ramLabel, uptimeLabel);
 
-        startStatusPulse(statusLabelArchived);
-        startStatusPulse(statusLabelCalculated);
-        startStatusPulse(statusLabelReview);
-        startStatusPulse(statusLabelVerified);
+        // Execute Logic
+        chartManager.setupCharts(parties, historyData);
+        this.telemetryManager.start();
 
-        fetchStaticHardwareInfo();
-        startTelemetryService();
-    }
-
-    public void startTelemetryService() {
-        if (telemetryExecutor != null && !telemetryExecutor.isShutdown()) return;
-
-        telemetryExecutor = Executors.newSingleThreadScheduledExecutor(r -> {
-            Thread t = new Thread(r, "Telemetry-Monitor");
-            t.setDaemon(true);
-            return t;
-        });
-
-        telemetryExecutor.scheduleAtFixedRate(this::updateSystemTelemetry, 0, 1000, TimeUnit.MILLISECONDS);
-    }
-
-    public void stopTelemetryService() {
-        if (telemetryExecutor != null) {
-            telemetryExecutor.shutdownNow();
-            telemetryExecutor = null;
-        }
+        startStatusAnimations();
     }
 
     @FXML
     public void handleBackToDashboard(ActionEvent event) {
-        stopTelemetryService();
+        if (telemetryManager != null) telemetryManager.stop();
         if (dashboardRoot != null && event.getSource() instanceof Node sourceNode) {
             sourceNode.getScene().setRoot(dashboardRoot);
         }
@@ -134,35 +85,11 @@ public class StatisticsController {
     // Utility Methods
     // ========================================
 
-    private void setupHistoryChartAnimated(ObservableList<XYChart.Series<Number, Number>> historyData) {
-        historyChart.getData().clear();
-        ResourceBundle bundle = ResourceBundle.getBundle("de.schulprojekt.duv.messages", Main.getLocale());
-
-        for (XYChart.Series<Number, Number> sourceSeries : historyData) {
-            XYChart.Series<Number, Number> newSeries = new XYChart.Series<>();
-            newSeries.setName(sourceSeries.getName());
-            historyChart.getData().add(newSeries);
-
-            if (sourceSeries.getNode() != null) {
-                String style = sourceSeries.getNode().getStyle();
-                runOnNode(newSeries, node -> node.setStyle(style));
-            }
-            runOnNode(newSeries, node -> installTooltipOnNode(node, bundle.getString("tt.trace").formatted(newSeries.getName())));
-
-            Timeline trace = new Timeline();
-            int delayCounter = 0;
-
-            for (XYChart.Data<Number, Number> data : sourceSeries.getData()) {
-                KeyFrame kf = new KeyFrame(Duration.millis(delayCounter),
-                        ignored -> newSeries.getData().add(new XYChart.Data<>(data.getXValue(), data.getYValue()))
-                );
-                trace.getKeyFrames().add(kf);
-                delayCounter += 20;
-            }
-
-            trace.setDelay(Duration.millis(500));
-            trace.play();
-        }
+    private void startStatusAnimations() {
+        startStatusPulse(statusLabelArchived);
+        startStatusPulse(statusLabelCalculated);
+        startStatusPulse(statusLabelReview);
+        startStatusPulse(statusLabelVerified);
     }
 
     private void startStatusPulse(Node node) {
@@ -173,153 +100,5 @@ public class StatisticsController {
         ft.setAutoReverse(true);
         ft.setCycleCount(Animation.INDEFINITE);
         ft.play();
-    }
-
-    private void fetchStaticHardwareInfo() {
-        ResourceBundle bundle = ResourceBundle.getBundle("de.schulprojekt.duv.messages", Main.getLocale());
-        String cpuName = System.getenv("PROCESSOR_IDENTIFIER");
-        if (cpuName == null || cpuName.isBlank()) {
-            cpuName = System.getProperty("os.arch") + " PROCESSOR";
-        }
-        if (cpuName.length() > 28) cpuName = cpuName.substring(0, 28) + "...";
-        if (cpuLabel != null) cpuLabel.setText(cpuName.equals("ERKENNE...") ? bundle.getString("hw.detecting") : cpuName);
-
-        String gpuText = "JFX DEFAULT";
-        try {
-            Object prism = System.getProperty("prism.order");
-            if (prism != null) gpuText = "PIPELINE: " + prism.toString().toUpperCase();
-        } catch (Exception ignored) {}
-        if (gpuLabel != null) gpuLabel.setText(gpuText.equals("SCANNE...") ? bundle.getString("hw.scanning") : gpuText);
-    }
-
-    private void updateSystemTelemetry() {
-        String ramText = getRealSystemRam();
-        String loadText = getRealCpuLoad();
-        String timeText = getUptimeText();
-
-        Platform.runLater(() -> {
-            if (ramLabel != null) ramLabel.setText(ramText);
-            if (serverLoadLabel != null) serverLoadLabel.setText(loadText);
-            if (uptimeLabel != null) uptimeLabel.setText(timeText);
-        });
-    }
-
-    private String getRealSystemRam() {
-        ResourceBundle bundle = ResourceBundle.getBundle("de.schulprojekt.duv.messages", Main.getLocale());
-        java.lang.management.OperatingSystemMXBean osBean = ManagementFactory.getOperatingSystemMXBean();
-        if (osBean instanceof com.sun.management.OperatingSystemMXBean sunOsBean) {
-            long total = sunOsBean.getTotalMemorySize();
-            long free = sunOsBean.getFreeMemorySize();
-            return String.format(Locale.US, "%.1f / %.1f GB %s", (total - free) / 1073741824.0, total / 1073741824.0, bundle.getString("hw.physical"));
-        }
-        return String.format(Locale.US, bundle.getString("hw.jvm_heap"), ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed() / 1048576.0);
-    }
-
-    private String getRealCpuLoad() {
-        ResourceBundle bundle = ResourceBundle.getBundle("de.schulprojekt.duv.messages", Main.getLocale());
-        java.lang.management.OperatingSystemMXBean osBean = ManagementFactory.getOperatingSystemMXBean();
-        if (osBean instanceof com.sun.management.OperatingSystemMXBean sunOsBean) {
-            double load = sunOsBean.getCpuLoad();
-            return (load < 0) ? bundle.getString("hw.calc") : String.format(Locale.US, bundle.getString("hw.load"), load * 100, osBean.getAvailableProcessors());
-        }
-        return "CPU ACTIVE";
-    }
-
-    private String getUptimeText() {
-        ResourceBundle bundle = ResourceBundle.getBundle("de.schulprojekt.duv.messages", Main.getLocale());
-        long uptime = ManagementFactory.getRuntimeMXBean().getUptime() / 1000;
-        return String.format("%s %02d:%02d:%02d", bundle.getString("stats.session"), uptime / 3600, (uptime % 3600) / 60, uptime % 60);
-    }
-
-    private void setupDistributionChart(List<Party> parties) {
-        ResourceBundle bundle = ResourceBundle.getBundle("de.schulprojekt.duv.messages", Main.getLocale());
-        double total = parties.stream().mapToDouble(Party::getCurrentSupporterCount).sum();
-        for (Party p : parties) {
-            PieChart.Data data = new PieChart.Data(p.getAbbreviation(), p.getCurrentSupporterCount());
-            distributionChart.getData().add(data);
-            runOnNode(data, node -> {
-                double pct = (total > 0) ? (data.getPieValue() / total) * 100.0 : 0.0;
-                installTooltipOnNode(node, String.format(bundle.getString("tt.faction"), p.getName(), data.getPieValue(), pct));
-                node.setStyle(String.format(STYLE_PIE_COLOR, getPartyColorString(p)));
-            });
-        }
-        fixPieLegendColors(parties);
-    }
-
-    private void setupScandalChart(List<Party> parties) {
-        ResourceBundle bundle = ResourceBundle.getBundle("de.schulprojekt.duv.messages", Main.getLocale());
-        XYChart.Series<String, Number> series = new XYChart.Series<>();
-        for (Party p : parties) {
-            if (p.getName().equals(SimulationConfig.UNDECIDED_NAME)) continue;
-            XYChart.Data<String, Number> data = new XYChart.Data<>(p.getAbbreviation(), p.getScandalCount());
-            series.getData().add(data);
-            runOnNode(data, node -> {
-                node.setStyle(String.format(STYLE_BAR_FILL, getPartyColorString(p)));
-                String tip = bundle.getString("tt.target").formatted(p.getName()) + "\n" + bundle.getString("tt.scandals").formatted(data.getYValue());
-                installTooltipOnNode(node, tip);
-            });
-        }
-        scandalChart.getData().add(series);
-    }
-
-    private void setupBudgetChart(List<Party> parties) {
-        ResourceBundle bundle = ResourceBundle.getBundle("de.schulprojekt.duv.messages", Main.getLocale());
-        XYChart.Series<String, Number> series = new XYChart.Series<>();
-        for (Party p : parties) {
-            if (p.getName().equals(SimulationConfig.UNDECIDED_NAME)) continue;
-            XYChart.Data<String, Number> data = new XYChart.Data<>(p.getAbbreviation(), p.getCampaignBudget() / 1000000.0);
-            series.getData().add(data);
-            runOnNode(data, node -> {
-                node.setStyle(String.format(STYLE_BAR_FILL, getPartyColorString(p)));
-                installTooltipOnNode(node, String.format(bundle.getString("tt.budget"), p.getName(), data.getYValue().doubleValue()));
-            });
-        }
-        budgetChart.getData().add(series);
-    }
-
-    private void fixPieLegendColors(List<Party> parties) {
-        Platform.runLater(() -> {
-            Node legend = distributionChart.lookup(".chart-legend");
-            if (legend instanceof Pane pane) {
-                for (Node item : pane.getChildren()) {
-                    if (item instanceof Label label) {
-                        Party p = findPartyByAbbr(parties, label.getText());
-                        if (p != null && label.getGraphic() != null) {
-                            label.getGraphic().setStyle(String.format(STYLE_LEGEND_SYMBOL, getPartyColorString(p)));
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    private void runOnNode(Object chartData, Consumer<Node> action) {
-        javafx.beans.property.ReadOnlyObjectProperty<Node> property = null;
-        if (chartData instanceof XYChart.Series<?, ?> s) property = s.nodeProperty();
-        else if (chartData instanceof XYChart.Data<?, ?> d) property = d.nodeProperty();
-        else if (chartData instanceof PieChart.Data p) property = p.nodeProperty();
-
-        if (property != null) {
-            if (property.get() != null) action.accept(property.get());
-            property.addListener((obs, nd, newVal) -> {
-                if (newVal != null) action.accept(newVal);
-            });
-        }
-    }
-
-    private void installTooltipOnNode(Node node, String text) {
-        Tooltip t = new Tooltip(text);
-        t.setShowDelay(Duration.millis(50));
-        Tooltip.install(node, t);
-    }
-
-    private Party findPartyByAbbr(List<Party> parties, String abbr) {
-        return parties.stream().filter(p -> p.getAbbreviation().equals(abbr)).findFirst().orElse(null);
-    }
-
-    private String getPartyColorString(Party p) {
-        if (p.getName().equals(SimulationConfig.UNDECIDED_NAME)) return "#666666";
-        String code = p.getColorCode();
-        return code.startsWith("#") ? code : "#" + code;
     }
 }

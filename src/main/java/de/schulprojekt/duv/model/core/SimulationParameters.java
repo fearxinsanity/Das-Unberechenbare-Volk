@@ -1,19 +1,25 @@
 package de.schulprojekt.duv.model.core;
 
 /**
- * Immutable Data Transfer Object for simulation settings.
- * @param populationSize total number of simulated voters
- * @param mediaInfluence influence of media on voters (0.0 - 100.0)
- * @param volatilityRate willingness of voters to change parties (0.0 - 100.0)
- * @param scandalProbability probability of a scandal per tick (0.0 - 60.0)
- * @param loyaltyAverage average initial party loyalty (0.0 - 100.0)
- * @param tickRate simulation speed in Ticks Per Second
- * @param chaosFactor random deviation factor for variance
- * @param partyCount number of active political parties
- * @param budgetEffectiveness multiplier for campaign budget impact
- * @param seed the random seed for determinism
+ * Zentrales Datenobjekt für die Konfiguration eines Simulationslaufs.
+ * <p>
+ * Dient als "Single Source of Truth" für die Initialisierung der Engine. Die Parameter sind hier
+ * schreibgeschützt gebündelt, um inkonsistente Zustandsänderungen während der Laufzeit zu verhindern
+ * und Thread-Safety zu garantieren.
+ * </p>
+ *
+ * @param populationSize Bestimmt die statistische Signifikanz und die Systemlast.
+ * @param mediaInfluence Modelliert die Empfänglichkeit der Wähler für externe Narrative.
+ * @param volatilityRate Definiert die politische Fluktuation im System.
+ * @param scandalProbability Regelt die Frequenz unvorhergesehener Störfeuer.
+ * @param loyaltyAverage Legt das historische Fundament der Parteibindung fest.
+ * @param tickRate Steuert den Zeitraffer der Simulation.
+ * @param chaosFactor Fügt eine Prise Unvorhersehbarkeit hinzu.
+ * @param partyCount Definiert die Fragmentierung des politischen Spektrums.
+ * @param budgetEffectiveness Gewichtet die Macht finanzieller Ressourcen im Wahlkampf.
+ *
  * @author Nico Hoffmann
- * @version 1.2
+ * @version 1.0
  */
 public record SimulationParameters(
         int populationSize,
@@ -24,8 +30,7 @@ public record SimulationParameters(
         int tickRate,
         double chaosFactor,
         int partyCount,
-        double budgetEffectiveness,
-        long seed
+        double budgetEffectiveness
 ) {
     public SimulationParameters {
         if (populationSize < 0) throw new IllegalArgumentException("Population cannot be negative");
@@ -35,7 +40,7 @@ public record SimulationParameters(
     public SimulationParameters withTickRate(int newTickRate) {
         return new SimulationParameters(
                 populationSize, mediaInfluence, volatilityRate, scandalProbability,
-                loyaltyAverage, newTickRate, chaosFactor, partyCount, budgetEffectiveness, seed
+                loyaltyAverage, newTickRate, chaosFactor, partyCount, budgetEffectiveness
         );
     }
 }

@@ -32,15 +32,23 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Main controller for the simulation dashboard.
- * Coordinates between managers and handles user interactions.
+ * Haupt-Controller für das Simulations-Dashboard.
+ * Koordiniert zwischen den Managern und verarbeitet Benutzerinteraktionen.
  *
  * @author Nico Hoffmann
- * @version 1.1
+ * @version 1.0
  */
 public class DashboardController {
 
+    // ========================================
+    // Static Variables
+    // ========================================
+
     private static final Logger LOGGER = Logger.getLogger(DashboardController.class.getName());
+
+    // ========================================
+    // Instance Variables
+    // ========================================
 
     @FXML private ScrollPane scandalTickerScroll;
     @FXML private HBox scandalTickerBox;
@@ -52,14 +60,12 @@ public class DashboardController {
     @FXML private VBox populationBox;
     @FXML private VBox partyBox;
     @FXML private VBox budgetBox;
-    @FXML private VBox seedBox;
     @FXML private VBox durationBox;
     @FXML private VBox randomBox;
 
     @FXML private Label populationOverlay;
     @FXML private Label partyOverlay;
     @FXML private Label budgetOverlay;
-    @FXML private Label seedOverlay;
     @FXML private Label durationOverlay;
     @FXML private Label randomOverlay;
 
@@ -70,7 +76,6 @@ public class DashboardController {
     @FXML private TextField partyCountField;
     @FXML private TextField budgetField;
     @FXML private TextField scandalChanceField;
-    @FXML private TextField seedField;
     @FXML private TextField durationField;
 
     @FXML private Slider mediaInfluenceSlider;
@@ -97,11 +102,23 @@ public class DashboardController {
     private FeedManager feedManager;
     private TooltipManager tooltipManager;
 
+    private ResourceBundle bundle;
+
+    // ========================================
+    // Constructors
+    // ========================================
+
     public DashboardController() {
     }
 
+    // ========================================
+    // Public Methods (Life Cycle & Update)
+    // ========================================
+
     @FXML
     public void initialize() {
+        this.bundle = ResourceBundle.getBundle("de.schulprojekt.duv.messages", Main.getLocale());
+
         initializeManagers();
         initializeComponents();
         setupEventHandlers();
@@ -125,21 +142,10 @@ public class DashboardController {
             Platform.runLater(() -> updateDashboard(parties, transitions, scandal, step));
             return;
         }
-        stateManager.setCurrentTick(step);
-        if (step == 0) {
-            chartManager.clear();
-            canvasRenderer.clear(parties);
-            feedManager.clear();
-        }
-        stateManager.updateStatusDisplay(controller.isRunning());
 
-        ResourceBundle bundle = ResourceBundle.getBundle("de.schulprojekt.duv.messages", Main.getLocale());
-        executeToggleButton.setText(controller.isRunning() ? bundle.getString("dash.pause") : bundle.getString("dash.execute"));
-
-        feedManager.processScandal(scandal, step);
-        chartManager.update(parties, step);
-        canvasRenderer.update(parties, transitions, controller.getCurrentParameters().populationSize());
-        if (scandal != null) uiManager.triggerSidebarGlitch();
+        handleStepLogic(parties, step);
+        updateControlElements();
+        updateVisualizations(parties, transitions, scandal, step);
     }
 
     public void shutdown() {
@@ -147,6 +153,10 @@ public class DashboardController {
         if (canvasRenderer != null) canvasRenderer.stop();
         if (stateManager != null) stateManager.stopTimer();
     }
+
+    // ========================================
+    // Business Logic Methods (Event Handlers)
+    // ========================================
 
     @FXML
     public void handleToggleSimulation() {
@@ -179,7 +189,6 @@ public class DashboardController {
             stateManager.pauseTimer();
         }
 
-        ResourceBundle bundle = ResourceBundle.getBundle("de.schulprojekt.duv.messages", Main.getLocale());
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle(bundle.getString("alert.abort"));
         alert.setHeaderText(bundle.getString("alert.terminate"));
@@ -251,15 +260,41 @@ public class DashboardController {
         });
     }
 
+    // ========================================
+    // Utility Methods
+    // ========================================
+
+    private void handleStepLogic(List<Party> parties, int step) {
+        stateManager.setCurrentTick(step);
+        if (step == 0) {
+            chartManager.clear();
+            canvasRenderer.clear(parties);
+            feedManager.clear();
+        }
+        stateManager.updateStatusDisplay(controller.isRunning());
+    }
+
+    private void updateControlElements() {
+        String buttonKey = controller.isRunning() ? "dash.pause" : "dash.execute";
+        executeToggleButton.setText(bundle.getString(buttonKey));
+    }
+
+    private void updateVisualizations(List<Party> parties, List<VoterTransition> transitions, ScandalEvent scandal, int step) {
+        feedManager.processScandal(scandal, step);
+        chartManager.update(parties, step);
+        canvasRenderer.update(parties, transitions, controller.getCurrentParameters().populationSize());
+        if (scandal != null) uiManager.triggerSidebarGlitch();
+    }
+
     private void initializeManagers() {
-        parameterManager = new ParameterManager(voterCountField, partyCountField, budgetField, scandalChanceField, seedField, mediaInfluenceSlider, mobilityRateSlider, loyaltyMeanSlider, randomRangeSlider);
+        parameterManager = new ParameterManager(voterCountField, partyCountField, budgetField, scandalChanceField, mediaInfluenceSlider, mobilityRateSlider, loyaltyMeanSlider, randomRangeSlider);
         parameterManager.initializeFields();
 
         stateManager = new SimulationStateManager();
         stateManager.setTimeStepLabel(timeStepLabel);
         stateManager.setDurationField(durationField);
         stateManager.setButtons(executeToggleButton, resetButton, intelButton, parliamentButton);
-        stateManager.setLockingContainers(populationBox, partyBox, budgetBox, seedBox, durationBox, randomBox, populationOverlay, partyOverlay, budgetOverlay, seedOverlay, durationOverlay, randomOverlay);
+        stateManager.setLockingContainers(populationBox, partyBox, budgetBox, durationBox, randomBox, populationOverlay, partyOverlay, budgetOverlay, durationOverlay, randomOverlay);
         stateManager.setSidebars(leftSidebar, rightSidebar);
         stateManager.setOnPauseCallback(() -> { if (controller != null && controller.isRunning()) controller.pauseSimulation(); });
         stateManager.setupTimer();
@@ -306,7 +341,6 @@ public class DashboardController {
         if (controller == null) return;
         if (controller.isRunning()) { controller.pauseSimulation(); stateManager.pauseTimer(); }
         try {
-            ResourceBundle bundle = ResourceBundle.getBundle("de.schulprojekt.duv.messages", Main.getLocale());
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath), bundle);
             Parent root = loader.load();
             initAction.accept(loader, root);

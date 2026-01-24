@@ -9,3 +9,93 @@ id,type,name,description,impact
 8,ENV,Pollution Scandal,MP's company polluted local river,0.75
 9,RELIGION,Church Exit,Left church for tactical reasons,0.3
 10,MILITARY,Service Fraud,False claims about military service,0.4
+11,CORRUPTION,Lobby Pressure,Secret deals with auto industry,0.85
+12,FINANCE,Slush Fund,Secret account found in Switzerland,0.95
+13,PERSONAL,Adultery,Affair with an intern,0.45
+14,POLITICAL,Vote Buying,Distributed vouchers for votes,0.88
+15,DATA,Hacking Attack,Neglected own IT security,0.6
+16,STATEMENT,Broken Promise,Deliberately broke election promises,0.7
+17,MORAL,Nepotism,Son received consulting contract,0.8
+18,ENV,Waste Scandal,Illegal disposal of toxic waste,0.82
+19,FINANCE,Expense Fraud,Private trips billed as business,0.65
+20,POLITICAL,Job Patronage,Friends appointed to high offices,0.78
+21,PERSONAL,Bar Brawl,Physical altercation in a bar,0.52
+22,CORRUPTION,Construction Bribe,Kickbacks for stadium project,0.92
+23,STATEMENT,Racism,Xenophobic tweets discovered,0.9
+24,DATA,Wiretapping,Secretly recorded competitors,0.85
+25,MORAL,Sexism,Inappropriate comments to colleagues,0.75
+26,FINANCE,Insider Trading,Sold stocks with insider info,0.87
+27,ENV,Emission Scandal,Ignored limits intentionally,0.79
+28,POLITICAL,Attendance Fraud,Signed in but wasn't present,0.58
+29,MILITARY,Arms Deal,Illegal exports to conflict zones,0.96
+30,PERSONAL,Drug Possession,Small amount found during check,0.62
+31,CORRUPTION,Ticket Scandal,Free tickets for VIP events,0.48
+32,STATEMENT,Homophobia,Made discriminatory statements,0.72
+33,DATA,Cloud Error,Internal docs publicly accessible,0.55
+34,FINANCE,Real Estate Deal,Bought house far below market value,0.81
+35,MORAL,Animal Rights,Wore fur coat at protest,0.42
+36,ENV,Poaching,Illegally killed protected animal,0.68
+37,POLITICAL,Party Card,Jobs only given to members,0.73
+38,CORRUPTION,Consulting Fees,Millions for worthless reports,0.89
+39,PERSONAL,Debt,Concealed private bankruptcy,0.51
+40,STATEMENT,Climate Denial,Ignored scientific facts,0.66
+41,FINANCE,Money Laundering,Shell company in Panama,0.94
+42,MORAL,Double Life,Secret second family discovered,0.49
+43,CORRUPTION,Hotel Costs,Lobbyists paid for luxury suite,0.76
+44,DATA,Profile Purchase,Bought fake social media followers,0.35
+45,POLITICAL,Flyer Scandal,Printing costs paid by state,0.59
+46,ENV,Deforestation,Cut down trees without permit,0.63
+47,STATEMENT,Hate Speech,Inciting speech in a beer tent,0.93
+48,FINANCE,Gold Trade,Unreported profits from gold,0.77
+49,PERSONAL,Parking Fines,Ignored over 100 tickets,0.32
+50,CORRUPTION,Line Jumper,Used privilege for vaccination,0.84
+51,DATA,Video Leak,Secret recording of strategy meeting,0.71
+52,MORAL,Exam Fraud,Cheated on exams,0.56
+53,POLITICAL,Election Fraud,Manipulated ballots in a box,0.98
+54,ENV,Water Waste,Filled pool during drought,0.44
+55,FINANCE,Inheritance,Undeclared assets from abroad,0.69
+56,PERSONAL,Bullying,Systematically harassed staff,0.74
+57,CORRUPTION,Rent Benefit,Apartment lent by contractor,0.82
+58,STATEMENT,Fake News,Spread deliberately false numbers,0.86
+59,DATA,Password Scandal,Used 12345 as password,0.38
+60,POLITICAL,Coalition Break,Secret talks with opposition,0.72
+61,MORAL,Alcoholism,Drunk during parliament session,0.67
+62,FINANCE,Loan Scandal,Interest-free loan from banker friend,0.83
+63,CORRUPTION,Olympics,Bribes for host city selection,0.91
+64,PERSONAL,Egoism,Blocked emergency lane,0.53
+65,ENV,Oil Spill,Heating oil leaked in basement,0.57
+66,STATEMENT,Police Insult,Insulted police during check,0.47
+67,DATA,Tracking App,Monitored citizens without consent,0.89
+68,POLITICAL,Troll Farm,Paid comments under posts,0.79
+69,FINANCE,Board Seat,Salary for no work,0.81
+70,MORAL,Embezzlement,Party funds spent on jewelry,0.88
+71,CORRUPTION,Toll Scandal,Signed contracts despite warnings,0.95
+72,ENV,Short Flight,Took flight for 50km distance,0.41
+73,PERSONAL,Speeder,120 km/h in a 30 km/h zone,0.65
+74,STATEMENT,Lese Majeste,Mocked head of neighboring state,0.62
+75,DATA,Lost Phone,Forgot work phone with secret data,0.76
+76,POLITICAL,Double Mandate,Received two salaries at once,0.64
+77,FINANCE,Customs Fraud,Unreported luxury watch,0.55
+78,MORAL,Animal Cruelty,Left dog in hot car,0.71
+79,CORRUPTION,Visa Affair,Entry permits for cash,0.92
+80,ENV,Pesticides,Used banned chemicals in garden,0.43
+81,PERSONAL,Gambling,High losses at casino,0.59
+82,STATEMENT,Arrogance,Called citizens stupid,0.75
+83,DATA,Selling Data,Sold addresses for ads,0.84
+84,POLITICAL,Shadow Cabinet,Secret government behind gov,0.87
+85,FINANCE,Crypto Scam,Promoted a scam coin,0.78
+86,MORAL,Infidelity,Affair with an opponent,0.63
+87,CORRUPTION,Subsidies,Cash for fictional projects,0.91
+88,ENV,Heating Law,Secretly installed old oil heater,0.51
+89,PERSONAL,Hit and Run,Hit car mirror and left,0.68
+90,STATEMENT,Blasphemy,Hurt religious feelings,0.45
+91,DATA,Facial Recognition,Illegal camera installations,0.82
+92,POLITICAL,Defection,Switched sides before election,0.74
+93,FINANCE,Foundation,Used funds for private purposes,0.85
+94,MORAL,Working Conditions,Staff paid below minimum wage,0.86
+95,CORRUPTION,Pharma Lobby,Kept drug prices artificially high,0.94
+96,ENV,Public Urination,Urinated on historical monument,0.31
+97,PERSONAL,Rent Nomad,Didn't pay rent for months,0.54
+98,STATEMENT,Conspiracy,Believed in chemtrails,0.49
+99,DATA,AI Deepfake,Election ads with fake videos,0.88
+100,FINANCE,Total Loss,Gambled away all party assets,0.99

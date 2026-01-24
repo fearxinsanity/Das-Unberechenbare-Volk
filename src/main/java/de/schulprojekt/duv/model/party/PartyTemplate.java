@@ -1,13 +1,16 @@
 package de.schulprojekt.duv.model.party;
 
+import de.schulprojekt.duv.util.config.PartyConfig;
+
 /**
- * A blueprint for a party loaded from a CSV file.
- * @param name the full name of the party
- * @param abbreviation the short identifier
- * @param colorCode hex color for UI representation
+ * Eine Vorlage für eine Partei, die aus einer CSV-Datei geladen wird.
+ * Dient als Datenspeicher für die statischen Informationen einer Partei.
+ *
+ * @param name der vollständige Name der Partei
+ * @param abbreviation das Kürzel der Partei
+ * @param colorCode der standardmäßige Hex-Farbcode für die UI-Darstellung
  * @author Nico Hoffmann
- * @version 1.1
- * @since Java 16
+ * @version 1.0
  */
 public record PartyTemplate(
         String name,
@@ -20,13 +23,23 @@ public record PartyTemplate(
     // ========================================
 
     /**
-     * Creates a fully-fledged Party instance from this template.
-     * @param politicalPosition assigned position (0-100)
-     * @param campaignBudget initial budget
-     * @return a new Party instance
+     * Baut aus dieser Vorlage eine richtige Partei zusammen.
+     * Hier werden die festen Informationen aus der CSV mit den Werten kombiniert.
+     *
+     * @param politicalPosition die zugewiesene politische Position
+     * @param campaignBudget das verfügbare Budget für den Wahlkampf
+     * @param color die zu verwendende Farbe
+     * @return eine neue Party-Instanz mit den angegebenen Werten und initialen Unterstützern
      */
-    public Party toParty(double politicalPosition, double campaignBudget) {
-        return new Party(name, abbreviation, colorCode, politicalPosition, campaignBudget, 0);
+    public Party toParty(double politicalPosition, double campaignBudget, String color) {
+        return new Party(
+                name,
+                abbreviation,
+                color,
+                politicalPosition,
+                campaignBudget,
+                PartyConfig.MIN_SUPPORTERS
+        );
     }
 
     // ========================================

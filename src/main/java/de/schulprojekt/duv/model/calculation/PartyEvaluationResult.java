@@ -1,14 +1,17 @@
 package de.schulprojekt.duv.model.calculation;
 
 /**
- * Immutable record containing the evaluation breakdown of a party's attractiveness to a voter.
+ * Fasst die Bewertung einer Partei durch einen Wähler zusammen.
+ * Dient als unveränderliche Entscheidungsgrundlage, um die attraktivste Partei zu ermitteln.
+ *
+ * @param partyIndex Referenz auf die Partei, um das Ergebnis später der richtigen Partei zuordnen zu können.
+ * @param distanceScore Score für die politische Nähe. Ein höherer Wert bedeutet eine größere inhaltliche Übereinstimmung.
+ * @param budgetScore Spiegelt den Einfluss der Wahlkampagne wider.
+ * @param penalty Summe aller Punktabzüge durch Skandale, die die Attraktivität der Partei direkt mindern.
+ * @param finalScore Der finale Vergleichswert inklusive Zufallsrauschen. Bestimmt über Wahlentscheidung.
+ *
  * @author Nico Hoffmann
  * @version 1.0
- * @param partyIndex index of evaluated party
- * @param distanceScore score based on political distance (higher = closer match)
- * @param budgetScore score from campaign budget and media effectiveness
- * @param penalty total penalty from scandals (acute + permanent)
- * @param finalScore total score after applying noise (used for party selection)
  */
 public record PartyEvaluationResult(
         int partyIndex,

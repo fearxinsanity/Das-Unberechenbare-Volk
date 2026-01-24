@@ -21,14 +21,15 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Renders the parliament seating distribution in a semicircle.
+ * Rendert die Sitzplatzverteilung im Parlament in einem Halbkreis.
+ *
  * @author Nico Hoffmann
- * @version 1.1
+ * @version 1.2
  */
 public class ParliamentRenderer {
 
     // ========================================
-    // Static Variables
+    // Statische Variablen (Konstanten)
     // ========================================
 
     private static final int TOTAL_SEATS = 400;
@@ -37,6 +38,10 @@ public class ParliamentRenderer {
     private static final double ROW_STEP = 18.0;
     private static final double MAX_RADIUS = START_RADIUS + (ROWS * ROW_STEP);
 
+    private static final double SEAT_SIZE_OUTER = 8.5;
+    private static final double SEAT_SIZE_INNER = 3.5;
+    private static final double SEAT_HIT_RADIUS_BASE = 12.0;
+
     private static final Color COL_GOLD = Color.web("#D4AF37");
     private static final Color COL_GOLD_DIM = Color.web("#D4AF37", 0.3);
     private static final Color COL_TEXT = Color.web("#888888");
@@ -44,7 +49,7 @@ public class ParliamentRenderer {
     private static final Color COL_EMPTY_SEAT = Color.web("#222222");
 
     // ========================================
-    // Instance Variables
+    // Instanzvariablen
     // ========================================
 
     private final Canvas canvas;
@@ -57,12 +62,13 @@ public class ParliamentRenderer {
     private Party hoveredParty = null;
 
     // ========================================
-    // Constructors
+    // Konstruktoren
     // ========================================
 
     /**
-     * Initializes the renderer and binds it to the parent pane.
-     * @param parentPane the pane for the canvas
+     * Initialisiert den Renderer und bindet ihn an das übergeordnete Pane.
+     *
+     * @param parentPane Das Pane, in welches das Canvas eingefügt wird.
      */
     public ParliamentRenderer(Pane parentPane) {
         this.canvas = new Canvas(0, 0);
@@ -79,12 +85,19 @@ public class ParliamentRenderer {
     }
 
     // ========================================
-    // Getter Methods
+    // Getter-Methoden
     // ========================================
 
+    /**
+     * Ermittelt die Partei an einer bestimmten Bildschirmkoordinate.
+     *
+     * @param screenX X-Koordinate auf dem Bildschirm.
+     * @param screenY Y-Koordinate auf dem Bildschirm.
+     * @return Die Partei an dieser Position oder null.
+     */
     public Party getPartyAt(double screenX, double screenY) {
         if (lastScale <= 0) return null;
-        double hitRadius = 12.0 * lastScale;
+        double hitRadius = SEAT_HIT_RADIUS_BASE * lastScale;
         for (Seat seat : seats) {
             if (seat.party() == null) continue;
             double dist = Math.sqrt(Math.pow(screenX - (lastCx + seat.x() * lastScale), 2) + Math.pow(screenY - (lastCy + seat.y() * lastScale), 2));
@@ -93,6 +106,12 @@ public class ParliamentRenderer {
         return null;
     }
 
+    /**
+     * Berechnet die durchschnittlichen Koordinaten aller Sitze einer Partei.
+     *
+     * @param p Die Zielpartei.
+     * @return Ein Array mit [x, y] Koordinaten.
+     */
     public double[] getPartyCenterCoordinates(Party p) {
         if (p == null) return new double[]{lastCx, lastCy};
         double sumX = 0, sumY = 0;
@@ -119,7 +138,7 @@ public class ParliamentRenderer {
     }
 
     // ========================================
-    // Setter Methods
+    // Setter-Methoden
     // ========================================
 
     public void setSelectedParty(Party p) {
@@ -135,9 +154,13 @@ public class ParliamentRenderer {
     }
 
     // ========================================
-    // Business Logic Methods
+    // Business-Logik-Methoden
     // ========================================
 
+    /**
+     * Berechnet die Sitzverteilung basierend auf den aktuellen Wählerstimmen und startet die Animation.
+     * @param parties Liste der Parteien mit ihren aktuellen Werten.
+     */
     public void renderDistribution(List<Party> parties) {
         calculateSeatPositions(parties);
         startAnimation();
@@ -148,30 +171,41 @@ public class ParliamentRenderer {
     }
 
     // ========================================
-    // Utility Methods
+    // Hilfsmethoden (Utility)
     // ========================================
 
     private void calculateSeatPositions(List<Party> parties) {
         seats.clear();
-        List<Party> sorted = parties.stream().filter(p -> !p.getName().equals(SimulationConfig.UNDECIDED_NAME)).sorted(Comparator.comparingDouble(Party::getPoliticalPosition)).toList();
+        List<Party> sorted = parties.stream()
+                .filter(p -> !p.getName().equals(SimulationConfig.UNDECIDED_NAME))
+                .sorted(Comparator.comparingDouble(Party::getPoliticalPosition))
+                .toList();
+
         double total = sorted.stream().mapToDouble(Party::getCurrentSupporterCount).sum();
-        List<Party> map = new ArrayList<>();
+        List<Party> seatMap = new ArrayList<>();
+
         if (total > 0) {
             for (Party p : sorted) {
                 int count = (int) Math.round((p.getCurrentSupporterCount() / total) * TOTAL_SEATS);
-                for (int i = 0; i < count; i++) map.add(p);
+                for (int i = 0; i < count; i++) seatMap.add(p);
             }
         }
-        while (map.size() > TOTAL_SEATS) map.removeLast();
-        while (map.size() < TOTAL_SEATS) map.add(null);
+
+        while (seatMap.size() > TOTAL_SEATS) seatMap.removeLast();
+        while (seatMap.size() < TOTAL_SEATS) seatMap.add(null);
 
         List<Point> layout = generateSeatingGeometry();
-        for (int i = 0; i < Math.min(layout.size(), map.size()); i++) {
+        for (int i = 0; i < Math.min(layout.size(), seatMap.size()); i++) {
             Point pt = layout.get(i);
-            seats.add(new Seat(pt.x(), pt.y(), pt.angle(), (int) Math.round((Math.sqrt(pt.x() * pt.x() + pt.y() * pt.y()) - START_RADIUS) / ROW_STEP), map.get(i)));
+            int row = (int) Math.round((Math.sqrt(pt.x() * pt.x() + pt.y() * pt.y()) - START_RADIUS) / ROW_STEP);
+            seats.add(new Seat(pt.x(), pt.y(), pt.angle(), row, seatMap.get(i)));
         }
     }
 
+    /**
+     * Generiert die geometrischen Punkte für die halbkreisförmige Bestuhlung.
+     * @return Liste von Punkten mit Koordinaten und Winkel.
+     */
     private List<Point> generateSeatingGeometry() {
         List<Point> points = new ArrayList<>();
         double totalArc = 0;
@@ -196,21 +230,34 @@ public class ParliamentRenderer {
         if (animationLoop != null) animationLoop.stop();
         final long start = System.nanoTime();
         animationLoop = new AnimationTimer() {
-            @Override public void handle(long now) { time = (now - start) / 1_000_000_000.0; draw(time); }
+            @Override public void handle(long now) {
+                time = (now - start) / 1_000_000_000.0;
+                draw(time);
+            }
         };
         animationLoop.start();
     }
 
+    /**
+     * Löst einen Zeichenvorgang aus, sofern Daten vorhanden sind.
+     */
     private void requestDraw() {
         if (!seats.isEmpty()) draw(time > 0 ? time : 10.0);
     }
 
+    /**
+     * Haupt-Zeichenmethode. Berechnet Skalierung und koordiniert die Sub-Zeichenschritte.
+     * @param t Die aktuelle Zeit für Animationseffekte.
+     */
     private void draw(double t) {
         if (canvas.getWidth() < 1 || canvas.getHeight() < 1) return;
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        lastCx = canvas.getWidth() / 2; lastCy = canvas.getHeight() * 0.9;
+
+        lastCx = canvas.getWidth() / 2;
+        lastCy = canvas.getHeight() * 0.9;
         lastScale = Math.min(canvas.getWidth() / (MAX_RADIUS * 2 + 80), canvas.getHeight() / (MAX_RADIUS + 80));
+
         if (lastScale < 0.1) return;
 
         drawBackground(gc, lastCx, lastCy, lastScale, t);
@@ -230,7 +277,10 @@ public class ParliamentRenderer {
             gc.strokeLine(cx, cy, cx + Math.cos(r) * (MAX_RADIUS + 40) * scale, cy - Math.sin(r) * (MAX_RADIUS + 40) * scale);
         }
         double rSc = ((t * 250) % (MAX_RADIUS * 1.5)) * scale;
-        gc.setStroke(new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE, new Stop(0, Color.TRANSPARENT), new Stop(0.5, Color.web("#D4AF37", 0.15)), new Stop(1, Color.TRANSPARENT)));
+        gc.setStroke(new LinearGradient(0, 0, 1, 1, true, CycleMethod.NO_CYCLE,
+                new Stop(0, Color.TRANSPARENT),
+                new Stop(0.5, Color.web("#D4AF37", 0.15)),
+                new Stop(1, Color.TRANSPARENT)));
         gc.strokeOval(cx - rSc, cy - rSc, rSc * 2, rSc * 2);
     }
 
@@ -243,52 +293,76 @@ public class ParliamentRenderer {
     }
 
     private void drawSeats(GraphicsContext gc, double t) {
+        final double outerHalf = (SEAT_SIZE_OUTER * lastScale) / 2.0;
+        final double innerHalf = (SEAT_SIZE_INNER * lastScale) / 2.0;
+
         for (Seat seat : seats) {
             double wave = t * 2.0 - (seat.row() * 0.1);
             if (wave <= 0) continue;
+
             boolean empty = seat.party() == null;
             boolean selected = !empty && selectedParty != null && selectedParty.equals(seat.party());
             boolean hovered = !empty && hoveredParty != null && hoveredParty.equals(seat.party());
-            boolean any = selectedParty != null;
+            boolean anySelected = selectedParty != null;
 
             if (selected) { gc.setGlobalAlpha(1.0); gc.setEffect(new Glow(0.8)); }
-            else if (hovered && !any) { gc.setGlobalAlpha(1.0); gc.setEffect(new Glow(0.5)); }
-            else if (any) { gc.setGlobalAlpha(0.2); gc.setEffect(null); }
+            else if (hovered && !anySelected) { gc.setGlobalAlpha(1.0); gc.setEffect(new Glow(0.5)); }
+            else if (anySelected) { gc.setGlobalAlpha(0.2); gc.setEffect(null); }
             else { gc.setGlobalAlpha(empty ? 0.3 : Math.min(1.0, wave)); gc.setEffect(null); }
 
             double sc = lastScale * (1.0 + Math.max(0, 1.0 - wave) * 0.5);
             Color c = empty ? COL_EMPTY_SEAT : Color.GRAY;
-            if (!empty) { try { c = Color.web(seat.party().getColorCode()); } catch (Exception ignored) {} }
+            if (!empty) {
+                try { c = Color.web(seat.party().getColorCode()); } catch (Exception ignored) {}
+            }
+
+            double posX = lastCx + seat.x() * sc;
+            double posY = lastCy + seat.y() * sc;
+
             gc.setFill(c.deriveColor(0, 1, 1, 0.4));
-            gc.fillRect(lastCx + seat.x() * sc - 4.25 * lastScale, lastCy + seat.y() * sc - 4.25 * lastScale, 8.5 * lastScale, 8.5 * lastScale);
-            if (!empty) { gc.setFill(c); gc.fillRect(lastCx + seat.x() * sc - 1.75 * lastScale, lastCy + seat.y() * sc - 1.75 * lastScale, 3.5 * lastScale, 3.5 * lastScale); }
+            gc.fillRect(posX - outerHalf, posY - outerHalf, SEAT_SIZE_OUTER * lastScale, SEAT_SIZE_OUTER * lastScale);
+
+            if (!empty) {
+                gc.setFill(c);
+                gc.fillRect(posX - innerHalf, posY - innerHalf, SEAT_SIZE_INNER * lastScale, SEAT_SIZE_INNER * lastScale);
+            }
         }
         gc.setGlobalAlpha(1.0); gc.setEffect(null);
     }
 
+    /**
+     * Zeichnet Markierungen und Sektoren-Labels am äußeren Rand des Parlaments.
+     */
     private void drawMarkers(GraphicsContext gc, double cx, double cy, double scale) {
         double r = (MAX_RADIUS + 15) * scale;
-        gc.setFont(Font.font("Consolas", 9)); gc.setTextAlign(TextAlignment.CENTER); gc.setStroke(COL_GOLD_DIM); gc.setFill(COL_TEXT);
+        gc.setFont(Font.font("Consolas", 9));
+        gc.setTextAlign(TextAlignment.CENTER);
+        gc.setStroke(COL_GOLD_DIM);
+        gc.setFill(COL_TEXT);
+
         int idx = 1;
         for (int ang = 0; ang <= 180; ang += 30) {
             double rad = Math.toRadians(ang);
             gc.strokeLine(cx + Math.cos(rad) * (r - 5), cy - Math.sin(rad) * (r - 5), cx + Math.cos(rad) * (r + 10), cy - Math.sin(rad) * (r + 10));
-            gc.fillText((ang == 90) ? "CENTER" : String.format("SEC-%02d", idx++), cx + Math.cos(rad) * (r + 25), cy - Math.sin(rad) * (r + 25) + 4);
+            gc.fillText((ang == 90) ? "MITTE" : String.format("SEK-%02d", idx++), cx + Math.cos(rad) * (r + 25), cy - Math.sin(rad) * (r + 25) + 4);
         }
     }
 
+    /**
+     * Zeichnet das HUD mit dekorativen Elementen.
+     */
     private void drawHUD(GraphicsContext gc, double w, double h) {
         gc.setFill(new LinearGradient(0, 0, 0, 1, true, CycleMethod.NO_CYCLE, new Stop(0, Color.web("#000000", 0.8)), new Stop(1, Color.TRANSPARENT)));
         gc.fillRect(0, 0, w, 60);
         gc.setStroke(COL_GOLD); gc.setLineWidth(1);
         gc.strokeLine(w / 2 - 50, h * 0.9 + 20, w / 2 + 50, h * 0.9 + 20);
         gc.setFill(COL_GOLD); gc.setFont(Font.font("Consolas", FontWeight.BOLD, 12));
-        gc.fillText("COMMAND_PODIUM", w / 2, h * 0.9 + 45);
-        gc.setTextAlign(TextAlignment.LEFT); gc.setFill(COL_TEXT); gc.fillText("ENCRYPTION: AES-256", 20, h - 20);
+        gc.fillText("KOMMANDO_PODIUM", w / 2, h * 0.9 + 45);
+        gc.setTextAlign(TextAlignment.LEFT); gc.setFill(COL_TEXT); gc.fillText("VERSCHLÜSSELUNG: AES-256", 20, h - 20);
     }
 
     // ========================================
-    // Inner Classes
+    // Innere Klassen / Records
     // ========================================
 
     private record Point(double x, double y, double angle) {}
