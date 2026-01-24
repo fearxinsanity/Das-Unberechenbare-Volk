@@ -14,14 +14,14 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 /**
- * Controller for the Parliament View (Semicircle Seating).
+ * Controller für die Parlamentsansicht.
  * @author Nico Hoffmann
  * @version 1.1
  */
 public class ParliamentController {
 
     // ========================================
-    // Instance Variables
+    // Instanzvariablen
     // ========================================
 
     @FXML private Pane canvasContainer;
@@ -32,13 +32,13 @@ public class ParliamentController {
     private Parent previousView;
 
     // ========================================
-    // Business Logic Methods
+    // Business-Logik-Methoden
     // ========================================
 
     /**
-     * Initializes the view with party data and a reference to the previous view.
-     * @param parties list of parties to render
-     * @param previousView the dashboard root for navigation back
+     * Initialisiert die Ansicht mit Parteidaten und einer Referenz auf die vorherige Ansicht.
+     * @param parties Liste der zu rendernden Parteien
+     * @param previousView die Dashboard-Wurzel für die Rücknavigation
      */
     public void initData(List<Party> parties, Parent previousView) {
         this.previousView = previousView;
@@ -56,7 +56,7 @@ public class ParliamentController {
     }
 
     // ========================================
-    // Utility Methods
+    // Hilfsmethoden
     // ========================================
 
     private void setupInteractions() {
