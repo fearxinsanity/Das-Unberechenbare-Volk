@@ -1,21 +1,101 @@
 Name,Abbreviation,ColorCode
-Bürgerliche Volkspartei,BVP,#007bff
-Soziale Fortschrittsunion,SFU,#dc3545
-Grüne Zukunftsallianz,GZA,#28a745
-Liberale Demokraten,LD,#ffc107
-Konservative Mitte,KM,#6f42c1
-Arbeitersolidarität,AS,#fd7e14
-Christlich-Soziale Bewegung,CSB,#20c997
-Freie Wählergemeinschaft,FWG,#17a2b8
-Nationale Erneuerung,NE,#6c757d
-Progressive Alternative,PA,#e83e8c
-Ökologische Liste,ÖL,#218838
-Bündnis für Gerechtigkeit,BfG,#c82333
-Wirtschaftspartei,WP,#f0ad4e
-Heimatverbundene,HV,#5a6268
-Digitale Zukunft,DZ,#0056b3
-Sozialdemokratische Kraft,SDK,#bd2130
-Bürgerrechtspartei,BRP,#1e7e34
-Föderale Union,FU,#e0a800
-Kulturelle Vielfalt,KV,#5a32a3
-Reformbewegung,RB,#e67300
+Bürgerliche Volkspartei,BVP,#FF0000
+Soziale Fortschrittsunion,SFU,#FF1400
+Grüne Zukunftsallianz,GZA,#FF2800
+Liberale Demokraten,LD,#FF3C00
+Konservative Mitte,KM,#FF5000
+Arbeitersolidarität,AS,#FF6400
+Christlich-Soziale Bewegung,CSB,#FF7800
+Freie Wählergemeinschaft,FWG,#FF8C00
+Nationale Erneuerung,NE,#FFA000
+Progressive Alternative,PA,#FFB400
+Ökologische Liste,ÖL,#FFC800
+Bündnis für Gerechtigkeit,BfG,#FFDC00
+Wirtschaftspartei,WP,#FFF000
+Heimatverbundene,HV,#F6FF00
+Digitale Zukunft,DZ,#E2FF00
+Sozialdemokratische Kraft,SDK,#CEFF00
+Bürgerrechtspartei,BRP,#BAFF00
+Föderale Union,FU,#A6FF00
+Kulturelle Vielfalt,KV,#92FF00
+Reformbewegung,RB,#7EFF00
+Tierwohl-Allianz,TWA,#6AFF00
+Rentnerbund Deutschland,RBD,#56FF00
+Hanf-Freunde,HF,#42FF00
+Pazifistische Union,PU,#2EFF00
+Technokratische Partei,TP,#1AFF00
+Direktdemokraten,DD,#06FF00
+Zentral-Union,ZU,#00FF0D
+Säkulare Liste,SL,#00FF21
+Europäische Föderalisten,EF,#00FF35
+Mittelstandsbündnis,MB,#00FF49
+Küsten-Union,KU,#00FF5D
+Alpen-Partei,AP,#00FF71
+Weltraum-Initiative,WI,#00FF85
+Jugend-Vorstoß,JV,#00FF99
+Akademiker-Liga,AL,#00FFAD
+Sportler-Fraktion,SF,#00FFC1
+Künstler-Kollektiv,KK,#00FFD5
+Handwerker-Gilde,HG,#00FFE9
+Bauern-Union,BU,#00FFFD
+Maritimer Verbund,MV,#00EDFF
+Technologie-Front,TF,#00D9FF
+Wissenschafts-Partei,WSP,#00C5FF
+Senioren-Power,SP,#00B1FF
+Solidaritäts-Kern,SK,#009DFF
+Freiheits-Bund,FB,#0089FF
+Gerechtigkeits-Liga,GL,#0075FF
+Eintrachts-Partei,EP,#0061FF
+Friedens-Bewegung,FRB,#004DFF
+Öko-Sozialisten,ÖS,#0039FF
+Werte-Union-Plus,WUP,#0025FF
+Bürger-Wohl,BW,#0011FF
+Neue Mitte,NM,#0400FF
+Basis-Allianz,BA,#1800FF
+Zukunfts-Macher,ZM,#2C00FF
+Innovations-Kraft,IK,#4000FF
+Transparenz-Partei,TPP,#5400FF
+Bündnis Familie,BF,#6800FF
+Arbeit-Zuerst,AZ,#7C00FF
+Global-Union,GU,#9000FF
+Internet-Partei,IP,#A400FF
+Bildungs-Bund,BB,#B800FF
+Umwelt-Piraten,UP,#CC00FF
+Städte-Bund,SB,#E000FF
+Land-Leben,LL,#F400FF
+Freizeit-Liste,FL,#FF00F8
+Humanisten-Kern,HK,#FF00E4
+Verbraucher-Schutz,VS,#FF00D0
+Integrations-Union,IU,#FF00BC
+Sicherheits-Block,SIB,#FF00A8
+Miet-Rebellen,MR,#FF0094
+Klimaschutz-Front,KSF,#FF0080
+Start-Up-Partei,SUP,#FF006C
+Ethische Alternative,EA,#FF0058
+Infrastruktur-Bund,IB,#FF0044
+Solar-Allianz,SA,#FF0030
+Mobilitäts-Union,MU,#FF001C
+Forschungs-Kreis,FK,#FF0008
+Gleichstellungs-Partei,GP,#FF0800
+Nachhaltigkeits-Liste,NL,#FF1C00
+Modernisierungs-Bund,MBB,#FF3000
+Handels-Gilde,HAG,#FF4400
+Pflege-Bündnis,PB,#FF5800
+Wald-Schützer,WS,#FF6C00
+Stadt-Entwicklung,SE,#FF8000
+Landwirtschafts-Rat,LR,#FF9400
+Innovations-Forum,IF,#FFA800
+Kooperations-Partei,KP,#FFBC00
+Wohlstands-Union,WU,#FFD000
+Stabilitäts-Kern,STK,#FFE400
+Regional-Verbund,RV,#FFF800
+Harmonie-Partei,HP,#E8FF00
+Dynamik-Union,DU,#D4FF00
+Vision-Zukunft,VZ,#C0FF00
+Balance-Liste,BL,#ACFF00
+Souveränitäts-Bund,SOB,#98FF00
+Aktions-Bündnis,AB,#84FF00
+Fortschritts-Kern,FKP,#70FF00
+Ethik-Union,EU,#5CFF00
+Impuls-Partei,IMP,#48FF00
+Unabhängigkeits-Liga,UL,#34FF00

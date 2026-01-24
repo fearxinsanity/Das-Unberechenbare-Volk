@@ -1,21 +1,101 @@
 Name,Abbreviation,ColorCode
-Civic People's Party,CPP,#007bff
-Social Progress Union,SPU,#dc3545
-Green Future Alliance,GFA,#28a745
-Liberal Democrats,LDP,#ffc107
-Conservative Center,CC,#6f42c1
-Workers Solidarity,WS,#fd7e14
-Christian Social Movement,CSM,#20c997
-Free Voters Association,FVA,#17a2b8
-National Renewal,NR,#6c757d
-Progressive Alternative,PA,#e83e8c
-Ecological List,EL,#218838
-Alliance for Justice,AfJ,#c82333
-Economic Party,EP,#f0ad4e
-Homeland Connected,HC,#5a6268
-Digital Future,DF,#0056b3
-Social Democratic Force,SDF,#bd2130
-Civil Rights Party,CRP,#1e7e34
-Federal Union,FU,#e0a800
-Cultural Diversity,CD,#5a32a3
-Reform Movement,RM,#e67300
+Civic People's Party,CPP,#FF0000
+Social Progress Union,SPU,#FF1400
+Green Future Alliance,GFA,#FF2800
+Liberal Democrats,LDP,#FF3C00
+Conservative Center,CC,#FF5000
+Workers Solidarity,WS,#FF6400
+Christian Social Movement,CSM,#FF7800
+Free Voters Association,FVA,#FF8C00
+National Renewal,NR,#FFA000
+Progressive Alternative,PA,#FFB400
+Ecological List,EL,#FFC800
+Alliance for Justice,AfJ,#FFDC00
+Economic Party,EP,#FFF000
+Homeland Connected,HC,#F6FF00
+Digital Future,DF,#E2FF00
+Social Democratic Force,SDF,#CEFF00
+Civil Rights Party,CRP,#BAFF00
+Federal Union,FU,#A6FF00
+Cultural Diversity,CD,#92FF00
+Reform Movement,RM,#7EFF00
+Animal Welfare Alliance,AWA,#6AFF00
+Pensioners Federation,PF,#56FF00
+Hemp Friends,HF,#42FF00
+Pacifist Union,PU,#2EFF00
+Technocratic Party,TP,#1AFF00
+Direct Democrats,DD,#06FF00
+Central Union,CU,#00FF0D
+Secular List,SL,#00FF21
+European Federalists,EF,#00FF35
+SME Alliance,SMEA,#00FF49
+Coastal Union,COU,#00FF5D
+Alpine Party,AP,#00FF71
+Space Initiative,SI,#00FF85
+Youth Forward,YF,#00FF99
+Academic League,AL,#00FFAD
+Athletes Faction,AF,#00FFC1
+Artist Collective,AC,#00FFD5
+Craftsmans Guild,CG,#00FFE9
+Farmers Union,FU,#00FFFD
+Maritime Association,MA,#00EDFF
+Technology Front,TF,#00D9FF
+Science Party,SCP,#00C5FF
+Senior Power,SP,#00B1FF
+Solidarity Core,SK,#009DFF
+Freedom Federation,FF,#0089FF
+Justice League,JL,#0075FF
+Unity Party,UP,#0061FF
+Peace Movement,PM,#004DFF
+Eco Socialists,ES,#0039FF
+Values Union Plus,VUP,#0025FF
+Citizens Welfare,CW,#0011FF
+New Center,NC,#0400FF
+Base Alliance,BA,#1800FF
+Future Makers,FM,#2C00FF
+Innovation Force,INF,#4000FF
+Transparency Party,TRP,#5400FF
+Family Alliance,FA,#6800FF
+Labor First,LF,#7C00FF
+Global Union,GU,#9000FF
+Internet Party,IP,#A400FF
+Education Federation,EFD,#B800FF
+Environment Pirates,EPP,#CC00FF
+Cities Federation,CF,#E000FF
+Rural Life,RL,#F400FF
+Leisure List,LL,#FF00F8
+Humanist Core,HC,#FF00E4
+Consumer Protection,CP,#FF00D0
+Integration Union,IU,#FF00BC
+Security Block,SB,#FF00A8
+Rent Rebels,RR,#FF0094
+Climate Protection Front,CPF,#FF0080
+Start-Up Party,SUP,#FF006C
+Ethical Alternative,EA,#FF0058
+Infrastructure Federation,IFD,#FF0044
+Solar Alliance,SA,#FF0030
+Mobility Union,MU,#FF001C
+Research Circle,RC,#FF0008
+Equality Party,EQP,#FF0800
+Sustainability List,SLT,#FF1C00
+Modernization Fed,MF,#FF3000
+Trade Guild,TG,#FF4400
+Care Alliance,CA,#FF5800
+Forest Protectors,FP,#FF6C00
+Urban Development,UD,#FF8000
+Agriculture Council,AGC,#FF9400
+Innovation Forum,IFO,#FFA800
+Cooperation Party,COP,#FFBC00
+Prosperity Union,PU,#FFD000
+Stability Core,SC,#FFE400
+Regional Association,RA,#FFF800
+Harmony Party,HP,#E8FF00
+Dynamic Union,DU,#D4FF00
+Vision Future,VF,#C0FF00
+Balance List,BL,#ACFF00
+Sovereignty Federation,SOF,#98FF00
+Action Alliance,AA,#84FF00
+Progress Core,PK,#70FF00
+Ethics Union,ETU,#5CFF00
+Impulse Party,IMP,#48FF00
+Independence League,IL,#34FF00
