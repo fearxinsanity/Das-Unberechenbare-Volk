@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Manages the live charts and historical data visualization.
+ * Verwaltet die Live-Diagramme und die Visualisierung historischer Daten.
  * @author Nico Hoffmann
  * @version 1.1
  */
@@ -34,8 +34,8 @@ public class ChartManager {
     // ========================================
 
     /**
-     * Initializes the manager with a reference to the UI chart.
-     * @param historyChart the line chart for history visualization
+     * Initialisiert den Manager mit einer Referenz auf das UI-Diagramm.
+     * @param historyChart Das Liniendiagramm für die Verlaufsvisualisierung.
      */
     public ChartManager(LineChart<Number, Number> historyChart) {
         this.historyChart = historyChart;

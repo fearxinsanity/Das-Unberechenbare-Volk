@@ -241,6 +241,51 @@
     -fx-background-color: rgba(20, 0, 0, 0.9);
 }
 
+.ticker-box { -fx-background-color: transparent; }
+.ticker-scroll { -fx-background: transparent; -fx-background-color: transparent; }
+
+.scandal-card {
+    -fx-border-width: 1px;
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
+    -fx-background-color: rgba(20, 15, 0, 0.9);
+    -fx-border-color: #FFA500;
+}
+.scandal-card.critical {
+    -fx-background-color: rgba(20, 0, 0, 0.9);
+    -fx-border-color: #FF3333;
+}
+
+.scandal-badge {
+    -fx-text-fill: white;
+    -fx-background-color: #CC7700;
+    -fx-font-weight: bold;
+    -fx-padding: 2 5 2 5;
+    -fx-font-family: 'Consolas';
+    -fx-font-size: 10px;
+}
+.scandal-badge.critical { -fx-background-color: #FF0000; }
+
+.scandal-title {
+    -fx-text-fill: #FFA500;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-font-family: 'Consolas';
+}
+.scandal-title.critical { -fx-text-fill: #FF3333; }
+
+.scandal-impact-bar { -fx-accent: #FFA500; -fx-control-inner-background: #222; }
+.scandal-impact-bar.critical { -fx-accent: #FF3333; }
+
+.log-entry {
+    -fx-padding: 5 0 10 0;
+    -fx-border-color: #444;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-style: dashed;
+}
+.log-message { -fx-text-fill: #e0e0e0; -fx-font-family: 'Consolas'; -fx-font-weight: bold; }
+.log-impact.critical { -fx-text-fill: #FF3333; }
+
 /* =========================================================================
    7. SECURITY & LOCKING STATES
    ========================================================================= */
