@@ -33,12 +33,16 @@ if "!JAR_FILE!"=="" (
 )
 
 echo Gefundene Datei: !JAR_FILE!
-echo jpackage arbeitet jetzt... das kann bis zu 1 Minute dauern...
+echo jpackage arbeitet jetzt...
 
-:: Wir erstellen einen sauberen Input-Ordner nur fuer die EXE
+:: Wir erstellen einen sauberen Input-Ordner nur für die EXE
 if exist "target\input" rd /s /q "target\input"
 mkdir "target\input"
+:: Korrigierter Kopierbefehl für die JAR
 copy "target\!JAR_FILE!" "target\input\"
+
+:: Sicherstellen, dass der Zielordner für jpackage leer ist
+if exist "target\dist" rd /s /q "target\dist"
 
 :: Hier startet jpackage
 jpackage --type app-image ^
@@ -48,12 +52,10 @@ jpackage --type app-image ^
   --main-jar "!JAR_FILE!" ^
   --main-class %MAIN_CLASS% ^
   --icon "%ICON_PATH%" ^
-  --vendor "Nico Hoffmann" ^
-  --verbose
+  --vendor "Nico Hoffmann"
 
 if %ERRORLEVEL% NEQ 0 (
     echo [FEHLER] jpackage ist fehlgeschlagen.
-    echo Versuche: jpackage --version in der CMD einzugeben.
     pause
     exit /b 1
 )
@@ -61,30 +63,22 @@ if %ERRORLEVEL% NEQ 0 (
 echo ======================================================
 echo SCHRITT 4: Ordnerstruktur aufbauen...
 echo ======================================================
+:: Erstellt nur den Hauptordner und den Anwendungs-Unterordner
 if exist "%ABGABE_NAME%" rd /s /q "%ABGABE_NAME%"
 mkdir "%ABGABE_NAME%\Anwendung"
-mkdir "%ABGABE_NAME%\Quellcode"
-mkdir "%ABGABE_NAME%\Dokumentation"
 
-:: Kopiere die fertige Anwendung
+:: Kopiere NUR die fertige Anwendung (Inhalt des jpackage-Images)
 xcopy /E /I /Y "target\dist\%EXE_NAME%" "%ABGABE_NAME%\Anwendung"
 
-:: Kopiere Quellcode (ohne target)
-xcopy /E /I /Y "src" "%ABGABE_NAME%\Quellcode\src"
-copy "pom.xml" "%ABGABE_NAME%\Quellcode\"
-
-:: Dokumentation kopieren
-if exist "Documentation" xcopy /E /I /Y "Documentation" "%ABGABE_NAME%\Dokumentation"
-
 echo ======================================================
-echo SCHRITT 5: Kopieren auf Laufwerk D:
+echo SCHRITT 5: Kopieren auf Zielpfad
 echo ======================================================
 if not exist "%ZIEL_PFAD%" mkdir "%ZIEL_PFAD%"
 xcopy /E /I /Y "%ABGABE_NAME%" "%ZIEL_PFAD%\%ABGABE_NAME%\"
 
 echo.
 echo ======================================================
-echo ERFOLGREICH! Alles fertig unter:
+echo ERFOLGREICH! NUR die Anwendung befindet sich unter:
 echo %ZIEL_PFAD%\%ABGABE_NAME%
 echo ======================================================
 pause
