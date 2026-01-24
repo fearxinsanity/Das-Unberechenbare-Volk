@@ -63,14 +63,12 @@ public class SimulationStateManager {
     private VBox populationBox;
     private VBox partyBox;
     private VBox budgetBox;
-    private VBox seedBox;
     private VBox durationBox;
     private VBox randomBox;
 
     private Label populationOverlay;
     private Label partyOverlay;
     private Label budgetOverlay;
-    private Label seedOverlay;
     private Label durationOverlay;
     private Label randomOverlay;
 
@@ -204,30 +202,26 @@ public class SimulationStateManager {
      * @param popBox the population parameter box
      * @param partyBox the party count parameter box
      * @param budgetBox the budget parameter box
-     * @param seedBox the seed parameter box
      * @param durationBox the duration parameter box
      * @param randomBox the random button box
      * @param popOverlay the population lock overlay
      * @param partyOverlay the party lock overlay
      * @param budgetOverlay the budget lock overlay
-     * @param seedOverlay the seed lock overlay
      * @param durationOverlay the duration lock overlay
      * @param randomOverlay the random lock overlay
      */
     public void setLockingContainers(
-            VBox popBox, VBox partyBox, VBox budgetBox, VBox seedBox, VBox durationBox, VBox randomBox,
-            Label popOverlay, Label partyOverlay, Label budgetOverlay, Label seedOverlay, Label durationOverlay, Label randomOverlay
+            VBox popBox, VBox partyBox, VBox budgetBox, VBox durationBox, VBox randomBox,
+            Label popOverlay, Label partyOverlay, Label budgetOverlay, Label durationOverlay, Label randomOverlay
     ) {
         this.populationBox = popBox;
         this.partyBox = partyBox;
         this.budgetBox = budgetBox;
-        this.seedBox = seedBox;
         this.durationBox = durationBox;
         this.randomBox = randomBox;
         this.populationOverlay = popOverlay;
         this.partyOverlay = partyOverlay;
         this.budgetOverlay = budgetOverlay;
-        this.seedOverlay = seedOverlay;
         this.durationOverlay = durationOverlay;
         this.randomOverlay = randomOverlay;
     }
@@ -544,7 +538,6 @@ public class SimulationStateManager {
         toggleBoxLockState(populationBox, populationOverlay, locked);
         toggleBoxLockState(partyBox, partyOverlay, locked);
         toggleBoxLockState(budgetBox, budgetOverlay, locked);
-        toggleBoxLockState(seedBox, seedOverlay, locked);
         toggleBoxLockState(durationBox, durationOverlay, locked);
         toggleBoxLockState(randomBox, randomOverlay, locked);
     }
