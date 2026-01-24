@@ -19,15 +19,15 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Handles the graphical visualization of the simulation on a canvas.
+ * Verwaltet die grafische Visualisierung der Simulation auf einem Canvas.
  *
  * @author Nico Hoffmann
- * @version 1.2
+ * @version 1.0
  */
 public class CanvasRenderer {
 
     // ========================================
-    // Static Variables
+    // Statische Variablen
     // ========================================
 
     private static final double ROTATION_SPEED = 1.5;
@@ -41,7 +41,7 @@ public class CanvasRenderer {
     private static final Color ERROR_COLOR = Color.MAGENTA;
 
     // ========================================
-    // Instance Variables
+    // Instanzvariablen
     // ========================================
 
     private final Canvas canvas;
@@ -59,13 +59,13 @@ public class CanvasRenderer {
     private final List<MovingVoter> activeParticles = new ArrayList<>();
 
     // ========================================
-    // Constructors
+    // Konstruktoren
     // ========================================
 
     /**
-     * Initializes the renderer and binds it to the provided pane.
+     * Initialisiert den Renderer und bindet ihn an das bereitgestellte Container-Pane.
      *
-     * @param animationPane the pane containing the canvas
+     * @param animationPane Das Pane, in welches das Canvas eingefügt wird.
      */
     public CanvasRenderer(Pane animationPane) {
         this.canvas = new Canvas(0, 0);
@@ -103,7 +103,7 @@ public class CanvasRenderer {
     }
 
     // ========================================
-    // Getter Methods
+    // Getter-Methoden
     // ========================================
 
     public Canvas getCanvas() {
@@ -115,7 +115,7 @@ public class CanvasRenderer {
     }
 
     // ========================================
-    // Business Logic Methods
+    // Business-Logik-Methoden
     // ========================================
 
     public void startVisualTimer() {
@@ -135,6 +135,12 @@ public class CanvasRenderer {
         recalculatePartyPositions(parties);
     }
 
+    /**
+     * Aktualisiert den internen Zustand des Renderers mit neuen Simulationsdaten und erzeugt Partikel.
+     * @param parties Die aktuelle Liste der Parteien.
+     * @param transitions Eine Liste der Wählerwanderungen zwischen Parteien.
+     * @param totalVoters Die Gesamtanzahl der Wähler in der Simulation.
+     */
     public void update(List<Party> parties, List<VoterTransition> transitions, int totalVoters) {
         this.currentParties = parties;
         this.currentTotalVoters = Math.max(1, totalVoters);
@@ -147,9 +153,12 @@ public class CanvasRenderer {
     }
 
     // ========================================
-    // Utility Methods
+    // Hilfsmethoden (Utility)
     // ========================================
 
+    /**
+     * Hauptmethode für den Zeichenvorgang. Aktualisiert das Framework und zeichnet Gitter, Knoten sowie Partikel.
+     */
     private void renderCanvas() {
         adaptiveManager.updateFrame();
 
@@ -166,6 +175,9 @@ public class CanvasRenderer {
         drawParticles();
     }
 
+    /**
+     * Zeichnet gestrichelte Linien zwischen allen Parteiknoten, um ein Netzwerk-Gitter darzustellen.
+     */
     private void drawNetworkGrid() {
         gc.setLineDashes(4, 6);
         gc.setStroke(GRID_COLOR);
@@ -183,6 +195,10 @@ public class CanvasRenderer {
         gc.setLineDashes((double[]) null);
     }
 
+    /**
+     * Zeichnet die einzelnen Parteiknoten und deren visuelle Effekte.
+     * @param leader Die aktuell stärkste Partei.
+     */
     private void drawPartyNodes(Party leader) {
         for (Party p : currentParties) {
             Point pt = partyPositions.get(p.getName());
@@ -209,6 +225,13 @@ public class CanvasRenderer {
         }
     }
 
+    /**
+     * Zeichnet die Textbeschriftungen für eine Partei.
+     * @param p Die betreffende Partei.
+     * @param pt Die Position des Knotens.
+     * @param halfSize Die halbe Größe des Knotens für den Versatz des Textes.
+     * @param share Der aktuelle Wähleranteil.
+     */
     private void drawNodeLabels(Party p, Point pt, double halfSize, double share) {
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setFont(Font.font("Consolas", FontWeight.BOLD, 12 * currentScaleFactor));
@@ -254,6 +277,11 @@ public class CanvasRenderer {
         gc.setEffect(null);
     }
 
+    /**
+     * Versucht den Farbcode einer Partei zu interpretieren. Verwendet eine Fehlerfarbe bei Misserfolg.
+     * @param p Die zu prüfende Partei.
+     * @return Ein gültiges JavaFX Color-Objekt.
+     */
     private Color safeParseColor(Party p) {
         if (p.getName().equals(SimulationConfig.UNDECIDED_NAME)) {
             return SimulationConfig.UNDECIDED_COLOR;
@@ -275,6 +303,12 @@ public class CanvasRenderer {
         }
     }
 
+    /**
+     * Zeichnet eine rotierende, rote Zielmarkierung an der angegebenen Position.
+     * @param x X-Koordinate des Zentrums.
+     * @param y Y-Koordinate des Zentrums.
+     * @param size Gesamtdurchmesser der Markierung.
+     */
     private void drawTargetLock(double x, double y, double size) {
         gc.save();
         gc.translate(x, y);
@@ -294,6 +328,13 @@ public class CanvasRenderer {
         gc.restore();
     }
 
+    /**
+     * Zeichnet ein dezentes Fadenkreuz innerhalb eines Parteiknotens.
+     * @param x X-Koordinate des Zentrums.
+     * @param y Y-Koordinate des Zentrums.
+     * @param size Größe des Fadenkreuzes.
+     * @param color Die Farbe der Linien.
+     */
     private void drawCrosshair(double x, double y, double size, Color color) {
         gc.setStroke(color.deriveColor(0, 1, 1, 0.5));
         gc.setLineWidth(1.0);
@@ -302,6 +343,10 @@ public class CanvasRenderer {
         gc.strokeLine(x, y - len, x, y + len);
     }
 
+    /**
+     * Ordnet die Parteiknoten kreisförmig auf dem Canvas an. Berücksichtigt dabei die aktuelle Größe.
+     * @param parties Die Liste der Parteien, die positioniert werden sollen.
+     */
     private void recalculatePartyPositions(List<Party> parties) {
         partyPositions.clear();
         double centerX = canvas.getWidth() / 2;
@@ -321,6 +366,10 @@ public class CanvasRenderer {
         }
     }
 
+    /**
+     * Erzeugt neue Partikelobjekte basierend auf den übergebenen Wählerwanderungen.
+     * @param transitions Die Liste der Wanderungsereignisse.
+     */
     private void spawnParticles(List<VoterTransition> transitions) {
         int maxParticles = adaptiveManager.getMaxParticles();
 
@@ -343,22 +392,33 @@ public class CanvasRenderer {
     }
 
     // ========================================
-    // Inner Classes
+    // Innere Klassen / Records
     // ========================================
 
     /**
-     * Represents a point in 2D space.
+     * Repräsentiert einen Punkt im zweidimensionalen Raum.
      *
-     * @param x the x coordinate
-     * @param y the y coordinate
+     * @param x Die x-Koordinate.
+     * @param y Die y-Koordinate.
      */
     public record Point(double x, double y) {}
 
+    /**
+     * Repräsentiert einen sich bewegenden Partikel auf dem Canvas.
+     */
     private static class MovingVoter {
         double startX, startY, targetX, targetY, x, y, progress, speedStep;
         Color color;
         boolean arrived;
 
+        /**
+         * Setzt den Partikel für einen neuen Bewegungspfad mit zufälligem Versatz (Noise) zurück.
+         * @param sx Start-X-Koordinate.
+         * @param sy Start-Y-Koordinate.
+         * @param tx Ziel-X-Koordinate.
+         * @param ty Ziel-Y-Koordinate.
+         * @param c Farbe des Partikels.
+         */
         void reset(double sx, double sy, double tx, double ty, Color c) {
             double noise = 15.0;
             this.startX = sx + (Math.random() - 0.5) * noise;
@@ -373,6 +433,9 @@ public class CanvasRenderer {
             this.speedStep = 0.010 + (Math.random() * 0.015);
         }
 
+        /**
+         * Berechnet die neue Position des Partikels basierend auf dem Fortschritt und einer Easing-Funktion.
+         */
         void move() {
             if (arrived) return;
             progress += speedStep;
@@ -385,6 +448,10 @@ public class CanvasRenderer {
             this.y = startY + (targetY - startY) * t;
         }
 
+        /**
+         * Gibt an, ob der Partikel seine Zielkoordinaten erreicht hat.
+         * @return true, wenn das Ziel erreicht wurde.
+         */
         boolean hasArrived() {
             return arrived;
         }
