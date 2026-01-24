@@ -16,12 +16,12 @@ import java.util.ResourceBundle;
 /**
  * Controller für die Parlamentsansicht.
  * @author Nico Hoffmann
- * @version 1.1
+ * @version 1.0
  */
 public class ParliamentController {
 
     // ========================================
-    // Instanzvariablen
+    // Instance Variables
     // ========================================
 
     @FXML private Pane canvasContainer;
@@ -32,7 +32,7 @@ public class ParliamentController {
     private Parent previousView;
 
     // ========================================
-    // Business-Logik-Methoden
+    // Business Logic Methods
     // ========================================
 
     /**
@@ -56,7 +56,7 @@ public class ParliamentController {
     }
 
     // ========================================
-    // Hilfsmethoden
+    // Utility Methods
     // ========================================
 
     private void setupInteractions() {
