@@ -10,7 +10,8 @@ import javafx.util.Duration;
 import java.util.Locale;
 
 /**
- * Utility class for global visual effects and responsive UI scaling.
+ * Utility Klasse für globale Effekte und responsives UI Skalierung.
+
  * @author Nico Hoffmann
  * @version 1.0
  */
@@ -99,11 +100,6 @@ public final class VisualFX {
         timeline.play();
     }
 
-    /**
-     * Starts a pulsing effect in the specified color.
-     * @param node the target node
-     * @param color the pulse color
-     */
     public static void startPulse(Node node, Color color) {
         if (node == null) return;
 
@@ -128,10 +124,6 @@ public final class VisualFX {
         node.getProperties().put(KEY_PULSE_ANIMATION, fadeTransition);
     }
 
-    /**
-     * Stops the pulsing effect and resets the node.
-     * @param node the target node
-     */
     public static void stopPulse(Node node) {
         if (node == null) return;
 
