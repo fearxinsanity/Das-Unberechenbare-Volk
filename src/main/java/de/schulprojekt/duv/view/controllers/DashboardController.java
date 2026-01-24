@@ -40,7 +40,15 @@ import java.util.logging.Logger;
  */
 public class DashboardController {
 
+    // ========================================
+    // Static Variables
+    // ========================================
+
     private static final Logger LOGGER = Logger.getLogger(DashboardController.class.getName());
+
+    // ========================================
+    // Instance Variables
+    // ========================================
 
     @FXML private ScrollPane scandalTickerScroll;
     @FXML private HBox scandalTickerBox;
@@ -96,8 +104,16 @@ public class DashboardController {
 
     private ResourceBundle bundle;
 
+    // ========================================
+    // Constructors
+    // ========================================
+
     public DashboardController() {
     }
+
+    // ========================================
+    // Public Methods (Life Cycle & Update)
+    // ========================================
 
     @FXML
     public void initialize() {
@@ -132,33 +148,15 @@ public class DashboardController {
         updateVisualizations(parties, transitions, scandal, step);
     }
 
-    private void handleStepLogic(List<Party> parties, int step) {
-        stateManager.setCurrentTick(step);
-        if (step == 0) {
-            chartManager.clear();
-            canvasRenderer.clear(parties);
-            feedManager.clear();
-        }
-        stateManager.updateStatusDisplay(controller.isRunning());
-    }
-
-    private void updateControlElements() {
-        String buttonKey = controller.isRunning() ? "dash.pause" : "dash.execute";
-        executeToggleButton.setText(bundle.getString(buttonKey));
-    }
-
-    private void updateVisualizations(List<Party> parties, List<VoterTransition> transitions, ScandalEvent scandal, int step) {
-        feedManager.processScandal(scandal, step);
-        chartManager.update(parties, step);
-        canvasRenderer.update(parties, transitions, controller.getCurrentParameters().populationSize());
-        if (scandal != null) uiManager.triggerSidebarGlitch();
-    }
-
     public void shutdown() {
         if (controller != null) controller.shutdown();
         if (canvasRenderer != null) canvasRenderer.stop();
         if (stateManager != null) stateManager.stopTimer();
     }
+
+    // ========================================
+    // Business Logic Methods (Event Handlers)
+    // ========================================
 
     @FXML
     public void handleToggleSimulation() {
@@ -260,6 +258,32 @@ public class DashboardController {
             ParliamentController parliamentController = loader.getController();
             parliamentController.initData(controller.getParties(), executeToggleButton.getScene().getRoot());
         });
+    }
+
+    // ========================================
+    // Utility Methods
+    // ========================================
+
+    private void handleStepLogic(List<Party> parties, int step) {
+        stateManager.setCurrentTick(step);
+        if (step == 0) {
+            chartManager.clear();
+            canvasRenderer.clear(parties);
+            feedManager.clear();
+        }
+        stateManager.updateStatusDisplay(controller.isRunning());
+    }
+
+    private void updateControlElements() {
+        String buttonKey = controller.isRunning() ? "dash.pause" : "dash.execute";
+        executeToggleButton.setText(bundle.getString(buttonKey));
+    }
+
+    private void updateVisualizations(List<Party> parties, List<VoterTransition> transitions, ScandalEvent scandal, int step) {
+        feedManager.processScandal(scandal, step);
+        chartManager.update(parties, step);
+        canvasRenderer.update(parties, transitions, controller.getCurrentParameters().populationSize());
+        if (scandal != null) uiManager.triggerSidebarGlitch();
     }
 
     private void initializeManagers() {
